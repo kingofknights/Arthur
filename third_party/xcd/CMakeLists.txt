@@ -1,0 +1,24 @@
+project(XCD C)
+add_library(XCD
+        adler32.c
+        compress.c
+        deflate.h
+        inffast.c
+        inffixed.h
+        inflate.h
+        inftrees.h
+        libxcd.h
+        trees.h
+        zconf.h
+        zutil.c
+        deflate.c
+        infback.c
+        inffast.h
+        inflate.c
+        inftrees.c
+        libxcd.c
+        trees.c
+        uncompr.c
+        zlib.h
+        zutil.h
+        )

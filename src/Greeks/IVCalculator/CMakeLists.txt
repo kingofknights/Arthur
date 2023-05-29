@@ -1,0 +1,1 @@
+add_library(IV black_scholes.h black_scholes.cpp bs_prices.h interval_bisection.h Model2.cpp Model2.h)
