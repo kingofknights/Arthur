@@ -33,17 +33,19 @@ int main(int argc_, char** argv_) {
 	if (time > expiryTime) {
 		LOG(ERROR, "{}", "Trail Peroid Over!! Self Deleting")
 		std::remove(argv_[0]);
-		return 0;
+		return EXIT_SUCCESS;
 	}
 
 	// Setup SDL
+	LOG(INFO, "{}", "SDL_Init")
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO) != 0) {
-		printf("Error: SDL_Init(): %s\n", SDL_GetError());
-		return -1;
+		LOG(ERROR, "Error: SDL_Init(): {}", SDL_GetError())
+		return EXIT_FAILURE;
 	}
-
+	LOG(INFO, "{}", "SDL_Init Done!")
 	// Decide GL+GLSL versions
 #if defined(IMGUI_IMPL_OPENGL_ES2)
+	LOG(INFO, "Using OpenGL {}", "GL ES 2.0 + GLSL 100")
 	// GL ES 2.0 + GLSL 100
 	const char* glsl_version = "#version 100";
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
@@ -52,6 +54,7 @@ int main(int argc_, char** argv_) {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 #elif defined(__APPLE__)
 	// GL 3.2 Core + GLSL 150
+	LOG(INFO, "Using OpenGL {}", "GL 3.2 Core + GLSL 150")
 	const char* glsl_version = "#version 150";
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);	// Always required on Mac
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -59,6 +62,7 @@ int main(int argc_, char** argv_) {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 #else
 	// GL 3.0 + GLSL 130
+	LOG(INFO, "Using OpenGL {}", "GL 3.0 + GLSL 130")
 	const char* glsl_version = "#version 130";
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -73,11 +77,11 @@ int main(int argc_, char** argv_) {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
+	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_MAXIMIZED);
 	SDL_Window*		window		 = SDL_CreateWindow("Arthur", 1280, 720, window_flags);
 	if (window == nullptr) {
-		printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
-		return -1;
+		LOG(ERROR, "Error: SDL_CreateWindow(): {}", SDL_GetError())
+		return EXIT_FAILURE;
 	}
 	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 	SDL_GLContext gl_context = SDL_GL_CreateContext(window);
@@ -108,8 +112,16 @@ int main(int argc_, char** argv_) {
 	}
 
 	// Setup Platform/Renderer backends
-	ImGui_ImplSDL3_InitForOpenGL(window, gl_context);
-	ImGui_ImplOpenGL3_Init(glsl_version);
+	LOG(INFO, "{}", "ImGui_ImplSDL3_InitForOpenGL")
+	if (ImGui_ImplSDL3_InitForOpenGL(window, gl_context)) {
+		LOG(ERROR, "ImGui_ImplSDL3_InitForOpenGL : {}", "failed")
+		return EXIT_FAILURE;
+	}
+	LOG(INFO, "{} {}", "ImGui_ImplOpenGL3_Init", glsl_version)
+	if (ImGui_ImplOpenGL3_Init(glsl_version)) {
+		LOG(ERROR, "ImGui_ImplOpenGL3_Init : {}", "failed")
+		return EXIT_FAILURE;
+	}
 
 	// Load Fonts
 	// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
@@ -191,13 +203,24 @@ int main(int argc_, char** argv_) {
 		LOG(INFO, "{}", "Exiting App")
 	}
 	LOG(INFO, "{}", "Exited App")
+
 	ImGui_ImplOpenGL3_Shutdown();
+	LOG(INFO, "{}", "ImGui_ImplOpenGL3_Shutdown")
+
 	ImGui_ImplSDL3_Shutdown();
+	LOG(INFO, "{}", "ImGui_ImplSDL3_Shutdown")
+
 	ImGui::DestroyContext();
+	LOG(INFO, "{}", "ImGui::DestroyContex")
 
 	SDL_GL_DeleteContext(gl_context);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
+	LOG(INFO, "{}", "SDL_GL_DeleteContext")
 
-	return 0;
+	SDL_DestroyWindow(window);
+	LOG(INFO, "{}", "SDL_DestroyWindow")
+
+	SDL_Quit();
+	LOG(INFO, "{}", "SDL_Quit")
+
+	return EXIT_SUCCESS;
 }
