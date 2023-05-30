@@ -55,9 +55,10 @@ include_directories(third_party/SDL-main/include)
 
 set(FONT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Font/Ruda-Bold.ttf
 	    ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Font/MaterialIcons-Regular.ttf
+		${CMAKE_CURRENT_SOURCE_DIR}/Resources/collide.wav
 	    )
 
 set(APP_ICON_RESOURCE_WINDOWS ${CMAKE_CURRENT_SOURCE_DIR}/Resources/app.rc)
 add_subdirectory(src)
 
-add_custom_target(doc SOURCES README.md Features/FEATURES.md emscipten.bat .gitmodules .gitignore)
+add_custom_target(doc SOURCES README.md Features/FEATURES.md emscipten.bat .gitignore)

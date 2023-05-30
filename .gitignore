@@ -1,0 +1,8 @@
+build
+.idea
+Features
+Resources/Screenshot
+.vcode
+.vs
+out
+*.user
