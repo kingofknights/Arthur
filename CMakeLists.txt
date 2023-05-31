@@ -60,5 +60,3 @@ set(FONT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Font/Ruda-Bold.ttf
 
 set(APP_ICON_RESOURCE_WINDOWS ${CMAKE_CURRENT_SOURCE_DIR}/Resources/app.rc)
 add_subdirectory(src)
-
-add_custom_target(doc SOURCES README.md Features/FEATURES.md emscipten.bat .gitignore)
