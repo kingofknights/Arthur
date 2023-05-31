@@ -77,7 +77,7 @@ int main(int argc_, char** argv_) {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_MAXIMIZED);
+	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
 	SDL_Window*		window		 = SDL_CreateWindow("Arthur", 1280, 720, window_flags);
 	if (window == nullptr) {
 		LOG(ERROR, "Error: SDL_CreateWindow(): {}", SDL_GetError())
@@ -113,12 +113,12 @@ int main(int argc_, char** argv_) {
 
 	// Setup Platform/Renderer backends
 	LOG(INFO, "{}", "ImGui_ImplSDL3_InitForOpenGL")
-	if (ImGui_ImplSDL3_InitForOpenGL(window, gl_context)) {
+	if (not ImGui_ImplSDL3_InitForOpenGL(window, gl_context)) {
 		LOG(ERROR, "ImGui_ImplSDL3_InitForOpenGL : {}", "failed")
 		return EXIT_FAILURE;
 	}
 	LOG(INFO, "{} {}", "ImGui_ImplOpenGL3_Init", glsl_version)
-	if (ImGui_ImplOpenGL3_Init(glsl_version)) {
+	if (not ImGui_ImplOpenGL3_Init(glsl_version)) {
 		LOG(ERROR, "ImGui_ImplOpenGL3_Init : {}", "failed")
 		return EXIT_FAILURE;
 	}

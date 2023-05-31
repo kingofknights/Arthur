@@ -1,10 +1,10 @@
 #include "../include/GreekBook.hpp"
 
+#include <Greeks/Greeks.hpp>
 #include <iterator>
 #include <numeric>
 
 #include "../API/ContractInfo.hpp"
-#include "../Greeks/Greeks.hpp"
 #include "../include/Configuration.hpp"
 #include "../include/Logger.hpp"
 #include "../include/TableColumnInfo.hpp"

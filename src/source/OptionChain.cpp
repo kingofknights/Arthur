@@ -1,7 +1,8 @@
 #include "../include/OptionChain.hpp"
 
+#include <Greeks/Greeks.hpp>
+
 #include "../API/ContractInfo.hpp"
-#include "../Greeks/Greeks.hpp"
 #include "../include/Colors.hpp"
 #include "../include/Configuration.hpp"
 #include "../include/Enums.hpp"

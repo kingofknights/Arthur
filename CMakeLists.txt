@@ -56,6 +56,7 @@ include_directories(third_party/SDL-main/include)
 set(FONT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Font/Ruda-Bold.ttf
 	    ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Font/MaterialIcons-Regular.ttf
 		${CMAKE_CURRENT_SOURCE_DIR}/Resources/collide.wav
+		${CMAKE_CURRENT_SOURCE_DIR}/Resources/ResultSet.db3
 	    )
 
 set(APP_ICON_RESOURCE_WINDOWS ${CMAKE_CURRENT_SOURCE_DIR}/Resources/app.rc)
