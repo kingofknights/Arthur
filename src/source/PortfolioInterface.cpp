@@ -373,6 +373,4 @@ void PortfolioInterface::doStrategyAction(const StrategyRowPtrT& strategy_, cons
 	_strand.post([strategy_, type_, name_]() { StrategyAction(strategy_, name_, type_); });
 }
 
-void PortfolioInterface::setStrategyActionCallback(StrategyActionT StrategyAction_) {
-	StrategyAction = std::move(StrategyAction_);
-}
+void PortfolioInterface::setStrategyActionCallback(StrategyActionT StrategyAction_) { StrategyAction = std::move(StrategyAction_); }

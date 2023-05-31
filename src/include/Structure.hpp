@@ -284,11 +284,11 @@ using ScannerResultOutputT = struct ScannerResultOutputT {
 #pragma pack(pop)
 
 struct Singleton {
-	Singleton()					 = default;
-	Singleton(const Singleton &) = delete;
-	Singleton(Singleton &&)		 = delete;
+	Singleton()								= default;
+	Singleton(const Singleton &)			= delete;
+	Singleton(Singleton &&)					= delete;
 	Singleton &operator=(const Singleton &) = delete;
-	Singleton &operator=(Singleton &&) = delete;
+	Singleton &operator=(Singleton &&)		= delete;
 };
 
 class ExcelAutomation;

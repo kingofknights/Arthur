@@ -22,11 +22,6 @@ public:
 	static double GetOptionPrice(double s, double k, double v, double r, double t, bool IsCall);
 
 	static double GetExpiryGap(uint32_t Time);
-
-	static constexpr float GAMMA_MULTIPLE_BY_VALUE = 100.0f;
-	static constexpr float THETA_MULTIPLE_BY_VALUE = 10000.0f;
-	static constexpr float VEGA_MULTIPLE_BY_VALUE  = 365.0f;
-	static constexpr float RHO_DIVIDE_BY_VALUE	   = 10000.0f;
 };
 
 #endif	// GREEKS_HPP

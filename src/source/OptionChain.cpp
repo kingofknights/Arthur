@@ -60,16 +60,16 @@ void OptionChain::DrawOptionChain(bool* show_) {
 				float expiryGap	   = Greeks::GetExpiryGap(Put.ResultSet.ExpiryDate);
 				float rate		   = 0.0f;
 				float call_IV	   = Greeks::GetIV(priceForCall, valueType_.first, rate, expiryGap, Call.Self->LastTradePrice, true);
-				float call_Theta   = Greeks::GetTheta(priceForCall, valueType_.first, call_IV, rate, expiryGap, true) * Greeks::THETA_MULTIPLE_BY_VALUE;
-				float call_Vega	   = Greeks::GetVega(priceForCall, valueType_.first, call_IV, rate, expiryGap, true) * Greeks::VEGA_MULTIPLE_BY_VALUE;
-				float call_Gamma   = Greeks::GetGamma(priceForCall, valueType_.first, call_IV, rate, expiryGap, true) * Greeks::GAMMA_MULTIPLE_BY_VALUE;
+				float call_Theta   = Greeks::GetTheta(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
+				float call_Vega	   = Greeks::GetVega(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
+				float call_Gamma   = Greeks::GetGamma(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
 				float call_Delta   = Greeks::GetDelta(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
 
 				float priceForPut = _future->Ask[0].Price ? _future->Ask[0].Price : _future->LastTradePrice;
 				float put_IV	  = Greeks::GetIV(priceForPut, valueType_.first, rate, expiryGap, Put.Self->LastTradePrice, false);
-				float put_Theta	  = Greeks::GetTheta(priceForPut, valueType_.first, put_IV, rate, expiryGap, false) * Greeks::THETA_MULTIPLE_BY_VALUE;
-				float put_Vega	  = Greeks::GetVega(priceForPut, valueType_.first, put_IV, rate, expiryGap, false) * Greeks::VEGA_MULTIPLE_BY_VALUE;
-				float put_Gamma	  = Greeks::GetGamma(priceForPut, valueType_.first, put_IV, rate, expiryGap, false) * Greeks::GAMMA_MULTIPLE_BY_VALUE;
+				float put_Theta	  = Greeks::GetTheta(priceForPut, valueType_.first, put_IV, rate, expiryGap, false);
+				float put_Vega	  = Greeks::GetVega(priceForPut, valueType_.first, put_IV, rate, expiryGap, false);
+				float put_Gamma	  = Greeks::GetGamma(priceForPut, valueType_.first, put_IV, rate, expiryGap, false);
 				float put_Delta	  = Greeks::GetDelta(priceForPut, valueType_.first, put_IV, rate, expiryGap, false);
 
 				ImU32 color		= ImGui::GetColorU32(COLOR_GRAY);

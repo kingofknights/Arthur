@@ -3,12 +3,12 @@
 #include "Colors.hpp"
 
 constexpr ImGuiTableFlags GetTableFlags() {
-	ImGuiTableFlags Flags = ImGuiTableFlags_RowBg;
-	Flags |= ImGuiTableFlags_Resizable;
-	Flags |= ImGuiTableFlags_ScrollX;
-	Flags |= ImGuiTableFlags_ScrollY;
-	Flags |= ImGuiTableFlags_Borders;
-	Flags |= ImGuiTableFlags_Reorderable;
+	ImGuiTableFlags Flags  = ImGuiTableFlags_RowBg;
+	Flags				  |= ImGuiTableFlags_Resizable;
+	Flags				  |= ImGuiTableFlags_ScrollX;
+	Flags				  |= ImGuiTableFlags_ScrollY;
+	Flags				  |= ImGuiTableFlags_Borders;
+	Flags				  |= ImGuiTableFlags_Reorderable;
 	//	Flags |= ImGuiTableFlags_NoHostExtendX;
 	//	Flags |= ImGuiTableFlags_NoHostExtendY;
 
@@ -16,38 +16,36 @@ constexpr ImGuiTableFlags GetTableFlags() {
 }
 
 constexpr ImGuiSelectableFlags GetSelectableFlags() {
-	ImGuiSelectableFlags Flags = ImGuiSelectableFlags_SpanAllColumns;
-	Flags |= ImGuiSelectableFlags_AllowItemOverlap;
+	ImGuiSelectableFlags Flags	= ImGuiSelectableFlags_SpanAllColumns;
+	Flags					   |= ImGuiSelectableFlags_AllowItemOverlap;
 	return Flags;
 }
 
 constexpr ImGuiTabBarFlags GetStrategyWorkspaceTabFlags() {
-	ImGuiTabBarFlags Flags = ImGuiTabBarFlags_Reorderable;
-	Flags |= ImGuiTabBarFlags_AutoSelectNewTabs;
-	Flags |= ImGuiTabBarFlags_NoCloseWithMiddleMouseButton;
-	Flags |= ImGuiTabBarFlags_TabListPopupButton;
-	Flags |= ImGuiTabBarFlags_FittingPolicyScroll;
+	ImGuiTabBarFlags Flags	= ImGuiTabBarFlags_Reorderable;
+	Flags				   |= ImGuiTabBarFlags_AutoSelectNewTabs;
+	Flags				   |= ImGuiTabBarFlags_NoCloseWithMiddleMouseButton;
+	Flags				   |= ImGuiTabBarFlags_TabListPopupButton;
+	Flags				   |= ImGuiTabBarFlags_FittingPolicyScroll;
 	return Flags;
 }
 
 constexpr ImGuiWindowFlags GetMenuBarFlags() {
-	ImGuiWindowFlags Flags = ImGuiWindowFlags_NoScrollbar;
-	Flags |= ImGuiWindowFlags_NoSavedSettings;
-	Flags |= ImGuiWindowFlags_MenuBar;
+	ImGuiWindowFlags Flags	= ImGuiWindowFlags_NoScrollbar;
+	Flags				   |= ImGuiWindowFlags_NoSavedSettings;
+	Flags				   |= ImGuiWindowFlags_MenuBar;
 	return Flags;
 }
 
-constexpr ImGuiTabItemFlags GetPortfolioTabFlags() {
-	return ImGuiTabItemFlags_NoCloseWithMiddleMouseButton;
-}
+constexpr ImGuiTabItemFlags GetPortfolioTabFlags() { return ImGuiTabItemFlags_NoCloseWithMiddleMouseButton; }
 
 constexpr ImGuiWindowFlags GetOverlayFlags() {
-	ImGuiWindowFlags Flags = ImGuiWindowFlags_NoDecoration;
-	Flags |= ImGuiWindowFlags_NoDocking;
-	Flags |= ImGuiWindowFlags_AlwaysAutoResize;
-	Flags |= ImGuiWindowFlags_NoSavedSettings;
-	Flags |= ImGuiWindowFlags_NoFocusOnAppearing;
-	Flags |= ImGuiWindowFlags_NoNav;
+	ImGuiWindowFlags Flags	= ImGuiWindowFlags_NoDecoration;
+	Flags				   |= ImGuiWindowFlags_NoDocking;
+	Flags				   |= ImGuiWindowFlags_AlwaysAutoResize;
+	Flags				   |= ImGuiWindowFlags_NoSavedSettings;
+	Flags				   |= ImGuiWindowFlags_NoFocusOnAppearing;
+	Flags				   |= ImGuiWindowFlags_NoNav;
 	return Flags;
 }
 

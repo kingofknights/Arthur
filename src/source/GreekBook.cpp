@@ -13,13 +13,13 @@
 template <typename Type>
 void UpdateTradeInfoNetbook(Type& data, const OrderInfoPtrT& tradeInfo_) {
 	if (tradeInfo_->Side == Side_BUY) {
-		data->TotalBuyPrice	  += tradeInfo_->Price * tradeInfo_->Quantity;
-		data->BuyQuantity	  += tradeInfo_->Quantity;
-		data->AverageBuyPrice  = data->TotalBuyPrice / data->BuyQuantity;
+		data->TotalBuyPrice += tradeInfo_->Price * tradeInfo_->Quantity;
+		data->BuyQuantity += tradeInfo_->Quantity;
+		data->AverageBuyPrice = data->TotalBuyPrice / data->BuyQuantity;
 	} else {
-		data->TotalSellPrice   += tradeInfo_->Price * tradeInfo_->Quantity;
-		data->SellQuantity	   += tradeInfo_->Quantity;
-		data->AverageSellPrice	= data->TotalSellPrice / data->SellQuantity;
+		data->TotalSellPrice += tradeInfo_->Price * tradeInfo_->Quantity;
+		data->SellQuantity += tradeInfo_->Quantity;
+		data->AverageSellPrice = data->TotalSellPrice / data->SellQuantity;
 	}
 }
 
@@ -79,7 +79,9 @@ void GreekBook::DrawBook(bool* show_) {
 	ImGui::End();
 }
 
-GreekBook::GreekBook(boost::asio::io_context& ioContext_) : _timer(ioContext_) { TimerEvent(); }
+GreekBook::GreekBook(boost::asio::io_context& ioContext_) : _timer(ioContext_) {
+	TimerEvent();
+}
 
 void GreekBook::Insert(const OrderInfoPtrT& tradeInfo_) {
 	// SymbolBoolWiseBookUpdate(tradeInfo_);
@@ -100,7 +102,9 @@ void GreekBook::paint(bool* show_) {
 	}
 }
 
-void GreekBook::SymbolBoolWiseBookUpdate(const OrderInfoPtrT& tradeInfo_) { UpdateNetBook(_symbolWiseTradeContainer, _symbolWiseTradeContainerVec, tradeInfo_->Token, tradeInfo_); }
+void GreekBook::SymbolBoolWiseBookUpdate(const OrderInfoPtrT& tradeInfo_) {
+	UpdateNetBook(_symbolWiseTradeContainer, _symbolWiseTradeContainerVec, tradeInfo_->Token, tradeInfo_);
+}
 
 void GreekBook::PFWiseBookUpdate(const OrderInfoPtrT& tradeInfo_) {
 	std::pair<int, int> key = std::make_pair(tradeInfo_->PF, tradeInfo_->Token);
@@ -270,19 +274,19 @@ void GreekBook::DrawGreekNetBook() {
 		DValue.Vega	 = Qty * column->Greeks->Vega;
 		DValue.Theta = Qty * column->Greeks->Theta;
 
-		M2M	  += DValue.MTM;
+		M2M += DValue.MTM;
 		Theta += DValue.Theta;
-		Vega  += DValue.Vega;
+		Vega += DValue.Vega;
 
 		auto iterator = ValueT.find(column->Symbol);
 		if (iterator != ValueT.end()) {
-			auto& value	 = iterator->second;
+			auto& value = iterator->second;
 			value.Delta += DValue.Delta;
 			value.Gamma += DValue.Gamma;
-			value.Vega	+= DValue.Vega;
+			value.Vega += DValue.Vega;
 			value.Theta += DValue.Theta;
-			value.MTM	+= DValue.MTM;
-			value.Value	 = value.MarketRate * value.Delta;
+			value.MTM += DValue.MTM;
+			value.Value = value.MarketRate * value.Delta;
 		} else {
 			DValue.Symbol = column->Symbol;
 			ValueT.emplace(column->Symbol, DValue);
@@ -340,9 +344,9 @@ void GreekBook::UpdateGreekValue() {
 
 			column->IV	  = Greeks::GetIV(LTP, column->StrikePrice, 0, ExpiryGap, column->Self->LastTradePrice, column->IsCall);
 			column->Delta = Greeks::GetDelta(LTP, column->StrikePrice, column->IV, 0, ExpiryGap, column->IsCall);
-			column->Gamma = Greeks::GetGamma(LTP, column->StrikePrice, column->IV, 0, ExpiryGap, column->IsCall) * Greeks::GAMMA_MULTIPLE_BY_VALUE;
-			column->Vega  = Greeks::GetVega(LTP, column->StrikePrice, column->IV, 0, ExpiryGap, column->IsCall) * Greeks::VEGA_MULTIPLE_BY_VALUE;
-			column->Theta = Greeks::GetTheta(LTP, column->StrikePrice, column->IV, 0, ExpiryGap, column->IsCall) * Greeks::THETA_MULTIPLE_BY_VALUE;
+			column->Gamma = Greeks::GetGamma(LTP, column->StrikePrice, column->IV, 0, ExpiryGap, column->IsCall);
+			column->Vega  = Greeks::GetVega(LTP, column->StrikePrice, column->IV, 0, ExpiryGap, column->IsCall);
+			column->Theta = Greeks::GetTheta(LTP, column->StrikePrice, column->IV, 0, ExpiryGap, column->IsCall);
 		}
 	} else if (_calculation == NetBookCalculation_SYMBOL) {
 		auto copy = _symbolWiseTradeContainerVec;
