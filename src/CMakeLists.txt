@@ -28,6 +28,20 @@ if(NOT Greeks_POPULATED)
 	message(STATUS "Greeks_BINARY_DIR" ${greeks_BINARY_DIR})
 endif()
 
+FetchContent_Declare(
+  xcd
+  GIT_REPOSITORY https://github.com/kingofknights/xcd.git
+  OVERRIDE_FIND_PACKAGE
+)
+
+FetchContent_GetProperties(xcd)
+if(NOT xcd_POPULATED)
+	FetchContent_Populate(xcd)
+	add_subdirectory(${xcd_SOURCE_DIR} ${xcd_BINARY_DIR})
+	include_directories(${xcd_SOURCE_DIR})
+	message(STATUS "xcd_SOURCE_DIR" ${xcd_SOURCE_DIR})
+	message(STATUS "xcd_BINARY_DIR" ${xcd_BINARY_DIR})
+endif()
 
 
 add_subdirectory(include)
@@ -67,9 +81,6 @@ target_link_libraries(${PROJECT_NAME}
 		OpenGL::GL
 		${BOOST_LIBRARIES}
 		Threads::Threads
-		#pugixml
-		#pugixml::shared
-		#pugixml::pugixml
 	    )
 
 

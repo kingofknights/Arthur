@@ -4,8 +4,9 @@
 
 #include "Compression.h"
 
+#include <xcd/libxcd.h>
+
 #include "../include/Enums.hpp"
-#include "../xcd/libxcd.h"
 
 RequestInPackT Compression::CompressData(std::string_view order, uint64_t uid, RequestType type_) {
 	RequestInPackT requestInPack;
