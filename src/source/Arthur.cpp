@@ -429,7 +429,7 @@ void Arthur::startAllThreads() {
 		auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { marketEventHandler(token_); });
 		_threadGroup.push_back(std::move(thread));
 	}
-	// { _messageBroker->makeConnection("127.0.0.1", "8080"); }
+	{ _messageBroker->makeConnection("127.0.0.1", "54321"); }
 }
 
 void Arthur::marketEventHandler(std::stop_token& stopToken_) {
@@ -448,18 +448,26 @@ double MemoryUsage::GetRamUsage() {
 void Arthur::manualOrderRequestEvent(const ManualOrderInfoT& ManualOrderInfo, RequestType type_) {
 	std::string	   config		 = Utils::manualSerialize(ManualOrderInfo);
 	RequestInPackT requestInPack = Compression::CompressData(config, UserID, type_);
-
-	LOG(WARNING, "{} {}", config, type_)
+	if (_messageBroker) {
+		_messageBroker->Write_Async((char*)&requestInPack, sizeof(RequestInPackT));
+	}
+	LOG(WARNING, "{} {} {}", config, type_, requestInPack.Type)
 }
 
 void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_, RequestType type_) {
 	std::string	   config		 = Utils::strategySerialize(row_, name_, type_);
 	RequestInPackT requestInPack = Compression::CompressData(config, UserID, type_);
 	LOG(WARNING, "{} {}", config, type_)
+	if (_messageBroker) {
+		_messageBroker->Write_Async((char*)&requestInPack, sizeof(RequestInPackT));
+	}
 }
 
 void Arthur::cancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
 	std::string	   config		 = Utils::cancelOrderSerialize(orderInfo_);
 	RequestInPackT requestInPack = Compression::CompressData(config, UserID, RequestType_CANCEL);
 	LOG(WARNING, "{} {}", config, RequestType_CANCEL)
+	if (_messageBroker) {
+		_messageBroker->Write_Async((char*)&requestInPack, sizeof(RequestInPackT));
+	}
 }

@@ -5,6 +5,8 @@
 #include "../include/Structure.hpp"
 #include "../include/Utils.hpp"
 
+extern int UserID;
+
 TBaseSocket::TBaseSocket(boost::asio::io_context& ioContext_) {
 	this->_socket = std::make_shared<boost::asio::ip::tcp::socket>(ioContext_);
 	this->_strand = std::make_shared<boost::asio::io_service::strand>(ioContext_);
@@ -40,6 +42,11 @@ void TBaseSocket::internalConnectHandler(const boost::system::error_code& error_
 		_socket->set_option(boost::asio::socket_base::reuse_address(true));
 		_socket->set_option(boost::asio::ip::tcp::no_delay(true));
 		Utils::ResetPortfolio(StrategyStatus_INACTIVE);
+		RequestInPackT requestInPack;
+		requestInPack.UserIdentifier = UserID;
+		requestInPack.TotalSize		 = sizeof(RequestInPackT);
+		requestInPack.Type			 = RequestType_LOGIN;
+		Write_Sync((char*)&requestInPack, sizeof(RequestInPackT));
 		Read();
 	}
 }

@@ -1,7 +1,27 @@
 
 add_subdirectory(lzo)
 add_subdirectory(SDL-main)
+#[[
+include(FetchContent)
 
+FetchContent_Declare(
+  imgui
+  GIT_REPOSITORY https://github.com/ocornut/imgui.git
+  GIT_TAG docking
+  OVERRIDE_FIND_PACKAGE
+)
+
+FetchContent_GetProperties(imgui)
+if(NOT imgui_POPULATED)
+	FetchContent_Populate(imgui)
+	#add_subdirectory(${imgui_SOURCE_DIR} ${greeks_BINARY_DIR})
+	include_directories(${imgui_SOURCE_DIR})
+	message(STATUS "imgui_SOURCE_DIR" ${imgui_SOURCE_DIR})
+	message(STATUS "imgui_BINARY_DIR" ${imgui_BINARY_DIR})
+endif()
+
+set(IMGUI_DIR ${imgui_SOURCE_DIR})
+]]
 set(IMGUI_DIR imgui)
 set(BACKEND ${IMGUI_DIR}/backends)
 
