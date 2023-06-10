@@ -89,7 +89,7 @@ std::string Utils::strategySerialize(const StrategyRowPtrT& row_, const std::str
 					break;
 				}
 				case DataType_CONTRACT: {
-					arguments[key_] = ContractInfo::GetToken(value.Parameter.Text);
+					arguments[key_] = fmt::format("{}", ContractInfo::GetToken(value.Parameter.Text));
 					break;
 				}
 				case DataType_FLOAT: {
@@ -97,7 +97,7 @@ std::string Utils::strategySerialize(const StrategyRowPtrT& row_, const std::str
 					break;
 				}
 				case DataType_RADIO: {
-					arguments[key_] = value.Parameter.Check;
+					arguments[key_] = fmt::format("{}", value.Parameter.Check);
 					break;
 				}
 				case DataType_UPDATES:
@@ -164,7 +164,9 @@ std::optional<WeakStrategyRowPtrT> Utils::GetStrategyRow(uint32_t pf_) {
 	return std::nullopt;
 }
 
-void Utils::AppendPortfolio(uint32_t pf_, WeakStrategyRowPtrT ptr_) { GlobalStrategyList.emplace(pf_, ptr_); }
+void Utils::AppendPortfolio(uint32_t pf_, WeakStrategyRowPtrT ptr_) {
+	GlobalStrategyList.emplace(pf_, ptr_);
+}
 
 void Utils::ResetPortfolio(StrategyStatus status_) {
 	auto _ = std::async(std::launch::async, [&] {

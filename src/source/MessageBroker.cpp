@@ -21,7 +21,9 @@ void MessageBroker::process(const char* buffer_, size_t size_) {
 	int	 size	 = 0;
 	int	 success = Compression::DeCompressData((unsigned char*)request->Message.data(), request->CompressedMsgLen, (unsigned char*)buffer, &size);
 	if (success == 0) {
-		std::istringstream	  ss(buffer);
+		std::stringstream ss;
+		ss << (buffer);
+		LOG(INFO, "{} {}", __FUNCTION__, ss.str())
 		nlohmann::json		  json	   = nlohmann::json::parse(ss);
 		const nlohmann::json& response = json.at(JSON_PARAMS);
 		switch (request->Type) {
@@ -92,19 +94,24 @@ void MessageBroker::processStrategy(const nlohmann::json& input_, ResponseType t
 				break;
 			}
 			case ResponseType_SUBCRIBED: {
-				strategy->Status = StrategyStatus_ACTIVE;
+				strategy->Status	 = StrategyStatus_ACTIVE;
+				strategy->Subscribed = true;
 				break;
 			}
 			case ResponseType_APPLIED: {
-				strategy->Status = StrategyStatus_APPLIED;
+				strategy->Status	 = StrategyStatus_APPLIED;
+				strategy->Subscribed = true;
+				strategy->Changed	 = false;
 				break;
 			}
 			case ResponseType_UNSUBSCRIBED: {
-				strategy->Status = StrategyStatus_INACTIVE;
+				strategy->Status	 = StrategyStatus_INACTIVE;
+				strategy->Subscribed = false;
 				break;
 			}
 			case ResponseType_TERMINATED: {
-				strategy->Status = StrategyStatus_TERMINATED;
+				strategy->Status	 = StrategyStatus_TERMINATED;
+				strategy->Subscribed = false;
 				break;
 			}
 		}

@@ -5,6 +5,7 @@ set(HEADER_FILES
         ContractInfo.cpp
         TokenInfo.hpp
         TokenInfo.cpp
+        Common.hpp
         )
 
 add_library(API ${HEADER_FILES})
@@ -16,3 +17,11 @@ target_link_libraries(API PUBLIC
         Boost::filesystem
         )
 
+install(FILES
+        BaseScanner.hpp
+        ContractInfo.hpp
+        TokenInfo.hpp
+        Common.hpp
+        DESTINATION
+        ${EXECUTABLE_OUTPUT_PATH}/API/
+        )

@@ -370,6 +370,7 @@ void PortfolioInterface::ParseConfig(std::string_view config_) {
 }
 
 void PortfolioInterface::doStrategyAction(const StrategyRowPtrT& strategy_, const std::string& name_, RequestType type_) {
+	strategy_->Status = StrategyStatus_PENDING;
 	_strand.post([strategy_, type_, name_]() { StrategyAction(strategy_, name_, type_); });
 }
 

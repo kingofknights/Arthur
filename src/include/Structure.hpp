@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "imgui.h"
+#include "../API/Common.hpp"
 
 #pragma pack(push, 1)
 
@@ -160,23 +161,6 @@ using GreekBookColumnT = struct GreekBookColumnT {
 	GreeksPtrT Greeks;
 };
 
-using ResultSetT = struct ResultSetT {
-	uint32_t	Token;
-	uint32_t	ExpiryDate;
-	uint32_t	LotMultiple;
-	uint32_t	LotSize;
-	uint32_t	TickSize;
-	uint32_t	Divisor;
-	float		StrikePrice;
-	std::string Symbol;
-	std::string InstType;
-	std::string OptionType;
-	std::string Segment;
-	std::string Name;
-	std::string series;
-	std::string Exchange;
-	std::string FullName;
-};
 
 using DValueT = struct DValueT {
 	float		Delta;
@@ -217,13 +201,6 @@ using SpotInfoT = struct SpotInfoT {
 	float Change;
 };
 
-using RequestInPackT = struct RequestInPackT {
-	short				  TotalSize;
-	int					  Type;
-	uint64_t			  UserIdentifier;
-	int					  CompressedMsgLen;
-	std::array<char, 512> Message;
-};
 
 using ParameterInfoListT = std::map<std::string, ParameterInfoT>;
 

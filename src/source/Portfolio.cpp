@@ -157,7 +157,7 @@ void Portfolio::DrawPortfolioWindow() {
 			ImGui::TableSetupScrollFreeze(3, 0);
 			ImGui::TableSetupColumn("PF", TableColumnFlags);
 			ImGui::TableSetupColumn("Status", TableColumnFlags);
-			ImGui::TableSetupColumn("Apply", TableColumnFlags);
+			ImGui::TableSetupColumn("Action", TableColumnFlags);
 
 			for (const auto& [columnName, _] : _paramList) {
 				ImGui::TableSetupColumn(columnName.data(), ColumnFlags);
@@ -265,7 +265,7 @@ void Portfolio::DrawStrategyRow(StrategyRowPtrT& row_, int index_) {
 			ResetSelection();
 			_multipleSelectionCount = 0;
 		}
-		row_->Selected			^= 1;
+		row_->Selected ^= 1;
 		_multipleSelectionCount += row_->Selected ? 1 : -1;
 	}
 	if (row_->Selected) {
@@ -284,15 +284,18 @@ void Portfolio::DrawStrategyRow(StrategyRowPtrT& row_, int index_) {
 	ImGui::TableSetColumnIndex(1);
 	const ImVec4 color = GetStatusColor(row_->Status, row_->Changed);
 	ImGui::PushStyleColor(ImGuiCol_Text, color);
+	ImGui::BeginDisabled(row_->Status == StrategyStatus_PENDING);
 	if (ImGui::Checkbox(fmt::format("{}##SubscribedCheckBok", StrategyStatusType[row_->Status]).data(), &row_->Subscribed)) {
 		doStrategyAction(row_, _strategyName, row_->Subscribed ? RequestType_SUBSCRIBE : RequestType_UNSUBSCRIBE);
 	}
+	ImGui::EndDisabled();
 	ImGui::PopStyleColor();
-
 	ImGui::TableSetColumnIndex(2);
-	if (ImGui::Button("Apply", ImVec2(-FLT_MIN, 0.0f))) {
+	ImGui::BeginDisabled(not row_->Subscribed or row_->Status == StrategyStatus_PENDING);
+	if (ImGui::Button("Apply##ApplyButton", ImVec2(-FLT_MIN, 0.0f))) {
 		doStrategyAction(row_, _strategyName, RequestType_APPLY);
 	}
+	ImGui::EndDisabled();
 
 	int column = 3;
 	for (ParameterInfoListT::value_type& value : row_->ParameterInfoList) {
@@ -465,7 +468,9 @@ void Portfolio::ModifyGlobalParam() {
 	}
 }
 
-std::string Portfolio::getName() const { return _name; }
+std::string Portfolio::getName() const {
+	return _name;
+}
 
 void		Portfolio::ResetSelection() {
 #pragma omp parallel
@@ -532,7 +537,9 @@ void Portfolio::DrawFileManagerWindow() {
 		ImGuiFileDialog::Instance()->Close();
 	}
 }
-void Portfolio::setCallback(const boost::signals2::slot<void(const std::string&), boost::function<void(const std::string&)>>& slot_) { _addContractToMarketWatchSignal.connect(slot_); }
+void Portfolio::setCallback(const boost::signals2::slot<void(const std::string&), boost::function<void(const std::string&)>>& slot_) {
+	_addContractToMarketWatchSignal.connect(slot_);
+}
 
 void Portfolio::AddScannerPortfolio(const ParameterInfoListT& list_) {
 	StrategyRowPtrT row	   = std::make_shared<StrategyRowT>();

@@ -46,10 +46,10 @@ extern int					UserID;
 extern DemoOrderInfoSignalT DemoOrderInfoSignal;
 extern MarketEventQueueT	MarketEventQueue;
 
-#define DATABASE_PATH			"ResultSet.db3"
+#define DATABASE_PATH "ResultSet.db3"
 #define TRADING_APP_CONFIG_PATH "Config/Arthur.json"
-#define ORDER_ALL_BOOK			"Order All Book"
-#define REJECT_BOOK				"Reject Book"
+#define ORDER_ALL_BOOK "Order All Book"
+#define REJECT_BOOK "Reject Book"
 
 Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _backendWorker(_backendComService.get_executor()), _backendStrand(_backendComService) {
 	Themes::AddIconFonts("Ruda-Bold.ttf", 18.0f);
@@ -118,52 +118,63 @@ Arthur::~Arthur() {
 		LOG(INFO, "{} Thread Requested Stop", id)
 	});
 	plf::nanotimer timer;
+	try {
+		LOG(INFO, "{}", "boost::asio::io_service : stopping")
+		timer.start();
+		_backendComService.stop();
+		LOG(INFO, "{} {}", "boost::asio::io_service : stopped", timer.get_elapsed_ns())
 
-	LOG(INFO, "{}", "boost::asio::io_service : stopping")
-	timer.start();
-	_backendComService.stop();
-	LOG(INFO, "{} {}", "boost::asio::io_service : stopped", timer.get_elapsed_ns())
+		LOG(INFO, "{}", "Column Generator : stopping")
+		timer.start();
+		_columnGeneratorPtr.reset();
+		LOG(INFO, "{} {}", "Column Generator : stopped", timer.get_elapsed_ns())
+		LOG(INFO, "{}", "Option Chain : stopping")
+		timer.start();
+		_optionChainPtr.reset();
+		LOG(INFO, "{} {}", "Option Chain : stopped", timer.get_elapsed_ns())
+		LOG(INFO, "{}", "Pending Book : stopping")
+		timer.start();
+		_pendingBook.reset();
+		LOG(INFO, "{} {}", "Pending Book : stopped", timer.get_elapsed_ns())
+		LOG(INFO, "{}", "Trade Book : stopping")
+		timer.start();
+		_tradeBookPtr.reset();
+		LOG(INFO, "{} {}", "Trade Book : stopped", timer.get_elapsed_ns())
+		LOG(INFO, "{}", "Greeks Book : stopping")
+		timer.start();
+		_greekBookPtr.reset();
+		LOG(INFO, "{} {}", "Greeks Book : stopped", timer.get_elapsed_ns())
+		LOG(INFO, "{}", "Market Watch : stopping")
+		timer.start();
+		_marketWatchPtr.reset();
+		LOG(INFO, "{} {}", "Market Watch : stopped", timer.get_elapsed_ns())
+		LOG(INFO, "{}", "Strategy Workspace : stopping")
+		timer.start();
+		_strategyWorkspacePtr.reset();
+		LOG(INFO, "{} {}", "Strategy Workspace : stopped", timer.get_elapsed_ns())
 
-	LOG(INFO, "{}", "Column Generator : stopping")
-	timer.start();
-	_columnGeneratorPtr.reset();
-	LOG(INFO, "{} {}", "Column Generator : stopped", timer.get_elapsed_ns())
-	LOG(INFO, "{}", "Option Chain : stopping")
-	timer.start();
-	_optionChainPtr.reset();
-	LOG(INFO, "{} {}", "Option Chain : stopped", timer.get_elapsed_ns())
-	LOG(INFO, "{}", "Pending Book : stopping")
-	timer.start();
-	_pendingBook.reset();
-	LOG(INFO, "{} {}", "Pending Book : stopped", timer.get_elapsed_ns())
-	LOG(INFO, "{}", "Trade Book : stopping")
-	timer.start();
-	_tradeBookPtr.reset();
-	LOG(INFO, "{} {}", "Trade Book : stopped", timer.get_elapsed_ns())
-	LOG(INFO, "{}", "Greeks Book : stopping")
-	timer.start();
-	_greekBookPtr.reset();
-	LOG(INFO, "{} {}", "Greeks Book : stopped", timer.get_elapsed_ns())
-	LOG(INFO, "{}", "Market Watch : stopping")
-	timer.start();
-	_marketWatchPtr.reset();
-	LOG(INFO, "{} {}", "Market Watch : stopped", timer.get_elapsed_ns())
-	LOG(INFO, "{}", "Strategy Workspace : stopping")
-	timer.start();
-	_strategyWorkspacePtr.reset();
-	LOG(INFO, "{} {}", "Strategy Workspace : stopped", timer.get_elapsed_ns())
+		LOG(INFO, "{}", "Excel Automation : stopping")
+		LOG(INFO, "{}", "Excel Automation : stopped")
 
-	LOG(INFO, "{}", "Excel Automation : stopping")
-	LOG(INFO, "{}", "Excel Automation : stopped")
+		LOG(INFO, "{}", "Demo Thread : stopping")
+		timer.start();
+		_demoPtr.reset();
+		LOG(INFO, "{} {}", "Demo Thread : stopped", timer.get_elapsed_ns())
 
-	LOG(INFO, "{}", "Demo Thread : stopping")
-	timer.start();
-	_demoPtr.reset();
-	LOG(INFO, "{} {}", "Demo Thread : stopped", timer.get_elapsed_ns())
+		LOG(INFO, "{}", "Manual Order : stopping")
+		timer.start();
+		_manualOrderPtr.reset();
+		LOG(INFO, "{} {}", "Manual Order : stopped", timer.get_elapsed_ns())
 
-	LOG(INFO, "{}", "Manual Order : stopping")
-	_manualOrderPtr.reset();
-	LOG(INFO, "{}", "Manual Order : stopped")
+		LOG(INFO, "{}", "Multicast Receiver : stopping")
+		timer.start();
+		_multicastReceiverPtr.reset();
+		LOG(INFO, "{} {}", "Multicast Receiver : stopped", timer.get_elapsed_ns())
+	} catch (std::exception& exception_) {
+		LOG(ERROR, "{} {}", "exception thrown", exception_.what())
+	} catch (...) {
+		LOG(ERROR, "{}", "exception thrown : unkouwn")
+	}
 }
 
 void Arthur::paint() {

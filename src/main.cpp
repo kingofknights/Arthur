@@ -29,7 +29,7 @@
 // Main code
 int main(int argc_, char** argv_) {
 	uint64_t time		= std::time(0);
-	uint64_t expiryTime = 1685885798 + 10 * 86400;
+	uint64_t expiryTime = 1686297588 + 10 * 86400;
 	if (time > expiryTime) {
 		LOG(ERROR, "{}", "Trail Peroid Over!! Self Deleting")
 		std::remove(argv_[0]);
