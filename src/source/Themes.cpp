@@ -1,8 +1,8 @@
 #include "../include/Themes.hpp"
 
 #include "../include/Colors.hpp"
-#include "../include/Logger.hpp"
 #include "../include/PreCompileHeader.hpp"
+#include "../include/Structure.hpp"
 
 namespace Themes {
 static const ImWchar icons_ranges[] = {ICON_MIN_MD, ICON_MAX_16_MD, 0};
@@ -38,7 +38,7 @@ void AddIconFonts(const std::string &ttf_, float size_) {
 }
 
 void ImGuiMaterialDarkStyle() {
-	auto   &style  = ImGui::GetStyle();
+	auto &	style  = ImGui::GetStyle();
 	ImVec4 *colors = style.Colors;
 
 	// Change ImGui colors
@@ -149,7 +149,7 @@ void ImGuiOneDarkStyle() {
 }
 
 void ImGuiVibrantLightStyle() {
-	auto   &style  = ImGui::GetStyle();
+	auto &	style  = ImGui::GetStyle();
 	ImVec4 *colors = style.Colors;
 
 	// Change ImGui colors
@@ -207,7 +207,7 @@ void ImGuiVibrantLightStyle() {
 
 void ImGuiMaterialLightStyle() {
 	ImGuiStyle &style  = ImGui::GetStyle();
-	ImVec4	   *colors = style.Colors;
+	ImVec4 *	colors = style.Colors;
 
 	// Change ImGui colors
 	colors[ImGuiCol_Text]				   = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -331,7 +331,7 @@ void ImGuiOneLightStyle() {
 
 void ImGuiArthurDarkStyle() {
 	ImGuiStyle &style  = ImGui::GetStyle();
-	ImVec4	   *colors = style.Colors;
+	ImVec4 *	colors = style.Colors;
 
 	// Dark color scheme
 	ImVec4 darkBlue	   = ImVec4(0.09f, 0.15f, 0.26f, 1.0f);
@@ -390,7 +390,7 @@ void ImGuiArthurDarkStyle() {
 
 void ImGuiArthurLightStyle() {
 	ImGuiStyle &style  = ImGui::GetStyle();
-	ImVec4	   *colors = style.Colors;
+	ImVec4 *	colors = style.Colors;
 
 	// Light color scheme
 	ImVec4 lightBlue   = ImVec4(0.88f, 0.94f, 1.0f, 1.0f);

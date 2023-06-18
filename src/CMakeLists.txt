@@ -43,6 +43,20 @@ if(NOT xcd_POPULATED)
 	message(STATUS "xcd_BINARY_DIR" ${xcd_BINARY_DIR})
 endif()
 
+FetchContent_Declare(
+  lancelot
+  GIT_REPOSITORY https://github.com/kingofknights/lancelot.git
+  OVERRIDE_FIND_PACKAGE
+)
+
+FetchContent_GetProperties(lancelot)
+if(NOT lancelot_POPULATED)
+	FetchContent_Populate(lancelot)
+	add_subdirectory(${lancelot_SOURCE_DIR} ${lancelot_BINARY_DIR})
+	include_directories(${lancelot_SOURCE_DIR}/include)
+	message(STATUS "lancelot_SOURCE_DIR" ${lancelot_SOURCE_DIR})
+	message(STATUS "lancelot_BINARY_DIR" ${lancelot_BINARY_DIR})
+endif()
 
 add_subdirectory(include)
 add_subdirectory(source)
@@ -50,7 +64,6 @@ add_subdirectory(DataFeed)
 #add_subdirectory(Excel)
 add_subdirectory(Knight)
 add_subdirectory(API)
-add_subdirectory(Database)
 add_subdirectory(Demo)
 add_subdirectory(Audio)
 
@@ -69,6 +82,7 @@ target_link_libraries(${PROJECT_NAME}
 		#Excel
 		Demo
 		Audio
+		Lancelot
 	    )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
@@ -107,6 +121,7 @@ target_precompile_headers(${PROJECT_NAME}
 		<vector>
 		<thread>
 		<memory>
+		<Lancelot.hpp>
 	    )
 
 

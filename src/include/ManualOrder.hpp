@@ -4,10 +4,15 @@
 
 #include "Structure.hpp"
 
-#define NEW_ORDER_WINDOW	"New Manual Order Window"
+#define NEW_ORDER_WINDOW "New Manual Order Window"
 #define MODIFY_ORDER_WINDOW "Modify Manual Order Window"
 
 enum RequestType;
+
+namespace Lancelot {
+enum Exchange;
+
+}
 using PublishOrderFunctionT = std::function<void(ManualOrderInfoT, RequestType)>;
 class ManualOrder final {
 public:
@@ -21,10 +26,10 @@ private:
 	void SentToBroker();
 	void DrawInputItem();
 
-	ManualOrderInfoT _order;
-	ImVec4			 _color;
-	std::string		 _clientCode;
-	std::string		 _exchange;
+	ManualOrderInfoT   _order;
+	ImVec4			   _color;
+	std::string		   _clientCode;
+	Lancelot::Exchange _exchange;
 
 	boost::asio::io_context::strand& _strand;
 	PublishOrderFunctionT			 _publishOrderFunction;

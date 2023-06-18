@@ -1,3 +1,5 @@
+#ifndef ARTHUR_INCLUDE_COLOR_HPP
+#define ARTHUR_INCLUDE_COLOR_HPP
 #pragma once
 
 #include "PreCompileHeader.hpp"
@@ -110,3 +112,5 @@ template <typename Side>
 constexpr ImVec4 BuySellColor(Side side_) {
 	return side_ == 0 ? COLOR_GREEN : COLOR_RED;
 }
+
+#endif	// ARTHUR_INCLUDE_COLOR_HPP

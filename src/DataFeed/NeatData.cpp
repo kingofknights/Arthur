@@ -4,8 +4,9 @@
 
 #include "NeatData.hpp"
 
+#include <Lancelot/Logger/Logger.hpp>
+
 #include "../API/ContractInfo.hpp"
-#include "../include/Logger.hpp"
 #include "../include/Structure.hpp"
 
 #if WIN32
@@ -17,22 +18,22 @@
 #endif
 
 extern MarketEventQueueT MarketEventQueue;
-#define FUTURE	 '\x2'
-#define EQUITY	 '\x4'
+#define FUTURE '\x2'
+#define EQUITY '\x4'
 #define CURRENCY '\x6'
-#define MAX_LEN	 (1024 * 5)
+#define MAX_LEN (1024 * 5)
 
-#define BROADCAST_DATA		  7208
+#define BROADCAST_DATA 7208
 #define TRADE_EXECUTION_RANGE 7220
-#define SECURITY_UPDATE		  7305
-#define BROADCAST_JRNL		  6501
-#define OPEN_INTEREST		  7201
-#define MARKET_CLOSED		  6521
-#define MARKET_OPEN			  6511
-#define MARKET_PRE_OPEN		  6531
-#define MARKET_PRE_CLOSE	  6571
-#define HEART_BEAT			  6541
-#define MarketIndex			  7207
+#define SECURITY_UPDATE 7305
+#define BROADCAST_JRNL 6501
+#define OPEN_INTEREST 7201
+#define MARKET_CLOSED 6521
+#define MARKET_OPEN 6511
+#define MARKET_PRE_OPEN 6531
+#define MARKET_PRE_CLOSE 6571
+#define HEART_BEAT 6541
+#define MarketIndex 7207
 
 extern SpotInfoT   BankNifty;
 extern SpotInfoT   Nifty;

@@ -4,6 +4,8 @@
 
 #include "TokenInfo.hpp"
 
+#include <Lancelot/ContractInfo/ContractInfo.hpp>
+
 #include "../include/Structure.hpp"
 #include "ContractInfo.hpp"
 
@@ -137,10 +139,8 @@ double TokenInfo::AskDepth(double token_) {
 	return 0;
 }
 
-std::string TokenInfo::CustomName(double token_) { return ContractInfo::GetFullName(token_); }
-
 double TokenInfo::Expiry(double token_) {
-	int expiry = ContractInfo::GetExpiry(token_);
+	int expiry = Lancelot::ContractInfo::GetExpiryDate(token_);
 	if (expiry) {
 		const time_t ts	  = (expiry) + 315513000;
 		auto		 time = *std::localtime(&ts);
@@ -150,7 +150,7 @@ double TokenInfo::Expiry(double token_) {
 }
 
 double TokenInfo::ExpiryWeek(double token_) {
-	int expiry = ContractInfo::GetExpiry(token_);
+	int expiry = Lancelot::ContractInfo::GetExpiryDate(token_);
 	if (expiry) {
 		const time_t ts	  = (expiry) + 315513000;
 		auto		 time = *std::localtime(&ts);
@@ -166,8 +166,14 @@ double TokenInfo::ExpiryWeek(double token_) {
 	return 0;
 }
 
-double TokenInfo::IsCall(double token_) { return ContractInfo::IsCall(token_); }
+double TokenInfo::IsCall(double token_) {
+	return Lancelot::ContractInfo::IsCall(token_);
+}
 
-double TokenInfo::IsPut(double token_) { return ContractInfo::IsPut(token_); }
+double TokenInfo::IsPut(double token_) {
+	return Lancelot::ContractInfo::IsPut(token_);
+}
 
-double TokenInfo::IsFuture(double token_) { return ContractInfo::IsFuture(token_); }
+double TokenInfo::IsFuture(double token_) {
+	return Lancelot::ContractInfo::IsFuture(token_);
+}

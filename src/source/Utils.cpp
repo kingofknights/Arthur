@@ -9,18 +9,18 @@
 #include <nlohmann/json.hpp>
 
 #include "../API/BaseScanner.hpp"
+#include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
 #include "../include/Configuration.hpp"
 #include "../include/Enums.hpp"
-#include "../include/Logger.hpp"
-#include "../include/Sqlite.hpp"
-#include "../include/StoreProcedures.hpp"
+#include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 
-extern std::string	   StatusDisplay;
-extern AllContractT	   AllContract;
-extern ClientCodeListT ClientCodeList;
-extern int			   Id;
+extern std::string				StatusDisplay;
+extern AllContractT				AllContract;
+extern ClientCodeListT			ClientCodeList;
+extern MarketWatchDatContainerT MarketWatchDatContainer;
+extern int						Id;
 
 GlobalStrategyListT Utils::GlobalStrategyList;
 
@@ -39,7 +39,7 @@ std::string Utils::manualSerialize(const ManualOrderInfoT& manualOrderInfo_) {
 
 	nlohmann::json params;
 	if (manualOrderInfo_.OrderNumber == 0) {
-		params[JSON_TOKEN]		= ContractInfo::GetToken(manualOrderInfo_.Contract);
+		params[JSON_TOKEN]		= Lancelot::ContractInfo::GetToken(manualOrderInfo_.Contract);
 		params[JSON_SIDE]		= manualOrderInfo_.Side;
 		params[JSON_CLIENT]		= manualOrderInfo_.Client;
 		params[JSON_ORDER_TYPE] = manualOrderInfo_.Type;
@@ -47,7 +47,7 @@ std::string Utils::manualSerialize(const ManualOrderInfoT& manualOrderInfo_) {
 		params[JSON_UNIQUE_ID] = manualOrderInfo_.Gateway;
 		params[JSON_ORDER_ID]  = manualOrderInfo_.OrderNumber;
 	}
-	params[JSON_PRICE]	  = fmt::format("{:.2f}", manualOrderInfo_.Price);
+	params[JSON_PRICE]	  = FORMAT("{:.2f}", manualOrderInfo_.Price);
 	params[JSON_QUANTITY] = manualOrderInfo_.Quantity;
 
 	json[JSON_PARAMS] = params;
@@ -89,15 +89,15 @@ std::string Utils::strategySerialize(const StrategyRowPtrT& row_, const std::str
 					break;
 				}
 				case DataType_CONTRACT: {
-					arguments[key_] = fmt::format("{}", ContractInfo::GetToken(value.Parameter.Text));
+					arguments[key_] = FORMAT("{}", Lancelot::ContractInfo::GetToken(value.Parameter.Text));
 					break;
 				}
 				case DataType_FLOAT: {
-					arguments[key_] = fmt::format("{}", value.Parameter.Floating);
+					arguments[key_] = FORMAT("{}", value.Parameter.Floating);
 					break;
 				}
 				case DataType_RADIO: {
-					arguments[key_] = fmt::format("{}", value.Parameter.Check);
+					arguments[key_] = FORMAT("{}", value.Parameter.Check);
 					break;
 				}
 				case DataType_UPDATES:
@@ -113,7 +113,7 @@ std::string Utils::strategySerialize(const StrategyRowPtrT& row_, const std::str
 }
 
 bool Utils::ToggleMenuItem(std::string_view window_, bool& open_) {
-	const auto info = fmt::format("{} {}", (open_ ? ICON_MD_VISIBILITY : ICON_MD_VISIBILITY_OFF), window_);
+	const auto info = FORMAT("{} {}", (open_ ? ICON_MD_VISIBILITY : ICON_MD_VISIBILITY_OFF), window_);
 	if (ImGui::MenuItem(info.data())) {
 		open_ = not open_;
 	}
@@ -223,17 +223,35 @@ void		Utils::ContractFilter(ImGuiTextFilter& filter_, std::string& index_) {
 }
 
 void Utils::GetClientList(int userId_) {
-	DatabaseTable table = Sqlite::Instance()->GetResult(fmt::format(GetClientCode_, userId_));
+	auto table = Lancelot::ContractInfo::GetResultWithIndex(FORMAT(GetClientCode_, userId_));
 	ClientCodeList.clear();
 
 	for (const auto& item : table) {
-		ClientInfoT clientInfo{.Exchange = item[ClientIndex_EXCHANGE], .ClientCode = item[ClientIndex_CLIENTCODE]};
+		ClientInfoT clientInfo{.Exchange = Lancelot::ContractInfo::GetExchangeCode(item[ClientIndex_EXCHANGE]), .ClientCode = item[ClientIndex_CLIENTCODE]};
 		ClientCodeList.push_back(clientInfo);
 		LOG(INFO, "Client Code for User [{}] is [{} {}]", userId_, clientInfo.Exchange, clientInfo.ClientCode);
 	}
 }
 
+void CreateMarketObject(uint32_t token_, std::string_view name_, float ltp_, float low_, float high_) {
+	auto marketData	  = std::make_shared<MarketWatchDataT>();
+	marketData->Token = token_;
+
+	std::memset(marketData->Description.data(), '\0', STRATEGY_NAME_LENGTH);
+	std::memcpy(marketData->Description.data(), name_.data(), name_.length());
+	marketData->LastTradePrice = ltp_;
+	marketData->LowPrice	   = low_;
+	marketData->HighPrice	   = high_;
+	marketData->ClosePrice	   = ltp_;
+	MarketWatchDatContainer.emplace(token_, marketData);
+}
+
+void Utils::GetAllContractCallback(const Lancelot::ResultSetPtrT result_, float ltp_, float low_, float high_) {
+	CreateMarketObject(result_->Token, result_->Description, ltp_, low_, high_);
+	AllContract.push_back(result_->Description);
+}
+
 double Utils::ScannerAPI(double pf_, double name_, double params_, double token_) {
-	BaseScanner::UpdateUser(pf_, fmt::format("Token1={}#Token2={}#Token3={}#Lot={}", token_, token_, token_, token_));
+	BaseScanner::UpdateUser(pf_, FORMAT("Token1={}#Token2={}#Token3={}#Lot={}", token_, token_, token_, token_));
 	return 0;
 }

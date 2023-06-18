@@ -20,6 +20,7 @@ public:
 	static void		   RemovePortfolio();
 	static void		   CreateSupportFolder();
 	static void		   GetClientList(int userId_);
+	static void		   GetAllContractCallback(const Lancelot::ResultSetPtrT result_, float ltp_, float low_, float high_);
 	static void		   ResetPortfolio(StrategyStatus status_);
 	static bool		   ToggleMenuItem(std::string_view window_, bool &open_);
 	static void		   DrawTradeRow(const OrderInfoPtrT &tradeInfo_, int &first_, int second_);

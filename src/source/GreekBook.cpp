@@ -4,9 +4,10 @@
 #include <iterator>
 #include <numeric>
 
+#include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
 #include "../include/Configuration.hpp"
-#include "../include/Logger.hpp"
+#include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 #include "../include/plf_nanotimer.h"
 
@@ -122,24 +123,24 @@ void GreekBook::GreekBookUpdate(const OrderInfoPtrT& tradeInfo_) {
 
 		GreeksPtrT greek = std::make_shared<GreeksT>();
 		{
-			ResultSetT resultSet = ContractInfo::GetResultSet(tradeInfo_->Token);
-			greek->IsCall		 = resultSet.OptionType == "CE";
-			greek->IsFuture		 = resultSet.InstType[0] == 'F';
-			greek->Expiry		 = resultSet.ExpiryDate;
-			greek->StrikePrice	 = resultSet.StrikePrice;
-			greek->IV			 = 1;
-			greek->Delta		 = 1;
-			greek->Gamma		 = 1;
-			greek->Vega			 = 1;
-			greek->Theta		 = 1;
-			greek->Self			 = ContractInfo::GetLiveDataRef(tradeInfo_->Token);
-			greek->Future		 = ContractInfo::GetLiveDataRef(ContractInfo::GetFuture(tradeInfo_->Token));
+			auto* resultSet	   = Lancelot::ContractInfo::GetResultSet(tradeInfo_->Token);
+			greek->IsCall	   = resultSet->Option == Lancelot::OptionType_CALL;
+			greek->IsFuture	   = resultSet->InstType == Lancelot::Instrument_FUTURE;
+			greek->Expiry	   = resultSet->ExpiryDate;
+			greek->StrikePrice = resultSet->StrikePrice;
+			greek->IV		   = 1;
+			greek->Delta	   = 1;
+			greek->Gamma	   = 1;
+			greek->Vega		   = 1;
+			greek->Theta	   = 1;
+			greek->Self		   = ContractInfo::GetLiveDataRef(tradeInfo_->Token);
+			greek->Future	   = ContractInfo::GetLiveDataRef(Lancelot::ContractInfo::GetFuture(tradeInfo_->Token));
 			_greekList.push_back(greek);
 		}
 
 		_greekList.push_back(greek);
 
-		data->Symbol		   = ContractInfo::GetSymbol(tradeInfo_->Token);
+		data->Symbol		   = Lancelot::ContractInfo::GetSymbol(tradeInfo_->Token);
 		data->BuyQuantity	   = 0;
 		data->SellQuantity	   = 0;
 		data->TotalSellPrice   = 0;

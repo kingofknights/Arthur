@@ -1,5 +1,6 @@
 #include "../include/TradeBook.hpp"
 
+#include "../API/Common.hpp"
 #include "../include/Colors.hpp"
 #include "../include/Configuration.hpp"
 #include "../include/Enums.hpp"
@@ -10,18 +11,20 @@
 void TradeBook::paint(bool* show_) {
 	_pendingTradeUpdate.consume_one([this](const OrderInfoPtrT& orderInfo_) {
 		_container.push_back(orderInfo_);
-		_totalBuy  += orderInfo_->Side == Side_BUY;
+		_totalBuy += orderInfo_->Side == Side_BUY;
 		_totalSell += orderInfo_->Side == Side_SELL;
-		_buyValue  += orderInfo_->Side == Side_BUY ? orderInfo_->Price * orderInfo_->Quantity : 0;
+		_buyValue += orderInfo_->Side == Side_BUY ? orderInfo_->Price * orderInfo_->Quantity : 0;
 		_sellValue += orderInfo_->Side == Side_SELL ? orderInfo_->Price * orderInfo_->Quantity : 0;
-		_netValue	= _totalSell - _totalBuy;
+		_netValue = _totalSell - _totalBuy;
 	});
 	if (*show_) {
 		DrawTradeBookTable(show_);
 	}
 }
 
-void TradeBook::Insert(const OrderInfoPtrT& orderInfo_) { _pendingTradeUpdate.push(orderInfo_); }
+void TradeBook::Insert(const OrderInfoPtrT& orderInfo_) {
+	_pendingTradeUpdate.push(orderInfo_);
+}
 
 void TradeBook::DrawTradeBookTable(bool* show_) {
 	if (ImGui::Begin("Trade Book", show_)) {

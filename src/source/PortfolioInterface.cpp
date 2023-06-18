@@ -4,11 +4,12 @@
 #include <future>
 #include <nlohmann/json.hpp>
 
+#include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
 #include "../include/Colors.hpp"
 #include "../include/ConfigLoader.hpp"
 #include "../include/Enums.hpp"
-#include "../include/Logger.hpp"
+#include "../include/Structure.hpp"
 #include "../include/Utils.hpp"
 
 extern std::string StatusDisplay;
@@ -201,7 +202,7 @@ void PortfolioInterface::Imports(std::string_view path_) {
 				case DataType_CONTRACT: {
 					parameterInfo.Parameter.Text = parameterValue;
 
-					auto token		   = ContractInfo::GetToken(parameterValue);
+					auto token		   = Lancelot::ContractInfo::GetToken(parameterValue);
 					parameterInfo.Self = ContractInfo::GetLiveDataRef(token);
 #if REMOVE_EXPIRED_TOKEN
 					if (token == -1) {
@@ -374,4 +375,6 @@ void PortfolioInterface::doStrategyAction(const StrategyRowPtrT& strategy_, cons
 	_strand.post([strategy_, type_, name_]() { StrategyAction(strategy_, name_, type_); });
 }
 
-void PortfolioInterface::setStrategyActionCallback(StrategyActionT StrategyAction_) { StrategyAction = std::move(StrategyAction_); }
+void PortfolioInterface::setStrategyActionCallback(StrategyActionT StrategyAction_) {
+	StrategyAction = std::move(StrategyAction_);
+}

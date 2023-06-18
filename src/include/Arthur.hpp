@@ -2,6 +2,8 @@
 // Created by VIKLOD on 21-01-2023.
 //
 
+#ifndef ARTHUR_INCLUDE_ARTHUR_HPP
+#define ARTHUR_INCLUDE_ARTHUR_HPP
 #pragma once
 
 #include <boost/asio.hpp>
@@ -110,6 +112,10 @@ private:
 	boost::asio::io_context::strand _backendStrand;
 	WorkerT							_backendWorker;
 	ThreadGroupT					_threadGroup;
-	bool						   *_closeMainWindow;
+	bool *							_closeMainWindow;
 	char							_password[10]{};
+	std::string						_ipaddress;
+	std::string						_port;
 };
+
+#endif	// ARTHUR_INCLUDE_ARTHUR_HPP

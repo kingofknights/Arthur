@@ -1,6 +1,9 @@
+#ifndef ARTHUR_INCLUDE_ENUMS_HPP
+#define ARTHUR_INCLUDE_ENUMS_HPP
 #pragma once
 
-enum VisualTheme {
+enum VisualTheme
+{
 	VisualTheme_MATERIAL_LIGHT = 0,
 	VisualTheme_MATERIAL_DARK,
 	VisualTheme_ONE_LIGHT,
@@ -11,14 +14,16 @@ enum VisualTheme {
 	VisualTheme_IMGUI_DARK,
 	VisualTheme_END
 };
-enum ColumnGeneratorColumnIndex {
+enum ColumnGeneratorColumnIndex
+{
 	ColumnGeneratorColumnIndex_NAME = 0,
 	ColumnGeneratorColumnIndex_TYPE,
 	ColumnGeneratorColumnIndex_VALUE,
 	ColumnGeneratorColumnIndex_END
 };
 
-enum MarketWatchColumnIndex {
+enum MarketWatchColumnIndex
+{
 	MarketWatchColumnIndex_CONTACT_NAME = 0,
 	MarketWatchColumnIndex_ATP,
 	MarketWatchColumnIndex_LTP,
@@ -39,7 +44,8 @@ enum MarketWatchColumnIndex {
 	MarketWatchColumnIndex_END
 };
 
-enum MarketWatchToolTipColumnIndex {
+enum MarketWatchToolTipColumnIndex
+{
 	MarketWatchToolTipColumnIndex_BUY_ORDER = 0,
 	MarketWatchToolTipColumnIndex_BUY_QUANTITY,
 	MarketWatchToolTipColumnIndex_BUY_PRICE,
@@ -48,7 +54,8 @@ enum MarketWatchToolTipColumnIndex {
 	MarketWatchToolTipColumnIndex_ASK_ORDER,
 	MarketWatchToolTipColumnIndex_END
 };
-enum DataType {
+enum DataType
+{
 	DataType_CLIENT = 0,
 	DataType_COMBO,
 	DataType_CONTRACT,
@@ -60,7 +67,8 @@ enum DataType {
 	DataType_END
 };
 
-enum BooksColumnIndex {
+enum BooksColumnIndex
+{
 	BooksColumnIndex_PF = 0,
 	BooksColumnIndex_CONTRACT,
 	BooksColumnIndex_PRICE,
@@ -77,7 +85,8 @@ enum BooksColumnIndex {
 	BooksColumnIndex_END
 };
 
-enum SymbolWiseNetBookColumnIndex {
+enum SymbolWiseNetBookColumnIndex
+{
 	SymbolWiseNetBookColumnIndex_CONTRACT,
 	SymbolWiseNetBookColumnIndex_AVGBID,
 	SymbolWiseNetBookColumnIndex_BUYQTY,
@@ -91,7 +100,8 @@ enum SymbolWiseNetBookColumnIndex {
 	SymbolWiseNetBookColumnIndex_END
 };
 
-enum PFWiseNetBookColumnIndex {
+enum PFWiseNetBookColumnIndex
+{
 	PFWiseNetBookColumnIndex_PF,
 	PFWiseNetBookColumnIndex_CONTRACT,
 	PFWiseNetBookColumnIndex_AVGBID,
@@ -106,7 +116,8 @@ enum PFWiseNetBookColumnIndex {
 	PFWiseNetBookColumnIndex_END
 };
 
-enum GreekBookColumnIndex {
+enum GreekBookColumnIndex
+{
 	GreekBookColumnIndex_SYMBOL,
 	GreekBookColumnIndex_DELTA,
 	GreekBookColumnIndex_GAMMA,
@@ -118,7 +129,8 @@ enum GreekBookColumnIndex {
 	GreekBookColumnIndex_END,
 };
 
-enum OptionChainColumnIndex {
+enum OptionChainColumnIndex
+{
 	OptionChainColumnIndex_CALL_OI,
 	OptionChainColumnIndex_CALL_VOLUME,
 	OptionChainColumnIndex_CALL_DELTA,
@@ -149,26 +161,30 @@ enum OptionChainColumnIndex {
 	OptionChainColumnIndex_END
 };
 
-enum ScannerFunctionColumnIndex {
+enum ScannerFunctionColumnIndex
+{
 	ScannerFunctionColumnIndex_NAME,
 	ScannerFunctionColumnIndex_VARIABLE,
 	ScannerFunctionColumnIndex_END
 };
 
-enum ScannerSavedColumnIndex {
+enum ScannerSavedColumnIndex
+{
 	ScannerSavedColumnIndex_NUMBER,
 	ScannerSavedColumnIndex_NAME,
 	ScannerSavedColumnIndex_OPERATIONS,
 	ScannerSavedColumnIndex_END
 };
 
-enum ExportImport {
+enum ExportImport
+{
 	ExportImport_EXPORT,
 	ExportImport_IMPORT,
 	ExportImport_NONE
 };
 
-enum ExcelDataColumn {
+enum ExcelDataColumn
+{
 	ExcelDataColumn_BID_ORDER = 1,
 	ExcelDataColumn_BID_QUANTITY,
 	ExcelDataColumn_BID_PRICE,
@@ -177,7 +193,8 @@ enum ExcelDataColumn {
 	ExcelDataColumn_ASK_PRICE,
 };
 
-enum ExcelSecondColumn {
+enum ExcelSecondColumn
+{
 	ExcelSecondColumn_LTP = 1,
 	ExcelSecondColumn_ATP,
 	ExcelSecondColumn_OPEN,
@@ -186,7 +203,8 @@ enum ExcelSecondColumn {
 	ExcelSecondColumn_CLOSE,
 };
 
-enum ExcelThirdColumn {
+enum ExcelThirdColumn
+{
 	ExcelThirdColumn_LOW_DPR = 1,
 	ExcelThirdColumn_HIGH_DPR,
 	ExcelThirdColumn_TOTAL_BUY_QUANTITY,
@@ -195,7 +213,8 @@ enum ExcelThirdColumn {
 	ExcelThirdColumn_OPEN_INTEREST
 };
 
-enum ConfigFile {
+enum ConfigFile
+{
 	ConfigFile_DEMO = 0,
 	ConfigFile_EXCEL_WINDOW,
 	ConfigFile_GREEK_BOOK,
@@ -211,26 +230,32 @@ enum ConfigFile {
 	ConfigFile_END
 };
 
-enum TradeTrackerColumn {
+enum TradeTrackerColumn
+{
 	TradeTrackerColumn_ID,
 	TradeTrackerColumn_NAME,
 	TradeTrackerColumn_DESCRIPTIONS,
 	TradeTrackerColumn_END
 };
 
-enum ClientIndex {
+enum ClientIndex
+{
 	ClientIndex_EXCHANGE = 0,
 	ClientIndex_CLIENTCODE
 };
 
-enum Spot {
+enum Spot
+{
 	Spot_BANKNIFTY = 0,
 	Spot_NIFTY,
 	Spot_VIX
 };
 
-enum NetBookCalculation {
+enum NetBookCalculation
+{
 	NetBookCalculation_SYMBOL,
 	NetBookCalculation_PF,
 	NetBookCalculation_GREEK
 };
+
+#endif	// ARTHUR_INCLUDE_ENUMS_HPP

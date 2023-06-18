@@ -1,16 +1,16 @@
 #include "Scanner.hpp"
 
+#include <Lancelot/Logger/Logger.hpp>
 #include <boost/preprocessor.hpp>
 
 #include "../API/BaseScanner.hpp"
 #include "../API/TokenInfo.hpp"
-#include "../include/Logger.hpp"
 #include "../include/Utils.hpp"
 
 extern ScannerContainerT ScannerContainer;
 
-#define STR(X)			  #X
-#define TO_STRING(X)	  STR(X)
+#define STR(X) #X
+#define TO_STRING(X) STR(X)
 #define FUNCTION(R, _, T) AddFunction(TO_STRING(T), TokenInfo::T);
 
 #define PARAM_FUNCTION_LIST_2                                                                                                                                                                    \

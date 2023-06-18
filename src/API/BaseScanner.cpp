@@ -1,11 +1,12 @@
 #include "BaseScanner.hpp"
 
+#include <Lancelot/ContractInfo/ContractInfo.hpp>
+#include <Lancelot/Logger/Logger.hpp>
 #include <boost/algorithm/string.hpp>
 #include <nlohmann/json.hpp>
 
 #include "../API/ContractInfo.hpp"
 #include "../include/Enums.hpp"
-#include "../include/Logger.hpp"
 #include "../include/Portfolio.hpp"
 #include "../include/Structure.hpp"
 
@@ -46,7 +47,7 @@ void BaseScanner::UpdateUser(double PF_, const std::string& update) {
 					switch (item->second.Type) {
 						case DataType_CONTRACT: {
 							int token		  = stoi(value);
-							parameter.Text	  = ContractInfo::GetFullName(token);
+							parameter.Text	  = Lancelot::ContractInfo::GetDescription(token);
 							item->second.Self = ContractInfo::GetLiveDataRef(token);
 							break;
 						}
@@ -79,4 +80,6 @@ void BaseScanner::UpdateUser(double PF_, const std::string& update) {
 	}
 }
 
-BaseScanner::BaseScanner(double PF_, double UID_) : PF(PF_), UID(UID_) { RegisterScanner(PF); }
+BaseScanner::BaseScanner(double PF_, double UID_) : PF(PF_), UID(UID_) {
+	RegisterScanner(PF);
+}

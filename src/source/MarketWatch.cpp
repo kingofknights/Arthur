@@ -6,22 +6,26 @@
 
 #include <nlohmann/json.hpp>
 
+#include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
 #include "../include/Colors.hpp"
 #include "../include/Configuration.hpp"
 #include "../include/Enums.hpp"
-#include "../include/Logger.hpp"
 #include "../include/ManualOrder.hpp"
+#include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 #include "../include/Utils.hpp"
-
 extern AllContractT				AllContract;
 extern AddContractToDemoSignalT AddContractToDemoSignal;
 
 #define MARKET_WATCH_CONFIG_PATH "Config/MarketWatch.json"
-MarketWatch::MarketWatch(const ManualOrderPtrT& manualOrder_) : _manualOrderPtr(manualOrder_), _ladderDataPtr(std::make_shared<MarketWatchDataT>()) { Imports(MARKET_WATCH_CONFIG_PATH); }
+MarketWatch::MarketWatch(const ManualOrderPtrT& manualOrder_) : _manualOrderPtr(manualOrder_), _ladderDataPtr(std::make_shared<MarketWatchDataT>()) {
+	Imports(MARKET_WATCH_CONFIG_PATH);
+}
 
-MarketWatch::~MarketWatch() { Exports(MARKET_WATCH_CONFIG_PATH); }
+MarketWatch::~MarketWatch() {
+	Exports(MARKET_WATCH_CONFIG_PATH);
+}
 
 void MarketWatch::DrawMarketWatchTable(bool* show_) {
 	if (_toBeDeleted != -1) {
@@ -136,13 +140,13 @@ void MarketWatch::ContractCell(int contract_, int index_, const char* data_, con
 		if (open) {
 			ManualOrderInfoT info{.Gateway	   = 0,
 								  .Price	   = pointer_->LastTradePrice,
-								  .Quantity	   = ContractInfo::GetLotMultiple(pointer_->Token),
+								  .Quantity	   = (int)Lancelot::ContractInfo::GetLotMultiple(pointer_->Token),
 								  .LotSize	   = info.Quantity,
 								  .OrderNumber = 0,
 								  .Type		   = 0,
 								  .Side		   = side,
 								  .Status	   = OrderStatus_NEW,
-								  .Contract	   = ContractInfo::GetFullName(pointer_->Token),
+								  .Contract	   = Lancelot::ContractInfo::GetDescription(pointer_->Token),
 								  .Client	   = "Pro",
 								  .Self		   = pointer_};
 			_manualOrderPtr->Update(info);
@@ -178,7 +182,6 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) {
 		}
 		ImGui::EndTable();
 	}
-	ImGui::Separator();
 
 	ImGui::Columns(2, nullptr, false);
 
@@ -208,10 +211,12 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) {
 	ImGui::PopStyleColor(2);
 }
 
-void MarketWatch::Connect(OptionChainContractSlot callback_) { _optionChainContractSignal.connect(callback_); }
+void MarketWatch::Connect(OptionChainContractSlot callback_) {
+	_optionChainContractSignal.connect(callback_);
+}
 
 void MarketWatch::addContractToMarketWatch(const std::string& contract_) {
-	auto token = ContractInfo::GetToken(contract_);
+	auto token = Lancelot::ContractInfo::GetToken(contract_);
 	if (not _subscribed.contains(token)) {
 		auto ref = ContractInfo::GetLiveDataRef(token);
 		if (not ref) return;

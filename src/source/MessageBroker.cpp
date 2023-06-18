@@ -7,12 +7,14 @@
 #include "../API/ContractInfo.hpp"
 #include "../DataFeed/Compression.h"
 #include "../include/Enums.hpp"
-#include "../include/Logger.hpp"
+#include "../include/Structure.hpp"
 #include "../include/Utils.hpp"
 
 MessageBroker::MessageBroker(boost::asio::io_context& ioContext_) : TBaseSocket(ioContext_) {}
 
-void MessageBroker::setCallback(UpdateTradeFunctionT updateTradeFunction_) { _updateTradeFunction = std::move(updateTradeFunction_); }
+void MessageBroker::setCallback(UpdateTradeFunctionT updateTradeFunction_) {
+	_updateTradeFunction = std::move(updateTradeFunction_);
+}
 
 void MessageBroker::process(const char* buffer_, size_t size_) {
 	const auto* request = reinterpret_cast<const RequestInPackT*>(buffer_);
@@ -76,7 +78,7 @@ void MessageBroker::processOrder(const nlohmann::json& input_, ResponseType type
 	info->FillPrice	   = input_.at(JSON_FILL_PRICE).get<float>();
 	info->Side		   = static_cast<SideType>(input_.at(JSON_SIDE).get<int>());
 	info->StatusValue  = static_cast<OrderStatus>(type_);
-	info->Contract	   = ContractInfo::GetFullName(info->Token);
+	info->Contract	   = Lancelot::ContractInfo::GetDescription(info->Token);
 	info->Time		   = input_.at(JSON_TIME).get<std::string>();
 	info->Client	   = input_.at(JSON_CLIENT).get<std::string>();
 	info->Message	   = input_.at(JSON_MESSAGE).get<std::string>();

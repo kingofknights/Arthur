@@ -1,8 +1,10 @@
 #include "MathParser.hpp"
 
-#include "../include/Logger.hpp"
+#include <Lancelot/Logger/Logger.hpp>
 
-MathParser::MathParser() { this->SymbolTable.add_variable("token_", _token); }
+MathParser::MathParser() {
+	this->SymbolTable.add_variable("token_", _token);
+}
 
 void MathParser::ParserError(const ParserT& parser, const std::string& expression) {
 	LOG(WARNING, "Error : [{}] Expression : [{}]", parser.error(), expression)
@@ -49,5 +51,9 @@ bool MathParser::ParseExpression(uint64_t key, const std::string& expression, bo
 	return return_;
 }
 
-double MathParser::GetOutput(const ExpressionT& Expression) const { return _parserON ? Expression.value() : 0; }
-void   MathParser::setToken(double token_) { _token = token_; }
+double MathParser::GetOutput(const ExpressionT& Expression) const {
+	return _parserON ? Expression.value() : 0;
+}
+void MathParser::setToken(double token_) {
+	_token = token_;
+}

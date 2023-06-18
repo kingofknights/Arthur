@@ -1,46 +1,44 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <string>
-#include <array>
 
-#define JSON_PARAMS		   "params"
-#define JSON_ID			   "id"
-#define JSON_TOKEN		   "token"
-#define JSON_PRICE		   "price"
-#define JSON_QUANTITY	   "quantity"
-#define JSON_CLIENT		   "client"
-#define JSON_SIDE		   "side"
-#define JSON_ORDER_ID	   "order_id"
-#define JSON_ARGUMENTS	   "arguments"
-#define JSON_PF_NUMBER	   "pf"
-#define JSON_UNIQUE_ID	   "unique_id"
+#define JSON_PARAMS "params"
+#define JSON_ID "id"
+#define JSON_TOKEN "token"
+#define JSON_PRICE "price"
+#define JSON_QUANTITY "quantity"
+#define JSON_CLIENT "client"
+#define JSON_SIDE "side"
+#define JSON_ORDER_ID "order_id"
+#define JSON_ARGUMENTS "arguments"
+#define JSON_PF_NUMBER "pf"
+#define JSON_UNIQUE_ID "unique_id"
 #define JSON_STRATEGY_NAME "name"
-#define JSON_ORDER_TYPE	   "type"
-#define JSON_TIME		   "time"
+#define JSON_ORDER_TYPE "type"
+#define JSON_TIME "time"
 #define JSON_FILL_QUANTITY "fill_quantity"
-#define JSON_FILL_PRICE	   "fill_price"
-#define JSON_REMAINING	   "remaining"
-#define JSON_MESSAGE	   "message"
+#define JSON_FILL_PRICE "fill_price"
+#define JSON_REMAINING "remaining"
+#define JSON_MESSAGE "message"
 
-enum OptionType {
-	OptionType_CALL = 0,
-	OptionType_PUT
-};
-
-enum SideType {
+enum SideType
+{
 	Side_BUY = 0,
 	Side_SELL
 };
 
-enum OrderType {
+enum OrderType
+{
 	OrderType_LIMIT = 0,
 	OrderType_MARKET,
 	OrderType_IOC,
 	OrderType_SPREAD
 };
 
-enum StrategyStatus {
+enum StrategyStatus
+{
 	StrategyStatus_PENDING = 0,
 	StrategyStatus_ACTIVE,
 	StrategyStatus_APPLIED,
@@ -50,7 +48,8 @@ enum StrategyStatus {
 	StrategyStatus_DISCONNECTED
 };
 
-enum RequestType {
+enum RequestType
+{
 	RequestType_LOGIN = 0,
 	// ORDER
 	RequestType_NEW,
@@ -63,7 +62,8 @@ enum RequestType {
 	RequestType_SUBSCRIBE_APPLY,
 };
 
-enum ResponseType {
+enum ResponseType
+{
 	// ORDER
 	ResponseType_PLACED = 0,
 	ResponseType_NEW,
@@ -88,7 +88,8 @@ enum ResponseType {
 	ResponseType_TRACKER,
 };
 
-enum OrderStatus {
+enum OrderStatus
+{
 	OrderStatus_PLACED = 0,
 	OrderStatus_NEW,
 	OrderStatus_REPLACED,
@@ -101,24 +102,6 @@ enum OrderStatus {
 };
 
 #pragma pack(push, 1)
-
-using ResultSetT = struct ResultSetT {
-	uint32_t	Token;
-	uint32_t	ExpiryDate;
-	uint32_t	LotMultiple;
-	uint32_t	LotSize;
-	uint32_t	TickSize;
-	uint32_t	Divisor;
-	float		StrikePrice;
-	std::string Symbol;
-	std::string InstType;
-	std::string OptionType;
-	std::string Segment;
-	std::string Name;
-	std::string series;
-	std::string Exchange;
-	std::string FullName;
-};
 
 using RequestInPackT = struct RequestInPackT {
 	short				  TotalSize;

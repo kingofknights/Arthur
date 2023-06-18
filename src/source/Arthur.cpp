@@ -16,11 +16,11 @@
 #include "../DataFeed/Compression.h"
 #include "../Demo/Demo.hpp"
 #include "../Knight/Scanner.hpp"
+#include "../include/Colors.hpp"
 #include "../include/ColumnGenerator.hpp"
 #include "../include/ConfigLoader.hpp"
 #include "../include/Enums.hpp"
 #include "../include/GreekBook.hpp"
-#include "../include/Logger.hpp"
 #include "../include/ManualOrder.hpp"
 #include "../include/MarketWatch.hpp"
 #include "../include/MessageBroker.hpp"
@@ -29,7 +29,6 @@
 #include "../include/OrderBook.hpp"
 #include "../include/PendingBook.hpp"
 #include "../include/Portfolio.hpp"
-#include "../include/Sqlite.hpp"
 #include "../include/StrategyWorkspace.hpp"
 #include "../include/TableColumnInfo.hpp"
 #include "../include/Themes.hpp"
@@ -42,9 +41,11 @@ public:
 	static double GetRamUsage();
 };
 
+extern bool					BackendConnected;
 extern int					UserID;
 extern DemoOrderInfoSignalT DemoOrderInfoSignal;
 extern MarketEventQueueT	MarketEventQueue;
+extern AllContractT			AllContract;
 
 #define DATABASE_PATH "ResultSet.db3"
 #define TRADING_APP_CONFIG_PATH "Config/Arthur.json"
@@ -54,9 +55,13 @@ extern MarketEventQueueT	MarketEventQueue;
 Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _backendWorker(_backendComService.get_executor()), _backendStrand(_backendComService) {
 	Themes::AddIconFonts("Ruda-Bold.ttf", 18.0f);
 #if 1
-	UserID = 101;
+	UserID	   = 101;
+	_ipaddress = "127.0.0.1";
+	_port	   = "54321";
+
 	LOG(INFO, "Loading SqlLite3 Database : {}", DATABASE_PATH)
-	Sqlite::Init(DATABASE_PATH);
+	Lancelot::ContractInfo::Initialize(DATABASE_PATH, Utils::GetAllContractCallback);
+	std::sort(AllContract.begin(), AllContract.end(), std::less<>());
 	Utils::GetClientList(UserID);
 	Utils::CreateSupportFolder();
 	ConfigLoader::Instance();
@@ -295,6 +300,8 @@ auto Arthur::Menu() -> void {
 		ImGui::SameLine();
 		ImGui::Text(ICON_MD_MEMORY " RAM : %.2f", MemoryUsage::GetRamUsage());
 		ImGui::SameLine();
+		ImGui::TextColored(UpDownColor(BackendConnected), "%s%s:%s", ICON_MD_LAN, _ipaddress.data(), _port.data());
+		ImGui::SameLine();
 		static bool start_demo = true;
 		if (start_demo and ImGui::Button(ICON_MD_PLAY_ARROW " Play Demo")) {
 			_demoPtr->startAndStop();
@@ -440,7 +447,7 @@ void Arthur::startAllThreads() {
 		auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { marketEventHandler(token_); });
 		_threadGroup.push_back(std::move(thread));
 	}
-	{ _messageBroker->makeConnection("127.0.0.1", "54321"); }
+	//{ _messageBroker->makeConnection(_ipaddress, _port); }
 }
 
 void Arthur::marketEventHandler(std::stop_token& stopToken_) {

@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "../include/Structure.hpp"
+#include "../API/Common.hpp"
 enum RequestType;
 
 class Compression {

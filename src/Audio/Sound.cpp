@@ -1,6 +1,6 @@
 #include "Sound.hpp"
 
-#include "../include/Logger.hpp"
+#include <Lancelot/Logger/Logger.hpp>
 
 Sound::Sound(std::string filepath) {
 	if (SDL_LoadWAV(filepath.c_str(), &_wavSpecs, &_waveBuffer, &_waveLength) == nullptr) {
@@ -20,7 +20,9 @@ void Sound::Play() {
 	SDL_PlayAudioDevice(_device);
 }
 
-void Sound::Stop() { SDL_PauseAudioDevice(_device); }
+void Sound::Stop() {
+	SDL_PauseAudioDevice(_device);
+}
 
 void Sound::SetupDevice() {
 	// Request the most reasonable default device

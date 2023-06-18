@@ -6,13 +6,13 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_audio.h>
 
+#include <Lancelot/Logger/Logger.hpp>
 #include <chrono>
 
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl3.h"
 #include "include/Arthur.hpp"
-#include "include/Logger.hpp"
 #include "stb_image.h"
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)

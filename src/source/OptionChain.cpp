@@ -6,10 +6,8 @@
 #include "../include/Colors.hpp"
 #include "../include/Configuration.hpp"
 #include "../include/Enums.hpp"
-#include "../include/Logger.hpp"
 #include "../include/Signal.hpp"
-#include "../include/Sqlite.hpp"
-#include "../include/StoreProcedures.hpp"
+#include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 
 extern AddContractToDemoSignalT AddContractToDemoSignal;
@@ -58,13 +56,14 @@ void OptionChain::DrawOptionChain(bool* show_) {
 				const OptionChainItemT& Put			   = optionChainRow.Put;
 
 				float priceForCall = _future->Bid[0].Price ? _future->Bid[0].Price : _future->LastTradePrice;
-				float expiryGap	   = Greeks::GetExpiryGap(Put.ResultSet.ExpiryDate);
-				float rate		   = 0.0f;
-				float call_IV	   = Greeks::GetIV(priceForCall, valueType_.first, rate, expiryGap, Call.Self->LastTradePrice, true);
-				float call_Theta   = Greeks::GetTheta(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
-				float call_Vega	   = Greeks::GetVega(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
-				float call_Gamma   = Greeks::GetGamma(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
-				float call_Delta   = Greeks::GetDelta(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
+				// FIXME : remove abs when working with live contracts
+				float expiryGap	 = std::abs(Greeks::GetExpiryGap(Put.ResultSet->ExpiryDate));
+				float rate		 = 0.0f;
+				float call_IV	 = Greeks::GetIV(priceForCall, valueType_.first, rate, expiryGap, Call.Self->LastTradePrice, true);
+				float call_Theta = Greeks::GetTheta(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
+				float call_Vega	 = Greeks::GetVega(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
+				float call_Gamma = Greeks::GetGamma(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
+				float call_Delta = Greeks::GetDelta(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
 
 				float priceForPut = _future->Ask[0].Price ? _future->Ask[0].Price : _future->LastTradePrice;
 				float put_IV	  = Greeks::GetIV(priceForPut, valueType_.first, rate, expiryGap, Put.Self->LastTradePrice, false);
@@ -196,11 +195,11 @@ void OptionChain::DrawOptionChain(bool* show_) {
 	ImGui::End();
 }
 void OptionChain::SetOptionForFuture(const std::string& contract_) {
-	int		 token_	 = ContractInfo::GetToken(contract_);
-	uint32_t expiry_ = ContractInfo::GetExpiry(token_);
+	int		 token_	 = Lancelot::ContractInfo::GetToken(contract_);
+	uint32_t expiry_ = Lancelot::ContractInfo::GetExpiryDate(token_);
 
-	if (not ContractInfo::IsFuture(token_)) {
-		token_ = ContractInfo::GetFuture(token_);
+	if (not Lancelot::ContractInfo::IsFuture(token_)) {
+		token_ = Lancelot::ContractInfo::GetFuture(token_);
 	}
 	auto future = ContractInfo::GetLiveDataRef(token_);
 
@@ -211,24 +210,24 @@ void OptionChain::SetOptionForFuture(const std::string& contract_) {
 
 	AddContractToDemoSignal(future->Token);
 	uint32_t futurePrice_ = future->LastTradePrice * 100.0;
-	_symbol				  = ContractInfo::GetSymbol(token_);
+	_symbol				  = Lancelot::ContractInfo::GetSymbol(token_);
 	_expiry				  = FormatTimeToString(expiry_, "%d-%m-%Y");
 
 	LoadOptions(_symbol, expiry_, futurePrice_, '>', "asc");
 	LoadOptions(_symbol, expiry_, futurePrice_, '<', "desc");
 }
 void OptionChain::LoadOptions(const std::string& symbol_, uint32_t expiry_, uint32_t futurePrice_, char comparator_, const std::string& order_) {
-	auto query = fmt::format(GetOptionChain_, symbol_, symbol_, expiry_, comparator_, futurePrice_, order_);
-	auto table = Sqlite::Instance()->GetResult(query);
+	auto query = FORMAT(GetOptionChain_, symbol_, symbol_, expiry_, comparator_, futurePrice_, order_);
+	auto table = Lancelot::ContractInfo::GetResultWithIndex(query);
 
 	for (const auto& row : table) {
 		auto			 callToken = std::stoi(row[0]);
 		auto			 putToken  = std::stoi(row[1]);
-		OptionChainItemT call{.Self = ContractInfo::GetLiveDataRef(callToken), .ResultSet = ContractInfo::GetResultSet(callToken)};
-		OptionChainItemT put{.Self = ContractInfo::GetLiveDataRef(putToken), .ResultSet = ContractInfo::GetResultSet(putToken)};
+		OptionChainItemT call{.Self = ContractInfo::GetLiveDataRef(callToken), .ResultSet = Lancelot::ContractInfo::GetResultSet(callToken)};
+		OptionChainItemT put{.Self = ContractInfo::GetLiveDataRef(putToken), .ResultSet = Lancelot::ContractInfo::GetResultSet(putToken)};
 		OptionChainRowT	 optionChainRow{.Call = call, .Put = put};
 
-		_OptionChainContainer.emplace(std::stof(row[2]) / call.ResultSet.Divisor, optionChainRow);
+		_OptionChainContainer.emplace(std::stof(row[2]) / call.ResultSet->Divisor, optionChainRow);
 		AddContractToDemoSignal(callToken);
 		AddContractToDemoSignal(putToken);
 	}

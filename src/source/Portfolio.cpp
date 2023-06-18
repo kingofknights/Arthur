@@ -2,12 +2,13 @@
 
 #include <ranges>
 
+#include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
 #include "../include/ConfigLoader.hpp"
 #include "../include/Configuration.hpp"
 #include "../include/Enums.hpp"
-#include "../include/Logger.hpp"
 #include "../include/MarketWatch.hpp"
+#include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 #include "../include/Utils.hpp"
 
@@ -72,9 +73,13 @@ void Portfolio::paint() {
 	_scannerAddQueue.consume_one([&](const StrategyRowPtrT& row_) { _strategyList.push_back(row_); });
 }
 
-std::string Portfolio::getStrategyName() const { return _strategyName; }
+std::string Portfolio::getStrategyName() const {
+	return _strategyName;
+}
 
-bool Portfolio::closed() const { return not _open; }
+bool Portfolio::closed() const {
+	return not _open;
+}
 
 void Portfolio::DrawPortfolioWindow() {
 	ImGui::BeginDisabled(_portFolioNumber > MAX_PORTFOLIO_ALLOWED);
@@ -441,7 +446,7 @@ void Portfolio::AppendStrategy() {
 	for (ParameterInfoListT::value_type valueType : _paramList) {
 		ParameterInfoT& info = valueType.second;
 		if (info.Type == DataType_CONTRACT) {
-			info.Self = ContractInfo::GetLiveDataRef(ContractInfo::GetToken(info.Parameter.Text));
+			info.Self = ContractInfo::GetLiveDataRef(Lancelot::ContractInfo::GetToken(info.Parameter.Text));
 		} else if (info.Type == DataType_COMBO) {
 			std::string options = info.Parameter.Text;
 			int			i		= 0;

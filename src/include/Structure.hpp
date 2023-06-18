@@ -3,6 +3,8 @@
 //
 
 #pragma once
+
+#include <Lancelot.hpp>
 #include <array>
 #include <boost/lockfree/spsc_queue.hpp>
 #include <cstdint>
@@ -15,7 +17,6 @@
 #include <vector>
 
 #include "imgui.h"
-#include "../API/Common.hpp"
 
 #pragma pack(push, 1)
 
@@ -26,7 +27,7 @@ enum StrategyStatus;
 enum OrderType;
 
 constexpr int MARKET_WATCH_LADDER_COUNT = 5;
-constexpr int STRATEGY_NAME_LENGTH		= 30;
+constexpr int STRATEGY_NAME_LENGTH		= 50;
 
 using PricePointsT = struct PricePointsT {
 	float	 Price;
@@ -70,7 +71,6 @@ using MarketWatchDataT = struct MarketWatchDataT {
 };
 
 using MarketWatchDataPtrT = std::shared_ptr<MarketWatchDataT>;
-// FIXME : using WeakMarketWatchDataPtrT = std::weak_ptr<MarketWatchDataT>;
 
 using ParameterValueT = struct ParameterValueT {
 	bool		Check{false};
@@ -97,9 +97,9 @@ using OrderInfoT = struct OrderInfoT {
 	uint32_t PF;
 	uint32_t Gateway;
 	uint32_t Token;
-	int		 Quantity;
-	int		 FillQuantity;
-	int		 Remaining;
+	uint32_t Quantity;
+	uint32_t FillQuantity;
+	uint32_t Remaining;
 	long	 OrderNo;
 	float	 Price;
 	float	 FillPrice;
@@ -161,7 +161,6 @@ using GreekBookColumnT = struct GreekBookColumnT {
 	GreeksPtrT Greeks;
 };
 
-
 using DValueT = struct DValueT {
 	float		Delta;
 	float		Gamma;
@@ -201,7 +200,6 @@ using SpotInfoT = struct SpotInfoT {
 	float Change;
 };
 
-
 using ParameterInfoListT = std::map<std::string, ParameterInfoT>;
 
 using StrategyRowT = struct StrategyRowT {
@@ -214,8 +212,8 @@ using StrategyRowT = struct StrategyRowT {
 };
 
 using OptionChainItemT = struct OptionChainItemT {
-	MarketWatchDataPtrT Self;
-	ResultSetT			ResultSet;
+	MarketWatchDataPtrT		Self;
+	Lancelot::ResultSetPtrT ResultSet;
 };
 
 using OptionChainRowT = struct OptionChainRowT {
@@ -235,8 +233,8 @@ using ScannerFunctionInfoT = struct ScannerFunctionInfoT {
 };
 
 using ClientInfoT = struct ClientInfoT {
-	std::string Exchange;
-	std::string ClientCode;
+	Lancelot::Exchange Exchange;
+	std::string		   ClientCode;
 };
 
 using TradeTrackerItemT = struct TradeTrackerItemT {
@@ -261,11 +259,11 @@ using ScannerResultOutputT = struct ScannerResultOutputT {
 #pragma pack(pop)
 
 struct Singleton {
-	Singleton()								= default;
-	Singleton(const Singleton &)			= delete;
-	Singleton(Singleton &&)					= delete;
+	Singleton()					 = default;
+	Singleton(const Singleton &) = delete;
+	Singleton(Singleton &&)		 = delete;
 	Singleton &operator=(const Singleton &) = delete;
-	Singleton &operator=(Singleton &&)		= delete;
+	Singleton &operator=(Singleton &&) = delete;
 };
 
 class ExcelAutomation;
@@ -277,12 +275,9 @@ using GreekBookColumnPtrT = std::shared_ptr<GreekBookColumnT>;
 using OrderInfoPtrT		  = std::shared_ptr<OrderInfoT>;
 
 using MarketWatchDatContainerT	= std::unordered_map<uint32_t, MarketWatchDataPtrT>;
-using ResultSetContainerT		= std::unordered_map<uint32_t, ResultSetT>;
 using GlobalStrategyListT		= std::unordered_map<uint32_t, WeakStrategyRowPtrT>;
 using GreekBookContainerT		= std::unordered_map<uint32_t, GreekBookColumnPtrT>;
 using SymbolWiseTradeContainerT = std::unordered_map<uint32_t, NetBookColumnPtrT>;
-using NameToTokenContainerT		= std::unordered_map<std::string, uint32_t>;
-using TokenToFutureTokenT		= std::unordered_map<int, int>;
 using GlobalOrderInfoContainerT = std::unordered_map<int, OrderInfoPtrT>;
 
 using PFWiseTradeContainerT		 = std::map<std::pair<uint32_t, uint32_t>, NetBookColumnPtrT>;
@@ -296,8 +291,6 @@ using AllContractT					= std::vector<std::string>;
 using LiveContainerT				= std::deque<MarketWatchDataPtrT>;
 using StrategyNameListT				= AllContractT;
 using ClientCodeListT				= std::vector<ClientInfoT>;
-using DatabaseRow					= std::vector<std::string>;
-using DatabaseTable					= std::vector<DatabaseRow>;
 using StrategyListT					= std::deque<StrategyRowPtrT>;
 using ScannerFunctionListContainerT = std::vector<ScannerFunctionInfoT>;
 using TradeTrackerContainerT		= std::deque<TradeTrackerItemT>;

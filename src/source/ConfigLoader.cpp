@@ -1,7 +1,9 @@
 #include "../include/ConfigLoader.hpp"
 
-#include "../include/Logger.hpp"
-#include "../include/Sqlite.hpp"
+#include <filesystem>
+#include <fstream>
+
+#include "../include/Structure.hpp"
 
 extern StrategyNameListT StrategyNameList;
 
@@ -28,7 +30,7 @@ std::string ConfigLoader::getStrategyColumn(const std::string& strategyName_) {
 		return strStream.str();
 	}
 #else
-	DatabaseTable table = Sqlite::Instance()->GetResult(fmt::format("SELECT data FROM Strategy WHERE name = '{}'", strategyName_));
+	auto table = Lancelot::ContractInfo::GetResultWithIndex(FORMAT(GetStrategyColumns_, strategyName_));
 	for (const auto& row : table) {
 		for (const auto& item : row) return item;
 	}
@@ -47,8 +49,8 @@ bool ConfigLoader::saveStrategyColumn(const std::string& strategyName_, std::str
 	}
 	return false;
 #else
-	Sqlite::Instance()->ExecuteQuery(fmt::format("DELETE FROM Strategy WHERE name = '{}'", strategyName_));
-	Sqlite::Instance()->ExecuteQuery(fmt::format("INSERT INTO Strategy(name, data) VALUES('{}', '{}')", strategyName_, params_));
+	Lancelot::ContractInfo::ExecuteQuery(FORMAT(RemoveStrategy_, strategyName_));
+	Lancelot::ContractInfo::ExecuteQuery(FORMAT(InsertStrategy_, strategyName_, params_));
 #endif
 	return true;
 }
@@ -67,11 +69,13 @@ void ConfigLoader::getStrategyList() {
 		StrategyNameList.push_back(file);
 	}
 #else
-	DatabaseTable table = Sqlite::Instance()->GetResult("SELECT name FROM Strategy");
+	auto table = Lancelot::ContractInfo::GetResultWithIndex(GetStrategyList_);
 	for (const auto& row : table) {
 		StrategyNameList.push_back(row[0]);
 	}
 #endif
 }
 
-BookOrderListT ConfigLoader::getOrderHistory(double orderNumber_) { return {}; }
+BookOrderListT ConfigLoader::getOrderHistory(double orderNumber_) {
+	return {};
+}

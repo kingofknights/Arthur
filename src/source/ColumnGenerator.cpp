@@ -9,7 +9,7 @@
 #include "../include/ConfigLoader.hpp"
 #include "../include/Configuration.hpp"
 #include "../include/Enums.hpp"
-#include "../include/Logger.hpp"
+#include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 
 extern StrategyNameListT StrategyNameList;

@@ -6,6 +6,7 @@
 #include "../include/Signal.hpp"
 #include "../include/Structure.hpp"
 
+bool		BackendConnected;
 int			Id;
 int			UserID;
 std::string StatusDisplay;
@@ -13,9 +14,6 @@ std::string StatusDisplay;
 StrategyNameListT				 StrategyNameList;
 ScannerContainerT				 ScannerContainer;
 MarketWatchDatContainerT		 MarketWatchDatContainer;
-NameToTokenContainerT			 NameToTokenContainer;
-ResultSetContainerT				 ResultSetContainer;
-TokenToFutureTokenT				 TokenToFutureToken;
 AllContractT					 AllContract;
 ClientCodeListT					 ClientCodeList;
 MarketEventQueueT				 MarketEventQueue;

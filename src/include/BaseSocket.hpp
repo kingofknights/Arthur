@@ -1,3 +1,5 @@
+#ifndef ARTHUR_INCLUDE_BASE_SOCKET_HPP
+#define ARTHUR_INCLUDE_BASE_SOCKET_HPP
 #pragma once
 
 #include <boost/asio.hpp>
@@ -33,3 +35,5 @@ private:
 	std::shared_ptr<boost::asio::io_context::strand> _strand;
 	std::shared_ptr<boost::asio::ip::tcp::socket>	 _socket;
 };
+
+#endif	// ARTHUR_INCLUDE_BASE_SOCKET_HPP

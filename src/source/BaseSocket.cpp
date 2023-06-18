@@ -1,12 +1,12 @@
 #include "../include/BaseSocket.hpp"
 
+#include "../API/Common.hpp"
 #include "../include/Enums.hpp"
-#include "../include/Logger.hpp"
 #include "../include/Structure.hpp"
 #include "../include/Utils.hpp"
 
-extern int UserID;
-
+extern int	UserID;
+extern bool BackendConnected;
 TBaseSocket::TBaseSocket(boost::asio::io_context& ioContext_) {
 	this->_socket = std::make_shared<boost::asio::ip::tcp::socket>(ioContext_);
 	this->_strand = std::make_shared<boost::asio::io_service::strand>(ioContext_);
@@ -31,13 +31,15 @@ void TBaseSocket::internalConnectHandler(const boost::system::error_code& error_
 	if (!this->_socket->is_open()) {
 		LOG(WARNING, "Socket got closed ! Trying again!! {}", error_code_.message());
 		Connect(iterator_);
+		BackendConnected = false;
 	} else if (error_code_) {
 		LOG(WARNING, "Connect error: {}", error_code_.message());
 		this->_socket->close();
 		Connect(iterator_);
+		BackendConnected = false;
 	} else {
 		LOG(INFO, "Connected to {}", iterator_->endpoint().address().to_string());
-
+		BackendConnected = true;
 		_socket->set_option(boost::asio::socket_base::keep_alive(true));
 		_socket->set_option(boost::asio::socket_base::reuse_address(true));
 		_socket->set_option(boost::asio::ip::tcp::no_delay(true));
@@ -56,7 +58,9 @@ void TBaseSocket::Write_Async(const char* buffer, size_t size_) {
 							 [this](const boost::system::error_code& errorCode_, size_t size_) { WriteHandler(errorCode_, size_); });
 }
 
-void TBaseSocket::Write_Sync(char* buffer, size_t size_) { boost::asio::write(*this->_socket, boost::asio::buffer(buffer, size_), boost::asio::transfer_exactly(size_), _errorCode); }
+void TBaseSocket::Write_Sync(char* buffer, size_t size_) {
+	boost::asio::write(*this->_socket, boost::asio::buffer(buffer, size_), boost::asio::transfer_exactly(size_), _errorCode);
+}
 
 void TBaseSocket::Read() {
 	boost::asio::async_read(*this->_socket, boost::asio::buffer(_buffer, sizeof(RequestInPackT)), boost::asio::transfer_exactly(sizeof(RequestInPackT)),

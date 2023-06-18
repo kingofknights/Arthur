@@ -1,14 +1,13 @@
 #include "../include/PendingBook.hpp"
 
-#include <fmt/format.h>
-
+#include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
 #include "../include/Colors.hpp"
 #include "../include/Configuration.hpp"
 #include "../include/Enums.hpp"
-#include "../include/Logger.hpp"
 #include "../include/ManualOrder.hpp"
 #include "../include/OrderHistory.hpp"
+#include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 #include "../include/Utils.hpp"
 
@@ -50,13 +49,13 @@ void PendingBook::DrawPendingBook(bool* show_) {
 						if (tradeInfo_->PF % 10000 and ImGui::IsKeyPressed(ImGuiKey_F2)) {
 							ManualOrderInfoT info{.Gateway	   = tradeInfo_->Gateway,
 												  .Price	   = tradeInfo_->Price,
-												  .Quantity	   = tradeInfo_->Quantity,
-												  .LotSize	   = ContractInfo::GetLotMultiple(tradeInfo_->Token),
+												  .Quantity	   = (int)tradeInfo_->Quantity,
+												  .LotSize	   = (int)Lancelot::ContractInfo::GetLotMultiple(tradeInfo_->Token),
 												  .OrderNumber = tradeInfo_->OrderNo,
 												  .Type		   = 0,
 												  .Side		   = tradeInfo_->Side,
 												  .Status	   = OrderStatus_REPLACED,
-												  .Contract	   = ContractInfo::GetFullName(tradeInfo_->Token),
+												  .Contract	   = Lancelot::ContractInfo::GetDescription(tradeInfo_->Token),
 												  .Client	   = "PRO",
 												  .Self		   = ContractInfo::GetLiveDataRef(tradeInfo_->Token)};
 							_manualOrderPtr->Update(info);
@@ -146,7 +145,7 @@ void PendingBook::Update(const OrderInfoPtrT& tradeInfo_, bool insert_) {
 		auto iterator = _hashing.find(tradeInfo_->Gateway);
 		if (iterator != _hashing.end()) {
 			if (_container.erase(iterator->second)) {
-				_buyCount  -= tradeInfo_->Side == Side_BUY;
+				_buyCount -= tradeInfo_->Side == Side_BUY;
 				_sellCount -= tradeInfo_->Side == Side_SELL;
 			}
 		}
@@ -155,11 +154,15 @@ void PendingBook::Update(const OrderInfoPtrT& tradeInfo_, bool insert_) {
 	LOG(INFO, "2 : {} {} {} {} {}", __FUNCTION__, tradeInfo_->Side, _buyCount, _sellCount, OrderStatusInfoName[tradeInfo_->StatusValue])
 	if (insert_) {
 		_container.emplace(tradeInfo_->Time, tradeInfo_);
-		_buyCount  += tradeInfo_->Side == Side_BUY;
+		_buyCount += tradeInfo_->Side == Side_BUY;
 		_sellCount += tradeInfo_->Side == Side_SELL;
 	}
 	LOG(INFO, "3 : {} {} {} {} {}", __FUNCTION__, tradeInfo_->Side, _buyCount, _sellCount, OrderStatusInfoName[tradeInfo_->StatusValue])
 }
-void PendingBook::Insert(const OrderInfoPtrT& tradeInfo_, bool insert_) { _pendingOrderUpdate.push(std::make_pair(tradeInfo_, insert_)); }
+void PendingBook::Insert(const OrderInfoPtrT& tradeInfo_, bool insert_) {
+	_pendingOrderUpdate.push(std::make_pair(tradeInfo_, insert_));
+}
 
-void PendingBook::cancelOrderFunctionCallback(CancelPendingOrderFunctionT cancelPendingOrderFunction_) { _cancelPendingOrderFunction = std::move(cancelPendingOrderFunction_); }
+void PendingBook::cancelOrderFunctionCallback(CancelPendingOrderFunctionT cancelPendingOrderFunction_) {
+	_cancelPendingOrderFunction = std::move(cancelPendingOrderFunction_);
+}

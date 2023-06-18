@@ -7,11 +7,12 @@
 #include <fmt/chrono.h>
 #include <fmt/format.h>
 
+#include <Lancelot/Logger/Logger.hpp>
 #include <thread>
 
+#include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
 #include "../include/Enums.hpp"
-#include "../include/Logger.hpp"
 #include "../include/Signal.hpp"
 #include "../include/Utils.hpp"
 
@@ -27,8 +28,8 @@ double Demo::monteCarloEstimate(double lowBound, double upBound, int iterations)
 	double totalSum = 0;
 	int	   loop		= iterations;
 	while (loop--) {
-		double randNum	= lowBound + Randon(0.0, upBound - lowBound);
-		totalSum	   += randNum;
+		double randNum = lowBound + Randon(0.0, upBound - lowBound);
+		totalSum += randNum;
 	}
 
 	double value = totalSum / iterations;
@@ -63,7 +64,9 @@ void Demo::GenerateMonteCarloData(const MarketWatchDataPtrT& ptr_) {
 	std::string time		= fmt::format("{:%Y-%m-%d %H:%M:%S}", fmt::localtime(std::time(0)));
 	std::memcpy(ptr_->LastTradeTime.data(), time.c_str(), time.length());
 }
-void Demo::addContract(int token_) { _liveContainer.insert(ContractInfo::GetLiveDataRef(token_)); }
+void Demo::addContract(int token_) {
+	_liveContainer.insert(ContractInfo::GetLiveDataRef(token_));
+}
 
 void Demo::Run(std::stop_token& token_) {
 	while (not token_.stop_requested()) {

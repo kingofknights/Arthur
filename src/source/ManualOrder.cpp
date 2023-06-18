@@ -1,10 +1,11 @@
 #include "../include/ManualOrder.hpp"
 
+#include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
 #include "../include/Colors.hpp"
 #include "../include/Enums.hpp"
-#include "../include/Logger.hpp"
 #include "../include/MarketWatch.hpp"
+#include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 #include "../include/Utils.hpp"
 
@@ -29,7 +30,7 @@ void ManualOrder::paint(const char* name_) {
 void ManualOrder::Update(ManualOrderInfoT& info_) {
 	_order		  = info_;
 	_color		  = BuySellColor(_order.Side);
-	auto exchange = ContractInfo::GetExchange(ContractInfo::GetToken(info_.Contract));
+	auto exchange = Lancelot::ContractInfo::GetExchange(Lancelot::ContractInfo::GetToken(info_.Contract));
 	if (exchange != _exchange) {
 		_exchange = exchange;
 		for (const auto& item : ClientCodeList) {
@@ -93,4 +94,6 @@ void ManualOrder::DrawInputItem() {
 		ImGui::CloseCurrentPopup();
 	}
 }
-void ManualOrder::publishOrderCallback(PublishOrderFunctionT publishOrderFunction_) { _publishOrderFunction = std::move(publishOrderFunction_); }
+void ManualOrder::publishOrderCallback(PublishOrderFunctionT publishOrderFunction_) {
+	_publishOrderFunction = std::move(publishOrderFunction_);
+}

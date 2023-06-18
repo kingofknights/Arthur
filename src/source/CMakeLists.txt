@@ -3,7 +3,6 @@ set(SOURCE_FILE
 		ManualOrder.cpp
 		OrderHistory.cpp
 		Portfolio.cpp
-		Sqlite.cpp
 		TradeBook.cpp
 		ConfigLoader.cpp
 		MarketWatch.cpp
@@ -32,4 +31,5 @@ target_link_libraries(source PUBLIC
 		fmt::fmt
 		SQLiteCpp
 		Greeks
+		Lancelot
 	    )

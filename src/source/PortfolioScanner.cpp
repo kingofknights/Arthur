@@ -8,10 +8,8 @@
 #include "../Knight/Scanner.hpp"
 #include "../include/Configuration.hpp"
 #include "../include/Enums.hpp"
-#include "../include/Logger.hpp"
 #include "../include/Portfolio.hpp"
-#include "../include/Sqlite.hpp"
-#include "../include/StoreProcedures.hpp"
+#include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 
 extern std::string						StatusDisplay;
@@ -37,14 +35,14 @@ void PortfolioScanner::paint(bool *show_) {
 void PortfolioScanner::LoadParameter() {
 	{
 		LOG(INFO, "{} {} {}", __FUNCTION__, GetStrategyID_, _strategyName)
-		auto table = Sqlite::Instance()->GetResult(fmt::format(GetStrategyID_, _strategyName));
+		auto table = Lancelot::ContractInfo::GetResultWithIndex(FORMAT(GetStrategyID_, _strategyName));
 		if (not table.empty() and not table[0].empty()) {
 			_strategyID = std::stoi(table[0][0]);
 		}
 	}
 	{
 		LOG(INFO, "{} {} {}", __FUNCTION__, GetStrategyParams_, _strategyName)
-		auto table = Sqlite::Instance()->GetResult(fmt::format(GetStrategyParams_, _strategyName));
+		auto table = Lancelot::ContractInfo::GetResultWithIndex(FORMAT(GetStrategyParams_, _strategyName));
 		for (auto &row : table) {
 			_scannerInfoFromDatabase.emplace(std::stoi(row[0]), row[1]);
 		}

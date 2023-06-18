@@ -1,3 +1,5 @@
+#ifndef ARTHUR_INCLUDE_GREEK_BOOK_HPP
+#define ARTHUR_INCLUDE_GREEK_BOOK_HPP
 #pragma once
 
 #include <boost/asio.hpp>
@@ -41,3 +43,5 @@ private:
 	NetBookCalculation			_calculation;
 	boost::asio::deadline_timer _timer;
 };
+
+#endif	// ARTHUR_INCLUDE_GREEK_BOOK_HPP
