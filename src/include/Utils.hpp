@@ -27,7 +27,7 @@ public:
 	static void		   AppendPortfolio(uint32_t pf_, WeakStrategyRowPtrT ptr_);
 	static void		   ContractFilter(ImGuiTextFilter &filter_, std::string &index_);
 	static double	   ScannerAPI(double pf_, double name_, double params_, double token_);
-	static std::string manualSerialize(const ManualOrderInfoT &manualOrderInfo_);
+	static std::string manualSerialize(const OrderFormInfoT &manualOrderInfo_);
 	static std::string cancelOrderSerialize(const OrderInfoPtrT &orderInfo_);
 	static std::string strategySerialize(const StrategyRowPtrT &row_, const std::string &name_, RequestType type_);
 

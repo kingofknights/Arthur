@@ -1,4 +1,4 @@
-#include "../include/TradeBook.hpp"
+#include "../include/TradeHistory.hpp"
 
 #include "../API/Common.hpp"
 #include "../include/Colors.hpp"
@@ -8,7 +8,7 @@
 #include "../include/TableColumnInfo.hpp"
 #include "../include/Utils.hpp"
 
-void TradeBook::paint(bool* show_) {
+void TradeHistory::paint(bool* show_) {
 	_pendingTradeUpdate.consume_one([this](const OrderInfoPtrT& orderInfo_) {
 		_container.push_back(orderInfo_);
 		_totalBuy += orderInfo_->Side == Side_BUY;
@@ -22,11 +22,11 @@ void TradeBook::paint(bool* show_) {
 	}
 }
 
-void TradeBook::Insert(const OrderInfoPtrT& orderInfo_) {
+void TradeHistory::Insert(const OrderInfoPtrT& orderInfo_) {
 	_pendingTradeUpdate.push(orderInfo_);
 }
 
-void TradeBook::DrawTradeBookTable(bool* show_) {
+void TradeHistory::DrawTradeBookTable(bool* show_) {
 	if (ImGui::Begin("Trade Book", show_)) {
 		const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
 		if (ImGui::BeginTable("Trade Book Table", BooksColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {

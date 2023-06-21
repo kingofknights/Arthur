@@ -17,22 +17,22 @@
 #include "../Demo/Demo.hpp"
 #include "../Knight/Scanner.hpp"
 #include "../include/Colors.hpp"
-#include "../include/ColumnGenerator.hpp"
 #include "../include/ConfigLoader.hpp"
 #include "../include/Enums.hpp"
-#include "../include/GreekBook.hpp"
-#include "../include/ManualOrder.hpp"
 #include "../include/MarketWatch.hpp"
 #include "../include/MessageBroker.hpp"
 #include "../include/Multicast.hpp"
+#include "../include/OpenOrders.hpp"
 #include "../include/OptionChain.hpp"
 #include "../include/OrderBook.hpp"
-#include "../include/PendingBook.hpp"
+#include "../include/OrderForm.hpp"
 #include "../include/Portfolio.hpp"
+#include "../include/Position.hpp"
 #include "../include/StrategyWorkspace.hpp"
 #include "../include/TableColumnInfo.hpp"
+#include "../include/TemplateBuilder.hpp"
 #include "../include/Themes.hpp"
-#include "../include/TradeBook.hpp"
+#include "../include/TradeHistory.hpp"
 #include "../include/Utils.hpp"
 #include "../include/plf_nanotimer.h"
 
@@ -47,17 +47,17 @@ extern DemoOrderInfoSignalT DemoOrderInfoSignal;
 extern MarketEventQueueT	MarketEventQueue;
 extern AllContractT			AllContract;
 
-#define DATABASE_PATH "ResultSet.db3"
+#define DATABASE_PATH			"ResultSet.db3"
 #define TRADING_APP_CONFIG_PATH "Config/Arthur.json"
-#define ORDER_ALL_BOOK "Order All Book"
-#define REJECT_BOOK "Reject Book"
+#define ORDER_ALL_BOOK			"Order All Book"
+#define REJECT_BOOK				"Reject Book"
 
 Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _backendWorker(_backendComService.get_executor()), _backendStrand(_backendComService) {
 	Themes::AddIconFonts("Ruda-Bold.ttf", 18.0f);
 #if 1
 	UserID	   = 101;
 	_ipaddress = "127.0.0.1";
-	_port	   = "54321";
+	_port	   = "9090";
 
 	LOG(INFO, "Loading SqlLite3 Database : {}", DATABASE_PATH)
 	Lancelot::ContractInfo::Initialize(DATABASE_PATH, Utils::GetAllContractCallback);
@@ -67,19 +67,19 @@ Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _ba
 	ConfigLoader::Instance();
 
 	_demoPtr			  = std::make_unique<Demo>();
-	_columnGeneratorPtr	  = std::make_unique<ColumnGenerator>();
-	_greekBookPtr		  = std::make_unique<GreekBook>(_backendComService);
-	_manualOrderPtr		  = std::make_shared<ManualOrder>(_backendStrand);
-	_marketWatchPtr		  = std::make_unique<MarketWatch>(_manualOrderPtr);
-	_pendingBook		  = std::make_unique<PendingBook>(_manualOrderPtr, _backendStrand);
+	_templateBuilderPtr	  = std::make_unique<TemplateBuilder>();
+	_positionPtr			  = std::make_unique<Position>(_backendComService);
+	_OrderFormPtr		  = std::make_shared<OrderForm>(_backendStrand);
+	_marketWatchPtr		  = std::make_unique<MarketWatch>(_OrderFormPtr);
+	_openOrdersPtr			  = std::make_unique<OpenOrders>(_OrderFormPtr, _backendStrand);
 	_strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_backendStrand);
-	_tradeBookPtr		  = std::make_unique<TradeBook>();
+	_tradeHistoryPtr		  = std::make_unique<TradeHistory>();
 	_optionChainPtr		  = std::make_unique<OptionChain>();
 	_messageBroker		  = std::make_unique<MessageBroker>(_backendComService);
-	_multicastReceiverPtr = std::make_unique<MulticastReceiver>(_backendComService);
-	_orderBookPtr		  = std::make_unique<OrderBook>(ORDER_ALL_BOOK);
-	_rejectBookPtr		  = std::make_unique<OrderBook>(REJECT_BOOK);
-	_tradeSoundPtr		  = std::make_unique<Sound>("collide.wav");
+	//_multicastReceiverPtr = std::make_unique<MulticastReceiver>(_backendComService);
+	_orderBookPtr  = std::make_unique<OrderBook>(ORDER_ALL_BOOK);
+	_rejectBookPtr = std::make_unique<OrderBook>(REJECT_BOOK);
+	_tradeSoundPtr = std::make_unique<Sound>("collide.wav");
 
 	imports(TRADING_APP_CONFIG_PATH);
 	SetTheme(static_cast<VisualTheme>(_theme));
@@ -96,12 +96,12 @@ Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _ba
 		Portfolio::setCallback(std::move(callback));
 	}
 	{
-		auto callback = [&](const ManualOrderInfoT& ManualOrderInfo_, RequestType type_) { manualOrderRequestEvent(ManualOrderInfo_, type_); };
-		_manualOrderPtr->publishOrderCallback(std::move(callback));
+		auto callback = [&](const OrderFormInfoT& ManualOrderInfo_, RequestType type_) { manualOrderRequestEvent(ManualOrderInfo_, type_); };
+		_OrderFormPtr->publishOrderCallback(std::move(callback));
 	}
 	{
 		auto callback = [&](const OrderInfoPtrT& orderInfo_) { cancelOrderEvent(orderInfo_); };
-		_pendingBook->cancelOrderFunctionCallback(std::move(callback));
+		_openOrdersPtr->cancelOrderFunctionCallback(std::move(callback));
 	}
 	{
 		auto callback = [&](const OrderInfoPtrT& orderInfo_) { AddTrade(orderInfo_); };
@@ -131,7 +131,7 @@ Arthur::~Arthur() {
 
 		LOG(INFO, "{}", "Column Generator : stopping")
 		timer.start();
-		_columnGeneratorPtr.reset();
+		_templateBuilderPtr.reset();
 		LOG(INFO, "{} {}", "Column Generator : stopped", timer.get_elapsed_ns())
 		LOG(INFO, "{}", "Option Chain : stopping")
 		timer.start();
@@ -139,15 +139,15 @@ Arthur::~Arthur() {
 		LOG(INFO, "{} {}", "Option Chain : stopped", timer.get_elapsed_ns())
 		LOG(INFO, "{}", "Pending Book : stopping")
 		timer.start();
-		_pendingBook.reset();
+		_openOrdersPtr.reset();
 		LOG(INFO, "{} {}", "Pending Book : stopped", timer.get_elapsed_ns())
 		LOG(INFO, "{}", "Trade Book : stopping")
 		timer.start();
-		_tradeBookPtr.reset();
+		_tradeHistoryPtr.reset();
 		LOG(INFO, "{} {}", "Trade Book : stopped", timer.get_elapsed_ns())
 		LOG(INFO, "{}", "Greeks Book : stopping")
 		timer.start();
-		_greekBookPtr.reset();
+		_positionPtr.reset();
 		LOG(INFO, "{} {}", "Greeks Book : stopped", timer.get_elapsed_ns())
 		LOG(INFO, "{}", "Market Watch : stopping")
 		timer.start();
@@ -168,8 +168,15 @@ Arthur::~Arthur() {
 
 		LOG(INFO, "{}", "Manual Order : stopping")
 		timer.start();
-		_manualOrderPtr.reset();
+		_OrderFormPtr.reset();
 		LOG(INFO, "{} {}", "Manual Order : stopped", timer.get_elapsed_ns())
+
+		LOG(INFO, "{}", "Sound: stopping")
+		timer.start();
+		_tradeSoundPtr.reset();
+		LOG(INFO, "{} {}", "Sound: stopped", timer.get_elapsed_ns())
+		_orderBookPtr.reset();
+		_rejectBookPtr.reset();
 
 		LOG(INFO, "{}", "Multicast Receiver : stopping")
 		timer.start();
@@ -191,11 +198,11 @@ void Arthur::paint() {
 		ImGui::ShowDemoWindow(&_showDemoWindow);
 	}
 
-	_greekBookPtr->paint(&_showGreekBooks);
-	_marketWatchPtr->paint(&_showMarketWatch, &_showMarketLadder);
-	_pendingBook->paint(&_showPendingBook);
+	_positionPtr->paint(&_showPosition);
+	_marketWatchPtr->paint(&_showMarketWatch, &_showPriceLadder);
+	_openOrdersPtr->paint(&_showOpenOrders);
 	_strategyWorkspacePtr->paint(&_showStrategyWorkspace);
-	_tradeBookPtr->paint(&_showTradeBook);
+	_tradeHistoryPtr->paint(&_showTradeHistory);
 	_optionChainPtr->paint(&_showOptionChain);
 	_orderBookPtr->paint(&_showOrderBook);
 	_rejectBookPtr->paint(&_showRejectBook);
@@ -209,18 +216,18 @@ void Arthur::AddTrade(const OrderInfoPtrT& tradeInfo_) {
 		case OrderStatus_PLACED:
 		case OrderStatus_NEW:
 		case OrderStatus_REPLACED: {
-			_pendingBook->Insert(tradeInfo_, true);
+			_openOrdersPtr->Insert(tradeInfo_, true);
 			break;
 		}
 		case OrderStatus_CANCELLED: {
-			_pendingBook->Insert(tradeInfo_, false);
+			_openOrdersPtr->Insert(tradeInfo_, false);
 			break;
 		}
 		case OrderStatus_FILLED:
 		case OrderStatus_PARTIAL_FILLED: {
-			_pendingBook->Insert(tradeInfo_, false);
-			_tradeBookPtr->Insert(tradeInfo_);
-			_greekBookPtr->Insert(tradeInfo_);
+			_openOrdersPtr->Insert(tradeInfo_, false);
+			_tradeHistoryPtr->Insert(tradeInfo_);
+			_positionPtr->Insert(tradeInfo_);
 			_tradeSoundPtr->Play();
 			break;
 		}
@@ -245,19 +252,19 @@ auto Arthur::Menu() -> void {
 		}
 
 		if (ImGui::BeginMenu(ICON_MD_DESKTOP_WINDOWS " View")) {
-			if (ImGui::Checkbox("Column Generator", &_showColumnGenerator)) {
+			if (ImGui::Checkbox("Template Builder", &_showTemplateBuilder)) {
 				ImGui::OpenPopup(COLUMN_GENERATOR_WINDOW);
 			}
-			if (_showColumnGenerator) _columnGeneratorPtr->paint(&_showColumnGenerator);
+			if (_showTemplateBuilder) _templateBuilderPtr->paint(&_showTemplateBuilder);
 
 			Utils::ToggleMenuItem("Market Watch", _showMarketWatch);
-			Utils::ToggleMenuItem("Market Ladder", _showMarketLadder);
+			Utils::ToggleMenuItem("Price Ladder", _showPriceLadder);
 			Utils::ToggleMenuItem("Strategy Workspace", _showStrategyWorkspace);
 
 			if (ImGui::BeginMenu(ICON_MD_LIBRARY_BOOKS " Book")) {
-				Utils::ToggleMenuItem("Trade Book", _showTradeBook);
-				Utils::ToggleMenuItem("Pending Book", _showPendingBook);
-				Utils::ToggleMenuItem("Greeks Book", _showGreekBooks);
+				Utils::ToggleMenuItem("Trade History", _showTradeHistory);
+				Utils::ToggleMenuItem("Open Orders", _showOpenOrders);
+				Utils::ToggleMenuItem("Position", _showPosition);
 				Utils::ToggleMenuItem("Order Book", _showOrderBook);
 				Utils::ToggleMenuItem("Reject Book", _showRejectBook);
 				ImGui::EndMenu();
@@ -302,10 +309,9 @@ auto Arthur::Menu() -> void {
 		ImGui::SameLine();
 		ImGui::TextColored(UpDownColor(BackendConnected), "%s%s:%s", ICON_MD_LAN, _ipaddress.data(), _port.data());
 		ImGui::SameLine();
-		static bool start_demo = true;
-		if (start_demo and ImGui::Button(ICON_MD_PLAY_ARROW " Play Demo")) {
+
+		if (ImGui::Button(ICON_MD_PLAY_ARROW " Play Demo")) {
 			_demoPtr->startAndStop();
-			start_demo = false;
 		}
 
 		ImGui::EndMainMenuBar();
@@ -367,13 +373,13 @@ auto Arthur::imports(std::string_view path_) -> void {
 
 	_showDemoWindow		   = root[Configuration[ConfigFile_DEMO]].get<bool>();
 	_showExcelWindow	   = root[Configuration[ConfigFile_EXCEL_WINDOW]].get<bool>();
-	_showGreekBooks		   = root[Configuration[ConfigFile_GREEK_BOOK]].get<bool>();
+	_showPosition		   = root[Configuration[ConfigFile_GREEK_BOOK]].get<bool>();
 	_theme				   = root[Configuration[ConfigFile_THEME]].get<int>();
-	_showMarketLadder	   = root[Configuration[ConfigFile_MARKET_LADDER]].get<bool>();
+	_showPriceLadder	   = root[Configuration[ConfigFile_MARKET_LADDER]].get<bool>();
 	_showMarketWatch	   = root[Configuration[ConfigFile_MARKET_WATCH]].get<bool>();
-	_showPendingBook	   = root[Configuration[ConfigFile_PENDING_BOOK]].get<bool>();
+	_showOpenOrders		   = root[Configuration[ConfigFile_PENDING_BOOK]].get<bool>();
 	_showStrategyWorkspace = root[Configuration[ConfigFile_STRATEGY_WORKSPACE]].get<bool>();
-	_showTradeBook		   = root[Configuration[ConfigFile_TRADE_BOOK]].get<bool>();
+	_showTradeHistory	   = root[Configuration[ConfigFile_TRADE_BOOK]].get<bool>();
 	_showOrderBook		   = root[Configuration[ConfigFile_ORDER_ALL_BOOK]].get<bool>();
 	_showRejectBook		   = root[Configuration[ConfigFile_REJECT_BOOK]].get<bool>();
 	_showOptionChain	   = root[Configuration[ConfigFile_OPTION_CHAIN]].get<bool>();
@@ -381,13 +387,13 @@ auto Arthur::imports(std::string_view path_) -> void {
 	LOG(INFO, "Import Config File {}", path_)
 	LOG(INFO, "Reading {} [{}]", Configuration[ConfigFile_DEMO], _showDemoWindow)
 	LOG(INFO, "Reading {} [{}]", Configuration[ConfigFile_EXCEL_WINDOW], _showExcelWindow)
-	LOG(INFO, "Reading {} [{}]", Configuration[ConfigFile_GREEK_BOOK], _showGreekBooks)
+	LOG(INFO, "Reading {} [{}]", Configuration[ConfigFile_GREEK_BOOK], _showPosition)
 	LOG(INFO, "Reading {} [{}]", Configuration[ConfigFile_THEME], _theme)
-	LOG(INFO, "Reading {} [{}]", Configuration[ConfigFile_MARKET_LADDER], _showMarketLadder)
+	LOG(INFO, "Reading {} [{}]", Configuration[ConfigFile_MARKET_LADDER], _showPriceLadder)
 	LOG(INFO, "Reading {} [{}]", Configuration[ConfigFile_MARKET_WATCH], _showMarketWatch)
-	LOG(INFO, "Reading {} [{}]", Configuration[ConfigFile_PENDING_BOOK], _showPendingBook)
+	LOG(INFO, "Reading {} [{}]", Configuration[ConfigFile_PENDING_BOOK], _showOpenOrders)
 	LOG(INFO, "Reading {} [{}]", Configuration[ConfigFile_STRATEGY_WORKSPACE], _showStrategyWorkspace)
-	LOG(INFO, "Reading {} [{}]", Configuration[ConfigFile_TRADE_BOOK], _showTradeBook)
+	LOG(INFO, "Reading {} [{}]", Configuration[ConfigFile_TRADE_BOOK], _showTradeHistory)
 	LOG(INFO, "Reading {} [{}]", Configuration[ConfigFile_ORDER_ALL_BOOK], _showOrderBook)
 	LOG(INFO, "Reading {} [{}]", Configuration[ConfigFile_REJECT_BOOK], _showRejectBook)
 	LOG(INFO, "Reading {} [{}]", Configuration[ConfigFile_OPTION_CHAIN], _showOptionChain)
@@ -399,13 +405,13 @@ auto Arthur::exports(std::string_view path_) -> void {
 	nlohmann::ordered_json root;
 	root[Configuration[ConfigFile_DEMO]]			   = _showDemoWindow;
 	root[Configuration[ConfigFile_EXCEL_WINDOW]]	   = _showExcelWindow;
-	root[Configuration[ConfigFile_GREEK_BOOK]]		   = _showGreekBooks;
+	root[Configuration[ConfigFile_GREEK_BOOK]]		   = _showPosition;
 	root[Configuration[ConfigFile_THEME]]			   = _theme;
-	root[Configuration[ConfigFile_MARKET_LADDER]]	   = _showMarketLadder;
+	root[Configuration[ConfigFile_MARKET_LADDER]]	   = _showPriceLadder;
 	root[Configuration[ConfigFile_MARKET_WATCH]]	   = _showMarketWatch;
-	root[Configuration[ConfigFile_PENDING_BOOK]]	   = _showPendingBook;
+	root[Configuration[ConfigFile_PENDING_BOOK]]	   = _showOpenOrders;
 	root[Configuration[ConfigFile_STRATEGY_WORKSPACE]] = _showStrategyWorkspace;
-	root[Configuration[ConfigFile_TRADE_BOOK]]		   = _showTradeBook;
+	root[Configuration[ConfigFile_TRADE_BOOK]]		   = _showTradeHistory;
 	root[Configuration[ConfigFile_ORDER_ALL_BOOK]]	   = _showOrderBook;
 	root[Configuration[ConfigFile_REJECT_BOOK]]		   = _showRejectBook;
 	root[Configuration[ConfigFile_OPTION_CHAIN]]	   = _showOptionChain;
@@ -419,13 +425,13 @@ auto Arthur::exports(std::string_view path_) -> void {
 	LOG(INFO, "Export Config File {}", path_)
 	LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_DEMO], _showDemoWindow)
 	LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_EXCEL_WINDOW], _showExcelWindow)
-	LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_GREEK_BOOK], _showGreekBooks)
+	LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_GREEK_BOOK], _showPosition)
 	LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_THEME], _theme)
-	LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_MARKET_LADDER], _showMarketLadder)
+	LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_MARKET_LADDER], _showPriceLadder)
 	LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_MARKET_WATCH], _showMarketWatch)
-	LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_PENDING_BOOK], _showPendingBook)
+	LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_PENDING_BOOK], _showOpenOrders)
 	LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_STRATEGY_WORKSPACE], _showStrategyWorkspace)
-	LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_TRADE_BOOK], _showTradeBook)
+	LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_TRADE_BOOK], _showTradeHistory)
 	LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_ORDER_ALL_BOOK], _showOrderBook)
 	LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_REJECT_BOOK], _showRejectBook)
 	LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_OPTION_CHAIN], _showOptionChain)
@@ -447,7 +453,7 @@ void Arthur::startAllThreads() {
 		auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { marketEventHandler(token_); });
 		_threadGroup.push_back(std::move(thread));
 	}
-	//{ _messageBroker->makeConnection(_ipaddress, _port); }
+	{ _messageBroker->makeConnection(_ipaddress, _port); }
 }
 
 void Arthur::marketEventHandler(std::stop_token& stopToken_) {
@@ -463,7 +469,7 @@ double MemoryUsage::GetRamUsage() {
 	return (double)pmc.WorkingSetSize / (1024 * 1024);
 }
 
-void Arthur::manualOrderRequestEvent(const ManualOrderInfoT& ManualOrderInfo, RequestType type_) {
+void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, RequestType type_) {
 	std::string	   config		 = Utils::manualSerialize(ManualOrderInfo);
 	RequestInPackT requestInPack = Compression::CompressData(config, UserID, type_);
 	if (_messageBroker) {

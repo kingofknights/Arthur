@@ -11,7 +11,7 @@
 #include "../include/Colors.hpp"
 #include "../include/Configuration.hpp"
 #include "../include/Enums.hpp"
-#include "../include/ManualOrder.hpp"
+#include "../include/OrderForm.hpp"
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 #include "../include/Utils.hpp"
@@ -19,7 +19,7 @@ extern AllContractT				AllContract;
 extern AddContractToDemoSignalT AddContractToDemoSignal;
 
 #define MARKET_WATCH_CONFIG_PATH "Config/MarketWatch.json"
-MarketWatch::MarketWatch(const ManualOrderPtrT& manualOrder_) : _manualOrderPtr(manualOrder_), _ladderDataPtr(std::make_shared<MarketWatchDataT>()) {
+MarketWatch::MarketWatch(const OrderFormPtrT& manualOrder_) : _manualOrderPtr(manualOrder_), _ladderDataPtr(std::make_shared<MarketWatchDataT>()) {
 	Imports(MARKET_WATCH_CONFIG_PATH);
 }
 
@@ -138,7 +138,7 @@ void MarketWatch::ContractCell(int contract_, int index_, const char* data_, con
 		}
 
 		if (open) {
-			ManualOrderInfoT info{.Gateway	   = 0,
+			OrderFormInfoT info{.Gateway	   = 0,
 								  .Price	   = pointer_->LastTradePrice,
 								  .Quantity	   = (int)Lancelot::ContractInfo::GetLotMultiple(pointer_->Token),
 								  .LotSize	   = info.Quantity,

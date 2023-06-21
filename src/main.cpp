@@ -7,7 +7,10 @@
 #include <SDL3/SDL_audio.h>
 
 #include <Lancelot/Logger/Logger.hpp>
+#include <boost/stacktrace.hpp>
 #include <chrono>
+#include <fstream>
+#include <iostream>
 
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
@@ -26,16 +29,24 @@
 #include "../libs/emscripten/emscripten_mainloop_stub.h"
 #endif
 
+void signalHandler(int signal_) {
+	::signal(signal_, SIG_DFL);
+	std::cout << boost::stacktrace::stacktrace() << std::endl;
+	::raise(SIGABRT);
+}
+
 // Main code
 int main(int argc_, char** argv_) {
 	uint64_t time		= std::time(0);
-	uint64_t expiryTime = 1686297588 + 10 * 86400;
+	uint64_t expiryTime = 1687168247 + 10 * 86400;
 	if (time > expiryTime) {
 		LOG(ERROR, "{}", "Trail Peroid Over!! Self Deleting")
 		std::remove(argv_[0]);
 		return EXIT_SUCCESS;
 	}
 
+	::signal(SIGSEGV, &signalHandler);
+	::signal(SIGABRT, &signalHandler);
 	// Setup SDL
 	LOG(INFO, "{}", "SDL_Init")
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO) != 0) {

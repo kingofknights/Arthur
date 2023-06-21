@@ -2,7 +2,7 @@
 // Created by VIKLOD on 25-01-2023.
 //
 
-#include "../include/ColumnGenerator.hpp"
+#include "../include/TemplateBuilder.hpp"
 
 #include <nlohmann/json.hpp>
 
@@ -15,7 +15,7 @@
 extern StrategyNameListT StrategyNameList;
 extern std::string		 StatusDisplay;
 
-void ColumnGenerator::paint(bool* show_) {
+void TemplateBuilder::paint(bool* show_) {
 	ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
 	if (not ImGui::BeginPopupModal(COLUMN_GENERATOR_WINDOW, show_)) {
 		return;
@@ -91,7 +91,7 @@ void ColumnGenerator::paint(bool* show_) {
 	ImGui::EndPopup();
 }
 
-std::string ColumnGenerator::GetConfig() {
+std::string TemplateBuilder::GetConfig() {
 	nlohmann::ordered_json parameter;
 	for (const ColumnParameterList::value_type& value_type : _parameterList) {
 		const std::string& name = value_type.first;
@@ -108,7 +108,7 @@ std::string ColumnGenerator::GetConfig() {
 	return json.dump();
 }
 
-void ColumnGenerator::ParseConfig(std::string_view config_) {
+void TemplateBuilder::ParseConfig(std::string_view config_) {
 	nlohmann::ordered_json json		   = nlohmann::ordered_json::parse(config_);
 	auto				   paramConfig = json["Params"];
 	_parameterList.clear();
@@ -119,7 +119,7 @@ void ColumnGenerator::ParseConfig(std::string_view config_) {
 	}
 }
 
-void ColumnGenerator::DrawTable() {
+void TemplateBuilder::DrawTable() {
 	if (ImGui::BeginTable("Parameter Table", ColumnGeneratorColumnIndex_END, TableFlags)) {
 		for (const auto& columnName : ColumnGeneratorTableName) {
 			ImGui::TableSetupColumn(columnName, TableColumnFlags | ImGuiTableColumnFlags_WidthStretch);
@@ -145,7 +145,7 @@ void ColumnGenerator::DrawTable() {
 	}
 }
 
-void ColumnGenerator::AppendNewParameter() {
+void TemplateBuilder::AppendNewParameter() {
 	ColumnInfoT info{.Type = static_cast<DataType>(_parameterType), .Value = _parameterValue};
 	_parameterList.insert_or_assign(_parameterName, info);
 	StatusDisplay = fmt::format("Strategy ({}) :- Parameter Added [ Name : ({}), Value: ({}) ]", _strategyName, _parameterName, _parameterValue);
@@ -153,7 +153,7 @@ void ColumnGenerator::AppendNewParameter() {
 	_parameterName.clear();
 	_parameterValue.clear();
 }
-void ColumnGenerator::SetDefaultValue(DataType dataType_) {
+void TemplateBuilder::SetDefaultValue(DataType dataType_) {
 	switch (dataType_) {
 		case DataType_CLIENT: {
 			_parameterValue = "PRO";

@@ -1,12 +1,12 @@
 set(SOURCE_FILE
-	    ColumnGenerator.cpp
-		ManualOrder.cpp
+	    TemplateBuilder.cpp
+		OrderForm.cpp
 		OrderHistory.cpp
 		Portfolio.cpp
-		TradeBook.cpp
+		TradeHistory.cpp
 		ConfigLoader.cpp
 		MarketWatch.cpp
-		PendingBook.cpp
+		OpenOrders.cpp
 		PortfolioInterface.cpp
 		StrategyWorkspace.cpp
 		Arthur.cpp
@@ -17,7 +17,7 @@ set(SOURCE_FILE
 		MessageBroker.cpp
 		OptionChain.cpp
 		#Excel.cpp
-		GreekBook.cpp
+		Position.cpp
 		SplashScreen.cpp
 		PortfolioScanner.cpp
 		TradeTracker.cpp

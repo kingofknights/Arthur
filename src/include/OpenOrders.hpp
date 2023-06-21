@@ -5,12 +5,12 @@
 
 #include "Structure.hpp"
 
-class ManualOrder;
-using ManualOrderPtrT			  = std::shared_ptr<ManualOrder>;
+class OrderForm;
+using OrderFormPtrT			  = std::shared_ptr<OrderForm>;
 using CancelPendingOrderFunctionT = std::function<void(OrderInfoPtrT)>;
-class PendingBook {
+class OpenOrders {
 public:
-	explicit PendingBook(const ManualOrderPtrT &manualOrder_, boost::asio::io_context::strand &strand_);
+	explicit OpenOrders(const OrderFormPtrT &manualOrder_, boost::asio::io_context::strand &strand_);
 
 	void paint(bool *show_);
 	void Insert(const OrderInfoPtrT &tradeInfo_, bool insert_);
@@ -23,7 +23,7 @@ protected:
 
 private:
 	CancelPendingOrderFunctionT			 _cancelPendingOrderFunction;
-	ManualOrderPtrT						 _manualOrderPtr;
+	OrderFormPtrT						 _manualOrderPtr;
 	PendingBookContainerT				 _container;
 	PendingOrderUpdateT					 _pendingOrderUpdate;
 	BookOrderListT						 _cancelOrder;

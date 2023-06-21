@@ -13,7 +13,7 @@
 MessageBroker::MessageBroker(boost::asio::io_context& ioContext_) : TBaseSocket(ioContext_) {}
 
 void MessageBroker::setCallback(UpdateTradeFunctionT updateTradeFunction_) {
-	_updateTradeFunction = std::move(updateTradeFunction_);
+	_updateTradeFunction = updateTradeFunction_;
 }
 
 void MessageBroker::process(const char* buffer_, size_t size_) {
@@ -37,7 +37,7 @@ void MessageBroker::process(const char* buffer_, size_t size_) {
 			case ResponseType_CANCEL_REJECT:
 			case ResponseType_NEW_REJECT:
 			case ResponseType_FILLED: {
-				processOrder(json, static_cast<ResponseType>(request->Type));
+				processOrder(response, static_cast<ResponseType>(request->Type));
 				break;
 			}
 			case ResponseType_PENDING:

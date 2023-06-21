@@ -51,6 +51,7 @@ bool ConfigLoader::saveStrategyColumn(const std::string& strategyName_, std::str
 #else
 	Lancelot::ContractInfo::ExecuteQuery(FORMAT(RemoveStrategy_, strategyName_));
 	Lancelot::ContractInfo::ExecuteQuery(FORMAT(InsertStrategy_, strategyName_, params_));
+	StrategyNameList.push_back(strategyName_);
 #endif
 	return true;
 }

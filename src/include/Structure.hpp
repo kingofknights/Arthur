@@ -181,7 +181,7 @@ using PortfolioStatusT = struct PortfolioStatusT {
 	uint32_t Terminate;
 };
 
-using ManualOrderInfoT = struct ManualOrderInfoT {
+using OrderFormInfoT = struct OrderFormInfoT {
 	uint32_t			Gateway;
 	double				Price;
 	int					Quantity;

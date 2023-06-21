@@ -71,25 +71,30 @@ void Demo::addContract(int token_) {
 void Demo::Run(std::stop_token& token_) {
 	while (not token_.stop_requested()) {
 		if (not _startOrStop) continue;
-
+#define ORDER_BOOK
+#ifdef ORDER_BOOK
 		for (const auto status : {OrderStatus_NEW, OrderStatus_REPLACED, OrderStatus_FILLED, OrderStatus_CANCEL_REJECT}) {
 			int gateway = 1;
 			for (const auto& side : {Side_BUY, Side_SELL}) {
+#endif
 				for (const auto& ptr : _liveContainer) {
 					GenerateMonteCarloData(ptr);
-					DemoOrderInfoSignal(GenerateOrderInfo(ptr, gateway, side, status));
+#ifdef ORDER_BOOK
 					MarketEventQueue.push(ptr);
-					std::this_thread::sleep_for(std::chrono::milliseconds(100));
+					DemoOrderInfoSignal(GenerateOrderInfo(ptr, gateway, side, status));
+					std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
 					++gateway;
 					if (token_.stop_requested()) {
-						goto Exit;
+						LOG(WARNING, "{} {}", __FUNCTION__, "Exiting")
+						return;
 					}
 				}
 			}
+#endif
 		}
 		// break;
 	}
-Exit:
 	LOG(WARNING, "{} {}", __FUNCTION__, "Exiting")
 }
 

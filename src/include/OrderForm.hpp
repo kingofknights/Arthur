@@ -4,8 +4,8 @@
 
 #include "Structure.hpp"
 
-#define NEW_ORDER_WINDOW "New Manual Order Window"
-#define MODIFY_ORDER_WINDOW "Modify Manual Order Window"
+#define NEW_ORDER_WINDOW	"Order Form Window"
+#define MODIFY_ORDER_WINDOW "Modify Order Window"
 
 enum RequestType;
 
@@ -13,20 +13,20 @@ namespace Lancelot {
 enum Exchange;
 
 }
-using PublishOrderFunctionT = std::function<void(ManualOrderInfoT, RequestType)>;
-class ManualOrder final {
+using PublishOrderFunctionT = std::function<void(OrderFormInfoT, RequestType)>;
+class OrderForm final {
 public:
-	explicit ManualOrder(boost::asio::io_context::strand& strand_);
+	explicit OrderForm(boost::asio::io_context::strand& strand_);
 
 	void paint(const char* name_);
-	void Update(ManualOrderInfoT& info_);
+	void Update(OrderFormInfoT& info_);
 	void publishOrderCallback(PublishOrderFunctionT publishOrderFunction_);
 
 private:
 	void SentToBroker();
 	void DrawInputItem();
 
-	ManualOrderInfoT   _order;
+	OrderFormInfoT	   _order;
 	ImVec4			   _color;
 	std::string		   _clientCode;
 	Lancelot::Exchange _exchange;

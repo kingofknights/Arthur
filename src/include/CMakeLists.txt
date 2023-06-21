@@ -5,25 +5,25 @@ set(HEADER_FILE
 		ConfigLoader.hpp
 		Enums.hpp
 		MarketWatch.hpp
-		PendingBook.hpp
+		OpenOrders.hpp
 		PortfolioInterface.hpp
 		StrategyWorkspace.hpp
 		TableColumnInfo.hpp
 		Arthur.hpp
-		ColumnGenerator.hpp
+		TemplateBuilder.hpp
 		Configuration.hpp
-		ManualOrder.hpp
+		OrderForm.hpp
 		OrderHistory.hpp
 		Portfolio.hpp
 		PreCompileHeader.hpp
 		Structure.hpp
-		TradeBook.hpp
+		TradeHistory.hpp
 		Multicast.hpp
 		Utils.hpp
 		MessageBroker.hpp
 		OptionChain.hpp
 		#Excel.hpp
-		GreekBook.hpp
+		Position.hpp
 		Signal.hpp
 		SplashScreen.hpp
 		PortfolioScanner.hpp

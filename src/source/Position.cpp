@@ -1,4 +1,4 @@
-#include "../include/GreekBook.hpp"
+#include "../include/Position.hpp"
 
 #include <Greeks/Greeks.hpp>
 #include <iterator>
@@ -54,7 +54,7 @@ void UpdateNetBook(Container& container_, Sequencial& sequencial_, Key key_, con
 	}
 }
 
-void GreekBook::DrawBook(bool* show_) {
+void Position::DrawBook(bool* show_) {
 	if (ImGui::Begin("NetBooks", show_, ImGuiWindowFlags_NoTitleBar)) {
 		if (ImGui::BeginTabBar("Net Book Canvas", StrategyWorkspaceTabFlags)) {
 			if (ImGui::BeginTabItem("SymbolWise Netbook")) {
@@ -80,18 +80,18 @@ void GreekBook::DrawBook(bool* show_) {
 	ImGui::End();
 }
 
-GreekBook::GreekBook(boost::asio::io_context& ioContext_) : _timer(ioContext_) {
+Position::Position(boost::asio::io_context& ioContext_) : _timer(ioContext_) {
 	TimerEvent();
 }
 
-void GreekBook::Insert(const OrderInfoPtrT& tradeInfo_) {
+void Position::Insert(const OrderInfoPtrT& tradeInfo_) {
 	// SymbolBoolWiseBookUpdate(tradeInfo_);
 	// PFWiseBookUpdate(tradeInfo_);
 	// GreekBookUpdate(tradeInfo_);
 	_pendingTradeUpdate.push(tradeInfo_);
 }
 
-void GreekBook::paint(bool* show_) {
+void Position::paint(bool* show_) {
 	_pendingTradeUpdate.consume_one([this](const OrderInfoPtrT& tradeInfo_) {
 		SymbolBoolWiseBookUpdate(tradeInfo_);
 		PFWiseBookUpdate(tradeInfo_);
@@ -103,16 +103,16 @@ void GreekBook::paint(bool* show_) {
 	}
 }
 
-void GreekBook::SymbolBoolWiseBookUpdate(const OrderInfoPtrT& tradeInfo_) {
+void Position::SymbolBoolWiseBookUpdate(const OrderInfoPtrT& tradeInfo_) {
 	UpdateNetBook(_symbolWiseTradeContainer, _symbolWiseTradeContainerVec, tradeInfo_->Token, tradeInfo_);
 }
 
-void GreekBook::PFWiseBookUpdate(const OrderInfoPtrT& tradeInfo_) {
+void Position::PFWiseBookUpdate(const OrderInfoPtrT& tradeInfo_) {
 	std::pair<int, int> key = std::make_pair(tradeInfo_->PF, tradeInfo_->Token);
 	UpdateNetBook(_pFWiseTradeContainer, _pFWiseTradeContainerVec, key, tradeInfo_);
 }
 
-void GreekBook::GreekBookUpdate(const OrderInfoPtrT& tradeInfo_) {
+void Position::GreekBookUpdate(const OrderInfoPtrT& tradeInfo_) {
 	auto iteratorContainer = _greekBookContainer.find(tradeInfo_->Token);
 	if (iteratorContainer != _greekBookContainer.end()) {
 		GreekBookColumnPtrT& data = iteratorContainer->second;
@@ -154,7 +154,7 @@ void GreekBook::GreekBookUpdate(const OrderInfoPtrT& tradeInfo_) {
 	}
 }
 
-double GreekBook::CalculateSymbolWisePNL(const NetBookColumnPtrT& column) {
+double Position::CalculateSymbolWisePNL(const NetBookColumnPtrT& column) {
 	if (column->LastLTP == column->Self->LastTradePrice) {
 		return column->LastPNL;
 	}
@@ -177,7 +177,7 @@ double GreekBook::CalculateSymbolWisePNL(const NetBookColumnPtrT& column) {
 	return PNL;
 }
 
-void GreekBook::DrawSymbolWiseNetBook() {
+void Position::DrawSymbolWiseNetBook() {
 	const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
 
 	if (ImGui::BeginTable("Symbol Wise NetBookTable", SymbolWiseNetBookColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
@@ -214,7 +214,7 @@ void GreekBook::DrawSymbolWiseNetBook() {
 	ImGui::TextColored(UpDownColor(_netPNL), "| Net PNL : %.2f |", _netPNL);
 }
 
-void GreekBook::DrawPFWiseNetBook() {
+void Position::DrawPFWiseNetBook() {
 	const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
 
 	if (ImGui::BeginTable("PF Wise NetBookTable", PFWiseNetBookColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
@@ -253,7 +253,7 @@ void GreekBook::DrawPFWiseNetBook() {
 	ImGui::TextColored(UpDownColor(_netPNL), "| Net PNL : %.2f |", _netPNL);
 }
 
-void GreekBook::DrawGreekNetBook() {
+void Position::DrawGreekNetBook() {
 	float									 M2M   = 0;
 	float									 Theta = 0;
 	float									 Vega  = 0;
@@ -335,11 +335,11 @@ void GreekBook::DrawGreekNetBook() {
 	ImGui::TextColored(UpDownColor(Vega), "| Vega : %.4f |", Vega);
 }
 
-void GreekBook::UpdateGreekValue() {
+void Position::UpdateGreekValue() {
 	if (_calculation == NetBookCalculation_GREEK) {
 		for (const GreeksPtrT& column : _greekList) {
 			if (column->IsFuture) continue;
-			double ExpiryGap = Greeks::GetExpiryGap(column->Expiry);
+			double ExpiryGap = std::abs(Greeks::GetExpiryGap(column->Expiry));
 			float  LTP		 = column->IsCall ? (column->Future->Bid[0].Price ? column->Future->Bid[0].Price : column->Future->LastTradePrice)
 											  : (column->Future->Ask[0].Price ? column->Future->Ask[0].Price : column->Future->LastTradePrice);
 
@@ -360,7 +360,7 @@ void GreekBook::UpdateGreekValue() {
 	TimerEvent();
 }
 
-void GreekBook::TimerEvent() {
+void Position::TimerEvent() {
 	_timer.expires_from_now(boost::posix_time::seconds(1));
 	_timer.async_wait([&](const boost::system::error_code& err) { UpdateGreekValue(); });
 }

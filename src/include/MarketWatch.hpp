@@ -7,12 +7,12 @@
 #include "Signal.hpp"
 #include "Structure.hpp"
 
-class ManualOrder;
-using ManualOrderPtrT = std::shared_ptr<ManualOrder>;
+class OrderForm;
+using OrderFormPtrT = std::shared_ptr<OrderForm>;
 
 class MarketWatch {
 public:
-	MarketWatch(const ManualOrderPtrT &manualOrder_);
+	MarketWatch(const OrderFormPtrT &manualOrder_);
 	~MarketWatch();
 
 	static void ToolTipDisplay(const MarketWatchDataPtrT &pointer_);
@@ -35,7 +35,7 @@ private:
 	void DrawSearchBox();
 
 private:
-	ManualOrderPtrT			  _manualOrderPtr;
+	OrderFormPtrT			  _manualOrderPtr;
 	MarketWatchDataPtrT		  _ladderDataPtr;
 	OptionChainContractSignal _optionChainContractSignal;
 

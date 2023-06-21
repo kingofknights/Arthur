@@ -9,9 +9,9 @@
 
 enum NetBookCalculation;
 
-class GreekBook {
+class Position {
 public:
-	GreekBook(boost::asio::io_context &ioContext_);
+	Position(boost::asio::io_context &ioContext_);
 	void Insert(const OrderInfoPtrT &tradeInfo_);
 	void paint(bool *show_);
 

@@ -2,7 +2,7 @@
 
 #include "Structure.hpp"
 
-class TradeBook {
+class TradeHistory {
 public:
 	void paint(bool *show_);
 	void Insert(const OrderInfoPtrT &orderInfo_);

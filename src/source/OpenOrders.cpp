@@ -1,11 +1,11 @@
-#include "../include/PendingBook.hpp"
+#include "../include/OpenOrders.hpp"
 
 #include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
 #include "../include/Colors.hpp"
 #include "../include/Configuration.hpp"
 #include "../include/Enums.hpp"
-#include "../include/ManualOrder.hpp"
+#include "../include/OrderForm.hpp"
 #include "../include/OrderHistory.hpp"
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
@@ -13,19 +13,19 @@
 
 #define CANCEL_ALL_ORDER_WINDOW "Cancel All Order Window"
 
-PendingBook::PendingBook(const ManualOrderPtrT& manualOrder_, boost::asio::io_context::strand& strand_) : _manualOrderPtr(manualOrder_), _strand(strand_) {}
+OpenOrders::OpenOrders(const OrderFormPtrT& manualOrder_, boost::asio::io_context::strand& strand_) : _manualOrderPtr(manualOrder_), _strand(strand_) {}
 
-void PendingBook::paint(bool* show_) {
+void OpenOrders::paint(bool* show_) {
 	_pendingOrderUpdate.consume_one([this](const std::pair<OrderInfoPtrT, bool>& pair_) { Update(pair_.first, pair_.second); });
 	if (*show_) {
 		DrawPendingBook(show_);
 	}
 }
 
-void PendingBook::DrawPendingBook(bool* show_) {
-	if (ImGui::Begin("Pending Book", show_)) {
+void OpenOrders::DrawPendingBook(bool* show_) {
+	if (ImGui::Begin("Open Orders", show_)) {
 		const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-		if (ImGui::BeginTable("Pending Book Table", BooksColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
+		if (ImGui::BeginTable("Open Orders Table", BooksColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
 			for (const auto& name : BookTableColumnName) {
 				ImGui::TableSetupColumn(name, TableColumnFlags);
 			}
@@ -47,7 +47,7 @@ void PendingBook::DrawPendingBook(bool* show_) {
 
 					if (_selectedRow == tradeInfo_->Gateway and ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
 						if (tradeInfo_->PF % 10000 and ImGui::IsKeyPressed(ImGuiKey_F2)) {
-							ManualOrderInfoT info{.Gateway	   = tradeInfo_->Gateway,
+							OrderFormInfoT info{.Gateway	   = tradeInfo_->Gateway,
 												  .Price	   = tradeInfo_->Price,
 												  .Quantity	   = (int)tradeInfo_->Quantity,
 												  .LotSize	   = (int)Lancelot::ContractInfo::GetLotMultiple(tradeInfo_->Token),
@@ -100,7 +100,7 @@ void PendingBook::DrawPendingBook(bool* show_) {
 	ImGui::End();
 }
 
-void PendingBook::DrawManualOrderRequestedForCancel() {
+void OpenOrders::DrawManualOrderRequestedForCancel() {
 	if (ImGui::BeginPopupModal(CANCEL_ALL_ORDER_WINDOW, &_closeCancelPopup)) {
 		const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
 		if (ImGui::BeginTable("Cancel Book Table", BooksColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
@@ -140,8 +140,8 @@ void PendingBook::DrawManualOrderRequestedForCancel() {
 	}
 }
 
-void PendingBook::Update(const OrderInfoPtrT& tradeInfo_, bool insert_) {
-	LOG(INFO, "1 : {} {} {} {} {}", __FUNCTION__, tradeInfo_->Side, _buyCount, _sellCount, OrderStatusInfoName[tradeInfo_->StatusValue]) {
+void OpenOrders::Update(const OrderInfoPtrT& tradeInfo_, bool insert_) {
+	LOG(INFO, "1 : {} {} {} {} {}", tradeInfo_->Side, _buyCount, _sellCount, OrderStatusInfoName[tradeInfo_->StatusValue], tradeInfo_->Gateway) {
 		auto iterator = _hashing.find(tradeInfo_->Gateway);
 		if (iterator != _hashing.end()) {
 			if (_container.erase(iterator->second)) {
@@ -151,18 +151,20 @@ void PendingBook::Update(const OrderInfoPtrT& tradeInfo_, bool insert_) {
 		}
 		_hashing[tradeInfo_->Gateway] = tradeInfo_->Time;
 	}
-	LOG(INFO, "2 : {} {} {} {} {}", __FUNCTION__, tradeInfo_->Side, _buyCount, _sellCount, OrderStatusInfoName[tradeInfo_->StatusValue])
+
 	if (insert_) {
-		_container.emplace(tradeInfo_->Time, tradeInfo_);
+		auto success = _container.emplace(tradeInfo_->Time, tradeInfo_).second;
+		if (not success) {
+			LOG(INFO, "1 :{} {} {} {} {} {}", tradeInfo_->Time, tradeInfo_->Side, _buyCount, _sellCount, OrderStatusInfoName[tradeInfo_->StatusValue], tradeInfo_->Gateway)
+		}
 		_buyCount += tradeInfo_->Side == Side_BUY;
 		_sellCount += tradeInfo_->Side == Side_SELL;
 	}
-	LOG(INFO, "3 : {} {} {} {} {}", __FUNCTION__, tradeInfo_->Side, _buyCount, _sellCount, OrderStatusInfoName[tradeInfo_->StatusValue])
 }
-void PendingBook::Insert(const OrderInfoPtrT& tradeInfo_, bool insert_) {
+void OpenOrders::Insert(const OrderInfoPtrT& tradeInfo_, bool insert_) {
 	_pendingOrderUpdate.push(std::make_pair(tradeInfo_, insert_));
 }
 
-void PendingBook::cancelOrderFunctionCallback(CancelPendingOrderFunctionT cancelPendingOrderFunction_) {
+void OpenOrders::cancelOrderFunctionCallback(CancelPendingOrderFunctionT cancelPendingOrderFunction_) {
 	_cancelPendingOrderFunction = std::move(cancelPendingOrderFunction_);
 }

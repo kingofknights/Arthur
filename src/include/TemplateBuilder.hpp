@@ -10,8 +10,8 @@
 
 enum DataType;
 
-#define COLUMN_GENERATOR_WINDOW "Column Generator Window"
-class ColumnGenerator {
+#define COLUMN_GENERATOR_WINDOW "Template Builder Window"
+class TemplateBuilder {
 public:
 	void paint(bool *show_);
 

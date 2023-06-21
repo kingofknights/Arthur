@@ -33,7 +33,7 @@ std::string Utils::FormatTimeToString(uint64_t time_) {
 	sprintf(timestamp + len, ".%09u", ms);
 	return timestamp;
 }
-std::string Utils::manualSerialize(const ManualOrderInfoT& manualOrderInfo_) {
+std::string Utils::manualSerialize(const OrderFormInfoT& manualOrderInfo_) {
 	nlohmann::json json;
 	json[JSON_ID] = ++Id;
 

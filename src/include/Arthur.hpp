@@ -12,36 +12,36 @@
 #include <thread>
 #include <vector>
 
-class ColumnGenerator;
+class TemplateBuilder;
 class ExcelWindow;
 class Demo;
-class GreekBook;
+class Position;
 class MarketWatch;
-class ManualOrder;
+class OrderForm;
 class MulticastReceiver;
-class PendingBook;
+class OpenOrders;
 class StrategyWorkspace;
-class TradeBook;
+class TradeHistory;
 class MessageBroker;
 class OptionChain;
 class OrderBook;
 class Sound;
 
 struct OrderInfoT;
-struct ManualOrderInfoT;
+struct OrderFormInfoT;
 struct StrategyRowT;
 
 using OrderInfoPtrT			= std::shared_ptr<OrderInfoT>;
 using StrategyRowPtrT		= std::shared_ptr<StrategyRowT>;
-using ColumnGeneratorPtrT	= std::unique_ptr<ColumnGenerator>;
+using TemplateBuilderPtrT	= std::unique_ptr<TemplateBuilder>;
 using ExcelWindowPtrT		= std::unique_ptr<ExcelWindow>;
-using GreekBookPtrT			= std::unique_ptr<GreekBook>;
+using PositionPtrT			= std::unique_ptr<Position>;
 using MarketWatchPtrT		= std::unique_ptr<MarketWatch>;
-using ManualOrderPtrT		= std::shared_ptr<ManualOrder>;
+using OrderFormPtrT			= std::shared_ptr<OrderForm>;
 using MulticastReceiverPtrT = std::unique_ptr<MulticastReceiver>;
-using PendingBookPtrT		= std::unique_ptr<PendingBook>;
+using OpenOrdersPtrT		= std::unique_ptr<OpenOrders>;
 using StrategyWorkspacePtrT = std::unique_ptr<StrategyWorkspace>;
-using TradeBookPtrT			= std::unique_ptr<TradeBook>;
+using TradeHistoryPtrT		= std::unique_ptr<TradeHistory>;
 using MessageBrokerPtrT		= std::unique_ptr<MessageBroker>;
 using OptionChainPtrT		= std::unique_ptr<OptionChain>;
 using DemoPtrT				= std::unique_ptr<Demo>;
@@ -74,36 +74,36 @@ protected:
 	void imports(std::string_view path_);
 	void exports(std::string_view path_);
 	void startAllThreads();
-	void manualOrderRequestEvent(const ManualOrderInfoT &ManualOrderInfo, RequestType type_);
+	void manualOrderRequestEvent(const OrderFormInfoT &ManualOrderInfo, RequestType type_);
 	void strategyRequestEvent(StrategyRowPtrT row_, const std::string &name_, RequestType type_);
 	void cancelOrderEvent(const OrderInfoPtrT &orderInfo_);
 
 private:
 	DemoPtrT			  _demoPtr				= nullptr;
 	MessageBrokerPtrT	  _messageBroker		= nullptr;
-	ColumnGeneratorPtrT	  _columnGeneratorPtr	= nullptr;
-	GreekBookPtrT		  _greekBookPtr			= nullptr;
-	ManualOrderPtrT		  _manualOrderPtr		= nullptr;
+	TemplateBuilderPtrT	  _templateBuilderPtr	= nullptr;
+	PositionPtrT		  _positionPtr			= nullptr;
+	OrderFormPtrT		  _OrderFormPtr			= nullptr;
 	MarketWatchPtrT		  _marketWatchPtr		= nullptr;
 	MulticastReceiverPtrT _multicastReceiverPtr = nullptr;
-	PendingBookPtrT		  _pendingBook			= nullptr;
+	OpenOrdersPtrT		  _openOrdersPtr		= nullptr;
 	StrategyWorkspacePtrT _strategyWorkspacePtr = nullptr;
-	TradeBookPtrT		  _tradeBookPtr			= nullptr;
+	TradeHistoryPtrT	  _tradeHistoryPtr		= nullptr;
 	OptionChainPtrT		  _optionChainPtr		= nullptr;
 	OrderBookPtrT		  _orderBookPtr			= nullptr;
 	OrderBookPtrT		  _rejectBookPtr		= nullptr;
 	SoundPtrT			  _tradeSoundPtr		= nullptr;
 
-	bool _showColumnGenerator	= false;
+	bool _showTemplateBuilder	= false;
 	bool _showDemoWindow		= false;
 	bool _showExcelWindow		= false;
-	bool _showMarketLadder		= false;
+	bool _showPriceLadder		= false;
 	bool _showMarketWatch		= false;
 	bool _showOptionChain		= false;
-	bool _showPendingBook		= false;
+	bool _showOpenOrders		= false;
 	bool _showStrategyWorkspace = false;
-	bool _showTradeBook			= false;
-	bool _showGreekBooks		= false;
+	bool _showTradeHistory		= false;
+	bool _showPosition			= false;
 	bool _showOrderBook			= false;
 	bool _showRejectBook		= false;
 	int	 _theme					= 0;

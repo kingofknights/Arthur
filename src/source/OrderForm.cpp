@@ -1,4 +1,4 @@
-#include "../include/ManualOrder.hpp"
+#include "../include/OrderForm.hpp"
 
 #include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
@@ -11,9 +11,9 @@
 
 extern ClientCodeListT ClientCodeList;
 
-ManualOrder::ManualOrder(boost::asio::io_context::strand& strand_) : _order{}, _color(COLOR_GRAY), _strand(strand_) {}
+OrderForm::OrderForm(boost::asio::io_context::strand& strand_) : _order{}, _color(COLOR_GRAY), _strand(strand_) {}
 
-void ManualOrder::paint(const char* name_) {
+void OrderForm::paint(const char* name_) {
 	ImGui::PushStyleColor(ImGuiCol_FrameBg, _color);
 	ImGui::PushStyleColor(ImGuiCol_Border, _color);
 	ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
@@ -27,7 +27,7 @@ void ManualOrder::paint(const char* name_) {
 	ImGui::PopStyleColor(2);
 }
 
-void ManualOrder::Update(ManualOrderInfoT& info_) {
+void OrderForm::Update(OrderFormInfoT& info_) {
 	_order		  = info_;
 	_color		  = BuySellColor(_order.Side);
 	auto exchange = Lancelot::ContractInfo::GetExchange(Lancelot::ContractInfo::GetToken(info_.Contract));
@@ -42,11 +42,11 @@ void ManualOrder::Update(ManualOrderInfoT& info_) {
 		}
 	}
 }
-void ManualOrder::SentToBroker() {
+void OrderForm::SentToBroker() {
 	_strand.post([&]() { _publishOrderFunction(_order, _order.OrderNumber == 0 ? RequestType_NEW : RequestType_MODIFY); });
 }
 
-void ManualOrder::DrawInputItem() {
+void OrderForm::DrawInputItem() {
 	if (ImGui::InputDouble("Price", &_order.Price, 0.050000000000f, 0.5000000000f, "%.2f")) {
 		if (_order.Price < 0) _order.Price = 0;
 	}
@@ -94,6 +94,6 @@ void ManualOrder::DrawInputItem() {
 		ImGui::CloseCurrentPopup();
 	}
 }
-void ManualOrder::publishOrderCallback(PublishOrderFunctionT publishOrderFunction_) {
+void OrderForm::publishOrderCallback(PublishOrderFunctionT publishOrderFunction_) {
 	_publishOrderFunction = std::move(publishOrderFunction_);
 }
