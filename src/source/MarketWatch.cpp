@@ -112,7 +112,9 @@ void MarketWatch::ToolTipDisplay(const MarketWatchDataPtrT& pointer_) {
 }
 
 void MarketWatch::ContractCell(int contract_, int index_, const char* data_, const MarketWatchDataPtrT& pointer_) {
+	ImGui::PushStyleColor(ImGuiCol_Text, UpDownColor(pointer_->PercentageChange));
 	FirstCell(index_, data_, _selectedRow, contract_);
+	ImGui::PopStyleColor();
 	if (_selectedRow == contract_ and ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
 		if (ImGui::IsKeyPressed(ImGuiKey_Delete)) {
 			_toBeDeleted = contract_;
@@ -138,17 +140,17 @@ void MarketWatch::ContractCell(int contract_, int index_, const char* data_, con
 		}
 
 		if (open) {
-			OrderFormInfoT info{.Gateway	   = 0,
-								  .Price	   = pointer_->LastTradePrice,
-								  .Quantity	   = (int)Lancelot::ContractInfo::GetLotMultiple(pointer_->Token),
-								  .LotSize	   = info.Quantity,
-								  .OrderNumber = 0,
-								  .Type		   = 0,
-								  .Side		   = side,
-								  .Status	   = OrderStatus_NEW,
-								  .Contract	   = Lancelot::ContractInfo::GetDescription(pointer_->Token),
-								  .Client	   = "Pro",
-								  .Self		   = pointer_};
+			OrderFormInfoT info{.Gateway	 = 0,
+								.Price		 = pointer_->LastTradePrice,
+								.Quantity	 = (int)Lancelot::ContractInfo::GetLotMultiple(pointer_->Token),
+								.LotSize	 = info.Quantity,
+								.OrderNumber = 0,
+								.Type		 = 0,
+								.Side		 = side,
+								.Status		 = OrderStatus_NEW,
+								.Contract	 = Lancelot::ContractInfo::GetDescription(pointer_->Token),
+								.Client		 = "Pro",
+								.Self		 = pointer_};
 			_manualOrderPtr->Update(info);
 			ImGui::OpenPopup(NEW_ORDER_WINDOW);
 		}
