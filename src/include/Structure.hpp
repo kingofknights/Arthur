@@ -4,7 +4,7 @@
 
 #pragma once
 
-#define DISABLE_LOGGING
+//#define DISABLE_LOGGING
 #include <Lancelot.hpp>
 #include <array>
 #include <boost/lockfree/spsc_queue.hpp>
@@ -24,7 +24,6 @@
 
 enum DataType : int;
 enum OrderStatus : int;
-enum SideType : int;
 enum StrategyStatus : int;
 enum OrderType : int;
 
@@ -106,12 +105,12 @@ using OrderInfoT = struct OrderInfoT {
 	float	 Price;
 	float	 FillPrice;
 
-	SideType	Side;
-	OrderStatus StatusValue;
-	std::string Contract;
-	std::string Time;
-	std::string Client;
-	std::string Message;
+	Lancelot::Side Side;
+	OrderStatus	   StatusValue;
+	std::string	   Contract;
+	std::string	   Time;
+	std::string	   Client;
+	std::string	   Message;
 };
 
 using NetBookColumnT = struct NetBookColumnT {
@@ -190,7 +189,7 @@ using OrderFormInfoT = struct OrderFormInfoT {
 	int					LotSize;
 	long				OrderNumber;
 	int					Type;
-	SideType			Side;
+	Lancelot::Side		Side;
 	OrderStatus			Status;
 	std::string			Contract;
 	std::string			Client;

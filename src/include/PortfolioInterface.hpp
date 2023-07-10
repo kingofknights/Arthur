@@ -6,8 +6,7 @@
 #include "PortfolioScanner.hpp"
 #include "Structure.hpp"
 
-enum RequestType : int;
-using StrategyActionT = std::function<void(StrategyRowPtrT, std::string, RequestType)>;
+using StrategyActionT = std::function<void(StrategyRowPtrT, std::string, Lancelot::RequestType)>;
 
 class PortfolioInterface : public PortfolioScanner {
 public:
@@ -31,7 +30,7 @@ protected:
 	void Exports(std::string_view path_);
 	void Imports(std::string_view path_);
 	void ParseConfig(std::string_view config_);
-	void doStrategyAction(const StrategyRowPtrT &strategy_, const std::string &name_, RequestType type_);
+	void doStrategyAction(const StrategyRowPtrT &strategy_, const std::string &name_, Lancelot::RequestType type_);
 
 	PortfolioStatusT checkAnyActive();
 

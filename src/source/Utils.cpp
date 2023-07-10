@@ -66,7 +66,7 @@ std::string Utils::cancelOrderSerialize(const OrderInfoPtrT& orderInfo_) {
 	return json.dump();
 }
 
-std::string Utils::strategySerialize(const StrategyRowPtrT& row_, const std::string& name_, RequestType type_) {
+std::string Utils::strategySerialize(const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_) {
 	nlohmann::json json;
 	json[JSON_ID] = ++Id;
 
@@ -74,7 +74,7 @@ std::string Utils::strategySerialize(const StrategyRowPtrT& row_, const std::str
 	params[JSON_PF_NUMBER]	   = row_->PF;
 	params[JSON_STRATEGY_NAME] = name_;
 
-	if (type_ != RequestType_UNSUBSCRIBE) {
+	if (type_ != Lancelot::RequestType_UNSUBSCRIBE) {
 		nlohmann::json arguments;
 		for (const auto& [key_, value] : row_->ParameterInfoList) {
 			switch (value.Type) {

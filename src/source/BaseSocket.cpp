@@ -47,7 +47,7 @@ void TBaseSocket::internalConnectHandler(const boost::system::error_code& error_
 		RequestInPackT requestInPack;
 		requestInPack.UserIdentifier = UserID;
 		requestInPack.TotalSize		 = sizeof(RequestInPackT);
-		requestInPack.Type			 = RequestType_LOGIN;
+		requestInPack.Type			 = Lancelot::RequestType_LOGIN;
 		Write_Sync((char*)&requestInPack, sizeof(RequestInPackT));
 		Read();
 	}

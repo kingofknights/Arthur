@@ -7,8 +7,8 @@
 #include <stop_token>
 
 #include "../include/Structure.hpp"
-enum SideType;
-enum OrderStatus;
+enum OrderStatus : int;
+
 class Demo {
 public:
 	Demo();
@@ -21,7 +21,7 @@ protected:
 	void		  GenerateMonteCarloData(const MarketWatchDataPtrT& ptr_);
 	void		  addContract(int token_);
 	double		  monteCarloEstimate(double lowBound, double upBound, int iterations);
-	OrderInfoPtrT GenerateOrderInfo(const MarketWatchDataPtrT& ptr_, int gateway_, SideType side_, OrderStatus orderStatus_);
+	OrderInfoPtrT GenerateOrderInfo(const MarketWatchDataPtrT& ptr_, int gateway_, Lancelot::Side side_, OrderStatus orderStatus_);
 
 private:
 	bool						  _startOrStop = false;

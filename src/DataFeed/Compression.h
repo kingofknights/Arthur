@@ -4,11 +4,14 @@
 
 #pragma once
 #include "../API/Common.hpp"
-enum RequestType;
+
+namespace Lancelot {
+enum RequestType : int;
+}
 
 class Compression {
 public:
-	static RequestInPackT CompressData(std::string_view data, uint64_t uid, RequestType type_);
+	static RequestInPackT CompressData(std::string_view data, uint64_t uid, Lancelot::RequestType type_);
 
 	static int DeCompressData(const unsigned char *data, int size, unsigned char *unCompressedData, int *unCompressedDataLength);
 };

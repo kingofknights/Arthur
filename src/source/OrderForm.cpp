@@ -43,7 +43,7 @@ void OrderForm::Update(OrderFormInfoT& info_) {
 	}
 }
 void OrderForm::SentToBroker() {
-	_strand.post([&]() { _publishOrderFunction(_order, _order.OrderNumber == 0 ? RequestType_NEW : RequestType_MODIFY); });
+	_strand.post([&]() { _publishOrderFunction(_order, _order.OrderNumber == 0 ? Lancelot::RequestType_NEW : Lancelot::RequestType_MODIFY); });
 }
 
 void OrderForm::DrawInputItem() {

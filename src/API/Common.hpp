@@ -4,12 +4,6 @@
 #include <cstdint>
 #include <string>
 
-enum SideType : int
-{
-	Side_BUY = 0,
-	Side_SELL
-};
-
 enum OrderType : int
 {
 	OrderType_LIMIT = 0,
@@ -27,46 +21,6 @@ enum StrategyStatus : int
 	StrategyStatus_TERMINATED,
 	StrategyStatus_WAITING,
 	StrategyStatus_DISCONNECTED
-};
-
-enum RequestType : int
-{
-	RequestType_LOGIN = 0,
-	// ORDER
-	RequestType_NEW,
-	RequestType_MODIFY,
-	RequestType_CANCEL,
-	// STRATEGY
-	RequestType_APPLY,
-	RequestType_SUBSCRIBE,
-	RequestType_UNSUBSCRIBE,
-	RequestType_SUBSCRIBE_APPLY,
-};
-
-enum ResponseType : int
-{
-	// ORDER
-	ResponseType_PLACED = 0,
-	ResponseType_NEW,
-	ResponseType_REPLACED,
-	ResponseType_CANCELLED,
-	ResponseType_NEW_REJECT,
-	ResponseType_REPLACE_REJECT,
-	ResponseType_CANCEL_REJECT,
-	ResponseType_PARTIAL_FILLED,
-	ResponseType_FILLED,
-
-	// STRATEGY
-	ResponseType_PENDING,
-	ResponseType_SUBCRIBED,
-	ResponseType_APPLIED,
-	ResponseType_UNSUBSCRIBED,
-	ResponseType_TERMINATED,
-	ResponseType_UPDATES,
-	ResponseType_EXCHANGE_DISCONNECT,
-
-	// TRACKER
-	ResponseType_TRACKER,
 };
 
 enum OrderStatus : int

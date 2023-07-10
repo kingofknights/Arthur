@@ -291,14 +291,14 @@ void Portfolio::DrawStrategyRow(StrategyRowPtrT& row_, int index_) {
 	ImGui::PushStyleColor(ImGuiCol_Text, color);
 	ImGui::BeginDisabled(row_->Status == StrategyStatus_PENDING);
 	if (ImGui::Checkbox(fmt::format("{}##SubscribedCheckBok", StrategyStatusType[row_->Status]).data(), &row_->Subscribed)) {
-		doStrategyAction(row_, _strategyName, row_->Subscribed ? RequestType_SUBSCRIBE : RequestType_UNSUBSCRIBE);
+		doStrategyAction(row_, _strategyName, row_->Subscribed ? Lancelot::RequestType_SUBSCRIBE : Lancelot::RequestType_UNSUBSCRIBE);
 	}
 	ImGui::EndDisabled();
 	ImGui::PopStyleColor();
 	ImGui::TableSetColumnIndex(2);
 	ImGui::BeginDisabled(not row_->Subscribed or row_->Status == StrategyStatus_PENDING);
 	if (ImGui::Button("Apply##ApplyButton", ImVec2(-FLT_MIN, 0.0f))) {
-		doStrategyAction(row_, _strategyName, RequestType_APPLY);
+		doStrategyAction(row_, _strategyName, Lancelot::RequestType_APPLY);
 	}
 	ImGui::EndDisabled();
 

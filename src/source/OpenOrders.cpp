@@ -92,9 +92,9 @@ void OpenOrders::DrawPendingBook(bool* show_) {
 			ImGui::SameLine();
 			ImGui::Text("| Total : [%zu] |", _container.size());
 			ImGui::SameLine();
-			ImGui::TextColored(BuySellColor(Side_BUY), "| Buy : [%d] |", _buyCount);
+			ImGui::TextColored(BuySellColor(Lancelot::Side_BUY), "| Buy : [%d] |", _buyCount);
 			ImGui::SameLine();
-			ImGui::TextColored(BuySellColor(Side_SELL), "| Sell : [%d] |", _sellCount);
+			ImGui::TextColored(BuySellColor(Lancelot::Side_SELL), "| Sell : [%d] |", _sellCount);
 		}
 	}
 	ImGui::End();
@@ -145,8 +145,8 @@ void OpenOrders::Update(const OrderInfoPtrT& tradeInfo_, bool insert_) {
 		auto iterator = _hashing.find(tradeInfo_->Gateway);
 		if (iterator != _hashing.end()) {
 			if (_container.erase(iterator->second)) {
-				_buyCount -= tradeInfo_->Side == Side_BUY;
-				_sellCount -= tradeInfo_->Side == Side_SELL;
+				_buyCount -= tradeInfo_->Side == Lancelot::Side_BUY;
+				_sellCount -= tradeInfo_->Side == Lancelot::Side_SELL;
 			}
 		}
 		_hashing[tradeInfo_->Gateway] = tradeInfo_->Time;
@@ -154,8 +154,8 @@ void OpenOrders::Update(const OrderInfoPtrT& tradeInfo_, bool insert_) {
 
 	if (insert_) {
 		auto success = _container.emplace(tradeInfo_->Time, tradeInfo_).second;
-		_buyCount += tradeInfo_->Side == Side_BUY;
-		_sellCount += tradeInfo_->Side == Side_SELL;
+		_buyCount += tradeInfo_->Side == Lancelot::Side_BUY;
+		_sellCount += tradeInfo_->Side == Lancelot::Side_SELL;
 	}
 }
 void OpenOrders::Insert(const OrderInfoPtrT& tradeInfo_, bool insert_) {
