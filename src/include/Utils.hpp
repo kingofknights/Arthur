@@ -8,8 +8,8 @@
 
 #include "Structure.hpp"
 
-enum StrategyStatus;
-enum RequestType;
+enum StrategyStatus : int;
+enum RequestType : int;
 
 class Utils {
 public:

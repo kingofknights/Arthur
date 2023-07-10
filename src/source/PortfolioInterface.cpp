@@ -273,7 +273,7 @@ void PortfolioInterface::updateAll(GlobalParameterInfoT& info_) {
 					int i = 0;
 					for (const auto& word : std::views::split(info_.Info.Parameter.Text, ';')) {
 						if (i == info_.Info.Parameter.Integer) {
-							parameterValue.Text = std::string(word.begin(), word.end());
+							parameterValue.Text = FORMAT("{}", word);
 						}
 						++i;
 					}

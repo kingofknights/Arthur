@@ -2,8 +2,8 @@
 
 #include <Lancelot/Logger/Logger.hpp>
 
-Sound::Sound(std::string filepath) {
-	if (SDL_LoadWAV(filepath.c_str(), &_wavSpecs, &_waveBuffer, &_waveLength) == nullptr) {
+Sound::Sound(const std::string& filepath_) {
+	if (SDL_LoadWAV(filepath_.c_str(), &_wavSpecs, &_waveBuffer, &_waveLength) == nullptr) {
 		LOG(ERROR, "{} {}", "sound loading error: ", SDL_GetError())
 	}
 	SetupDevice();
@@ -20,7 +20,7 @@ void Sound::Play() {
 	SDL_PlayAudioDevice(_device);
 }
 
-void Sound::Stop() {
+void Sound::Stop() const {
 	SDL_PauseAudioDevice(_device);
 }
 

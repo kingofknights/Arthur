@@ -196,7 +196,7 @@ void Portfolio::DrawNewPortfolioCreation() {
 			case DataType_CLIENT: {
 				if (ImGui::BeginCombo(name.data(), info.Text.data())) {
 					for (const auto& [exchangeName, client] : ClientCodeList) {
-						if (ImGui::Selectable(fmt::format("[{}] {}", exchangeName, client).data())) {
+						if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::print(exchangeName), client).data())) {
 							info.Text = client;
 						}
 					}
@@ -384,7 +384,7 @@ void Portfolio::DrawGlobalParam() {
 			case DataType_CLIENT: {
 				if (ImGui::BeginCombo(name.data(), value.Info.Parameter.Text.data())) {
 					for (const auto& [exchangeName, client] : ClientCodeList) {
-						if (ImGui::Selectable(fmt::format("[{}] {}", exchangeName, client).data())) {
+						if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::print(exchangeName), client).data())) {
 							value.Info.Parameter.Text = client;
 						}
 					}
@@ -452,7 +452,7 @@ void Portfolio::AppendStrategy() {
 			int			i		= 0;
 			for (const auto word : std::views::split(options, ';')) {
 				if (i == info.Parameter.Integer) {
-					info.Parameter.Text = std::string(word.begin(), word.end());
+					info.Parameter.Text = FORMAT("{}", word);
 					break;
 				}
 				++i;

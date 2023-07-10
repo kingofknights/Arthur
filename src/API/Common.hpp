@@ -4,32 +4,13 @@
 #include <cstdint>
 #include <string>
 
-#define JSON_PARAMS		   "params"
-#define JSON_ID			   "id"
-#define JSON_TOKEN		   "token"
-#define JSON_PRICE		   "price"
-#define JSON_QUANTITY	   "quantity"
-#define JSON_CLIENT		   "client"
-#define JSON_SIDE		   "side"
-#define JSON_ORDER_ID	   "order_id"
-#define JSON_ARGUMENTS	   "arguments"
-#define JSON_PF_NUMBER	   "pf"
-#define JSON_UNIQUE_ID	   "unique_id"
-#define JSON_STRATEGY_NAME "name"
-#define JSON_ORDER_TYPE	   "type"
-#define JSON_TIME		   "time"
-#define JSON_FILL_QUANTITY "fill_quantity"
-#define JSON_FILL_PRICE	   "fill_price"
-#define JSON_REMAINING	   "remaining"
-#define JSON_MESSAGE	   "message"
-
-enum SideType
+enum SideType : int
 {
 	Side_BUY = 0,
 	Side_SELL
 };
 
-enum OrderType
+enum OrderType : int
 {
 	OrderType_LIMIT = 0,
 	OrderType_MARKET,
@@ -37,7 +18,7 @@ enum OrderType
 	OrderType_SPREAD
 };
 
-enum StrategyStatus
+enum StrategyStatus : int
 {
 	StrategyStatus_PENDING = 0,
 	StrategyStatus_ACTIVE,
@@ -48,7 +29,7 @@ enum StrategyStatus
 	StrategyStatus_DISCONNECTED
 };
 
-enum RequestType
+enum RequestType : int
 {
 	RequestType_LOGIN = 0,
 	// ORDER
@@ -62,7 +43,7 @@ enum RequestType
 	RequestType_SUBSCRIBE_APPLY,
 };
 
-enum ResponseType
+enum ResponseType : int
 {
 	// ORDER
 	ResponseType_PLACED = 0,
@@ -88,7 +69,7 @@ enum ResponseType
 	ResponseType_TRACKER,
 };
 
-enum OrderStatus
+enum OrderStatus : int
 {
 	OrderStatus_PLACED = 0,
 	OrderStatus_NEW,

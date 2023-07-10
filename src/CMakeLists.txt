@@ -91,7 +91,7 @@ target_link_libraries(${PROJECT_NAME}
 	    PUBLIC
 		ImGui
 		ImGuiFileDialog
-		SDL3-shared
+		SDL3
 		OpenGL::GL
 		${BOOST_LIBRARIES}
 		Threads::Threads

@@ -7,11 +7,10 @@
 #define NEW_ORDER_WINDOW	"Order Form Window"
 #define MODIFY_ORDER_WINDOW "Modify Order Window"
 
-enum RequestType;
+enum RequestType : int;
 
 namespace Lancelot {
-enum Exchange;
-
+enum Exchange : int;
 }
 using PublishOrderFunctionT = std::function<void(OrderFormInfoT, RequestType)>;
 class OrderForm final {

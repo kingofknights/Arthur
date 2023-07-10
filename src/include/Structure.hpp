@@ -4,11 +4,13 @@
 
 #pragma once
 
+#define DISABLE_LOGGING
 #include <Lancelot.hpp>
 #include <array>
 #include <boost/lockfree/spsc_queue.hpp>
 #include <cstdint>
 #include <deque>
+#include <list>
 #include <map>
 #include <memory>
 #include <set>
@@ -20,11 +22,11 @@
 
 #pragma pack(push, 1)
 
-enum DataType;
-enum OrderStatus;
-enum SideType;
-enum StrategyStatus;
-enum OrderType;
+enum DataType : int;
+enum OrderStatus : int;
+enum SideType : int;
+enum StrategyStatus : int;
+enum OrderType : int;
 
 constexpr int MARKET_WATCH_LADDER_COUNT = 5;
 constexpr int STRATEGY_NAME_LENGTH		= 50;
@@ -259,11 +261,11 @@ using ScannerResultOutputT = struct ScannerResultOutputT {
 #pragma pack(pop)
 
 struct Singleton {
-	Singleton()					 = default;
-	Singleton(const Singleton &) = delete;
-	Singleton(Singleton &&)		 = delete;
+	Singleton()								= default;
+	Singleton(const Singleton &)			= delete;
+	Singleton(Singleton &&)					= delete;
 	Singleton &operator=(const Singleton &) = delete;
-	Singleton &operator=(Singleton &&) = delete;
+	Singleton &operator=(Singleton &&)		= delete;
 };
 
 class ExcelAutomation;

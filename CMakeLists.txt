@@ -32,7 +32,6 @@ if (WEB)
 	add_compile_options(-fno-stack-protector)
 endif ()
 
-
 if (WIN32)
 	add_compile_definitions(WIN32_LEAN_AND_MEAN)
 	add_compile_definitions(WINVER=0x0A00)
@@ -53,17 +52,6 @@ include_directories(third_party/xcd)
 include_directories(third_party/lzo/include)
 include_directories(third_party/stb)
 include_directories(third_party/SDL-main/include)
-
-set(MYSQL_ROOT "C:/Program Files/MySQL/Connector C++ 8.0")
-set(MYSQL_INCLUDE_DIR ${MYSQL_ROOT}/include)
-set(MYSQL_LIBS_DIR ${MYSQL_ROOT}/lib64/v14)
-
-message(STATUS ${MYSQL_INCLUDE_DIR})
-message(STATUS ${MYSQL_LIBS_DIR})
-
-include_directories(${MYSQL_INCLUDE_DIR})
-link_directories(${MYSQL_LIBS_DIR})
-
 
 set(FONT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Font/Ruda-Bold.ttf
 	    ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Font/MaterialIcons-Regular.ttf

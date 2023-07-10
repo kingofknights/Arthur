@@ -1,6 +1,6 @@
 
 add_subdirectory(lzo)
-add_subdirectory(SDL-main)
+
 #[[
 include(FetchContent)
 

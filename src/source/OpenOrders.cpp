@@ -123,7 +123,7 @@ void OpenOrders::DrawManualOrderRequestedForCancel() {
 		}
 		ImGui::Separator();
 		if (ImGui::Button(ICON_MD_DONE " Process")) {
-			std::async(std::launch::async, [&]() {
+			auto _ = std::async(std::launch::async, [&]() {
 				for (const auto& tradeInfo_ : _cancelOrder) {
 					_strand.post([&]() { _cancelPendingOrderFunction(tradeInfo_); });
 				}
@@ -141,7 +141,7 @@ void OpenOrders::DrawManualOrderRequestedForCancel() {
 }
 
 void OpenOrders::Update(const OrderInfoPtrT& tradeInfo_, bool insert_) {
-	LOG(INFO, "1 : {} {} {} {} {}", tradeInfo_->Side, _buyCount, _sellCount, OrderStatusInfoName[tradeInfo_->StatusValue], tradeInfo_->Gateway) {
+	{
 		auto iterator = _hashing.find(tradeInfo_->Gateway);
 		if (iterator != _hashing.end()) {
 			if (_container.erase(iterator->second)) {
@@ -154,9 +154,6 @@ void OpenOrders::Update(const OrderInfoPtrT& tradeInfo_, bool insert_) {
 
 	if (insert_) {
 		auto success = _container.emplace(tradeInfo_->Time, tradeInfo_).second;
-		if (not success) {
-			LOG(INFO, "1 :{} {} {} {} {} {}", tradeInfo_->Time, tradeInfo_->Side, _buyCount, _sellCount, OrderStatusInfoName[tradeInfo_->StatusValue], tradeInfo_->Gateway)
-		}
 		_buyCount += tradeInfo_->Side == Side_BUY;
 		_sellCount += tradeInfo_->Side == Side_SELL;
 	}

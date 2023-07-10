@@ -4,7 +4,9 @@
 
 #include "../include/Arthur.hpp"
 
+#if _WIN32
 #include <Psapi.h>
+#endif
 
 #include <algorithm>
 #include <nlohmann/json.hpp>
@@ -211,7 +213,6 @@ void Arthur::paint() {
 }
 
 void Arthur::AddTrade(const OrderInfoPtrT& tradeInfo_) {
-	LOG(INFO, "{} {} {} {} {}", __FUNCTION__, tradeInfo_->Gateway, tradeInfo_->Token, tradeInfo_->Side, tradeInfo_->StatusValue)
 	switch (tradeInfo_->StatusValue) {
 		case OrderStatus_PLACED:
 		case OrderStatus_NEW:
@@ -464,9 +465,13 @@ void Arthur::marketEventHandler(std::stop_token& stopToken_) {
 }
 
 double MemoryUsage::GetRamUsage() {
+#if _WIN32
 	PROCESS_MEMORY_COUNTERS_EX pmc;
 	GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(PROCESS_MEMORY_COUNTERS_EX));
 	return (double)pmc.WorkingSetSize / (1024 * 1024);
+#else
+	return 0.0;
+#endif
 }
 
 void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, RequestType type_) {
@@ -490,7 +495,7 @@ void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_
 void Arthur::cancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
 	std::string	   config		 = Utils::cancelOrderSerialize(orderInfo_);
 	RequestInPackT requestInPack = Compression::CompressData(config, UserID, RequestType_CANCEL);
-	LOG(WARNING, "{} {}", config, RequestType_CANCEL)
+	LOG(WARNING, "{} {}", config, "RequestType_CANCEL")
 	if (_messageBroker) {
 		_messageBroker->Write_Async((char*)&requestInPack, sizeof(RequestInPackT));
 	}

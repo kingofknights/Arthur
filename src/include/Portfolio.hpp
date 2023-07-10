@@ -5,7 +5,7 @@
 #include "PortfolioInterface.hpp"
 #include "Signal.hpp"
 
-enum ExportImport;
+enum ExportImport : int;
 
 class Portfolio final : public PortfolioInterface {
 public:
@@ -38,8 +38,6 @@ private:
 	bool _showScanner			 = false;
 	bool _showGlobalParameter	 = false;
 	int	 _toBeDeleted			 = -1;
-	int	 _active				 = 0;
-	int	 _inActive				 = 0;
 	int	 _multipleSelectionCount = 0;
 
 	std::string		 _exchange;

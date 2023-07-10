@@ -6,7 +6,7 @@
 #include "PortfolioScanner.hpp"
 #include "Structure.hpp"
 
-enum RequestType;
+enum RequestType : int;
 using StrategyActionT = std::function<void(StrategyRowPtrT, std::string, RequestType)>;
 
 class PortfolioInterface : public PortfolioScanner {

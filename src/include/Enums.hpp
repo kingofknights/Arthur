@@ -2,7 +2,7 @@
 #define ARTHUR_INCLUDE_ENUMS_HPP
 #pragma once
 
-enum VisualTheme
+enum VisualTheme : int
 {
 	VisualTheme_MATERIAL_LIGHT = 0,
 	VisualTheme_MATERIAL_DARK,
@@ -54,7 +54,7 @@ enum MarketWatchToolTipColumnIndex
 	MarketWatchToolTipColumnIndex_ASK_ORDER,
 	MarketWatchToolTipColumnIndex_END
 };
-enum DataType
+enum DataType : int
 {
 	DataType_CLIENT = 0,
 	DataType_COMBO,
@@ -176,7 +176,7 @@ enum ScannerSavedColumnIndex
 	ScannerSavedColumnIndex_END
 };
 
-enum ExportImport
+enum ExportImport : int
 {
 	ExportImport_EXPORT,
 	ExportImport_IMPORT,

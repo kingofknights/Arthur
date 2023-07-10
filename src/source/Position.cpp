@@ -124,10 +124,10 @@ void Position::GreekBookUpdate(const OrderInfoPtrT& tradeInfo_) {
         GreeksPtrT greek = std::make_shared<GreeksT>();
         {
             auto* resultSet	   = Lancelot::ContractInfo::GetResultSet(tradeInfo_->Token);
-            greek->IsCall	   = resultSet->Option == Lancelot::OptionType_CALL;
-            greek->IsFuture	   = resultSet->InstType == Lancelot::Instrument_FUTURE;
-            greek->Expiry	   = resultSet->ExpiryDate;
-            greek->StrikePrice = resultSet->StrikePrice;
+            greek->IsCall	   = resultSet->_option == Lancelot::OptionType_CALL;
+            greek->IsFuture	   = resultSet->_instType == Lancelot::Instrument_FUTURE;
+            greek->Expiry	   = resultSet->_expiryDate;
+            greek->StrikePrice = resultSet->_strikePrice;
             greek->IV		   = 1;
             greek->Delta	   = 1;
             greek->Gamma	   = 1;

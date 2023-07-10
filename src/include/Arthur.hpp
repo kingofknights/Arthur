@@ -54,8 +54,8 @@ using TimerT	   = std::unique_ptr<boost::asio::deadline_timer>;
 using ExecutorType = boost::asio::io_context::executor_type;
 using WorkerT	   = boost::asio::executor_work_guard<ExecutorType>;
 
-enum RequestType;
-enum VisualTheme;
+enum RequestType : int;
+enum VisualTheme : int;
 
 class Arthur {
 public:
@@ -79,20 +79,20 @@ protected:
 	void cancelOrderEvent(const OrderInfoPtrT &orderInfo_);
 
 private:
-	DemoPtrT			  _demoPtr				= nullptr;
-	MessageBrokerPtrT	  _messageBroker		= nullptr;
-	TemplateBuilderPtrT	  _templateBuilderPtr	= nullptr;
-	PositionPtrT		  _positionPtr			= nullptr;
-	OrderFormPtrT		  _OrderFormPtr			= nullptr;
-	MarketWatchPtrT		  _marketWatchPtr		= nullptr;
-	MulticastReceiverPtrT _multicastReceiverPtr = nullptr;
-	OpenOrdersPtrT		  _openOrdersPtr		= nullptr;
-	StrategyWorkspacePtrT _strategyWorkspacePtr = nullptr;
-	TradeHistoryPtrT	  _tradeHistoryPtr		= nullptr;
-	OptionChainPtrT		  _optionChainPtr		= nullptr;
-	OrderBookPtrT		  _orderBookPtr			= nullptr;
-	OrderBookPtrT		  _rejectBookPtr		= nullptr;
-	SoundPtrT			  _tradeSoundPtr		= nullptr;
+	DemoPtrT			  _demoPtr				;
+	MessageBrokerPtrT	  _messageBroker		;
+	TemplateBuilderPtrT	  _templateBuilderPtr	;
+	PositionPtrT		  _positionPtr			;
+	OrderFormPtrT		  _OrderFormPtr			;
+	MarketWatchPtrT		  _marketWatchPtr		;
+	MulticastReceiverPtrT _multicastReceiverPtr ;
+	OpenOrdersPtrT		  _openOrdersPtr		;
+	StrategyWorkspacePtrT _strategyWorkspacePtr ;
+	TradeHistoryPtrT	  _tradeHistoryPtr		;
+	OptionChainPtrT		  _optionChainPtr		;
+	OrderBookPtrT		  _orderBookPtr			;
+	OrderBookPtrT		  _rejectBookPtr		;
+	SoundPtrT			  _tradeSoundPtr		;
 
 	bool _showTemplateBuilder	= false;
 	bool _showDemoWindow		= false;

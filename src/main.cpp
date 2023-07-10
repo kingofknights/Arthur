@@ -37,14 +37,6 @@ void signalHandler(int signal_) {
 
 // Main code
 int main(int argc_, char** argv_) {
-	uint64_t time		= std::time(0);
-	uint64_t expiryTime = 1687168247 + 10 * 86400;
-	if (time > expiryTime) {
-		LOG(ERROR, "{}", "Trail Peroid Over!! Self Deleting")
-		std::remove(argv_[0]);
-		return EXIT_SUCCESS;
-	}
-
 	::signal(SIGSEGV, &signalHandler);
 	::signal(SIGABRT, &signalHandler);
 	// Setup SDL
