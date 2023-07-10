@@ -12,51 +12,50 @@ find_package(fmt REQUIRED)
 find_package(SQLiteCpp REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system filesystem)
 
-
 FetchContent_Declare(
-  Greeks
-  GIT_REPOSITORY https://github.com/kingofknights/Greeks.git
-  OVERRIDE_FIND_PACKAGE
+        Greeks
+        GIT_REPOSITORY https://github.com/kingofknights/Greeks.git
+        OVERRIDE_FIND_PACKAGE
 )
 
 FetchContent_GetProperties(Greeks)
-if(NOT Greeks_POPULATED)
-	FetchContent_Populate(Greeks)
-	add_subdirectory(${greeks_SOURCE_DIR} ${greeks_BINARY_DIR})
-	include_directories(${greeks_SOURCE_DIR})
-	message(STATUS "Greeks_SOURCE_DIR" ${greeks_SOURCE_DIR})
-	message(STATUS "Greeks_BINARY_DIR" ${greeks_BINARY_DIR})
-endif()
+if (NOT Greeks_POPULATED)
+    FetchContent_Populate(Greeks)
+    add_subdirectory(${greeks_SOURCE_DIR} ${greeks_BINARY_DIR})
+    include_directories(${greeks_SOURCE_DIR})
+    message(STATUS "Greeks_SOURCE_DIR" ${greeks_SOURCE_DIR})
+    message(STATUS "Greeks_BINARY_DIR" ${greeks_BINARY_DIR})
+endif ()
 
 FetchContent_Declare(
-  xcd
-  GIT_REPOSITORY https://github.com/kingofknights/xcd.git
-  OVERRIDE_FIND_PACKAGE
+        xcd
+        GIT_REPOSITORY https://github.com/kingofknights/xcd.git
+        OVERRIDE_FIND_PACKAGE
 )
 
 FetchContent_GetProperties(xcd)
-if(NOT xcd_POPULATED)
-	FetchContent_Populate(xcd)
-	add_subdirectory(${xcd_SOURCE_DIR} ${xcd_BINARY_DIR})
-	include_directories(${xcd_SOURCE_DIR})
-	message(STATUS "xcd_SOURCE_DIR" ${xcd_SOURCE_DIR})
-	message(STATUS "xcd_BINARY_DIR" ${xcd_BINARY_DIR})
-endif()
+if (NOT xcd_POPULATED)
+    FetchContent_Populate(xcd)
+    add_subdirectory(${xcd_SOURCE_DIR} ${xcd_BINARY_DIR})
+    include_directories(${xcd_SOURCE_DIR})
+    message(STATUS "xcd_SOURCE_DIR" ${xcd_SOURCE_DIR})
+    message(STATUS "xcd_BINARY_DIR" ${xcd_BINARY_DIR})
+endif ()
 
 FetchContent_Declare(
-  lancelot
-  GIT_REPOSITORY https://github.com/kingofknights/lancelot.git
-  OVERRIDE_FIND_PACKAGE
+        lancelot
+        GIT_REPOSITORY https://github.com/kingofknights/lancelot.git
+        OVERRIDE_FIND_PACKAGE
 )
 
 FetchContent_GetProperties(lancelot)
-if(NOT lancelot_POPULATED)
-	FetchContent_Populate(lancelot)
-	add_subdirectory(${lancelot_SOURCE_DIR} ${lancelot_BINARY_DIR})
-	include_directories(${lancelot_SOURCE_DIR}/include)
-	message(STATUS "lancelot_SOURCE_DIR" ${lancelot_SOURCE_DIR})
-	message(STATUS "lancelot_BINARY_DIR" ${lancelot_BINARY_DIR})
-endif()
+if (NOT lancelot_POPULATED)
+    FetchContent_Populate(lancelot)
+    add_subdirectory(${lancelot_SOURCE_DIR} ${lancelot_BINARY_DIR})
+    include_directories(${lancelot_SOURCE_DIR}/include)
+    message(STATUS "lancelot_SOURCE_DIR" ${lancelot_SOURCE_DIR})
+    message(STATUS "lancelot_BINARY_DIR" ${lancelot_BINARY_DIR})
+endif ()
 
 add_subdirectory(include)
 add_subdirectory(source)
@@ -68,67 +67,61 @@ add_subdirectory(Demo)
 add_subdirectory(Audio)
 
 add_executable(${PROJECT_NAME}
-	    main.cpp
-		${APP_ICON_RESOURCE_WINDOWS})
+        main.cpp
+        ${APP_ICON_RESOURCE_WINDOWS})
 
 target_link_libraries(${PROJECT_NAME}
-	    PRIVATE
-		include
-		source
-		API
-		DataFeed
-		Knight
-		Greeks
-		#Excel
-		Demo
-		Audio
-		Lancelot
-	    )
+	PRIVATE
+        include
+        source
+        API
+        DataFeed
+        Knight
+        Greeks
+        #Excel
+        Demo
+        Audio
+        Lancelot
+        )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
 #target_compile_options(${PROJECT_NAME} PRIVATE -DIMGUI_IMPL_OPENGL_ES2)
 target_link_libraries(${PROJECT_NAME}
-	    PUBLIC
-		ImGui
-		ImGuiFileDialog
-		SDL3
-		OpenGL::GL
-		${BOOST_LIBRARIES}
-		Threads::Threads
-	    )
+	PUBLIC
+        ImGui
+        ImGuiFileDialog
+        SDL3
+        OpenGL::GL
+        ${BOOST_LIBRARIES}
+        Threads::Threads
+)
 
 
 target_precompile_headers(${PROJECT_NAME}
-	    PRIVATE
-		<algorithm>
-		<array>
-		<chrono>
-		<cstdint>
-		<filesystem>
-		<fstream>
-		<iostream>
-		<map>
-		<memory>
-		<ranges>
-		<set>
-		<sstream>
-		<string>
-		<string_view>
-		<typeinfo>
-		<unordered_map>
-		<unordered_set>
-		<variant>
-		<vector>
-		<thread>
-		<memory>
-		<Lancelot.hpp>
-	    )
-
-
-
-
-
-
+	PRIVATE
+        <algorithm>
+        <array>
+        <chrono>
+        <cstdint>
+        <filesystem>
+        <fstream>
+        <iostream>
+        <map>
+        <memory>
+        <ranges>
+        <set>
+        <sstream>
+        <string>
+        <string_view>
+        <typeinfo>
+        <unordered_map>
+        <unordered_set>
+        <variant>
+        <vector>
+        <thread>
+        <memory>
+        <Lancelot.hpp>
+)
 
 
 #[[
@@ -141,6 +134,6 @@ if (WIN32)
 endif ()
 ]]
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-	    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${FONT_FILE}
-		$<TARGET_FILE_DIR:${PROJECT_NAME}>)
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${FONT_FILE}
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>)
