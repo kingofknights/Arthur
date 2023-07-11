@@ -66,7 +66,7 @@ std::string Utils::cancelOrderSerialize(const OrderInfoPtrT& orderInfo_) {
 	return json.dump();
 }
 
-std::string Utils::strategySerialize(const StrategyRowPtrT& row_, const std::string& name_, RequestType type_) {
+std::string Utils::strategySerialize(const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_) {
 	nlohmann::json json;
 	json[JSON_ID] = ++Id;
 
@@ -74,7 +74,7 @@ std::string Utils::strategySerialize(const StrategyRowPtrT& row_, const std::str
 	params[JSON_PF_NUMBER]	   = row_->PF;
 	params[JSON_STRATEGY_NAME] = name_;
 
-	if (type_ != RequestType_UNSUBSCRIBE) {
+	if (type_ != Lancelot::RequestType_UNSUBSCRIBE) {
 		nlohmann::json arguments;
 		for (const auto& [key_, value] : row_->ParameterInfoList) {
 			switch (value.Type) {
@@ -227,9 +227,9 @@ void Utils::GetClientList(int userId_) {
 	ClientCodeList.clear();
 
 	for (const auto& item : table) {
-		ClientInfoT clientInfo{.Exchange = Lancelot::ContractInfo::GetExchangeCode(item[ClientIndex_EXCHANGE]), .ClientCode = item[ClientIndex_CLIENTCODE]};
+		ClientInfoT clientInfo{.Exchange = Lancelot::ContractInfo::GetExchange(item[ClientIndex_EXCHANGE]), .ClientCode = item[ClientIndex_CLIENTCODE]};
 		ClientCodeList.push_back(clientInfo);
-		LOG(INFO, "Client Code for User [{}] is [{} {}]", userId_, clientInfo.Exchange, clientInfo.ClientCode);
+		LOG(INFO, "Client Code for User [{}] is [{} {}]", userId_, Lancelot::print(clientInfo.Exchange), clientInfo.ClientCode);
 	}
 }
 
@@ -247,8 +247,8 @@ void CreateMarketObject(uint32_t token_, std::string_view name_, float ltp_, flo
 }
 
 void Utils::GetAllContractCallback(const Lancelot::ResultSetPtrT result_, float ltp_, float low_, float high_) {
-	CreateMarketObject(result_->Token, result_->Description, ltp_, low_, high_);
-	AllContract.push_back(result_->Description);
+	CreateMarketObject(result_->_token, result_->_description, ltp_, low_, high_);
+	AllContract.push_back(result_->_description);
 }
 
 double Utils::ScannerAPI(double pf_, double name_, double params_, double token_) {

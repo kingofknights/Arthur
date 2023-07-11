@@ -56,7 +56,7 @@ void PortfolioInterface::subscribeAll() {
 		for (const StrategyListT::value_type& value_type : _strategyList) {
 			if (value_type->Changed or value_type->Status == StrategyStatus_TERMINATED or value_type->Status == StrategyStatus_INACTIVE) {
 				value_type->Status = StrategyStatus_WAITING;
-				doStrategyAction(value_type, _strategyName, RequestType_SUBSCRIBE);
+				doStrategyAction(value_type, _strategyName, Lancelot::RequestType_SUBSCRIBE);
 			}
 		}
 	});
@@ -67,7 +67,7 @@ void PortfolioInterface::subscribeSelected() {
 		for (const StrategyListT::value_type& value_type : _strategyList) {
 			if ((value_type->Changed or value_type->Status == StrategyStatus_TERMINATED or value_type->Status == StrategyStatus_INACTIVE) and value_type->Selected) {
 				value_type->Status = StrategyStatus_WAITING;
-				doStrategyAction(value_type, _strategyName, RequestType_SUBSCRIBE);
+				doStrategyAction(value_type, _strategyName, Lancelot::RequestType_SUBSCRIBE);
 			}
 		}
 	});
@@ -77,7 +77,7 @@ void PortfolioInterface::applySelected() {
 	auto _ = std::async(std::launch::async, [&]() {
 		for (const StrategyListT::value_type& value_type : _strategyList) {
 			if ((value_type->Changed or value_type->Status == StrategyStatus_ACTIVE) and value_type->Subscribed and value_type->Selected) {
-				doStrategyAction(value_type, _strategyName, RequestType_APPLY);
+				doStrategyAction(value_type, _strategyName, Lancelot::RequestType_APPLY);
 			}
 		}
 	});
@@ -87,7 +87,7 @@ void PortfolioInterface::applyAll() {
 	auto _ = std::async(std::launch::async, [&]() {
 		for (const StrategyListT::value_type& value_type : _strategyList) {
 			if ((value_type->Changed or value_type->Status == StrategyStatus_ACTIVE) and value_type->Subscribed) {
-				doStrategyAction(value_type, _strategyName, RequestType_APPLY);
+				doStrategyAction(value_type, _strategyName, Lancelot::RequestType_APPLY);
 			}
 		}
 	});
@@ -97,7 +97,7 @@ void PortfolioInterface::unsubscribeAll() {
 	auto _ = std::async(std::launch::async, [&]() {
 		for (const StrategyListT::value_type& value_type : _strategyList) {
 			if (value_type->Changed or value_type->Status == StrategyStatus_ACTIVE or value_type->Status == StrategyStatus_APPLIED) {
-				doStrategyAction(value_type, _strategyName, RequestType_UNSUBSCRIBE);
+				doStrategyAction(value_type, _strategyName, Lancelot::RequestType_UNSUBSCRIBE);
 			}
 		}
 	});
@@ -107,7 +107,7 @@ void PortfolioInterface::unsubscribeSelected() {
 	auto _ = std::async(std::launch::async, [&]() {
 		for (const StrategyListT::value_type& value_type : _strategyList) {
 			if ((value_type->Changed or value_type->Status == StrategyStatus_ACTIVE or value_type->Status == StrategyStatus_APPLIED) and value_type->Selected) {
-				doStrategyAction(value_type, _strategyName, RequestType_UNSUBSCRIBE);
+				doStrategyAction(value_type, _strategyName, Lancelot::RequestType_UNSUBSCRIBE);
 			}
 		}
 	});
@@ -273,7 +273,7 @@ void PortfolioInterface::updateAll(GlobalParameterInfoT& info_) {
 					int i = 0;
 					for (const auto& word : std::views::split(info_.Info.Parameter.Text, ';')) {
 						if (i == info_.Info.Parameter.Integer) {
-							parameterValue.Text = std::string(word.begin(), word.end());
+							parameterValue.Text = FORMAT("{}", word);
 						}
 						++i;
 					}
@@ -370,7 +370,7 @@ void PortfolioInterface::ParseConfig(std::string_view config_) {
 	}
 }
 
-void PortfolioInterface::doStrategyAction(const StrategyRowPtrT& strategy_, const std::string& name_, RequestType type_) {
+void PortfolioInterface::doStrategyAction(const StrategyRowPtrT& strategy_, const std::string& name_, Lancelot::RequestType type_) {
 	strategy_->Status = StrategyStatus_PENDING;
 	_strand.post([strategy_, type_, name_]() { StrategyAction(strategy_, name_, type_); });
 }

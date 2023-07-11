@@ -8,7 +8,7 @@
 #include <string>
 #include <unordered_map>
 
-enum DataType;
+enum DataType : int;
 
 #define COLUMN_GENERATOR_WINDOW "Template Builder Window"
 class TemplateBuilder {

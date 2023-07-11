@@ -1,0 +1,9 @@
+[submodule "repo/Lancelot"]
+	path = repo/Lancelot
+	url = https://github.com/kingofknights/Lancelot.git
+[submodule "repo/Greeks"]
+	path = repo/Greeks
+	url = https://github.com/kingofknights/Greeks.git
+[submodule "repo/xcd"]
+	path = repo/xcd
+	url = https://github.com/kingofknights/xcd.git

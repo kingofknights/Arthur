@@ -57,7 +57,7 @@ void OptionChain::DrawOptionChain(bool* show_) {
 
 				float priceForCall = _future->Bid[0].Price ? _future->Bid[0].Price : _future->LastTradePrice;
 				// FIXME : remove abs when working with live contracts
-				float expiryGap	 = std::abs(Greeks::GetExpiryGap(Put.ResultSet->ExpiryDate));
+				float expiryGap	 = std::abs(Greeks::GetExpiryGap(Put.ResultSet->_expiryDate));
 				float rate		 = 0.0f;
 				float call_IV	 = Greeks::GetIV(priceForCall, valueType_.first, rate, expiryGap, Call.Self->LastTradePrice, true);
 				float call_Theta = Greeks::GetTheta(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
@@ -227,7 +227,7 @@ void OptionChain::LoadOptions(const std::string& symbol_, uint32_t expiry_, uint
 		OptionChainItemT put{.Self = ContractInfo::GetLiveDataRef(putToken), .ResultSet = Lancelot::ContractInfo::GetResultSet(putToken)};
 		OptionChainRowT	 optionChainRow{.Call = call, .Put = put};
 
-		_OptionChainContainer.emplace(std::stof(row[2]) / call.ResultSet->Divisor, optionChainRow);
+		_OptionChainContainer.emplace(std::stof(row[2]) / call.ResultSet->_divisor, optionChainRow);
 		AddContractToDemoSignal(callToken);
 		AddContractToDemoSignal(putToken);
 	}

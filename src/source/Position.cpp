@@ -13,15 +13,15 @@
 
 template <typename Type>
 void UpdateTradeInfoNetbook(Type& data, const OrderInfoPtrT& tradeInfo_) {
-	if (tradeInfo_->Side == Side_BUY) {
-		data->TotalBuyPrice += tradeInfo_->Price * tradeInfo_->Quantity;
-		data->BuyQuantity += tradeInfo_->Quantity;
-		data->AverageBuyPrice = data->TotalBuyPrice / data->BuyQuantity;
-	} else {
-		data->TotalSellPrice += tradeInfo_->Price * tradeInfo_->Quantity;
-		data->SellQuantity += tradeInfo_->Quantity;
-		data->AverageSellPrice = data->TotalSellPrice / data->SellQuantity;
-	}
+    if (tradeInfo_->Side == Lancelot::Side_BUY) {
+        data->TotalBuyPrice += tradeInfo_->Price * tradeInfo_->Quantity;
+        data->BuyQuantity += tradeInfo_->Quantity;
+        data->AverageBuyPrice = data->TotalBuyPrice / data->BuyQuantity;
+    } else {
+        data->TotalSellPrice += tradeInfo_->Price * tradeInfo_->Quantity;
+        data->SellQuantity += tradeInfo_->Quantity;
+        data->AverageSellPrice = data->TotalSellPrice / data->SellQuantity;
+    }
 }
 
 template <typename Container, typename Sequencial, typename Key>
@@ -113,45 +113,45 @@ void Position::PFWiseBookUpdate(const OrderInfoPtrT& tradeInfo_) {
 }
 
 void Position::GreekBookUpdate(const OrderInfoPtrT& tradeInfo_) {
-	auto iteratorContainer = _greekBookContainer.find(tradeInfo_->Token);
-	if (iteratorContainer != _greekBookContainer.end()) {
-		GreekBookColumnPtrT& data = iteratorContainer->second;
-		UpdateTradeInfoNetbook(data, tradeInfo_);
+    auto iteratorContainer = _greekBookContainer.find(tradeInfo_->Token);
+    if (iteratorContainer != _greekBookContainer.end()) {
+        GreekBookColumnPtrT& data = iteratorContainer->second;
+        UpdateTradeInfoNetbook(data, tradeInfo_);
 
-	} else {
-		GreekBookColumnPtrT data = std::make_shared<GreekBookColumnT>();
+    } else {
+        GreekBookColumnPtrT data = std::make_shared<GreekBookColumnT>();
 
-		GreeksPtrT greek = std::make_shared<GreeksT>();
-		{
-			auto* resultSet	   = Lancelot::ContractInfo::GetResultSet(tradeInfo_->Token);
-			greek->IsCall	   = resultSet->Option == Lancelot::OptionType_CALL;
-			greek->IsFuture	   = resultSet->InstType == Lancelot::Instrument_FUTURE;
-			greek->Expiry	   = resultSet->ExpiryDate;
-			greek->StrikePrice = resultSet->StrikePrice;
-			greek->IV		   = 1;
-			greek->Delta	   = 1;
-			greek->Gamma	   = 1;
-			greek->Vega		   = 1;
-			greek->Theta	   = 1;
-			greek->Self		   = ContractInfo::GetLiveDataRef(tradeInfo_->Token);
-			greek->Future	   = ContractInfo::GetLiveDataRef(Lancelot::ContractInfo::GetFuture(tradeInfo_->Token));
-			_greekList.push_back(greek);
-		}
+        GreeksPtrT greek = std::make_shared<GreeksT>();
+        {
+            auto* resultSet	   = Lancelot::ContractInfo::GetResultSet(tradeInfo_->Token);
+            greek->IsCall	   = resultSet->_option == Lancelot::OptionType_CALL;
+            greek->IsFuture	   = resultSet->_instType == Lancelot::Instrument_FUTURE;
+            greek->Expiry	   = resultSet->_expiryDate;
+            greek->StrikePrice = resultSet->_strikePrice;
+            greek->IV		   = 1;
+            greek->Delta	   = 1;
+            greek->Gamma	   = 1;
+            greek->Vega		   = 1;
+            greek->Theta	   = 1;
+            greek->Self		   = ContractInfo::GetLiveDataRef(tradeInfo_->Token);
+            greek->Future	   = ContractInfo::GetLiveDataRef(Lancelot::ContractInfo::GetFuture(tradeInfo_->Token));
+            _greekList.push_back(greek);
+        }
 
-		_greekList.push_back(greek);
+        _greekList.push_back(greek);
 
-		data->Symbol		   = Lancelot::ContractInfo::GetSymbol(tradeInfo_->Token);
-		data->BuyQuantity	   = 0;
-		data->SellQuantity	   = 0;
-		data->TotalSellPrice   = 0;
-		data->TotalBuyPrice	   = 0;
-		data->AverageSellPrice = 0;
-		data->AverageBuyPrice  = 0;
-		data->Greeks		   = greek;
+        data->Symbol		   = Lancelot::ContractInfo::GetSymbol(tradeInfo_->Token);
+        data->BuyQuantity	   = 0;
+        data->SellQuantity	   = 0;
+        data->TotalSellPrice   = 0;
+        data->TotalBuyPrice	   = 0;
+        data->AverageSellPrice = 0;
+        data->AverageBuyPrice  = 0;
+        data->Greeks		   = greek;
 
-		UpdateTradeInfoNetbook(data, tradeInfo_);
-		_greekBookContainer.emplace(tradeInfo_->Token, data);
-	}
+        UpdateTradeInfoNetbook(data, tradeInfo_);
+        _greekBookContainer.emplace(tradeInfo_->Token, data);
+    }
 }
 
 double Position::CalculateSymbolWisePNL(const NetBookColumnPtrT& column) {

@@ -8,8 +8,7 @@
 
 #include "Structure.hpp"
 
-enum StrategyStatus;
-enum RequestType;
+enum StrategyStatus : int;
 
 class Utils {
 public:
@@ -29,7 +28,7 @@ public:
 	static double	   ScannerAPI(double pf_, double name_, double params_, double token_);
 	static std::string manualSerialize(const OrderFormInfoT &manualOrderInfo_);
 	static std::string cancelOrderSerialize(const OrderInfoPtrT &orderInfo_);
-	static std::string strategySerialize(const StrategyRowPtrT &row_, const std::string &name_, RequestType type_);
+	static std::string strategySerialize(const StrategyRowPtrT &row_, const std::string &name_, Lancelot::RequestType type_);
 
 private:
 	static GlobalStrategyListT GlobalStrategyList;

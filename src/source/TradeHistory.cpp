@@ -9,17 +9,17 @@
 #include "../include/Utils.hpp"
 
 void TradeHistory::paint(bool* show_) {
-	_pendingTradeUpdate.consume_one([this](const OrderInfoPtrT& orderInfo_) {
-		_container.push_back(orderInfo_);
-		_totalBuy += orderInfo_->Side == Side_BUY;
-		_totalSell += orderInfo_->Side == Side_SELL;
-		_buyValue += orderInfo_->Side == Side_BUY ? orderInfo_->Price * orderInfo_->Quantity : 0;
-		_sellValue += orderInfo_->Side == Side_SELL ? orderInfo_->Price * orderInfo_->Quantity : 0;
-		_netValue = _totalSell - _totalBuy;
-	});
-	if (*show_) {
-		DrawTradeBookTable(show_);
-	}
+    _pendingTradeUpdate.consume_one([this](const OrderInfoPtrT& orderInfo_) {
+        _container.push_back(orderInfo_);
+        _totalBuy += orderInfo_->Side == Lancelot::Side_BUY;
+        _totalSell += orderInfo_->Side == Lancelot::Side_SELL;
+        _buyValue += orderInfo_->Side == Lancelot::Side_BUY ? orderInfo_->Price * orderInfo_->Quantity : 0;
+        _sellValue += orderInfo_->Side == Lancelot::Side_SELL ? orderInfo_->Price * orderInfo_->Quantity : 0;
+        _netValue = _totalSell - _totalBuy;
+    });
+    if (*show_) {
+        DrawTradeBookTable(show_);
+    }
 }
 
 void TradeHistory::Insert(const OrderInfoPtrT& orderInfo_) {

@@ -7,13 +7,12 @@
 #define NEW_ORDER_WINDOW	"Order Form Window"
 #define MODIFY_ORDER_WINDOW "Modify Order Window"
 
-enum RequestType;
-
 namespace Lancelot {
-enum Exchange;
+enum Exchange : int;
+enum RequestType : int;
+}  // namespace Lancelot
 
-}
-using PublishOrderFunctionT = std::function<void(OrderFormInfoT, RequestType)>;
+using PublishOrderFunctionT = std::function<void(OrderFormInfoT, Lancelot::RequestType)>;
 class OrderForm final {
 public:
 	explicit OrderForm(boost::asio::io_context::strand& strand_);

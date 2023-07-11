@@ -98,7 +98,7 @@ void Demo::Run(std::stop_token& token_) {
 	LOG(WARNING, "{} {}", __FUNCTION__, "Exiting")
 }
 
-OrderInfoPtrT Demo::GenerateOrderInfo(const MarketWatchDataPtrT& ptr_, int gateway_, SideType side_, OrderStatus orderStatus_) {
+OrderInfoPtrT Demo::GenerateOrderInfo(const MarketWatchDataPtrT& ptr_, int gateway_, Lancelot::Side side_, OrderStatus orderStatus_) {
 	auto info		   = std::make_shared<OrderInfoT>();
 	info->PF		   = 9999;
 	info->Gateway	   = gateway_;

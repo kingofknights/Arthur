@@ -127,14 +127,14 @@ void MarketWatch::ContractCell(int contract_, int index_, const char* data_, con
 		}
 
 		bool	 open = false;
-		SideType side;
+		Lancelot::Side side;
 		if (ImGui::IsKeyPressed(ImGuiKey_KeypadAdd) or ImGui::IsKeyPressed(ImGuiKey_F1)) {
 			open = true;
-			side = Side_BUY;
+			side = Lancelot::Side_BUY;
 		}
 		if (ImGui::IsKeyPressed(ImGuiKey_KeypadSubtract) or ImGui::IsKeyPressed(ImGuiKey_F2)) {
 			open = true;
-			side = Side_SELL;
+			side = Lancelot::Side_SELL;
 		}
 
 		if (open) {
@@ -173,12 +173,12 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) {
 		ImGui::TableHeadersRow();
 		for (int i = 0; i < MARKET_WATCH_LADDER_COUNT; ++i) {
 			ImGui::TableNextRow();
-			NextCell(MarketWatchToolTipColumnIndex_BUY_ORDER, "%d", pointer_->Bid[i].Order, BuySellColor(Side_BUY));
-			NextCell(MarketWatchToolTipColumnIndex_BUY_QUANTITY, "%d", pointer_->Bid[i].Quantity, BuySellColor(Side_BUY));
-			NextCell(MarketWatchToolTipColumnIndex_BUY_PRICE, "%.2f", pointer_->Bid[i].Price, BuySellColor(Side_BUY));
-			NextCell(MarketWatchToolTipColumnIndex_ASK_PRICE, "%.2f", pointer_->Ask[i].Price, BuySellColor(Side_SELL));
-			NextCell(MarketWatchToolTipColumnIndex_ASK_QUANTITY, "%d", pointer_->Ask[i].Quantity, BuySellColor(Side_SELL));
-			NextCell(MarketWatchToolTipColumnIndex_ASK_ORDER, "%d", pointer_->Ask[i].Order, BuySellColor(Side_SELL));
+			NextCell(MarketWatchToolTipColumnIndex_BUY_ORDER, "%d", pointer_->Bid[i].Order, BuySellColor(Lancelot::Side_BUY));
+			NextCell(MarketWatchToolTipColumnIndex_BUY_QUANTITY, "%d", pointer_->Bid[i].Quantity, BuySellColor(Lancelot::Side_BUY));
+			NextCell(MarketWatchToolTipColumnIndex_BUY_PRICE, "%.2f", pointer_->Bid[i].Price, BuySellColor(Lancelot::Side_BUY));
+			NextCell(MarketWatchToolTipColumnIndex_ASK_PRICE, "%.2f", pointer_->Ask[i].Price, BuySellColor(Lancelot::Side_SELL));
+			NextCell(MarketWatchToolTipColumnIndex_ASK_QUANTITY, "%d", pointer_->Ask[i].Quantity, BuySellColor(Lancelot::Side_SELL));
+			NextCell(MarketWatchToolTipColumnIndex_ASK_ORDER, "%d", pointer_->Ask[i].Order, BuySellColor(Lancelot::Side_SELL));
 		}
 		ImGui::EndTable();
 	}
@@ -202,8 +202,8 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) {
 	uint64_t total = (pointer_->TotalBuyQuantity + pointer_->TotalSellQuantity);
 	float	 ratio = float(pointer_->TotalBuyQuantity) / float(total == 0 ? 1 : total);
 
-	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, BuySellColor(Side_BUY));
-	ImGui::PushStyleColor(ImGuiCol_FrameBg, BuySellColor(Side_SELL));
+	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, BuySellColor(Lancelot::Side_BUY));
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, BuySellColor(Lancelot::Side_SELL));
 
 	ImGui::ProgressBar(moment, ImVec2(-FLT_MIN, 0), "Price Movement");
 	ImGui::ProgressBar(ratio, ImVec2(-FLT_MIN, 0), "Buy Sell Ratio");

@@ -8,7 +8,7 @@
 
 #include "../include/Enums.hpp"
 
-RequestInPackT Compression::CompressData(std::string_view order, uint64_t uid, RequestType type_) {
+RequestInPackT Compression::CompressData(std::string_view order, uint64_t uid, Lancelot::RequestType type_) {
 	RequestInPackT requestInPack;
 	requestInPack.UserIdentifier = uid;
 	requestInPack.TotalSize		 = sizeof(RequestInPackT);

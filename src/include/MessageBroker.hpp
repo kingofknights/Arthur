@@ -12,7 +12,7 @@
 
 using UpdateTradeFunctionT = std::function<void(OrderInfoPtrT)>;
 
-enum ResponseType;
+enum ResponseType : int;
 class MessageBroker : public TBaseSocket {
 public:
 	MessageBroker(boost::asio::io_context &ioContext_);

@@ -201,7 +201,7 @@ void PortfolioScanner::Export(std::string_view path_) {
 		item["Name"]			 = ScannerItem.Name;
 		item["ExpandedEquation"] = ScannerItem.ExpandedEquation;
 		LOG(INFO, "Exporting Scanner {} {}", ScannerItem.UniqueID, ScannerItem.Name)
-		root.push_back(item);
+		root.emplace_back(item);
 	}
 	LOG(INFO, "{} {}", __FUNCTION__, "Done")
 	std::fstream file(path_.data(), std::ios::trunc | std::ios::out);

@@ -196,7 +196,7 @@ void Portfolio::DrawNewPortfolioCreation() {
 			case DataType_CLIENT: {
 				if (ImGui::BeginCombo(name.data(), info.Text.data())) {
 					for (const auto& [exchangeName, client] : ClientCodeList) {
-						if (ImGui::Selectable(fmt::format("[{}] {}", exchangeName, client).data())) {
+						if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::print(exchangeName), client).data())) {
 							info.Text = client;
 						}
 					}
@@ -291,14 +291,14 @@ void Portfolio::DrawStrategyRow(StrategyRowPtrT& row_, int index_) {
 	ImGui::PushStyleColor(ImGuiCol_Text, color);
 	ImGui::BeginDisabled(row_->Status == StrategyStatus_PENDING);
 	if (ImGui::Checkbox(fmt::format("{}##SubscribedCheckBok", StrategyStatusType[row_->Status]).data(), &row_->Subscribed)) {
-		doStrategyAction(row_, _strategyName, row_->Subscribed ? RequestType_SUBSCRIBE : RequestType_UNSUBSCRIBE);
+		doStrategyAction(row_, _strategyName, row_->Subscribed ? Lancelot::RequestType_SUBSCRIBE : Lancelot::RequestType_UNSUBSCRIBE);
 	}
 	ImGui::EndDisabled();
 	ImGui::PopStyleColor();
 	ImGui::TableSetColumnIndex(2);
 	ImGui::BeginDisabled(not row_->Subscribed or row_->Status == StrategyStatus_PENDING);
 	if (ImGui::Button("Apply##ApplyButton", ImVec2(-FLT_MIN, 0.0f))) {
-		doStrategyAction(row_, _strategyName, RequestType_APPLY);
+		doStrategyAction(row_, _strategyName, Lancelot::RequestType_APPLY);
 	}
 	ImGui::EndDisabled();
 
@@ -384,7 +384,7 @@ void Portfolio::DrawGlobalParam() {
 			case DataType_CLIENT: {
 				if (ImGui::BeginCombo(name.data(), value.Info.Parameter.Text.data())) {
 					for (const auto& [exchangeName, client] : ClientCodeList) {
-						if (ImGui::Selectable(fmt::format("[{}] {}", exchangeName, client).data())) {
+						if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::print(exchangeName), client).data())) {
 							value.Info.Parameter.Text = client;
 						}
 					}
@@ -452,7 +452,7 @@ void Portfolio::AppendStrategy() {
 			int			i		= 0;
 			for (const auto word : std::views::split(options, ';')) {
 				if (i == info.Parameter.Integer) {
-					info.Parameter.Text = std::string(word.begin(), word.end());
+					info.Parameter.Text = FORMAT("{}", word);
 					break;
 				}
 				++i;

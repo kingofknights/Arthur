@@ -54,8 +54,10 @@ using TimerT	   = std::unique_ptr<boost::asio::deadline_timer>;
 using ExecutorType = boost::asio::io_context::executor_type;
 using WorkerT	   = boost::asio::executor_work_guard<ExecutorType>;
 
-enum RequestType;
-enum VisualTheme;
+namespace Lancelot {
+enum RequestType : int;
+}
+enum VisualTheme : int;
 
 class Arthur {
 public:
@@ -74,25 +76,25 @@ protected:
 	void imports(std::string_view path_);
 	void exports(std::string_view path_);
 	void startAllThreads();
-	void manualOrderRequestEvent(const OrderFormInfoT &ManualOrderInfo, RequestType type_);
-	void strategyRequestEvent(StrategyRowPtrT row_, const std::string &name_, RequestType type_);
+	void manualOrderRequestEvent(const OrderFormInfoT &ManualOrderInfo, Lancelot::RequestType type_);
+	void strategyRequestEvent(StrategyRowPtrT row_, const std::string &name_, Lancelot::RequestType type_);
 	void cancelOrderEvent(const OrderInfoPtrT &orderInfo_);
 
 private:
-	DemoPtrT			  _demoPtr				= nullptr;
-	MessageBrokerPtrT	  _messageBroker		= nullptr;
-	TemplateBuilderPtrT	  _templateBuilderPtr	= nullptr;
-	PositionPtrT		  _positionPtr			= nullptr;
-	OrderFormPtrT		  _OrderFormPtr			= nullptr;
-	MarketWatchPtrT		  _marketWatchPtr		= nullptr;
-	MulticastReceiverPtrT _multicastReceiverPtr = nullptr;
-	OpenOrdersPtrT		  _openOrdersPtr		= nullptr;
-	StrategyWorkspacePtrT _strategyWorkspacePtr = nullptr;
-	TradeHistoryPtrT	  _tradeHistoryPtr		= nullptr;
-	OptionChainPtrT		  _optionChainPtr		= nullptr;
-	OrderBookPtrT		  _orderBookPtr			= nullptr;
-	OrderBookPtrT		  _rejectBookPtr		= nullptr;
-	SoundPtrT			  _tradeSoundPtr		= nullptr;
+	DemoPtrT			  _demoPtr;
+	MessageBrokerPtrT	  _messageBroker;
+	TemplateBuilderPtrT	  _templateBuilderPtr;
+	PositionPtrT		  _positionPtr;
+	OrderFormPtrT		  _OrderFormPtr;
+	MarketWatchPtrT		  _marketWatchPtr;
+	MulticastReceiverPtrT _multicastReceiverPtr;
+	OpenOrdersPtrT		  _openOrdersPtr;
+	StrategyWorkspacePtrT _strategyWorkspacePtr;
+	TradeHistoryPtrT	  _tradeHistoryPtr;
+	OptionChainPtrT		  _optionChainPtr;
+	OrderBookPtrT		  _orderBookPtr;
+	OrderBookPtrT		  _rejectBookPtr;
+	SoundPtrT			  _tradeSoundPtr;
 
 	bool _showTemplateBuilder	= false;
 	bool _showDemoWindow		= false;
@@ -112,7 +114,7 @@ private:
 	boost::asio::io_context::strand _backendStrand;
 	WorkerT							_backendWorker;
 	ThreadGroupT					_threadGroup;
-	bool *							_closeMainWindow;
+	bool						   *_closeMainWindow;
 	char							_password[10]{};
 	std::string						_ipaddress;
 	std::string						_port;

@@ -4,7 +4,9 @@
 
 #include "../include/Arthur.hpp"
 
+#if _WIN32
 #include <Psapi.h>
+#endif
 
 #include <algorithm>
 #include <nlohmann/json.hpp>
@@ -84,7 +86,7 @@ Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _ba
 	imports(TRADING_APP_CONFIG_PATH);
 	SetTheme(static_cast<VisualTheme>(_theme));
 	{
-		auto callback = [&](const StrategyRowPtrT& row_, const std::string& name_, RequestType type_) { strategyRequestEvent(row_, name_, type_); };
+		auto callback = [&](const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_) { strategyRequestEvent(row_, name_, type_); };
 		PortfolioInterface::setStrategyActionCallback(std::move(callback));
 	}
 	{
@@ -96,7 +98,7 @@ Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _ba
 		Portfolio::setCallback(std::move(callback));
 	}
 	{
-		auto callback = [&](const OrderFormInfoT& ManualOrderInfo_, RequestType type_) { manualOrderRequestEvent(ManualOrderInfo_, type_); };
+		auto callback = [&](const OrderFormInfoT& ManualOrderInfo_, Lancelot::RequestType type_) { manualOrderRequestEvent(ManualOrderInfo_, type_); };
 		_OrderFormPtr->publishOrderCallback(std::move(callback));
 	}
 	{
@@ -211,7 +213,6 @@ void Arthur::paint() {
 }
 
 void Arthur::AddTrade(const OrderInfoPtrT& tradeInfo_) {
-	LOG(INFO, "{} {} {} {} {}", __FUNCTION__, tradeInfo_->Gateway, tradeInfo_->Token, tradeInfo_->Side, tradeInfo_->StatusValue)
 	switch (tradeInfo_->StatusValue) {
 		case OrderStatus_PLACED:
 		case OrderStatus_NEW:
@@ -464,24 +465,28 @@ void Arthur::marketEventHandler(std::stop_token& stopToken_) {
 }
 
 double MemoryUsage::GetRamUsage() {
+#if _WIN32
 	PROCESS_MEMORY_COUNTERS_EX pmc;
 	GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(PROCESS_MEMORY_COUNTERS_EX));
 	return (double)pmc.WorkingSetSize / (1024 * 1024);
+#else
+	return 0.0;
+#endif
 }
 
-void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, RequestType type_) {
+void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lancelot::RequestType type_) {
 	std::string	   config		 = Utils::manualSerialize(ManualOrderInfo);
 	RequestInPackT requestInPack = Compression::CompressData(config, UserID, type_);
 	if (_messageBroker) {
 		_messageBroker->Write_Async((char*)&requestInPack, sizeof(RequestInPackT));
 	}
-	LOG(WARNING, "{} {} {}", config, type_, requestInPack.Type)
+	LOG(WARNING, "{} {} {}", config, Lancelot::print(type_), requestInPack.Type)
 }
 
-void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_, RequestType type_) {
+void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_, Lancelot::RequestType type_) {
 	std::string	   config		 = Utils::strategySerialize(row_, name_, type_);
 	RequestInPackT requestInPack = Compression::CompressData(config, UserID, type_);
-	LOG(WARNING, "{} {}", config, type_)
+	LOG(WARNING, "{} {}", config, Lancelot::print(type_))
 	if (_messageBroker) {
 		_messageBroker->Write_Async((char*)&requestInPack, sizeof(RequestInPackT));
 	}
@@ -489,8 +494,8 @@ void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_
 
 void Arthur::cancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
 	std::string	   config		 = Utils::cancelOrderSerialize(orderInfo_);
-	RequestInPackT requestInPack = Compression::CompressData(config, UserID, RequestType_CANCEL);
-	LOG(WARNING, "{} {}", config, RequestType_CANCEL)
+	RequestInPackT requestInPack = Compression::CompressData(config, UserID, Lancelot::RequestType_CANCEL);
+	LOG(WARNING, "{} {}", config, "RequestType_CANCEL")
 	if (_messageBroker) {
 		_messageBroker->Write_Async((char*)&requestInPack, sizeof(RequestInPackT));
 	}
