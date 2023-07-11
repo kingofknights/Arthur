@@ -71,7 +71,7 @@ void Demo::addContract(int token_) {
 void Demo::Run(std::stop_token& token_) {
 	while (not token_.stop_requested()) {
 		if (not _startOrStop) continue;
-
+#define ORDER_BOOK
 #ifdef ORDER_BOOK
 		for (const auto status : {OrderStatus_NEW, OrderStatus_REPLACED, OrderStatus_FILLED, OrderStatus_CANCEL_REJECT}) {
 			int gateway = 1;
