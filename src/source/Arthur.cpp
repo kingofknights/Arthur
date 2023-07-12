@@ -12,10 +12,10 @@
 #include <nlohmann/json.hpp>
 #include <thread>
 
+#include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
 #include "../API/TokenInfo.hpp"
 #include "../Audio/Sound.hpp"
-#include "../DataFeed/Compression.h"
 #include "../Demo/Demo.hpp"
 #include "../Knight/Scanner.hpp"
 #include "../include/Colors.hpp"
@@ -70,12 +70,12 @@ Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _ba
 
 	_demoPtr			  = std::make_unique<Demo>();
 	_templateBuilderPtr	  = std::make_unique<TemplateBuilder>();
-	_positionPtr			  = std::make_unique<Position>(_backendComService);
+	_positionPtr		  = std::make_unique<Position>(_backendComService);
 	_OrderFormPtr		  = std::make_shared<OrderForm>(_backendStrand);
 	_marketWatchPtr		  = std::make_unique<MarketWatch>(_OrderFormPtr);
-	_openOrdersPtr			  = std::make_unique<OpenOrders>(_OrderFormPtr, _backendStrand);
+	_openOrdersPtr		  = std::make_unique<OpenOrders>(_OrderFormPtr, _backendStrand);
 	_strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_backendStrand);
-	_tradeHistoryPtr		  = std::make_unique<TradeHistory>();
+	_tradeHistoryPtr	  = std::make_unique<TradeHistory>();
 	_optionChainPtr		  = std::make_unique<OptionChain>();
 	_messageBroker		  = std::make_unique<MessageBroker>(_backendComService);
 	//_multicastReceiverPtr = std::make_unique<MulticastReceiver>(_backendComService);
@@ -475,28 +475,30 @@ double MemoryUsage::GetRamUsage() {
 }
 
 void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lancelot::RequestType type_) {
-	std::string	   config		 = Utils::manualSerialize(ManualOrderInfo);
-	RequestInPackT requestInPack = Compression::CompressData(config, UserID, type_);
+	std::string				 config		   = Utils::manualSerialize(ManualOrderInfo);
+	Lancelot::CommunicationT communication = Lancelot::Encrypt(config, UserID, type_);
 	if (_messageBroker) {
-		_messageBroker->Write_Async((char*)&requestInPack, sizeof(RequestInPackT));
+		_messageBroker->Write_Async((char*)&communication, sizeof(Lancelot::CommunicationT));
 	}
-	LOG(WARNING, "{} {} {}", config, Lancelot::print(type_), requestInPack.Type)
+	LOG(WARNING, "{} {} {}", config, Lancelot::print(type_), communication._query)
 }
 
 void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_, Lancelot::RequestType type_) {
-	std::string	   config		 = Utils::strategySerialize(row_, name_, type_);
-	RequestInPackT requestInPack = Compression::CompressData(config, UserID, type_);
-	LOG(WARNING, "{} {}", config, Lancelot::print(type_))
+	std::string				 config		  = Utils::strategySerialize(row_, name_, type_);
+	Lancelot::CommunicationT communication= Lancelot::Encrypt(config, UserID, type_);
+
 	if (_messageBroker) {
-		_messageBroker->Write_Async((char*)&requestInPack, sizeof(RequestInPackT));
+		_messageBroker->Write_Async((char*)&communication, sizeof(Lancelot::CommunicationT));
 	}
+
+	LOG(WARNING, "{} {}", config, Lancelot::print(type_))
 }
 
 void Arthur::cancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
-	std::string	   config		 = Utils::cancelOrderSerialize(orderInfo_);
-	RequestInPackT requestInPack = Compression::CompressData(config, UserID, Lancelot::RequestType_CANCEL);
-	LOG(WARNING, "{} {}", config, "RequestType_CANCEL")
+	std::string				 config		   = Utils::cancelOrderSerialize(orderInfo_);
+	Lancelot::CommunicationT communication = Lancelot::Encrypt(config, UserID, Lancelot::RequestType_CANCEL);
 	if (_messageBroker) {
-		_messageBroker->Write_Async((char*)&requestInPack, sizeof(RequestInPackT));
+		_messageBroker->Write_Async((char*)&communication, sizeof(Lancelot::CommunicationT));
 	}
+	LOG(WARNING, "{} {}", config, "RequestType_CANCEL")
 }

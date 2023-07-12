@@ -74,17 +74,6 @@ enum ResponseType {
 	ResponseType_TRACKER,
 };
 
-using RequestInPackT = struct RequestInPackT {
-    short				  TotalSize;
-	uint8_t				  Type; // RequestType or ResponseType 
-	uint64_t			  UserIdentifier;
-	int				  CompressedMsgLen;
-	std::array<char, 512> 	          Message;
-};
-
-xcdCompress
-xcdDecompress
-
 ```
 
 Note : Id in json just respentation of increamental serial number that is transfered to-and-fro
