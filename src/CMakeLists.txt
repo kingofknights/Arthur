@@ -2,18 +2,6 @@
 
 
 set(Boost_NO_WARN_NEW_VERSIONS OFF)
-
-if(WIN32 AND FALSE)
-	set(Boost_COMPILER "-vc143")
-	set(Boost_USE_STATIC_LIBS ON)
-	set(Boost_USE_DEBUG_LIBS OFF)
-	set(Boost_USE_RELEASE_LIBS ON)
-	set(Boost_USE_MULTITHREADED ON)
-	set(Boost_USE_STATIC_RUNTIME OFF)
-	set(Boost_ARCHITECTURE "-x64")
-	set(Boost_DEBUG ON)
-endif()
-
 find_package(Boost REQUIRED COMPONENTS system thread filesystem)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
