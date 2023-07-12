@@ -44,11 +44,9 @@ void TBaseSocket::internalConnectHandler(const boost::system::error_code& error_
 		_socket->set_option(boost::asio::socket_base::reuse_address(true));
 		_socket->set_option(boost::asio::ip::tcp::no_delay(true));
 		Utils::ResetPortfolio(StrategyStatus_INACTIVE);
-		RequestInPackT requestInPack;
-		requestInPack.UserIdentifier = UserID;
-		requestInPack.TotalSize		 = sizeof(RequestInPackT);
-		requestInPack.Type			 = Lancelot::RequestType_LOGIN;
-		Write_Sync((char*)&requestInPack, sizeof(RequestInPackT));
+
+		Lancelot::CommunicationT communication = Lancelot::Encrypt("", UserID, Lancelot::RequestType_LOGIN);
+		Write_Sync((char*)&communication, sizeof(Lancelot::CommunicationT));
 		Read();
 	}
 }
@@ -58,12 +56,10 @@ void TBaseSocket::Write_Async(const char* buffer, size_t size_) {
 							 [this](const boost::system::error_code& errorCode_, size_t size_) { WriteHandler(errorCode_, size_); });
 }
 
-void TBaseSocket::Write_Sync(char* buffer, size_t size_) {
-	boost::asio::write(*this->_socket, boost::asio::buffer(buffer, size_), boost::asio::transfer_exactly(size_), _errorCode);
-}
+void TBaseSocket::Write_Sync(char* buffer, size_t size_) { boost::asio::write(*this->_socket, boost::asio::buffer(buffer, size_), boost::asio::transfer_exactly(size_), _errorCode); }
 
 void TBaseSocket::Read() {
-	boost::asio::async_read(*this->_socket, boost::asio::buffer(_buffer, sizeof(RequestInPackT)), boost::asio::transfer_exactly(sizeof(RequestInPackT)),
+	boost::asio::async_read(*this->_socket, boost::asio::buffer(_buffer, sizeof(Lancelot::CommunicationT)), boost::asio::transfer_exactly(sizeof(Lancelot::CommunicationT)),
 							[this](const boost::system::error_code& error_code_, size_t size_) { ReadHandlerBody(error_code_, size_); });
 }
 

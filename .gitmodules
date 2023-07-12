@@ -4,6 +4,3 @@
 [submodule "repo/Greeks"]
 	path = repo/Greeks
 	url = https://github.com/kingofknights/Greeks.git
-[submodule "repo/xcd"]
-	path = repo/xcd
-	url = https://github.com/kingofknights/xcd.git
