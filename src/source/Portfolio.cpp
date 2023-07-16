@@ -82,109 +82,109 @@ bool Portfolio::closed() const {
 }
 
 void Portfolio::DrawPortfolioWindow() {
-    ImGui::BeginDisabled(_portFolioNumber > MAX_PORTFOLIO_ALLOWED);
-    if (ImGui::Button(ICON_MD_ADD_CIRCLE " New")) {
-        _showGlobalParameter = true;
-        ImGui::OpenPopup(("New Strategy:- " + _name).data());
-    }
-    ImGui::EndDisabled();
-    if (_portFolioNumber < MAX_PORTFOLIO_ALLOWED) DrawNewStrategyPopUpWindow();
+	ImGui::BeginDisabled(_portFolioNumber > MAX_PORTFOLIO_ALLOWED);
+	if (ImGui::Button(ICON_MD_ADD_CIRCLE " New")) {
+		_showGlobalParameter = true;
+		ImGui::OpenPopup(("New Strategy:- " + _name).data());
+	}
+	ImGui::EndDisabled();
+	if (_portFolioNumber < MAX_PORTFOLIO_ALLOWED) DrawNewStrategyPopUpWindow();
 
-    ImGui::SameLine();
-    if (ImGui::Button(FORMAT("{} Subscribe {} ##Subcribe", ICON_MD_PLAYLIST_PLAY, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
-        _multipleSelectionCount > 1 ? subscribeSelected() : subscribeAll();
-    }
+	ImGui::SameLine();
+	if (ImGui::Button(FORMAT("{} Subscribe {} ##Subcribe", ICON_MD_PLAYLIST_PLAY, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
+		_multipleSelectionCount > 1 ? subscribeSelected() : subscribeAll();
+	}
 
-    ImGui::SameLine();
-    if (ImGui::Button(FORMAT("{} Apply {} ##Apply", ICON_MD_PLAY_ARROW, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
-        _multipleSelectionCount > 1 ? applySelected() : applyAll();
-    }
+	ImGui::SameLine();
+	if (ImGui::Button(FORMAT("{} Apply {} ##Apply", ICON_MD_PLAY_ARROW, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
+		_multipleSelectionCount > 1 ? applySelected() : applyAll();
+	}
 
-    ImGui::SameLine();
-    if (ImGui::Button(FORMAT("{} Unsubscribe {} ##Unsubscribe", ICON_MD_STOP, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
-        _multipleSelectionCount > 1 ? unsubscribeSelected() : unsubscribeAll();
-    }
+	ImGui::SameLine();
+	if (ImGui::Button(FORMAT("{} Unsubscribe {} ##Unsubscribe", ICON_MD_STOP, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
+		_multipleSelectionCount > 1 ? unsubscribeSelected() : unsubscribeAll();
+	}
 
-    ImGui::SameLine();
-    if (ImGui::Button(ICON_MD_CLEAR_ALL " Clear")) {
-        _strategyList.clear();
-    }
+	ImGui::SameLine();
+	if (ImGui::Button(ICON_MD_CLEAR_ALL " Clear")) {
+		_strategyList.clear();
+	}
 
-    ImGui::SameLine();
-    if (ImGui::Button(ICON_MD_TUNE " Global Param")) {
-        ImGui::OpenPopup(("Global Params:- " + _name).data());
-        _showGlobalParameter = true;
-    }
+	ImGui::SameLine();
+	if (ImGui::Button(ICON_MD_TUNE " Global Param")) {
+		ImGui::OpenPopup(("Global Params:- " + _name).data());
+		_showGlobalParameter = true;
+	}
 
-    if (_showGlobalParameter) DrawGlobalParamPopupWindow();
+	if (_showGlobalParameter) DrawGlobalParamPopupWindow();
 
-    ImGui::SameLine();
+	ImGui::SameLine();
 
-    if (ImGui::Button(ICON_MD_MANAGE_SEARCH " Scanner")) {
-        _showScanner = true;
-        ImGui::OpenPopup(SCANNER_WINDOW);
-    }
-    if (_showScanner) {
-        PortfolioScanner::paint(&_showScanner);
-    }
-    ImGui::SameLine();
-    if (ImGui::Button(ICON_MD_APP_SETTINGS_ALT " Options")) ImGui::OpenPopup(ADDITIONAL_OPTION);
-    if (ImGui::BeginPopup(ADDITIONAL_OPTION)) {
-        ImVec2 buttonSize = ImVec2(120, 0);
-        if (ImGui::Button(ICON_MD_REFRESH " Refresh", buttonSize)) {
-            const std::string jsonData = ConfigLoader::Instance().getStrategyColumn(_strategyName);
-            ParseConfig(jsonData);
-        }
-        ImGui::BeginDisabled(_exportActivated);
-        if (ImGui::Button(ICON_MD_UPLOAD " Export", buttonSize)) {
-            ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".json", ".");
-            _action = ExportImport_EXPORT;
-        }
-        ImGui::EndDisabled();
+	if (ImGui::Button(ICON_MD_MANAGE_SEARCH " Scanner")) {
+		_showScanner = true;
+		ImGui::OpenPopup(SCANNER_WINDOW);
+	}
+	if (_showScanner) {
+		PortfolioScanner::paint(&_showScanner);
+	}
+	ImGui::SameLine();
+	if (ImGui::Button(ICON_MD_APP_SETTINGS_ALT " Options")) ImGui::OpenPopup(ADDITIONAL_OPTION);
+	if (ImGui::BeginPopup(ADDITIONAL_OPTION)) {
+		ImVec2 buttonSize = ImVec2(120, 0);
+		if (ImGui::Button(ICON_MD_REFRESH " Refresh", buttonSize)) {
+			const std::string jsonData = ConfigLoader::Instance().getStrategyColumn(_strategyName);
+			ParseConfig(jsonData);
+		}
+		ImGui::BeginDisabled(_exportActivated);
+		if (ImGui::Button(ICON_MD_UPLOAD " Export", buttonSize)) {
+			ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".json", ".");
+			_action = ExportImport_EXPORT;
+		}
+		ImGui::EndDisabled();
 
-        if (ImGui::Button(ICON_MD_DOWNLOAD " Import", buttonSize)) {
-            ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".json", ".");
-            _action = ExportImport_IMPORT;
-        }
+		if (ImGui::Button(ICON_MD_DOWNLOAD " Import", buttonSize)) {
+			ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".json", ".");
+			_action = ExportImport_IMPORT;
+		}
 
-        DrawFileManagerWindow();
+		DrawFileManagerWindow();
 
-        ImGui::EndPopup();
-    }
-    auto ColumnFlags = TableColumnFlags;
-    ImGui::SameLine();
-    ImGui::CheckboxFlags("Resize Column", &ColumnFlags, ImGuiTableColumnFlags_WidthStretch);
+		ImGui::EndPopup();
+	}
+	auto ColumnFlags = TableColumnFlags;
+	ImGui::SameLine();
+	ImGui::CheckboxFlags("Resize Column", &ColumnFlags, ImGuiTableColumnFlags_WidthStretch);
 
-    ImGui::Separator();
-    const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-    if (ImGui::BeginChild(("Separate space " + _name).data(), ImVec2(-FLT_MIN, -frameHeight))) {
-        if (ImGui::BeginTable(__FUNCTION__, _paramList.size() + 3, TableFlags)) {
-            ImGui::TableSetupScrollFreeze(3, 0);
-            ImGui::TableSetupColumn("PF", TableColumnFlags);
-            ImGui::TableSetupColumn("Status", TableColumnFlags);
-            ImGui::TableSetupColumn("Action", TableColumnFlags);
+	ImGui::Separator();
+	const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+	if (ImGui::BeginChild(("Separate space " + _name).data(), ImVec2(-FLT_MIN, -frameHeight))) {
+		if (ImGui::BeginTable(__FUNCTION__, _paramList.size() + 3, TableFlags)) {
+			ImGui::TableSetupScrollFreeze(3, 0);
+			ImGui::TableSetupColumn("PF", TableColumnFlags);
+			ImGui::TableSetupColumn("Status", TableColumnFlags);
+			ImGui::TableSetupColumn("Action", TableColumnFlags);
 
-            for (const auto& [columnName, _] : _paramList) {
-                ImGui::TableSetupColumn(columnName.data(), ColumnFlags);
-            }
-            ImGui::TableHeadersRow();
-            _clipper.Begin(_strategyList.size());
-            while (_clipper.Step()) {
-                auto begin = _strategyList.begin() + _clipper.DisplayStart;
-                auto end   = begin + (_clipper.DisplayEnd - _clipper.DisplayStart);
-                int	 index = _clipper.DisplayStart;
-                for (auto& iterator = begin; iterator != end; ++iterator) {
-                    ImGui::TableNextRow();
-                    DrawStrategyRow(*iterator, index);
-                    index += 1;
-                }
-            }
-            ImGui::EndTable();
-        }
-    }
-    ImGui::EndChild();
-    ImGui::Separator();
-    ImGui::Text("| Total : [%zu] | Selected : [%d] |", _strategyList.size(), _multipleSelectionCount);
+			for (const auto& [columnName, _] : _paramList) {
+				ImGui::TableSetupColumn(columnName.data(), ColumnFlags);
+			}
+			ImGui::TableHeadersRow();
+			_clipper.Begin(_strategyList.size());
+			while (_clipper.Step()) {
+				auto begin = _strategyList.begin() + _clipper.DisplayStart;
+				auto end   = begin + (_clipper.DisplayEnd - _clipper.DisplayStart);
+				int	 index = _clipper.DisplayStart;
+				for (auto& iterator = begin; iterator != end; ++iterator) {
+					ImGui::TableNextRow();
+					DrawStrategyRow(*iterator, index);
+					index += 1;
+				}
+			}
+			ImGui::EndTable();
+		}
+	}
+	ImGui::EndChild();
+	ImGui::Separator();
+	ImGui::Text("| Total : [%zu] | Selected : [%d] |", _strategyList.size(), _multipleSelectionCount);
 }
 
 void Portfolio::DrawNewPortfolioCreation() {
@@ -262,117 +262,117 @@ void Portfolio::DrawNewPortfolioCreation() {
 }
 
 void Portfolio::DrawStrategyRow(StrategyRowPtrT& row_, int index_) {
-    bool addToMarketWatch = false;
-    ImGui::PushID(row_->PF);
+	bool addToMarketWatch = false;
+	ImGui::PushID(row_->PF);
 
-    if (FirstCell(0, FORMAT("{}", row_->PF).data(), row_->Selected, true)) {
-        if (not ImGui::GetIO().KeyCtrl) {
-            ResetSelection();
-            _multipleSelectionCount = 0;
-        }
-        row_->Selected ^= 1;
-        _multipleSelectionCount += row_->Selected ? 1 : -1;
-    }
-    if (row_->Selected) {
-        if (ImGui::IsKeyPressed(ImGuiKey_Delete)) {
-            _toBeDeleted = index_;
-        }
-        if (ImGui::BeginPopupContextItem("Context Menu", ImGuiPopupFlags_MouseButtonRight)) {
-            if (ImGui::Selectable(ICON_MD_ADD_BOX " Add to Market Watch")) {
-                addToMarketWatch = true;
-            }
+	if (FirstCell(0, FORMAT("{}", row_->PF).data(), row_->Selected, true)) {
+		if (not ImGui::GetIO().KeyCtrl) {
+			ResetSelection();
+			_multipleSelectionCount = 0;
+		}
+		row_->Selected ^= 1;
+		_multipleSelectionCount += row_->Selected ? 1 : -1;
+	}
+	if (row_->Selected) {
+		if (ImGui::IsKeyPressed(ImGuiKey_Delete)) {
+			_toBeDeleted = index_;
+		}
+		if (ImGui::BeginPopupContextItem("Context Menu", ImGuiPopupFlags_MouseButtonRight)) {
+			if (ImGui::Selectable(ICON_MD_ADD_BOX " Add to Market Watch")) {
+				addToMarketWatch = true;
+			}
 
-            ImGui::EndPopup();
-        }
-    }
+			ImGui::EndPopup();
+		}
+	}
 
-    ImGui::TableSetColumnIndex(1);
-    const ImVec4 color = GetStatusColor(row_->Status, row_->Changed);
-    ImGui::PushStyleColor(ImGuiCol_Text, color);
-    ImGui::BeginDisabled(row_->Status == StrategyStatus_PENDING);
-    if (ImGui::Checkbox(fmt::format("{}##SubscribedCheckBok", StrategyStatusType[row_->Status]).data(), &row_->Subscribed)) {
-        doStrategyAction(row_, _strategyName, row_->Subscribed ? Lancelot::RequestType_SUBSCRIBE : Lancelot::RequestType_UNSUBSCRIBE);
-    }
-    ImGui::EndDisabled();
-    ImGui::PopStyleColor();
-    ImGui::TableSetColumnIndex(2);
-    ImGui::BeginDisabled(not row_->Subscribed or row_->Status == StrategyStatus_PENDING);
-    if (ImGui::Button("Apply##ApplyButton", ImVec2(-FLT_MIN, 0.0f))) {
-        doStrategyAction(row_, _strategyName, Lancelot::RequestType_APPLY);
-    }
-    ImGui::EndDisabled();
+	ImGui::TableSetColumnIndex(1);
+	const ImVec4 color = GetStatusColor(row_->Status, row_->Changed);
+	ImGui::PushStyleColor(ImGuiCol_Text, color);
+	ImGui::BeginDisabled(row_->Status == StrategyStatus_PENDING);
+	if (ImGui::Checkbox(FORMAT("{}##SubscribedCheckBok", StrategyStatusType[row_->Status]).data(), &row_->Subscribed)) {
+		doStrategyAction(row_, _strategyName, row_->Subscribed ? Lancelot::RequestType_SUBSCRIBE : Lancelot::RequestType_UNSUBSCRIBE);
+	}
+	ImGui::EndDisabled();
+	ImGui::PopStyleColor();
+	ImGui::TableSetColumnIndex(2);
+	ImGui::BeginDisabled(not row_->Subscribed or row_->Status == StrategyStatus_PENDING);
+	if (ImGui::Button("Apply##ApplyButton", ImVec2(-FLT_MIN, 0.0f))) {
+		doStrategyAction(row_, _strategyName, Lancelot::RequestType_APPLY);
+	}
+	ImGui::EndDisabled();
 
-    int column = 3;
-    for (ParameterInfoListT::value_type& value : row_->ParameterInfoList) {
-        if (ImGui::TableSetColumnIndex(column)) {
-            ParameterValueT&  info = value.second.Parameter;
-            const std::string name = "##" + value.first;
-            ImGui::PushItemWidth(-FLT_MIN);
+	int column = 3;
+	for (ParameterInfoListT::value_type& value : row_->ParameterInfoList) {
+		if (ImGui::TableSetColumnIndex(column)) {
+			ParameterValueT&  info = value.second.Parameter;
+			const std::string name = "##" + value.first;
+			ImGui::PushItemWidth(-FLT_MIN);
 
-            switch (value.second.Type) {
-                case DataType_COMBO:
-                case DataType_CLIENT:
-                case DataType_UPDATES: {
-                    ImGui::Text("%s", info.Text.data());
-                    break;
-                }
-                case DataType_CONTRACT: {
-                    ImGui::Text("%s", info.Text.data());
-                    if (ImGui::IsItemHovered()) {
-                        MarketWatch::ToolTipDisplay(value.second.Self);
-                    }
-                    if (addToMarketWatch) {
-                        _addContractToMarketWatchSignal(info.Text);
-                    }
-                    break;
-                }
-                case DataType_INT: {
-                    if (row_->Selected) {
-                        if (ImGui::InputInt(name.data(), &info.Integer, 1, 100)) {
-                            row_->Changed = true;
-                        }
-                    } else {
-                        ImGui::Text("%d", info.Integer);
-                    }
-                    break;
-                }
-                case DataType_FLOAT: {
-                    if (row_->Selected) {
-                        if (ImGui::InputFloat(name.data(), &info.Floating, 0.01, 1)) {
-                            row_->Changed = true;
-                        }
-                    } else {
-                        ImGui::Text("%.2f", info.Floating);
-                    }
-                    break;
-                }
-                case DataType_TEXT: {
-                    if (row_->Selected) {
-                        if (ImGui::InputText(name.data(), &info.Text)) {
-                            row_->Changed = true;
-                        }
-                    } else {
-                        ImGui::Text("%s", info.Text.data());
-                    }
-                    break;
-                }
-                case DataType_RADIO: {
-                    if (row_->Selected) {
-                        if (ImGui::Checkbox(name.data(), &info.Check)) {
-                            row_->Changed = true;
-                        }
-                    } else {
-                        ImGui::Text("%b", info.Check);
-                    }
-                    break;
-                }
-                case DataType_END: break;
-            }
-            ImGui::PopItemWidth();
-        }
-        column += 1;
-    }
-    ImGui::PopID();
+			switch (value.second.Type) {
+				case DataType_COMBO:
+				case DataType_CLIENT:
+				case DataType_UPDATES: {
+					ImGui::Text("%s", info.Text.data());
+					break;
+				}
+				case DataType_CONTRACT: {
+					ImGui::Text("%s", info.Text.data());
+					if (ImGui::IsItemHovered()) {
+						MarketWatch::ToolTipDisplay(value.second.Self);
+					}
+					if (addToMarketWatch) {
+						_addContractToMarketWatchSignal(info.Text);
+					}
+					break;
+				}
+				case DataType_INT: {
+					if (row_->Selected) {
+						if (ImGui::InputInt(name.data(), &info.Integer, 1, 100)) {
+							row_->Changed = true;
+						}
+					} else {
+						ImGui::Text("%d", info.Integer);
+					}
+					break;
+				}
+				case DataType_FLOAT: {
+					if (row_->Selected) {
+						if (ImGui::InputFloat(name.data(), &info.Floating, 0.01, 1)) {
+							row_->Changed = true;
+						}
+					} else {
+						ImGui::Text("%.2f", info.Floating);
+					}
+					break;
+				}
+				case DataType_TEXT: {
+					if (row_->Selected) {
+						if (ImGui::InputText(name.data(), &info.Text)) {
+							row_->Changed = true;
+						}
+					} else {
+						ImGui::Text("%s", info.Text.data());
+					}
+					break;
+				}
+				case DataType_RADIO: {
+					if (row_->Selected) {
+						if (ImGui::Checkbox(name.data(), &info.Check)) {
+							row_->Changed = true;
+						}
+					} else {
+						ImGui::Text("%b", info.Check);
+					}
+					break;
+				}
+				case DataType_END: break;
+			}
+			ImGui::PopItemWidth();
+		}
+		column += 1;
+	}
+	ImGui::PopID();
 }
 
 void Portfolio::DrawGlobalParam() {

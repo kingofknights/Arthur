@@ -99,7 +99,7 @@ void StrategyWorkspace::DrawWindow(bool* show_) {
 				portfolio->paint();
 				if (portfolio->closed()) {
 					_deleteWorkspace = name;
-					_fileName		 = fmt::format("Save/{}.json", portfolio->getName());
+					_fileName		 = FORMAT("Save/{}.json", portfolio->getName());
 				}
 				ImGui::PopID();
 			}

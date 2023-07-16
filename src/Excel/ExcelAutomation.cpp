@@ -95,7 +95,7 @@ Excel::_WorksheetPtr ExcelAutomation::OpenSheets(std::string_view path_, std::st
 }
 
 void ExcelAutomation::SetValue(int index_, Excel::_WorksheetPtr sheet_, std::string_view name_) {
-	std::string		rangeValue = fmt::format("A{}:F{}", 1 + index_ * EXCEL_TABLE_HEIGHT, 1 + index_ * EXCEL_TABLE_HEIGHT);
+	std::string		rangeValue = FORMAT("A{}:F{}", 1 + index_ * EXCEL_TABLE_HEIGHT, 1 + index_ * EXCEL_TABLE_HEIGHT);
 	Excel::RangePtr range	   = sheet_->Range[_bstr_t(rangeValue.data())];
 	range->Merge();
 	range->Value2			   = _bstr_t(name_.data());

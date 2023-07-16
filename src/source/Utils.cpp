@@ -67,49 +67,51 @@ std::string Utils::cancelOrderSerialize(const OrderInfoPtrT& orderInfo_) {
 }
 
 std::string Utils::strategySerialize(const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_) {
-    nlohmann::json json;
-    json[JSON_ID] = ++Id;
 
-    nlohmann::json params;
-    params[JSON_PF_NUMBER]	   = row_->PF;
-    params[JSON_STRATEGY_NAME] = name_;
+	nlohmann::json json;
+	json[JSON_ID] = ++Id;
 
-    if (type_ != Lancelot::RequestType_UNSUBSCRIBE) {
-        nlohmann::json arguments;
-        for (const auto& [key_, value] : row_->ParameterInfoList) {
-            switch (value.Type) {
-                case DataType_INT: {
-                    arguments[key_] = fmt::format("{}", value.Parameter.Integer);
-                    break;
-                }
-                case DataType_COMBO:
-                case DataType_CLIENT:
-                case DataType_TEXT: {
-                    arguments[key_] = value.Parameter.Text;
-                    break;
-                }
-                case DataType_CONTRACT: {
-                    arguments[key_] = FORMAT("{}", Lancelot::ContractInfo::GetToken(value.Parameter.Text));
-                    break;
-                }
-                case DataType_FLOAT: {
-                    arguments[key_] = FORMAT("{}", value.Parameter.Floating);
-                    break;
-                }
-                case DataType_RADIO: {
-                    arguments[key_] = FORMAT("{}", value.Parameter.Check);
-                    break;
-                }
-                case DataType_UPDATES:
-                case DataType_END: {
-                    break;
-                }
-            }
-        }
-        params[JSON_ARGUMENTS] = arguments;
-    }
-    json[JSON_PARAMS] = params;
-    return json.dump();
+	nlohmann::json params;
+	params[JSON_PF_NUMBER]	   = row_->PF;
+	params[JSON_STRATEGY_NAME] = name_;
+
+	if (type_ != Lancelot::RequestType_UNSUBSCRIBE) {
+		nlohmann::json arguments;
+		for (const auto& [key_, value] : row_->ParameterInfoList) {
+			switch (value.Type) {
+				case DataType_INT: {
+					arguments[key_] = FORMAT("{}", value.Parameter.Integer);
+					break;
+				}
+				case DataType_COMBO:
+				case DataType_CLIENT:
+				case DataType_TEXT: {
+					arguments[key_] = value.Parameter.Text;
+					break;
+				}
+				case DataType_CONTRACT: {
+					arguments[key_] = FORMAT("{}", Lancelot::ContractInfo::GetToken(value.Parameter.Text));
+					break;
+				}
+				case DataType_FLOAT: {
+					arguments[key_] = FORMAT("{}", value.Parameter.Floating);
+					break;
+				}
+				case DataType_RADIO: {
+					arguments[key_] = FORMAT("{}", value.Parameter.Check);
+					break;
+				}
+				case DataType_UPDATES:
+				case DataType_END: {
+					break;
+				}
+			}
+		}
+		params[JSON_ARGUMENTS] = arguments;
+	}
+	json[JSON_PARAMS] = params;
+	return json.dump();
+
 }
 
 bool Utils::ToggleMenuItem(std::string_view window_, bool& open_) {
@@ -181,28 +183,29 @@ void Utils::ResetPortfolio(StrategyStatus status_) {
 }
 
 void Utils::DrawTradeRow(const OrderInfoPtrT& tradeInfo_, int& first_, int second_) {
-    ImVec4 color = BuySellColor(tradeInfo_->Side);
-    ImGui::PushStyleColor(ImGuiCol_Text, color);
-    FirstCell(BooksColumnIndex_PF, fmt::format("{}", tradeInfo_->PF).data(), first_, second_);
-    if (ImGui::IsItemHovered()) {
-        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-            first_ = second_;
-        }
-    }
+	ImVec4 color = BuySellColor(tradeInfo_->Side);
+	ImGui::PushStyleColor(ImGuiCol_Text, color);
+	FirstCell(BooksColumnIndex_PF, FORMAT("{}", tradeInfo_->PF).data(), first_, second_);
+	if (ImGui::IsItemHovered()) {
+		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+			first_ = second_;
+		}
+	}
 
-    NextCell(BooksColumnIndex_CONTRACT, "%s", tradeInfo_->Contract.data());
-    NextCell(BooksColumnIndex_PRICE, "%.2f", tradeInfo_->Price);
-    NextCell(BooksColumnIndex_QUANTITY, "%d", tradeInfo_->Quantity);
-    NextCell(BooksColumnIndex_FILLPRICE, "%.2f", tradeInfo_->FillPrice);
-    NextCell(BooksColumnIndex_FILLQUANTITY, "%d", tradeInfo_->FillQuantity);
-    NextCell(BooksColumnIndex_REMAINING_QTY, "%d", tradeInfo_->Remaining);
-    NextCell(BooksColumnIndex_CLIENT, "%s", tradeInfo_->Client.data());
-    NextCell(BooksColumnIndex_STATUS, "%s", OrderStatusInfoName[tradeInfo_->StatusValue]);
-    NextCell(BooksColumnIndex_TIME, "%s", tradeInfo_->Time.data());
-    NextCell(BooksColumnIndex_GATEWAY, "%d", tradeInfo_->Gateway);
-    NextCell(BooksColumnIndex_ORDERNUMBER, "%ld", tradeInfo_->OrderNo);
-    NextCell(BooksColumnIndex_MESSAGE, "%s", tradeInfo_->Message.data());
-    ImGui::PopStyleColor();
+	NextCell(BooksColumnIndex_CONTRACT, "%s", tradeInfo_->Contract.data());
+	NextCell(BooksColumnIndex_PRICE, "%.2f", tradeInfo_->Price);
+	NextCell(BooksColumnIndex_QUANTITY, "%d", tradeInfo_->Quantity);
+	NextCell(BooksColumnIndex_FILLPRICE, "%.2f", tradeInfo_->FillPrice);
+	NextCell(BooksColumnIndex_FILLQUANTITY, "%d", tradeInfo_->FillQuantity);
+	NextCell(BooksColumnIndex_REMAINING_QTY, "%d", tradeInfo_->Remaining);
+	NextCell(BooksColumnIndex_CLIENT, "%s", tradeInfo_->Client.data());
+	NextCell(BooksColumnIndex_STATUS, "%s", OrderStatusInfoName[tradeInfo_->StatusValue]);
+	NextCell(BooksColumnIndex_TIME, "%s", tradeInfo_->Time.data());
+	NextCell(BooksColumnIndex_GATEWAY, "%d", tradeInfo_->Gateway);
+	NextCell(BooksColumnIndex_ORDERNUMBER, "%ld", tradeInfo_->OrderNo);
+	NextCell(BooksColumnIndex_MESSAGE, "%s", tradeInfo_->Message.data());
+	ImGui::PopStyleColor();
+
 }
 
 void		Utils::ContractFilter(ImGuiTextFilter& filter_, std::string& index_) {

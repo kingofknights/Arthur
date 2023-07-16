@@ -68,7 +68,7 @@ void TemplateBuilder::paint(bool* show_) {
 
 	ImGui::BeginDisabled(_selectedRow.empty());
 	if (ImGui::Button(ICON_MD_DELETE " Remove Parameter")) {
-		StatusDisplay = fmt::format("Strategy ({}) :- Parameter Removed [ Name : ({}) ]", _strategyName, _selectedRow);
+		StatusDisplay = FORMAT("Strategy ({}) :- Parameter Removed [ Name : ({}) ]", _strategyName, _selectedRow);
 		_parameterList.erase(_selectedRow);
 		_selectedRow.clear();
 	}
@@ -79,7 +79,7 @@ void TemplateBuilder::paint(bool* show_) {
 	ImGui::BeginDisabled(_strategyName.empty());
 	if (ImGui::Button(ICON_MD_SAVE " Save Config")) {
 		std::string config = GetConfig();
-		StatusDisplay	   = fmt::format("Parameter updated : StrategyName ({}) -> Config : ({})", _strategyName, config);
+		StatusDisplay	   = FORMAT("Parameter updated : StrategyName ({}) -> Config : ({})", _strategyName, config);
 		ConfigLoader::Instance().saveStrategyColumn(_strategyName, config);
 	}
 	ImGui::EndDisabled();
@@ -148,7 +148,7 @@ void TemplateBuilder::DrawTable() {
 void TemplateBuilder::AppendNewParameter() {
 	ColumnInfoT info{.Type = static_cast<DataType>(_parameterType), .Value = _parameterValue};
 	_parameterList.insert_or_assign(_parameterName, info);
-	StatusDisplay = fmt::format("Strategy ({}) :- Parameter Added [ Name : ({}), Value: ({}) ]", _strategyName, _parameterName, _parameterValue);
+	StatusDisplay = FORMAT("Strategy ({}) :- Parameter Added [ Name : ({}), Value: ({}) ]", _strategyName, _parameterName, _parameterValue);
 
 	_parameterName.clear();
 	_parameterValue.clear();

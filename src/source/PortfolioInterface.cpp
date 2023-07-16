@@ -18,18 +18,18 @@ int				PortfolioInterface::_portFolioNumber = 0;
 StrategyActionT PortfolioInterface::StrategyAction;
 
 PortfolioInterface::PortfolioInterface(std::string_view name_, std::string_view strategyName_, boost::asio::io_context::strand& strand_)
-    : PortfolioScanner(strategyName_.data()), _name(name_), _strategyName(strategyName_), _strand(strand_) {
-    const std::string jsonData = ConfigLoader::Instance().getStrategyColumn(_strategyName);
-    ParseConfig(jsonData);
-    PortfolioInterface::Imports(FORMAT("Save/{}.json", _name));
-    PortfolioScanner::Import(FORMAT("Save/{}_Scanner.json", _name));
+	: PortfolioScanner(strategyName_.data()), _name(name_), _strategyName(strategyName_), _strand(strand_) {
+	const std::string jsonData = ConfigLoader::Instance().getStrategyColumn(_strategyName);
+	ParseConfig(jsonData);
+	PortfolioInterface::Imports(FORMAT("Save/{}.json", _name));
+	PortfolioScanner::Import(FORMAT("Save/{}_Scanner.json", _name));
 }
 
 PortfolioInterface::~PortfolioInterface() {
-    if (_open) {
-        PortfolioInterface::Exports(FORMAT("Save/{}.json", _name));
-        PortfolioScanner::Export(FORMAT("Save/{}_Scanner.json", _name));
-    }
+	if (_open) {
+		PortfolioInterface::Exports(FORMAT("Save/{}.json", _name));
+		PortfolioScanner::Export(FORMAT("Save/{}_Scanner.json", _name));
+	}
 }
 
 ImVec4 PortfolioInterface::GetStatusColor(StrategyStatus status_, bool changed_) {
@@ -151,16 +151,17 @@ void PortfolioInterface::Exports(std::string_view path_) {
                 }
             }
 
-            config["Type"]		= parameterValue.Type;
-            list[parameterName] = config;
-        }
-        root.push_back(list);
-    }
-    _exportActivated = false;
-    std::fstream file(path_.data(), std::ios::trunc | std::ios::out);
-    file << root.dump();
-    file.close();
-    StatusDisplay = fmt::format("Exporting done : {} {}", path_, _strategyList.size());
+			config["Type"]		= parameterValue.Type;
+			list[parameterName] = config;
+		}
+		root.push_back(list);
+	}
+	_exportActivated = false;
+	std::fstream file(path_.data(), std::ios::trunc | std::ios::out);
+	file << root.dump();
+	file.close();
+	StatusDisplay = FORMAT("Exporting done : {} {}", path_, _strategyList.size());
+
 }
 
 void PortfolioInterface::Imports(std::string_view path_) {
@@ -223,21 +224,22 @@ void PortfolioInterface::Imports(std::string_view path_) {
             }
 #endif
 
-            parameterInfoList.emplace(config.key(), parameterInfo);
-        }
-        if (add) {
-            StrategyRowPtrT strategyRow	   = std::make_shared<StrategyRowT>();
-            strategyRow->Changed		   = false;
-            strategyRow->Subscribed		   = false;
-            strategyRow->PF				   = ++_portFolioNumber;
-            strategyRow->Status			   = StrategyStatus_INACTIVE;
-            strategyRow->ParameterInfoList = parameterInfoList;
-            _strategyList.emplace_back(strategyRow);
-            Utils::AppendPortfolio(strategyRow->PF, strategyRow);
-        }
-    }
-    StatusDisplay = fmt::format("Importing done : {} {}", path_, _strategyList.size());
-    file.close();
+			parameterInfoList.emplace(config.key(), parameterInfo);
+		}
+		if (add) {
+			StrategyRowPtrT strategyRow	   = std::make_shared<StrategyRowT>();
+			strategyRow->Changed		   = false;
+			strategyRow->Subscribed		   = false;
+			strategyRow->PF				   = ++_portFolioNumber;
+			strategyRow->Status			   = StrategyStatus_INACTIVE;
+			strategyRow->ParameterInfoList = parameterInfoList;
+			_strategyList.emplace_back(strategyRow);
+			Utils::AppendPortfolio(strategyRow->PF, strategyRow);
+		}
+	}
+	StatusDisplay = FORMAT("Importing done : {} {}", path_, _strategyList.size());
+	file.close();
+
 }
 
 void PortfolioInterface::updateAll(GlobalParameterInfoT& info_) {

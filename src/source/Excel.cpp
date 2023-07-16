@@ -111,7 +111,7 @@ void ExcelWindow::DrawExcelWindow(bool* show_) {
 		}
 		ImGui::EndDisabled();
 		ImGui::SameLine();
-		if (ImGui::Button(fmt::format("{} Excel##Excel Application", _showExcelApplication ? "Close" : "Show").data())) {
+		if (ImGui::Button(FORMAT("{} Excel##Excel Application", _showExcelApplication ? "Close" : "Show").data())) {
 			_showExcelApplication = !_showExcelApplication;
 			ExcelAutomation::Instance()->SetExcelVisibility(_showExcelApplication);
 		}
