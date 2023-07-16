@@ -1,6 +1,6 @@
 #include "../include/Portfolio.hpp"
 
-#include <ranges>
+#include <boost/algorithm/string.hpp>
 
 #include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
@@ -21,64 +21,64 @@ extern ClientCodeListT ClientCodeList;
 AddContractToMarketWatchSignal Portfolio::_addContractToMarketWatchSignal;
 
 Portfolio::Portfolio(const std::string& workspaceName_, const std::string& strategyName_, boost::asio::io_context::strand& strand_)
-	: PortfolioInterface(workspaceName_ + "[" + strategyName_ + "]", strategyName_, strand_) {
-	_action = ExportImport_NONE;
+    : PortfolioInterface(workspaceName_ + "[" + strategyName_ + "]", strategyName_, strand_) {
+    _action = ExportImport_NONE;
 }
 
 void Portfolio::paint() {
-	if (_toBeDeleted != -1 and _multipleSelectionCount > 0) {
-		if (_multipleSelectionCount > 1) {
-			RemoveSelection();
-			_multipleSelectionCount = 0;
-		} else {
-			auto iterator = _strategyList.erase(_strategyList.begin() + _toBeDeleted);
+    if (_toBeDeleted != -1 and _multipleSelectionCount > 0) {
+        if (_multipleSelectionCount > 1) {
+            RemoveSelection();
+            _multipleSelectionCount = 0;
+        } else {
+            auto iterator = _strategyList.erase(_strategyList.begin() + _toBeDeleted);
 
-			if (iterator != _strategyList.end()) {
-				StrategyRowPtrT row = *iterator;
-				row->Selected		= true;
-			} else if (not _strategyList.empty()) {
-				--iterator;
-				StrategyRowPtrT row = *iterator;
-				row->Selected		= true;
-			}
-		}
+            if (iterator != _strategyList.end()) {
+                StrategyRowPtrT row = *iterator;
+                row->Selected		= true;
+            } else if (not _strategyList.empty()) {
+                --iterator;
+                StrategyRowPtrT row = *iterator;
+                row->Selected		= true;
+            }
+        }
 
-		Utils::RemovePortfolio();
-		_toBeDeleted = -1;
-	}
-	if (ImGui::BeginTabItem(_name.data(), &_open, PortfolioTabFlags)) {
-		DrawPortfolioWindow();
-		ImGui::EndTabItem();
-	}
-	if (not _open) {
-		_status = checkAnyActive();
-		_open	= _status.Close;
-		ImGui::OpenPopup(("Error Closing:- " + _name).data());
-	}
+        Utils::RemovePortfolio();
+        _toBeDeleted = -1;
+    }
+    if (ImGui::BeginTabItem(_name.data(), &_open, PortfolioTabFlags)) {
+        DrawPortfolioWindow();
+        ImGui::EndTabItem();
+    }
+    if (not _open) {
+        _status = checkAnyActive();
+        _open	= _status.Close;
+        ImGui::OpenPopup(("Error Closing:- " + _name).data());
+    }
 
-	if (ImGui::BeginPopupModal(("Error Closing:- " + _name).data(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-		ImGui::Text("Total Portfolio status:-");
-		ImGui::LabelText("InActive", "[%d]", _status.Inactive);
-		ImGui::LabelText("Active", "[%d]", _status.Active);
-		ImGui::LabelText("Apply", "[%d]", _status.Apply);
-		ImGui::LabelText("Waiting", "[%d]", _status.Waiting);
-		ImGui::LabelText("Terminate", "[%d]", _status.Terminate);
+    if (ImGui::BeginPopupModal(("Error Closing:- " + _name).data(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("Total Portfolio status:-");
+        ImGui::LabelText("InActive", "[%d]", _status.Inactive);
+        ImGui::LabelText("Active", "[%d]", _status.Active);
+        ImGui::LabelText("Apply", "[%d]", _status.Apply);
+        ImGui::LabelText("Waiting", "[%d]", _status.Waiting);
+        ImGui::LabelText("Terminate", "[%d]", _status.Terminate);
 
-		if (ImGui::Button(ICON_MD_ARROW_BACK " Understand", ImVec2(-1, 0))) {
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::SetItemDefaultFocus();
-		ImGui::EndPopup();
-	}
-	_scannerAddQueue.consume_one([&](const StrategyRowPtrT& row_) { _strategyList.push_back(row_); });
+        if (ImGui::Button(ICON_MD_ARROW_BACK " Understand", ImVec2(-1, 0))) {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SetItemDefaultFocus();
+        ImGui::EndPopup();
+    }
+    _scannerAddQueue.consume_one([&](const StrategyRowPtrT& row_) { _strategyList.push_back(row_); });
 }
 
 std::string Portfolio::getStrategyName() const {
-	return _strategyName;
+    return _strategyName;
 }
 
 bool Portfolio::closed() const {
-	return not _open;
+    return not _open;
 }
 
 void Portfolio::DrawPortfolioWindow() {
@@ -188,77 +188,77 @@ void Portfolio::DrawPortfolioWindow() {
 }
 
 void Portfolio::DrawNewPortfolioCreation() {
-	for (ParameterInfoListT::value_type& value : _paramList) {
-		ParameterValueT&   info = value.second.Parameter;
-		const std::string& name = value.first;
-		ImGui::PushID(name.data());
-		switch (value.second.Type) {
-			case DataType_CLIENT: {
-				if (ImGui::BeginCombo(name.data(), info.Text.data())) {
-					for (const auto& [exchangeName, client] : ClientCodeList) {
-						if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::print(exchangeName), client).data())) {
-							info.Text = client;
-						}
-					}
-					ImGui::EndCombo();
-				}
-				break;
-			}
-			case DataType_CONTRACT: {
-				if (value.second.SearchEnable) {
-					value.second.Filter.Draw(name.data());
-					if (value.second.Filter.IsActive()) {
-						ImGui::SameLine();
-						Utils::ContractFilter(value.second.Filter, info.Text);
-					}
-				} else {
-					if (ImGui::BeginCombo(name.data(), info.Text.data())) {
-						_contractClipper.Begin(AllContract.size());
-						while (_contractClipper.Step()) {
-							auto begin = AllContract.begin() + _contractClipper.DisplayStart;
-							auto end   = begin + (_contractClipper.DisplayEnd - _contractClipper.DisplayStart);
-							for (auto iterator = begin; iterator < end; ++iterator) {
-								if (ImGui::Selectable(iterator->data())) {
-									info.Text = *iterator;
-								}
-							}
-						}
+    for (ParameterInfoListT::value_type& value : _paramList) {
+        ParameterValueT&   info = value.second.Parameter;
+        const std::string& name = value.first;
+        ImGui::PushID(name.data());
+        switch (value.second.Type) {
+            case DataType_CLIENT: {
+                if (ImGui::BeginCombo(name.data(), info.Text.data())) {
+                    for (const auto& [exchangeName, client] : ClientCodeList) {
+                        if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::toString(exchangeName), client).data())) {
+                            info.Text = client;
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+                break;
+            }
+            case DataType_CONTRACT: {
+                if (value.second.SearchEnable) {
+                    value.second.Filter.Draw(name.data());
+                    if (value.second.Filter.IsActive()) {
+                        ImGui::SameLine();
+                        Utils::ContractFilter(value.second.Filter, info.Text);
+                    }
+                } else {
+                    if (ImGui::BeginCombo(name.data(), info.Text.data())) {
+                        _contractClipper.Begin(AllContract.size());
+                        while (_contractClipper.Step()) {
+                            auto begin = AllContract.begin() + _contractClipper.DisplayStart;
+                            auto end   = begin + (_contractClipper.DisplayEnd - _contractClipper.DisplayStart);
+                            for (auto iterator = begin; iterator < end; ++iterator) {
+                                if (ImGui::Selectable(iterator->data())) {
+                                    info.Text = *iterator;
+                                }
+                            }
+                        }
 
-						ImGui::EndCombo();
-					}
-				}
-				ImGui::SameLine();
-				ImGui::Checkbox("##Seach", &value.second.SearchEnable);
-				break;
-			}
-			case DataType_INT: {
-				ImGui::InputInt(name.data(), &info.Integer, 1);
-				break;
-			}
-			case DataType_FLOAT: {
-				ImGui::InputFloat(name.data(), &info.Floating, 0.01);
-				break;
-			}
-			case DataType_TEXT: {
-				ImGui::InputText(name.data(), &info.Text);
-				break;
-			}
-			case DataType_RADIO: {
-				ImGui::Checkbox(name.data(), &info.Check);
-				break;
-			}
-			case DataType_COMBO: {
-				std::string data(info.Text);
-				std::replace(data.begin(), data.end(), ';', '\0');
-				data.append("\0\0");
-				ImGui::Combo(name.data(), &info.Integer, data.data());
-				break;
-			}
-			case DataType_UPDATES:
-			case DataType_END: break;
-		}
-		ImGui::PopID();
-	}
+                        ImGui::EndCombo();
+                    }
+                }
+                ImGui::SameLine();
+                ImGui::Checkbox("##Seach", &value.second.SearchEnable);
+                break;
+            }
+            case DataType_INT: {
+                ImGui::InputInt(name.data(), &info.Integer, 1);
+                break;
+            }
+            case DataType_FLOAT: {
+                ImGui::InputFloat(name.data(), &info.Floating, 0.01);
+                break;
+            }
+            case DataType_TEXT: {
+                ImGui::InputText(name.data(), &info.Text);
+                break;
+            }
+            case DataType_RADIO: {
+                ImGui::Checkbox(name.data(), &info.Check);
+                break;
+            }
+            case DataType_COMBO: {
+                std::string data(info.Text);
+                std::replace(data.begin(), data.end(), ';', '\0');
+                data.append("\0\0");
+                ImGui::Combo(name.data(), &info.Integer, data.data());
+                break;
+            }
+            case DataType_UPDATES:
+            case DataType_END: break;
+        }
+        ImGui::PopID();
+    }
 }
 
 void Portfolio::DrawStrategyRow(StrategyRowPtrT& row_, int index_) {
@@ -376,183 +376,178 @@ void Portfolio::DrawStrategyRow(StrategyRowPtrT& row_, int index_) {
 }
 
 void Portfolio::DrawGlobalParam() {
-	for (GlobalParameterInfoT& value : _globalParamList) {
-		const std::string name = value.Name;
-		ImGui::PushID(name.data());
+    for (GlobalParameterInfoT& value : _globalParamList) {
+        const std::string name = value.Name;
+        ImGui::PushID(name.data());
 
-		switch (value.Info.Type) {
-			case DataType_CLIENT: {
-				if (ImGui::BeginCombo(name.data(), value.Info.Parameter.Text.data())) {
-					for (const auto& [exchangeName, client] : ClientCodeList) {
-						if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::print(exchangeName), client).data())) {
-							value.Info.Parameter.Text = client;
-						}
-					}
-					ImGui::EndCombo();
-				}
-				break;
-			}
-			case DataType_INT: {
-				ImGui::Checkbox("##Update", &value.Update);
-				ImGui::SameLine();
-				ImGui::InputInt(name.data(), &value.Info.Parameter.Integer, 1, 100);
-				break;
-			}
-			case DataType_FLOAT: {
-				ImGui::Checkbox("##Update", &value.Update);
-				ImGui::SameLine();
-				ImGui::InputFloat(name.data(), &value.Info.Parameter.Floating, 0.01, 1);
-				break;
-			}
-			case DataType_TEXT: {
-				ImGui::Checkbox("##Update", &value.Update);
-				ImGui::SameLine();
-				ImGui::InputText(name.data(), &value.Info.Parameter.Text);
-				break;
-			}
-			case DataType_RADIO: {
-				ImGui::Checkbox("##Update", &value.Update);
-				ImGui::SameLine();
-				ImGui::Checkbox(name.data(), &value.Info.Parameter.Check);
-				break;
-			}
-			case DataType_COMBO: {
-				ImGui::Checkbox("##Update", &value.Update);
-				ImGui::SameLine();
+        switch (value.Info.Type) {
+            case DataType_CLIENT: {
+                if (ImGui::BeginCombo(name.data(), value.Info.Parameter.Text.data())) {
+                    for (const auto& [exchangeName, client] : ClientCodeList) {
+                        if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::toString(exchangeName), client).data())) {
+                            value.Info.Parameter.Text = client;
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+                break;
+            }
+            case DataType_INT: {
+                ImGui::Checkbox("##Update", &value.Update);
+                ImGui::SameLine();
+                ImGui::InputInt(name.data(), &value.Info.Parameter.Integer, 1, 100);
+                break;
+            }
+            case DataType_FLOAT: {
+                ImGui::Checkbox("##Update", &value.Update);
+                ImGui::SameLine();
+                ImGui::InputFloat(name.data(), &value.Info.Parameter.Floating, 0.01, 1);
+                break;
+            }
+            case DataType_TEXT: {
+                ImGui::Checkbox("##Update", &value.Update);
+                ImGui::SameLine();
+                ImGui::InputText(name.data(), &value.Info.Parameter.Text);
+                break;
+            }
+            case DataType_RADIO: {
+                ImGui::Checkbox("##Update", &value.Update);
+                ImGui::SameLine();
+                ImGui::Checkbox(name.data(), &value.Info.Parameter.Check);
+                break;
+            }
+            case DataType_COMBO: {
+                ImGui::Checkbox("##Update", &value.Update);
+                ImGui::SameLine();
 
-				std::string data(value.Info.Parameter.Text);
-				std::replace(data.begin(), data.end(), ';', '\0');
-				data.append("\0\0");
-				ImGui::Combo(name.data(), &value.Info.Parameter.Integer, data.data());
-				break;
-			}
-			case DataType_UPDATES:
-			case DataType_CONTRACT:
-			case DataType_END: {
-				break;
-			}
-		}
-		ImGui::PopID();
-	}
+                std::string data(value.Info.Parameter.Text);
+                std::replace(data.begin(), data.end(), ';', '\0');
+                data.append("\0\0");
+                ImGui::Combo(name.data(), &value.Info.Parameter.Integer, data.data());
+                break;
+            }
+            case DataType_UPDATES:
+            case DataType_CONTRACT:
+            case DataType_END: {
+                break;
+            }
+        }
+        ImGui::PopID();
+    }
 }
 
 void Portfolio::AppendStrategy() {
-	StrategyRowPtrT row = std::make_shared<StrategyRowT>();
-	row->PF				= ++_portFolioNumber;
-	row->Subscribed		= false;
-	row->Selected		= false;
-	row->Status			= StrategyStatus_INACTIVE;
+    StrategyRowPtrT row = std::make_shared<StrategyRowT>();
+    row->PF				= ++_portFolioNumber;
+    row->Subscribed		= false;
+    row->Selected		= false;
+    row->Status			= StrategyStatus_INACTIVE;
 
-	for (ParameterInfoListT::value_type valueType : _paramList) {
-		ParameterInfoT& info = valueType.second;
-		if (info.Type == DataType_CONTRACT) {
-			info.Self = ContractInfo::GetLiveDataRef(Lancelot::ContractInfo::GetToken(info.Parameter.Text));
-		} else if (info.Type == DataType_COMBO) {
-			std::string options = info.Parameter.Text;
-			int			i		= 0;
-			for (const auto word : std::views::split(options, ';')) {
-				if (i == info.Parameter.Integer) {
-					info.Parameter.Text = FORMAT("{}", word);
-					break;
-				}
-				++i;
-			}
-		}
-		row->ParameterInfoList.emplace(valueType);
-	}
+    for (ParameterInfoListT::value_type valueType : _paramList) {
+        ParameterInfoT& info = valueType.second;
+        if (info.Type == DataType_CONTRACT) {
+            info.Self = ContractInfo::GetLiveDataRef(Lancelot::ContractInfo::GetToken(info.Parameter.Text));
+        } else if (info.Type == DataType_COMBO) {
+            std::string				 options = info.Parameter.Text;
+            std::vector<std::string> result;
+            boost::split(result, options, boost::is_any_of(";"));
+            info.Parameter.Text = result.at(info.Parameter.Integer);
+        }
+        row->ParameterInfoList.emplace(valueType);
+    }
 
-	_strategyList.emplace_back(row);
-	Utils::AppendPortfolio(row->PF, row);
+    _strategyList.emplace_back(row);
+    Utils::AppendPortfolio(row->PF, row);
 }
 
 void Portfolio::ModifyGlobalParam() {
-	for (GlobalParameterInfoT& info : _globalParamList) {
-		if (info.Update) {
-			updateAll(info);
-		}
-	}
+    for (GlobalParameterInfoT& info : _globalParamList) {
+        if (info.Update) {
+            updateAll(info);
+        }
+    }
 }
 
 std::string Portfolio::getName() const {
-	return _name;
+    return _name;
 }
 
 void		Portfolio::ResetSelection() {
 #pragma omp parallel
 #pragma omp for
-	for (const StrategyListT::value_type& valueType_ : _strategyList) {
-		valueType_->Selected = false;
-	}
+    for (const StrategyListT::value_type& valueType_ : _strategyList) {
+        valueType_->Selected = false;
+    }
 }
 
 void Portfolio::RemoveSelection() {
-	std::erase_if(_strategyList, [](const StrategyListT::value_type& valueType_) {
-		return (valueType_->Status == StrategyStatus_INACTIVE or valueType_->Status == StrategyStatus_TERMINATED) and valueType_->Selected;
-	});
+    std::erase_if(_strategyList, [](const StrategyListT::value_type& valueType_) {
+        return (valueType_->Status == StrategyStatus_INACTIVE or valueType_->Status == StrategyStatus_TERMINATED) and valueType_->Selected;
+    });
 }
 
 void Portfolio::DrawNewStrategyPopUpWindow() {
-	if (ImGui::BeginPopupModal(("New Strategy:- " + _name).data(), &_showGlobalParameter, ImGuiWindowFlags_AlwaysAutoResize)) {
-		DrawNewPortfolioCreation();
+    if (ImGui::BeginPopupModal(("New Strategy:- " + _name).data(), &_showGlobalParameter, ImGuiWindowFlags_AlwaysAutoResize)) {
+        DrawNewPortfolioCreation();
 
-		if (ImGui::Button(ICON_MD_DONE " Submit")) {
-			AppendStrategy();
+        if (ImGui::Button(ICON_MD_DONE " Submit")) {
+            AppendStrategy();
 
-			if (_portFolioNumber == MAX_PORTFOLIO_ALLOWED) {
-				ImGui::CloseCurrentPopup();
-			}
-		}
-		ImGui::SetItemDefaultFocus();
+            if (_portFolioNumber == MAX_PORTFOLIO_ALLOWED) {
+                ImGui::CloseCurrentPopup();
+            }
+        }
+        ImGui::SetItemDefaultFocus();
 
-		ImGui::SameLine();
-		if (ImGui::Button(ICON_MD_CANCEL " Cancel")) {
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::EndPopup();
-	}
+        ImGui::SameLine();
+        if (ImGui::Button(ICON_MD_CANCEL " Cancel")) {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
 }
 
 void Portfolio::DrawGlobalParamPopupWindow() {
-	ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-	if (ImGui::BeginPopupModal(("Global Params:- " + _name).data(), &_showGlobalParameter, ImGuiWindowFlags_AlwaysAutoResize)) {
-		DrawGlobalParam();
-		if (ImGui::Button(ICON_MD_UPDATE " Update")) {
-			ModifyGlobalParam();
-		}
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    if (ImGui::BeginPopupModal(("Global Params:- " + _name).data(), &_showGlobalParameter, ImGuiWindowFlags_AlwaysAutoResize)) {
+        DrawGlobalParam();
+        if (ImGui::Button(ICON_MD_UPDATE " Update")) {
+            ModifyGlobalParam();
+        }
 
-		ImGui::SetItemDefaultFocus();
-		ImGui::SameLine();
-		if (ImGui::Button(ICON_MD_CANCEL " Cancel")) {
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::EndPopup();
-	}
+        ImGui::SetItemDefaultFocus();
+        ImGui::SameLine();
+        if (ImGui::Button(ICON_MD_CANCEL " Cancel")) {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
 }
 void Portfolio::DrawFileManagerWindow() {
-	if (ImGuiFileDialog::Instance()->Display("FileManager")) {
-		if (ImGuiFileDialog::Instance()->IsOk()) {
-			std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
-			if (_action == ExportImport_EXPORT) {
-				_future = std::async(std::launch::async, [this, path = std::forward<std::string>(filePathName)]() { Exports(path); });
-			} else {
-				Imports(filePathName);
-			}
-			_action = ExportImport_NONE;
-		}
-		ImGuiFileDialog::Instance()->Close();
-	}
+    if (ImGuiFileDialog::Instance()->Display("FileManager")) {
+        if (ImGuiFileDialog::Instance()->IsOk()) {
+            std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+            if (_action == ExportImport_EXPORT) {
+                _future = std::async(std::launch::async, [this, path = std::forward<std::string>(filePathName)]() { Exports(path); });
+            } else {
+                Imports(filePathName);
+            }
+            _action = ExportImport_NONE;
+        }
+        ImGuiFileDialog::Instance()->Close();
+    }
 }
 void Portfolio::setCallback(const boost::signals2::slot<void(const std::string&), boost::function<void(const std::string&)>>& slot_) {
-	_addContractToMarketWatchSignal.connect(slot_);
+    _addContractToMarketWatchSignal.connect(slot_);
 }
 
 void Portfolio::AddScannerPortfolio(const ParameterInfoListT& list_) {
-	StrategyRowPtrT row	   = std::make_shared<StrategyRowT>();
-	row->PF				   = ++_portFolioNumber;
-	row->Subscribed		   = false;
-	row->Selected		   = false;
-	row->Status			   = StrategyStatus_INACTIVE;
-	row->ParameterInfoList = list_;
-	_scannerAddQueue.push(row);
-	Utils::AppendPortfolio(row->PF, row);
+    StrategyRowPtrT row	   = std::make_shared<StrategyRowT>();
+    row->PF				   = ++_portFolioNumber;
+    row->Subscribed		   = false;
+    row->Selected		   = false;
+    row->Status			   = StrategyStatus_INACTIVE;
+    row->ParameterInfoList = list_;
+    _scannerAddQueue.push(row);
+    Utils::AppendPortfolio(row->PF, row);
 }

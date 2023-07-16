@@ -55,69 +55,69 @@ using ExecutorType = boost::asio::io_context::executor_type;
 using WorkerT	   = boost::asio::executor_work_guard<ExecutorType>;
 
 namespace Lancelot {
-enum RequestType : int;
+    enum RequestType : int;
 }
 enum VisualTheme : int;
 
 class Arthur {
 public:
-	explicit Arthur(bool *closeMainWindow_);
+    explicit Arthur(bool *closeMainWindow_);
 
-	~Arthur();
-	void paint();
-	void AddTrade(const OrderInfoPtrT &tradeInfo_);
+    ~Arthur();
+    void paint();
+    void AddTrade(const OrderInfoPtrT &tradeInfo_);
 
 protected:
-	static void marketEventHandler(std::stop_token &token_);
+    static void marketEventHandler(std::stop_token &token_);
 
-	void SetTheme(VisualTheme theme_);
-	void Menu();
-	void run(std::stop_token &stopToken_);
-	void imports(std::string_view path_);
-	void exports(std::string_view path_);
-	void startAllThreads();
-	void manualOrderRequestEvent(const OrderFormInfoT &ManualOrderInfo, Lancelot::RequestType type_);
-	void strategyRequestEvent(StrategyRowPtrT row_, const std::string &name_, Lancelot::RequestType type_);
-	void cancelOrderEvent(const OrderInfoPtrT &orderInfo_);
+    void SetTheme(VisualTheme theme_);
+    void Menu();
+    void run(std::stop_token &stopToken_);
+    void imports(std::string_view path_);
+    void exports(std::string_view path_);
+    void startAllThreads();
+    void manualOrderRequestEvent(const OrderFormInfoT &ManualOrderInfo, Lancelot::RequestType type_);
+    void strategyRequestEvent(StrategyRowPtrT row_, const std::string &name_, Lancelot::RequestType type_);
+    void cancelOrderEvent(const OrderInfoPtrT &orderInfo_);
 
 private:
-	DemoPtrT			  _demoPtr;
-	MessageBrokerPtrT	  _messageBroker;
-	TemplateBuilderPtrT	  _templateBuilderPtr;
-	PositionPtrT		  _positionPtr;
-	OrderFormPtrT		  _OrderFormPtr;
-	MarketWatchPtrT		  _marketWatchPtr;
-	MulticastReceiverPtrT _multicastReceiverPtr;
-	OpenOrdersPtrT		  _openOrdersPtr;
-	StrategyWorkspacePtrT _strategyWorkspacePtr;
-	TradeHistoryPtrT	  _tradeHistoryPtr;
-	OptionChainPtrT		  _optionChainPtr;
-	OrderBookPtrT		  _orderBookPtr;
-	OrderBookPtrT		  _rejectBookPtr;
-	SoundPtrT			  _tradeSoundPtr;
+    DemoPtrT			  _demoPtr;
+    MessageBrokerPtrT	  _messageBroker;
+    TemplateBuilderPtrT	  _templateBuilderPtr;
+    PositionPtrT		  _positionPtr;
+    OrderFormPtrT		  _OrderFormPtr;
+    MarketWatchPtrT		  _marketWatchPtr;
+    MulticastReceiverPtrT _multicastReceiverPtr;
+    OpenOrdersPtrT		  _openOrdersPtr;
+    StrategyWorkspacePtrT _strategyWorkspacePtr;
+    TradeHistoryPtrT	  _tradeHistoryPtr;
+    OptionChainPtrT		  _optionChainPtr;
+    OrderBookPtrT		  _orderBookPtr;
+    OrderBookPtrT		  _rejectBookPtr;
+    SoundPtrT			  _tradeSoundPtr;
 
-	bool _showTemplateBuilder	= false;
-	bool _showDemoWindow		= false;
-	bool _showExcelWindow		= false;
-	bool _showPriceLadder		= false;
-	bool _showMarketWatch		= false;
-	bool _showOptionChain		= false;
-	bool _showOpenOrders		= false;
-	bool _showStrategyWorkspace = false;
-	bool _showTradeHistory		= false;
-	bool _showPosition			= false;
-	bool _showOrderBook			= false;
-	bool _showRejectBook		= false;
-	int	 _theme					= 0;
+    bool _showTemplateBuilder	= false;
+    bool _showDemoWindow		= false;
+    bool _showExcelWindow		= false;
+    bool _showPriceLadder		= false;
+    bool _showMarketWatch		= false;
+    bool _showOptionChain		= false;
+    bool _showOpenOrders		= false;
+    bool _showStrategyWorkspace = false;
+    bool _showTradeHistory		= false;
+    bool _showPosition			= false;
+    bool _showOrderBook			= false;
+    bool _showRejectBook		= false;
+    int	 _theme					= 0;
 
-	boost::asio::io_context			_backendComService;
-	boost::asio::io_context::strand _backendStrand;
-	WorkerT							_backendWorker;
-	ThreadGroupT					_threadGroup;
-	bool						   *_closeMainWindow;
-	char							_password[10]{};
-	std::string						_ipaddress;
-	std::string						_port;
+    boost::asio::io_context			_backendComService;
+    boost::asio::io_context::strand _backendStrand;
+    WorkerT							_backendWorker;
+    ThreadGroupT					_threadGroup;
+    bool *							_closeMainWindow;
+    char							_password[10]{};
+    std::string						_ipaddress;
+    std::string						_port;
 };
 
 #endif	// ARTHUR_INCLUDE_ARTHUR_HPP
