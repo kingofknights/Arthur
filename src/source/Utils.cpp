@@ -79,7 +79,7 @@ std::string Utils::strategySerialize(const StrategyRowPtrT& row_, const std::str
 		for (const auto& [key_, value] : row_->ParameterInfoList) {
 			switch (value.Type) {
 				case DataType_INT: {
-					arguments[key_] = fmt::format("{}", value.Parameter.Integer);
+					arguments[key_] = FORMAT("{}", value.Parameter.Integer);
 					break;
 				}
 				case DataType_COMBO:
@@ -183,7 +183,7 @@ void Utils::ResetPortfolio(StrategyStatus status_) {
 void Utils::DrawTradeRow(const OrderInfoPtrT& tradeInfo_, int& first_, int second_) {
 	ImVec4 color = BuySellColor(tradeInfo_->Side);
 	ImGui::PushStyleColor(ImGuiCol_Text, color);
-	FirstCell(BooksColumnIndex_PF, fmt::format("{}", tradeInfo_->PF).data(), first_, second_);
+	FirstCell(BooksColumnIndex_PF, FORMAT("{}", tradeInfo_->PF).data(), first_, second_);
 	if (ImGui::IsItemHovered()) {
 		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
 			first_ = second_;

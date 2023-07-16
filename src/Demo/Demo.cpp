@@ -4,9 +4,6 @@
 
 #include "Demo.hpp"
 
-#include <fmt/chrono.h>
-#include <fmt/format.h>
-
 #include <Lancelot/Logger/Logger.hpp>
 #include <thread>
 
@@ -61,7 +58,7 @@ void Demo::GenerateMonteCarloData(const MarketWatchDataPtrT& ptr_) {
     ptr_->Color.ATP			= ptr_->LastTradePrice > ltp;
     ptr_->Color.TopBid		= ptr_->Bid[0].Price > topBid;
     ptr_->Color.TopAsk		= ptr_->Ask[0].Price > topAsk;
-    std::string time		= fmt::format("{:%Y-%m-%d %H:%M:%S}", fmt::localtime(std::time(0)));
+    std::string time		= FORMAT("{:%Y-%m-%d %H:%M:%S}", fmt::localtime(std::time(0)));
     std::memcpy(ptr_->LastTradeTime.data(), time.c_str(), time.length());
 }
 void Demo::addContract(int token_) {

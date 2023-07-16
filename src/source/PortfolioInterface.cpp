@@ -21,14 +21,14 @@ PortfolioInterface::PortfolioInterface(std::string_view name_, std::string_view 
 	: PortfolioScanner(strategyName_.data()), _name(name_), _strategyName(strategyName_), _strand(strand_) {
 	const std::string jsonData = ConfigLoader::Instance().getStrategyColumn(_strategyName);
 	ParseConfig(jsonData);
-	PortfolioInterface::Imports(fmt::format("Save/{}.json", _name));
-	PortfolioScanner::Import(fmt::format("Save/{}_Scanner.json", _name));
+	PortfolioInterface::Imports(FORMAT("Save/{}.json", _name));
+	PortfolioScanner::Import(FORMAT("Save/{}_Scanner.json", _name));
 }
 
 PortfolioInterface::~PortfolioInterface() {
 	if (_open) {
-		PortfolioInterface::Exports(fmt::format("Save/{}.json", _name));
-		PortfolioScanner::Export(fmt::format("Save/{}_Scanner.json", _name));
+		PortfolioInterface::Exports(FORMAT("Save/{}.json", _name));
+		PortfolioScanner::Export(FORMAT("Save/{}_Scanner.json", _name));
 	}
 }
 
@@ -160,7 +160,7 @@ void PortfolioInterface::Exports(std::string_view path_) {
 	std::fstream file(path_.data(), std::ios::trunc | std::ios::out);
 	file << root.dump();
 	file.close();
-	StatusDisplay = fmt::format("Exporting done : {} {}", path_, _strategyList.size());
+	StatusDisplay = FORMAT("Exporting done : {} {}", path_, _strategyList.size());
 }
 
 void PortfolioInterface::Imports(std::string_view path_) {
@@ -236,7 +236,7 @@ void PortfolioInterface::Imports(std::string_view path_) {
 			Utils::AppendPortfolio(strategyRow->PF, strategyRow);
 		}
 	}
-	StatusDisplay = fmt::format("Importing done : {} {}", path_, _strategyList.size());
+	StatusDisplay = FORMAT("Importing done : {} {}", path_, _strategyList.size());
 	file.close();
 }
 

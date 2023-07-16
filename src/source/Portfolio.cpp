@@ -91,17 +91,17 @@ void Portfolio::DrawPortfolioWindow() {
 	if (_portFolioNumber < MAX_PORTFOLIO_ALLOWED) DrawNewStrategyPopUpWindow();
 
 	ImGui::SameLine();
-	if (ImGui::Button(fmt::format("{} Subscribe {} ##Subcribe", ICON_MD_PLAYLIST_PLAY, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
+	if (ImGui::Button(FORMAT("{} Subscribe {} ##Subcribe", ICON_MD_PLAYLIST_PLAY, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
 		_multipleSelectionCount > 1 ? subscribeSelected() : subscribeAll();
 	}
 
 	ImGui::SameLine();
-	if (ImGui::Button(fmt::format("{} Apply {} ##Apply", ICON_MD_PLAY_ARROW, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
+	if (ImGui::Button(FORMAT("{} Apply {} ##Apply", ICON_MD_PLAY_ARROW, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
 		_multipleSelectionCount > 1 ? applySelected() : applyAll();
 	}
 
 	ImGui::SameLine();
-	if (ImGui::Button(fmt::format("{} Unsubscribe {} ##Unsubscribe", ICON_MD_STOP, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
+	if (ImGui::Button(FORMAT("{} Unsubscribe {} ##Unsubscribe", ICON_MD_STOP, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
 		_multipleSelectionCount > 1 ? unsubscribeSelected() : unsubscribeAll();
 	}
 
@@ -265,7 +265,7 @@ void Portfolio::DrawStrategyRow(StrategyRowPtrT& row_, int index_) {
 	bool addToMarketWatch = false;
 	ImGui::PushID(row_->PF);
 
-	if (FirstCell(0, fmt::format("{}", row_->PF).data(), row_->Selected, true)) {
+	if (FirstCell(0, FORMAT("{}", row_->PF).data(), row_->Selected, true)) {
 		if (not ImGui::GetIO().KeyCtrl) {
 			ResetSelection();
 			_multipleSelectionCount = 0;
@@ -290,7 +290,7 @@ void Portfolio::DrawStrategyRow(StrategyRowPtrT& row_, int index_) {
 	const ImVec4 color = GetStatusColor(row_->Status, row_->Changed);
 	ImGui::PushStyleColor(ImGuiCol_Text, color);
 	ImGui::BeginDisabled(row_->Status == StrategyStatus_PENDING);
-	if (ImGui::Checkbox(fmt::format("{}##SubscribedCheckBok", StrategyStatusType[row_->Status]).data(), &row_->Subscribed)) {
+	if (ImGui::Checkbox(FORMAT("{}##SubscribedCheckBok", StrategyStatusType[row_->Status]).data(), &row_->Subscribed)) {
 		doStrategyAction(row_, _strategyName, row_->Subscribed ? Lancelot::RequestType_SUBSCRIBE : Lancelot::RequestType_UNSUBSCRIBE);
 	}
 	ImGui::EndDisabled();
