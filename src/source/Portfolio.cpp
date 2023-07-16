@@ -1,5 +1,7 @@
 #include "../include/Portfolio.hpp"
 
+#include <boost/algorithm/string.hpp>
+
 #include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
 #include "../include/ConfigLoader.hpp"
@@ -89,17 +91,17 @@ void Portfolio::DrawPortfolioWindow() {
     if (_portFolioNumber < MAX_PORTFOLIO_ALLOWED) DrawNewStrategyPopUpWindow();
 
     ImGui::SameLine();
-    if (ImGui::Button(fmt::format("{} Subscribe {} ##Subcribe", ICON_MD_PLAYLIST_PLAY, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
+    if (ImGui::Button(FORMAT("{} Subscribe {} ##Subcribe", ICON_MD_PLAYLIST_PLAY, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
         _multipleSelectionCount > 1 ? subscribeSelected() : subscribeAll();
     }
 
     ImGui::SameLine();
-    if (ImGui::Button(fmt::format("{} Apply {} ##Apply", ICON_MD_PLAY_ARROW, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
+    if (ImGui::Button(FORMAT("{} Apply {} ##Apply", ICON_MD_PLAY_ARROW, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
         _multipleSelectionCount > 1 ? applySelected() : applyAll();
     }
 
     ImGui::SameLine();
-    if (ImGui::Button(fmt::format("{} Unsubscribe {} ##Unsubscribe", ICON_MD_STOP, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
+    if (ImGui::Button(FORMAT("{} Unsubscribe {} ##Unsubscribe", ICON_MD_STOP, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
         _multipleSelectionCount > 1 ? unsubscribeSelected() : unsubscribeAll();
     }
 
@@ -263,7 +265,7 @@ void Portfolio::DrawStrategyRow(StrategyRowPtrT& row_, int index_) {
     bool addToMarketWatch = false;
     ImGui::PushID(row_->PF);
 
-    if (FirstCell(0, fmt::format("{}", row_->PF).data(), row_->Selected, true)) {
+    if (FirstCell(0, FORMAT("{}", row_->PF).data(), row_->Selected, true)) {
         if (not ImGui::GetIO().KeyCtrl) {
             ResetSelection();
             _multipleSelectionCount = 0;
@@ -446,15 +448,10 @@ void Portfolio::AppendStrategy() {
         if (info.Type == DataType_CONTRACT) {
             info.Self = ContractInfo::GetLiveDataRef(Lancelot::ContractInfo::GetToken(info.Parameter.Text));
         } else if (info.Type == DataType_COMBO) {
-            std::string options = info.Parameter.Text;
-            int			i		= 0;
-            for (const auto word : std::views::split(options, ';')) {
-                if (i == info.Parameter.Integer) {
-                    info.Parameter.Text = FORMAT("{}", word);
-                    break;
-                }
-                ++i;
-            }
+            std::string				 options = info.Parameter.Text;
+            std::vector<std::string> result;
+            boost::split(result, options, boost::is_any_of(";"));
+            info.Parameter.Text = result.at(info.Parameter.Integer);
         }
         row->ParameterInfoList.emplace(valueType);
     }
