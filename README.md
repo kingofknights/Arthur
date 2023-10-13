@@ -4,6 +4,19 @@ This document provide the structural idea, how any `request` and `response` are 
 `request` represent any packet sent from application `Arthur` sent to connected backend engine.
 `response` represent following fields `Arthur` is expecting from backend engine
 
+## Screenshot
+![Screenshot 1](Resources/Screenshot/Screenshot1.png)
+![Screenshot 2](Resources/Screenshot/Screenshot2.png)
+![Screenshot 3](Resources/Screenshot/Screenshot3.png)
+![Screenshot 4](Resources/Screenshot/Screenshot4.png)
+![Screenshot 5](Resources/Screenshot/Screenshot5.png)
+![Screenshot 6](Resources/Screenshot/Screenshot6.png)
+![Screenshot 7](Resources/Screenshot/Screenshot7.png)
+![Screenshot 8](Resources/Screenshot/Screenshot8.png)
+![Screenshot 9](Resources/Screenshot/Screenshot9.png)
+![Screenshot 10](Resources/Screenshot/Screenshot10.png)
+![Screenshot 11](Resources/Screenshot/Screenshot11.png)
+
 ```cpp
 
 #define JSON_PARAMS "params"
