@@ -1,7 +1,5 @@
-#set(CMAKE_CXX_CPPCHECK "cppcheck")
-
-
 set(Boost_NO_WARN_NEW_VERSIONS OFF)
+
 find_package(Boost REQUIRED COMPONENTS system thread filesystem)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
@@ -24,62 +22,62 @@ add_subdirectory(Demo)
 add_subdirectory(Audio)
 
 add_executable(${PROJECT_NAME}
-	main.cpp
-	${APP_ICON_RESOURCE_WINDOWS}
+        main.cpp
+        ${APP_ICON_RESOURCE_WINDOWS}
 )
 
 target_link_libraries(${PROJECT_NAME}
-PRIVATE
-    include
-	source
-	API
-	DataFeed
-	Knight
-	Greeks
-	#Excel
-	Demo
-	Audio
+        PRIVATE
+        include
+        source
+        API
+        DataFeed
+        Knight
+        Greeks
+        #Excel
+        Demo
+        Audio
 )
 
 #target_compile_options(${PROJECT_NAME} PRIVATE -DIMGUI_IMPL_OPENGL_ES2)
 target_link_libraries(${PROJECT_NAME}
-	PUBLIC
-	    ImGui
-		ImGuiFileDialog
-		SDL3
-		OpenGL::GL
-		Threads::Threads
+        PUBLIC
+        ImGui
+        ImGuiFileDialog
+        SDL3
+        OpenGL::GL
+        Threads::Threads
 )
 
 target_link_directories(${PROJECT_NAME} PRIVATE ${Boost_LIBRARY_DIRS})
 
 target_precompile_headers(${PROJECT_NAME}
-	PRIVATE
-	    <algorithm>
-		<array>
-		<chrono>
-		<cstdint>
-		<filesystem>
-		<fstream>
-		<iostream>
-		<map>
-		<memory>
-		<ranges>
-		<set>
-		<sstream>
-		<string>
-		<string_view>
-		<typeinfo>
-		<unordered_map>
-		<unordered_set>
-		<variant>
-		<vector>
-		<thread>
-		<memory>
+        PRIVATE
+        <algorithm>
+        <array>
+        <chrono>
+        <cstdint>
+        <filesystem>
+        <fstream>
+        <iostream>
+        <map>
+        <memory>
+        <ranges>
+        <set>
+        <sstream>
+        <string>
+        <string_view>
+        <typeinfo>
+        <unordered_map>
+        <unordered_set>
+        <variant>
+        <vector>
+        <thread>
+        <memory>
 )
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-	    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${FONT_FILE}
-		$<TARGET_FILE_DIR:${PROJECT_NAME}>)
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${FONT_FILE}
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 

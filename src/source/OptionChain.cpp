@@ -48,7 +48,7 @@ void OptionChain::DrawOptionChain(bool* show_) {
 			}
 			ImGui::TableHeadersRow();
 
-			for (const OptionChainContainerT::value_type& valueType_ : _OptionChainContainer) {
+			for (const OptionChainContainerT::value_type& valueType_ : _optionChainContainer) {
 				ImGui::TableNextRow();
 
 				const OptionChainRowT&	optionChainRow = valueType_.second;
@@ -204,7 +204,7 @@ void OptionChain::SetOptionForFuture(const std::string& contract_) {
 	auto future = ContractInfo::GetLiveDataRef(token_);
 
 	if (!future) return;
-	_OptionChainContainer.clear();
+	_optionChainContainer.clear();
 
 	_future = future;
 
@@ -227,7 +227,7 @@ void OptionChain::LoadOptions(const std::string& symbol_, uint32_t expiry_, uint
 		OptionChainItemT put{.Self = ContractInfo::GetLiveDataRef(putToken), .ResultSet = Lancelot::ContractInfo::GetResultSet(putToken)};
 		OptionChainRowT	 optionChainRow{.Call = call, .Put = put};
 
-		_OptionChainContainer.emplace(std::stof(row[2]) / call.ResultSet->_divisor, optionChainRow);
+		_optionChainContainer.emplace(std::stof(row[2]) / call.ResultSet->_divisor, optionChainRow);
 		AddContractToDemoSignal(callToken);
 		AddContractToDemoSignal(putToken);
 	}
