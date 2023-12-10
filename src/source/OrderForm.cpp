@@ -28,14 +28,14 @@ void OrderForm::paint(const char* name_) {
 }
 
 void OrderForm::Update(OrderFormInfoT& info_) {
-    _order		  = info_;
-    _color		  = BuySellColor(_order.Side);
+    _order        = info_;
+    _color        = BuySellColor(_order.Side);
     auto exchange = Lancelot::ContractInfo::GetExchange(Lancelot::ContractInfo::GetToken(info_.Contract));
     if (exchange != _exchange) {
         _exchange = exchange;
         for (const auto& item : ClientCodeList) {
             if (_exchange == item.Exchange) {
-                _clientCode	 = item.ClientCode;
+                _clientCode  = item.ClientCode;
                 info_.Client = _clientCode;
                 break;
             }
@@ -61,8 +61,8 @@ void OrderForm::DrawInputItem() {
         for (const auto& code_ : ClientCodeList) {
             if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::toString(code_.Exchange), code_.ClientCode).data())) {
                 _order.Client = code_.ClientCode;
-                _exchange	  = code_.Exchange;
-                _clientCode	  = code_.ClientCode;
+                _exchange     = code_.Exchange;
+                _clientCode   = code_.ClientCode;
             }
         }
         ImGui::EndCombo();
@@ -84,13 +84,13 @@ void OrderForm::DrawInputItem() {
     }
 
     ImGui::Columns(2, nullptr, false);
-    if (ImGui::IsKeyPressed(ImGuiKey_Enter) or ImGui::IsKeyPressed(ImGuiKey_KeypadEnter) or ImGui::Button(ICON_MD_DONE " Submit", {-FLT_MIN, 0})) {
+    if (ImGui::IsKeyPressed(ImGuiKey_Enter) or ImGui::IsKeyPressed(ImGuiKey_KeypadEnter) or ImGui::Button(ICON_MD_DONE " Submit", { -FLT_MIN, 0 })) {
         SentToBroker();
         if (enable) ImGui::CloseCurrentPopup();
     }
 
     ImGui::NextColumn();
-    if (ImGui::Button(ICON_MD_CANCEL " Cancel", {-FLT_MIN, 0})) {
+    if (ImGui::Button(ICON_MD_CANCEL " Cancel", { -FLT_MIN, 0 })) {
         ImGui::CloseCurrentPopup();
     }
 }

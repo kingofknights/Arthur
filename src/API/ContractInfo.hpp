@@ -10,4 +10,4 @@ namespace ContractInfo {
 
 MarketWatchDataPtrT GetLiveDataRef(uint32_t token_);
 
-}  // namespace ContractInfo
+}// namespace ContractInfo

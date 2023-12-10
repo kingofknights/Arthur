@@ -39,27 +39,27 @@
 #include "../include/plf_nanotimer.h"
 
 class MemoryUsage {
-public:
+  public:
     static double GetRamUsage();
 };
 
-extern bool					BackendConnected;
-extern int					UserID;
+extern bool                 BackendConnected;
+extern int                  UserID;
 extern DemoOrderInfoSignalT DemoOrderInfoSignal;
-extern MarketEventQueueT	MarketEventQueue;
-extern AllContractT			AllContract;
+extern MarketEventQueueT    MarketEventQueue;
+extern AllContractT         AllContract;
 
-#define DATABASE_PATH			"ResultSet.db3"
+#define DATABASE_PATH "ResultSet.db3"
 #define TRADING_APP_CONFIG_PATH "Config/Arthur.json"
-#define ORDER_ALL_BOOK			"Order All Book"
-#define REJECT_BOOK				"Reject Book"
+#define ORDER_ALL_BOOK "Order All Book"
+#define REJECT_BOOK "Reject Book"
 
 Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _backendWorker(_backendComService.get_executor()), _backendStrand(_backendComService) {
     Themes::AddIconFonts("Ruda-Bold.ttf", 18.0f);
 #if 1
-    UserID	   = 101;
+    UserID     = 101;
     _ipaddress = "127.0.0.1";
-    _port	   = "9090";
+    _port      = "9090";
 
     LOG(INFO, "Loading SqlLite3 Database : {}", DATABASE_PATH)
     Lancelot::ContractInfo::Initialize(DATABASE_PATH, Utils::GetAllContractCallback);
@@ -68,16 +68,16 @@ Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _ba
     Utils::CreateSupportFolder();
     ConfigLoader::Instance();
 
-    _demoPtr			  = std::make_unique<Demo>();
-    _templateBuilderPtr	  = std::make_unique<TemplateBuilder>();
-    _positionPtr		  = std::make_unique<Position>(_backendComService);
-    _OrderFormPtr		  = std::make_shared<OrderForm>(_backendStrand);
-    _marketWatchPtr		  = std::make_unique<MarketWatch>(_OrderFormPtr);
-    _openOrdersPtr		  = std::make_unique<OpenOrders>(_OrderFormPtr, _backendStrand);
+    _demoPtr              = std::make_unique<Demo>();
+    _templateBuilderPtr   = std::make_unique<TemplateBuilder>();
+    _positionPtr          = std::make_unique<Position>(_backendComService);
+    _OrderFormPtr         = std::make_shared<OrderForm>(_backendStrand);
+    _marketWatchPtr       = std::make_unique<MarketWatch>(_OrderFormPtr);
+    _openOrdersPtr        = std::make_unique<OpenOrders>(_OrderFormPtr, _backendStrand);
     _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_backendStrand);
-    _tradeHistoryPtr	  = std::make_unique<TradeHistory>();
-    _optionChainPtr		  = std::make_unique<OptionChain>();
-    _messageBroker		  = std::make_unique<MessageBroker>(_backendComService);
+    _tradeHistoryPtr      = std::make_unique<TradeHistory>();
+    _optionChainPtr       = std::make_unique<OptionChain>();
+    _messageBroker        = std::make_unique<MessageBroker>(_backendComService);
     //_multicastReceiverPtr = std::make_unique<MulticastReceiver>(_backendComService);
     _orderBookPtr  = std::make_unique<OrderBook>(ORDER_ALL_BOOK);
     _rejectBookPtr = std::make_unique<OrderBook>(REJECT_BOOK);
@@ -372,18 +372,18 @@ auto Arthur::imports(std::string_view path_) -> void {
 
     nlohmann::ordered_json root = nlohmann::ordered_json::parse(file);
 
-    _showDemoWindow		   = root[Configuration[ConfigFile_DEMO]].get<bool>();
-    _showExcelWindow	   = root[Configuration[ConfigFile_EXCEL_WINDOW]].get<bool>();
-    _showPosition		   = root[Configuration[ConfigFile_GREEK_BOOK]].get<bool>();
-    _theme				   = root[Configuration[ConfigFile_THEME]].get<int>();
-    _showPriceLadder	   = root[Configuration[ConfigFile_MARKET_LADDER]].get<bool>();
-    _showMarketWatch	   = root[Configuration[ConfigFile_MARKET_WATCH]].get<bool>();
-    _showOpenOrders		   = root[Configuration[ConfigFile_PENDING_BOOK]].get<bool>();
+    _showDemoWindow        = root[Configuration[ConfigFile_DEMO]].get<bool>();
+    _showExcelWindow       = root[Configuration[ConfigFile_EXCEL_WINDOW]].get<bool>();
+    _showPosition          = root[Configuration[ConfigFile_GREEK_BOOK]].get<bool>();
+    _theme                 = root[Configuration[ConfigFile_THEME]].get<int>();
+    _showPriceLadder       = root[Configuration[ConfigFile_MARKET_LADDER]].get<bool>();
+    _showMarketWatch       = root[Configuration[ConfigFile_MARKET_WATCH]].get<bool>();
+    _showOpenOrders        = root[Configuration[ConfigFile_PENDING_BOOK]].get<bool>();
     _showStrategyWorkspace = root[Configuration[ConfigFile_STRATEGY_WORKSPACE]].get<bool>();
-    _showTradeHistory	   = root[Configuration[ConfigFile_TRADE_BOOK]].get<bool>();
-    _showOrderBook		   = root[Configuration[ConfigFile_ORDER_ALL_BOOK]].get<bool>();
-    _showRejectBook		   = root[Configuration[ConfigFile_REJECT_BOOK]].get<bool>();
-    _showOptionChain	   = root[Configuration[ConfigFile_OPTION_CHAIN]].get<bool>();
+    _showTradeHistory      = root[Configuration[ConfigFile_TRADE_BOOK]].get<bool>();
+    _showOrderBook         = root[Configuration[ConfigFile_ORDER_ALL_BOOK]].get<bool>();
+    _showRejectBook        = root[Configuration[ConfigFile_REJECT_BOOK]].get<bool>();
+    _showOptionChain       = root[Configuration[ConfigFile_OPTION_CHAIN]].get<bool>();
 
     LOG(INFO, "Import Config File {}", path_)
     LOG(INFO, "Reading {} [{}]", Configuration[ConfigFile_DEMO], _showDemoWindow)
@@ -404,18 +404,18 @@ auto Arthur::imports(std::string_view path_) -> void {
 
 auto Arthur::exports(std::string_view path_) -> void {
     nlohmann::ordered_json root;
-    root[Configuration[ConfigFile_DEMO]]			   = _showDemoWindow;
-    root[Configuration[ConfigFile_EXCEL_WINDOW]]	   = _showExcelWindow;
-    root[Configuration[ConfigFile_GREEK_BOOK]]		   = _showPosition;
-    root[Configuration[ConfigFile_THEME]]			   = _theme;
-    root[Configuration[ConfigFile_MARKET_LADDER]]	   = _showPriceLadder;
-    root[Configuration[ConfigFile_MARKET_WATCH]]	   = _showMarketWatch;
-    root[Configuration[ConfigFile_PENDING_BOOK]]	   = _showOpenOrders;
+    root[Configuration[ConfigFile_DEMO]]               = _showDemoWindow;
+    root[Configuration[ConfigFile_EXCEL_WINDOW]]       = _showExcelWindow;
+    root[Configuration[ConfigFile_GREEK_BOOK]]         = _showPosition;
+    root[Configuration[ConfigFile_THEME]]              = _theme;
+    root[Configuration[ConfigFile_MARKET_LADDER]]      = _showPriceLadder;
+    root[Configuration[ConfigFile_MARKET_WATCH]]       = _showMarketWatch;
+    root[Configuration[ConfigFile_PENDING_BOOK]]       = _showOpenOrders;
     root[Configuration[ConfigFile_STRATEGY_WORKSPACE]] = _showStrategyWorkspace;
-    root[Configuration[ConfigFile_TRADE_BOOK]]		   = _showTradeHistory;
-    root[Configuration[ConfigFile_ORDER_ALL_BOOK]]	   = _showOrderBook;
-    root[Configuration[ConfigFile_REJECT_BOOK]]		   = _showRejectBook;
-    root[Configuration[ConfigFile_OPTION_CHAIN]]	   = _showOptionChain;
+    root[Configuration[ConfigFile_TRADE_BOOK]]         = _showTradeHistory;
+    root[Configuration[ConfigFile_ORDER_ALL_BOOK]]     = _showOrderBook;
+    root[Configuration[ConfigFile_REJECT_BOOK]]        = _showRejectBook;
+    root[Configuration[ConfigFile_OPTION_CHAIN]]       = _showOptionChain;
 
     std::fstream file(path_.data(), std::ios::trunc | std::ios::out);
     if (not file.is_open()) return;
@@ -475,7 +475,7 @@ double MemoryUsage::GetRamUsage() {
 }
 
 void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lancelot::RequestType type_) {
-    std::string				 config		   = Utils::manualSerialize(ManualOrderInfo);
+    std::string              config        = Utils::manualSerialize(ManualOrderInfo);
     Lancelot::CommunicationT communication = Lancelot::Encrypt(config, UserID, type_);
     if (_messageBroker) {
         _messageBroker->Write_Async((char*)&communication, sizeof(Lancelot::CommunicationT));
@@ -484,7 +484,7 @@ void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lanc
 }
 
 void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_, Lancelot::RequestType type_) {
-    std::string				 config		   = Utils::strategySerialize(row_, name_, type_);
+    std::string              config        = Utils::strategySerialize(row_, name_, type_);
     Lancelot::CommunicationT communication = Lancelot::Encrypt(config, UserID, type_);
 
     if (_messageBroker) {
@@ -495,7 +495,7 @@ void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_
 }
 
 void Arthur::cancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
-    std::string				 config		   = Utils::cancelOrderSerialize(orderInfo_);
+    std::string              config        = Utils::cancelOrderSerialize(orderInfo_);
     Lancelot::CommunicationT communication = Lancelot::Encrypt(config, UserID, Lancelot::RequestType_CANCEL);
     if (_messageBroker) {
         _messageBroker->Write_Async((char*)&communication, sizeof(Lancelot::CommunicationT));

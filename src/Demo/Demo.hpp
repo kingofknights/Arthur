@@ -10,20 +10,20 @@
 enum OrderStatus : int;
 
 class Demo {
-public:
-	Demo();
+  public:
+    Demo();
 
-	void Run(std::stop_token& token_);
+    void Run(std::stop_token& token_);
 
-	void startAndStop() { _startOrStop = not _startOrStop; }
+    void startAndStop() { _startOrStop = not _startOrStop; }
 
-protected:
-	void		  GenerateMonteCarloData(const MarketWatchDataPtrT& ptr_);
-	void		  addContract(int token_);
-	double		  monteCarloEstimate(double lowBound, double upBound, int iterations);
-	OrderInfoPtrT GenerateOrderInfo(const MarketWatchDataPtrT& ptr_, int gateway_, Lancelot::Side side_, OrderStatus orderStatus_);
+  protected:
+    void          GenerateMonteCarloData(const MarketWatchDataPtrT& ptr_);
+    void          addContract(int token_);
+    double        monteCarloEstimate(double lowBound, double upBound, int iterations);
+    OrderInfoPtrT GenerateOrderInfo(const MarketWatchDataPtrT& ptr_, int gateway_, Lancelot::Side side_, OrderStatus orderStatus_);
 
-private:
-	bool						  _startOrStop = false;
-	std::set<MarketWatchDataPtrT> _liveContainer;
+  private:
+    bool                          _startOrStop = false;
+    std::set<MarketWatchDataPtrT> _liveContainer;
 };

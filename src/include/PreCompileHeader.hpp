@@ -9,4 +9,4 @@
 #include <imgui_internal.h>
 #include <misc/cpp/imgui_stdlib.h>
 
-#endif	// ARTHUR_INCLUDE_PRE_COMPILED_HEADER_HPP
+#endif// ARTHUR_INCLUDE_PRE_COMPILED_HEADER_HPP

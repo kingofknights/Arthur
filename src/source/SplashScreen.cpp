@@ -16,15 +16,15 @@
 bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_width, int* out_height);
 
 SplashScreen::SplashScreen() {
-	bool ret = LoadTextureFromFile("SplashScreen.png", &_image, &_width, &_height);
-	IM_ASSERT(ret);
+    bool ret = LoadTextureFromFile("SplashScreen.png", &_image, &_width, &_height);
+    IM_ASSERT(ret);
 }
 
 void SplashScreen::paint() { DrawSplashScreen(); }
 
 void SplashScreen::DrawSplashScreen() {
-	if (ImGui::Begin("Splash Screen", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize)) {
-		ImGui::Image((void*)(intptr_t)_image, ImVec2(_width, _height));
-	}
-	ImGui::End();
+    if (ImGui::Begin("Splash Screen", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Image((void*)(intptr_t)_image, ImVec2(_width, _height));
+    }
+    ImGui::End();
 }

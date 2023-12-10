@@ -15,4 +15,4 @@ void ImGuiVibrantLightStyle();
 void ImGuiArthurDarkStyle();
 void ImGuiArthurLightStyle();
 
-}  // namespace Themes
+}// namespace Themes

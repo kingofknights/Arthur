@@ -30,14 +30,14 @@ set(IMGUI_IMPLEMENTAION
         ${IMGUI_DIR}/imstb_truetype.h
         ${IMGUI_DIR}/misc/cpp/imgui_stdlib.h
         ${IMGUI_DIR}/misc/cpp/imgui_stdlib.cpp
-        )
+)
 
 set(IMGUI_BACKEND
         ${BACKEND}/imgui_impl_opengl3.h
         ${BACKEND}/imgui_impl_opengl3.cpp
         ${BACKEND}/imgui_impl_sdl3.h
         ${BACKEND}/imgui_impl_sdl3.cpp
-        )
+)
 
 set(IMGUI_FILEDIALOG_IMPLEMENTAION
         ImGuiFileDialog/ImGuiFileDialog.cpp
@@ -45,6 +45,6 @@ set(IMGUI_FILEDIALOG_IMPLEMENTAION
         ImGuiFileDialog/ImGuiFileDialogConfig.h)
 
 
-add_library(ImGui ${IMGUI_IMPLEMENTAION} ${IMGUI_BACKEND})
-add_library(ImGuiFileDialog ${IMGUI_FILEDIALOG_IMPLEMENTAION})
+add_library(ImGui STATIC ${IMGUI_IMPLEMENTAION} ${IMGUI_BACKEND})
+add_library(ImGuiFileDialog STATIC ${IMGUI_FILEDIALOG_IMPLEMENTAION})
 

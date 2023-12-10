@@ -6,21 +6,21 @@
 #include "../include/Signal.hpp"
 #include "../include/Structure.hpp"
 
-bool		BackendConnected;
-int			Id;
-int			UserID;
+bool        BackendConnected;
+int         Id;
+int         UserID;
 std::string StatusDisplay;
 
-StrategyNameListT				 StrategyNameList;
-ScannerContainerT				 ScannerContainer;
-MarketWatchDatContainerT		 MarketWatchDatContainer;
-AllContractT					 AllContract;
-ClientCodeListT					 ClientCodeList;
-MarketEventQueueT				 MarketEventQueue;
+StrategyNameListT                StrategyNameList;
+ScannerContainerT                ScannerContainer;
+MarketWatchDatContainerT         MarketWatchDatContainer;
+AllContractT                     AllContract;
+ClientCodeListT                  ClientCodeList;
+MarketEventQueueT                MarketEventQueue;
 GlobalPortfolioScannerContainerT GlobalPortfolioScannerContainer;
-SpotInfoT						 BankNifty;
-SpotInfoT						 Nifty;
-SpotInfoT						 VIX;
+SpotInfoT                        BankNifty;
+SpotInfoT                        Nifty;
+SpotInfoT                        VIX;
 
 AddContractToDemoSignalT AddContractToDemoSignal;
-DemoOrderInfoSignalT	 DemoOrderInfoSignal;
+DemoOrderInfoSignalT     DemoOrderInfoSignal;

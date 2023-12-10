@@ -4,7 +4,7 @@ set(SOURCE_FILES
         Scanner.hpp
         MathParser.cpp
         Scanner.cpp
-        )
+)
 add_library(Knight ${SOURCE_FILES})
 
 target_link_libraries(Knight PRIVATE API)

@@ -6,15 +6,15 @@
 #include "Structure.hpp"
 
 class TradeTracker {
-public:
-	void paint(bool *show_);
-	void Insert(TradeTrackerItemT &tradeTrackerItem_);
+  public:
+    void paint(bool* show_);
+    void Insert(TradeTrackerItemT& tradeTrackerItem_);
 
-protected:
-	void DrawTracker(bool *show_);
+  protected:
+    void DrawTracker(bool* show_);
 
-private:
-	TradeTrackerContainerT _trackerContainer;
-	PendingTrackerUpdateT  _pendingTrackerUpdate;
-	ImGuiListClipper	   _clipper;
+  private:
+    TradeTrackerContainerT _trackerContainer;
+    PendingTrackerUpdateT  _pendingTrackerUpdate;
+    ImGuiListClipper       _clipper;
 };

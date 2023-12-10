@@ -14,22 +14,22 @@
 
 extern std::string StatusDisplay;
 
-int				PortfolioInterface::_portFolioNumber = 0;
+int             PortfolioInterface::_portFolioNumber = 0;
 StrategyActionT PortfolioInterface::StrategyAction;
 
 PortfolioInterface::PortfolioInterface(std::string_view name_, std::string_view strategyName_, boost::asio::io_context::strand& strand_)
-	: PortfolioScanner(strategyName_.data()), _name(name_), _strategyName(strategyName_), _strand(strand_) {
-	const std::string jsonData = ConfigLoader::Instance().getStrategyColumn(_strategyName);
-	ParseConfig(jsonData);
-	PortfolioInterface::Imports(FORMAT("Save/{}.json", _name));
-	PortfolioScanner::Import(FORMAT("Save/{}_Scanner.json", _name));
+    : PortfolioScanner(strategyName_.data()), _name(name_), _strategyName(strategyName_), _strand(strand_) {
+    const std::string jsonData = ConfigLoader::Instance().getStrategyColumn(_strategyName);
+    ParseConfig(jsonData);
+    PortfolioInterface::Imports(FORMAT("Save/{}.json", _name));
+    PortfolioScanner::Import(FORMAT("Save/{}_Scanner.json", _name));
 }
 
 PortfolioInterface::~PortfolioInterface() {
-	if (_open) {
-		PortfolioInterface::Exports(FORMAT("Save/{}.json", _name));
-		PortfolioScanner::Export(FORMAT("Save/{}_Scanner.json", _name));
-	}
+    if (_open) {
+        PortfolioInterface::Exports(FORMAT("Save/{}.json", _name));
+        PortfolioScanner::Export(FORMAT("Save/{}_Scanner.json", _name));
+    }
 }
 
 ImVec4 PortfolioInterface::GetStatusColor(StrategyStatus status_, bool changed_) {
@@ -151,17 +151,16 @@ void PortfolioInterface::Exports(std::string_view path_) {
                 }
             }
 
-			config["Type"]		= parameterValue.Type;
-			list[parameterName] = config;
-		}
-		root.push_back(list);
-	}
-	_exportActivated = false;
-	std::fstream file(path_.data(), std::ios::trunc | std::ios::out);
-	file << root.dump();
-	file.close();
-	StatusDisplay = FORMAT("Exporting done : {} {}", path_, _strategyList.size());
-
+            config["Type"]      = parameterValue.Type;
+            list[parameterName] = config;
+        }
+        root.push_back(list);
+    }
+    _exportActivated = false;
+    std::fstream file(path_.data(), std::ios::trunc | std::ios::out);
+    file << root.dump();
+    file.close();
+    StatusDisplay = FORMAT("Exporting done : {} {}", path_, _strategyList.size());
 }
 
 void PortfolioInterface::Imports(std::string_view path_) {
@@ -174,11 +173,11 @@ void PortfolioInterface::Imports(std::string_view path_) {
     ParameterInfoListT parameterInfoList;
     for (const auto& item : root.items()) {
         ParameterInfoT parameterInfo;
-        bool		   add = true;
+        bool           add = true;
         for (const auto& config : item.value().items()) {
             const auto& value = config.value();
 
-            parameterInfo.Type		   = value.at("Type").get<DataType>();
+            parameterInfo.Type         = value.at("Type").get<DataType>();
             std::string parameterValue = value.at("Value").get<std::string>();
             switch (parameterInfo.Type) {
                 case DataType_INT: {
@@ -203,7 +202,7 @@ void PortfolioInterface::Imports(std::string_view path_) {
                 case DataType_CONTRACT: {
                     parameterInfo.Parameter.Text = parameterValue;
 
-                    auto token		   = Lancelot::ContractInfo::GetToken(parameterValue);
+                    auto token         = Lancelot::ContractInfo::GetToken(parameterValue);
                     parameterInfo.Self = ContractInfo::GetLiveDataRef(token);
 #if REMOVE_EXPIRED_TOKEN
                     if (token == -1) {
@@ -224,22 +223,21 @@ void PortfolioInterface::Imports(std::string_view path_) {
             }
 #endif
 
-			parameterInfoList.emplace(config.key(), parameterInfo);
-		}
-		if (add) {
-			StrategyRowPtrT strategyRow	   = std::make_shared<StrategyRowT>();
-			strategyRow->Changed		   = false;
-			strategyRow->Subscribed		   = false;
-			strategyRow->PF				   = ++_portFolioNumber;
-			strategyRow->Status			   = StrategyStatus_INACTIVE;
-			strategyRow->ParameterInfoList = parameterInfoList;
-			_strategyList.emplace_back(strategyRow);
-			Utils::AppendPortfolio(strategyRow->PF, strategyRow);
-		}
-	}
-	StatusDisplay = FORMAT("Importing done : {} {}", path_, _strategyList.size());
-	file.close();
-
+            parameterInfoList.emplace(config.key(), parameterInfo);
+        }
+        if (add) {
+            StrategyRowPtrT strategyRow    = std::make_shared<StrategyRowT>();
+            strategyRow->Changed           = false;
+            strategyRow->Subscribed        = false;
+            strategyRow->PF                = ++_portFolioNumber;
+            strategyRow->Status            = StrategyStatus_INACTIVE;
+            strategyRow->ParameterInfoList = parameterInfoList;
+            _strategyList.emplace_back(strategyRow);
+            Utils::AppendPortfolio(strategyRow->PF, strategyRow);
+        }
+    }
+    StatusDisplay = FORMAT("Importing done : {} {}", path_, _strategyList.size());
+    file.close();
 }
 
 void PortfolioInterface::updateAll(GlobalParameterInfoT& info_) {
@@ -293,7 +291,7 @@ void PortfolioInterface::updateAll(GlobalParameterInfoT& info_) {
 }
 
 PortfolioStatusT PortfolioInterface::checkAnyActive() {
-    PortfolioStatusT status{false, 0, 0, 0, 0, 0};
+    PortfolioStatusT status{ false, 0, 0, 0, 0, 0 };
 
     std::ranges::for_each(_strategyList, [&](const StrategyListT::value_type& valueType_) {
         switch (valueType_->Status) {
@@ -328,13 +326,13 @@ PortfolioStatusT PortfolioInterface::checkAnyActive() {
 }
 
 void PortfolioInterface::ParseConfig(std::string_view config_) {
-    nlohmann::ordered_json json		   = nlohmann::ordered_json::parse(config_);
-    auto				   paramConfig = json["Params"];
+    nlohmann::ordered_json json        = nlohmann::ordered_json::parse(config_);
+    auto                   paramConfig = json["Params"];
     _paramList.clear();
     for (const auto& item : paramConfig.items()) {
-        const auto&	   value = item.value();
+        const auto&    value = item.value();
         ParameterInfoT param;
-        param.Type		 = static_cast<DataType>(value["DataType"].get<int>());
+        param.Type       = static_cast<DataType>(value["DataType"].get<int>());
         std::string data = value["Value"].get<std::string>();
 
         switch (param.Type) {
@@ -363,7 +361,7 @@ void PortfolioInterface::ParseConfig(std::string_view config_) {
             }
         }
         _paramList.insert(ParameterInfoListT ::value_type(item.key(), param));
-        GlobalParameterInfoT global{.Update = false, .Name = item.key(), .Info = param};
+        GlobalParameterInfoT global{ .Update = false, .Name = item.key(), .Info = param };
         _globalParamList.push_back(global);
     }
 }

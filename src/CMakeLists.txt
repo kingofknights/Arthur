@@ -39,6 +39,10 @@ target_link_libraries(${PROJECT_NAME}
         Audio
 )
 
+foreach (Target include source API Knight Audio)
+    # target_link_libraries(${Target} INTERFACE ${PROJECT_NAME}_OPTIONS ${PROJECT_NAME}_WARNINGS)
+endforeach ()
+
 #target_compile_options(${PROJECT_NAME} PRIVATE -DIMGUI_IMPL_OPENGL_ES2)
 target_link_libraries(${PROJECT_NAME}
         PUBLIC

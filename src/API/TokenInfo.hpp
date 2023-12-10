@@ -25,4 +25,4 @@ double IsCall(double token_);
 double IsPut(double token_);
 double IsFuture(double token_);
 
-}  // namespace TokenInfo
+}// namespace TokenInfo
