@@ -42,7 +42,7 @@ int main(int argc_, char** argv_) {
     ::signal(SIGABRT, &signalHandler);
     // Setup SDL
     LOG(INFO, "{}", "SDL_Init")
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
         LOG(ERROR, "Error: SDL_Init(): {}", SDL_GetError())
         return EXIT_FAILURE;
     }
