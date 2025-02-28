@@ -8,8 +8,8 @@
 #define MODIFY_ORDER_WINDOW "Modify Order Window"
 
 namespace Lancelot {
-enum Exchange : int;
-enum RequestType : int;
+enum Exchange : uint8_t;
+enum RequestType : uint8_t;
 }// namespace Lancelot
 
 using PublishOrderFunctionT = std::function<void(OrderFormInfoT, Lancelot::RequestType)>;

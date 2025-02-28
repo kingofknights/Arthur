@@ -57,9 +57,9 @@ void OrderForm::DrawInputItem() {
     }
     bool enable = _order.Status != OrderStatus_NEW;
     ImGui::BeginDisabled(enable);
-    if (ImGui::BeginCombo("Broker", FORMAT("[{}] {}", Lancelot::toString(_exchange), _clientCode).data())) {
+    if (ImGui::BeginCombo("Broker", FORMAT("[{}] {}", Lancelot::ToString(_exchange), _clientCode).data())) {
         for (const auto& code_ : ClientCodeList) {
-            if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::toString(code_.Exchange), code_.ClientCode).data())) {
+            if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::ToString(code_.Exchange), code_.ClientCode).data())) {
                 _order.Client = code_.ClientCode;
                 _exchange     = code_.Exchange;
                 _clientCode   = code_.ClientCode;

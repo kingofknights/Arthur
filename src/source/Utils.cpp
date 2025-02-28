@@ -230,7 +230,7 @@ void Utils::GetClientList(int userId_) {
     for (const auto& item : table) {
         ClientInfoT clientInfo{ .Exchange = Lancelot::ContractInfo::GetExchange(item[ClientIndex_EXCHANGE]), .ClientCode = item[ClientIndex_CLIENTCODE] };
         ClientCodeList.push_back(clientInfo);
-        LOG(INFO, "Client Code for User [{}] is [{} {}]", userId_, Lancelot::toString(clientInfo.Exchange), clientInfo.ClientCode);
+        LOG(INFO, "Client Code for User [{}] is [{} {}]", userId_, Lancelot::ToString(clientInfo.Exchange), clientInfo.ClientCode);
     }
 }
 

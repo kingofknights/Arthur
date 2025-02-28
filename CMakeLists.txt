@@ -41,7 +41,6 @@ include_directories(third_party/stb)
 
 include_directories(repo/Lancelot/include)
 include_directories(repo/Greeks)
-include_directories(repo/xcd)
 
 if(NOT USE_SYSTEM_SDL3)
   include_directories(third_party/SDL-main/include)

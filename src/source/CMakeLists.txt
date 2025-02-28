@@ -28,7 +28,7 @@ set(SOURCE_FILE
 add_library(source ${SOURCE_FILE})
 target_link_libraries(source PUBLIC
         nlohmann_json::nlohmann_json
-        fmt::fmt
+        fmt::fmt-header-only
         Greeks
         repo
 )

@@ -49,7 +49,7 @@ extern DemoOrderInfoSignalT DemoOrderInfoSignal;
 extern MarketEventQueueT    MarketEventQueue;
 extern AllContractT         AllContract;
 
-#define DATABASE_PATH "ResultSet.db3"
+#define DATABASE_PATH "/home/vikram.lodhi@corp.merillife.com/Projects/historical/20240912/fo_ref_contract_master.20240912.csv"
 #define TRADING_APP_CONFIG_PATH "Config/Arthur.json"
 #define ORDER_ALL_BOOK "Order All Book"
 #define REJECT_BOOK "Reject Book"
@@ -77,7 +77,7 @@ Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _ba
     _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_backendStrand);
     _tradeHistoryPtr      = std::make_unique<TradeHistory>();
     _optionChainPtr       = std::make_unique<OptionChain>();
-    _messageBroker        = std::make_unique<MessageBroker>(_backendComService);
+    //_messageBroker        = std::make_unique<MessageBroker>(_backendComService);
     //_multicastReceiverPtr = std::make_unique<MulticastReceiver>(_backendComService);
     _orderBookPtr  = std::make_unique<OrderBook>(ORDER_ALL_BOOK);
     _rejectBookPtr = std::make_unique<OrderBook>(REJECT_BOOK);
@@ -106,8 +106,8 @@ Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _ba
         _openOrdersPtr->cancelOrderFunctionCallback(std::move(callback));
     }
     {
-        auto callback = [&](const OrderInfoPtrT& orderInfo_) { AddTrade(orderInfo_); };
-        _messageBroker->setCallback(std::move(callback));
+        //auto callback = [&](const OrderInfoPtrT& orderInfo_) { AddTrade(orderInfo_); };
+       // _messageBroker->setCallback(std::move(callback));
     }
 
     startAllThreads();
@@ -454,7 +454,7 @@ void Arthur::startAllThreads() {
         auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { marketEventHandler(token_); });
         _threadGroup.push_back(std::move(thread));
     }
-    { _messageBroker->makeConnection(_ipaddress, _port); }
+    //{ _messageBroker->makeConnection(_ipaddress, _port); }
 }
 
 void Arthur::marketEventHandler(std::stop_token& stopToken_) {
@@ -475,30 +475,15 @@ double MemoryUsage::GetRamUsage() {
 }
 
 void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lancelot::RequestType type_) {
-    std::string              config        = Utils::manualSerialize(ManualOrderInfo);
-    Lancelot::CommunicationT communication = Lancelot::Encrypt(config, UserID, type_);
-    if (_messageBroker) {
-        _messageBroker->Write_Async((char*)&communication, sizeof(Lancelot::CommunicationT));
-    }
-    LOG(WARNING, "{} {} {}", config, Lancelot::toString(type_), communication._query)
+
 }
 
 void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_, Lancelot::RequestType type_) {
-    std::string              config        = Utils::strategySerialize(row_, name_, type_);
-    Lancelot::CommunicationT communication = Lancelot::Encrypt(config, UserID, type_);
 
-    if (_messageBroker) {
-        _messageBroker->Write_Async((char*)&communication, sizeof(Lancelot::CommunicationT));
-    }
 
-    LOG(WARNING, "{} {}", config, Lancelot::toString(type_))
 }
 
 void Arthur::cancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
-    std::string              config        = Utils::cancelOrderSerialize(orderInfo_);
-    Lancelot::CommunicationT communication = Lancelot::Encrypt(config, UserID, Lancelot::RequestType_CANCEL);
-    if (_messageBroker) {
-        _messageBroker->Write_Async((char*)&communication, sizeof(Lancelot::CommunicationT));
-    }
-    LOG(WARNING, "{} {}", config, "RequestType_CANCEL")
+
+
 }

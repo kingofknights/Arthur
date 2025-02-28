@@ -10,59 +10,53 @@
 #include "../include/Structure.hpp"
 #include "../include/Utils.hpp"
 
-MessageBroker::MessageBroker(boost::asio::io_context& ioContext_) : TBaseSocket(ioContext_) {}
+MessageBroker::MessageBroker(boost::asio::io_context& ioContext_)
+    : TBaseSocket(ioContext_) {}
 
-void MessageBroker::setCallback(UpdateTradeFunctionT updateTradeFunction_) {
-    _updateTradeFunction = updateTradeFunction_;
-}
+void MessageBroker::setCallback(UpdateTradeFunctionT updateTradeFunction_) { _updateTradeFunction = updateTradeFunction_; }
 
 void MessageBroker::process(const char* buffer_, size_t size_) {
-    const auto* request = reinterpret_cast<const Lancelot::CommunicationT*>(buffer_);
-    LOG(WARNING, "{} {}", __FUNCTION__, request->_query)
+    const auto* request = reinterpret_cast<const Lancelot::Header*>(buffer_);
+
     char buffer[2048]{};
-    int  size    = 0;
-    int  success = Lancelot::Decrypt((unsigned char*)request->_encryptMessage, request->_encryptLength, (unsigned char*)buffer, &size);
-    if (success == 0) {
-        std::stringstream ss;
-        ss << (buffer);
-        LOG(INFO, "{} {}", __FUNCTION__, ss.str())
-        nlohmann::json        json     = nlohmann::json::parse(ss);
-        const nlohmann::json& response = json.at(JSON_PARAMS);
-        switch (request->_query) {
-            case Lancelot::ResponseType_PLACED:
-            case Lancelot::ResponseType_NEW:
-            case Lancelot::ResponseType_REPLACED:
-            case Lancelot::ResponseType_CANCELLED:
-            case Lancelot::ResponseType_REPLACE_REJECT:
-            case Lancelot::ResponseType_CANCEL_REJECT:
-            case Lancelot::ResponseType_NEW_REJECT:
-            case Lancelot::ResponseType_FILLED: {
-                processOrder(response, static_cast<Lancelot::ResponseType>(request->_query));
-                break;
-            }
-            case Lancelot::ResponseType_PENDING:
-            case Lancelot::ResponseType_SUBCRIBED:
-            case Lancelot::ResponseType_APPLIED:
-            case Lancelot::ResponseType_UNSUBSCRIBED:
-            case Lancelot::ResponseType_TERMINATED: {
-                processStrategy(response, static_cast<Lancelot::ResponseType>(request->_query));
-                break;
-            }
-            case Lancelot::ResponseType_UPDATES: {
-                processUpdates(response);
-                break;
-            }
-            case Lancelot::ResponseType_EXCHANGE_DISCONNECT: {
-                Utils::ResetPortfolio(StrategyStatus_DISCONNECTED);
-                break;
-            }
-            case Lancelot::ResponseType_TRACKER: {
-                break;
-            }
+    int  size = 0;
+
+    std::stringstream ss;
+    ss << (buffer);
+    LOG(INFO, "{} {}", __FUNCTION__, ss.str())
+    nlohmann::json        json     = nlohmann::json::parse(ss);
+    const nlohmann::json& response = json.at(JSON_PARAMS);
+    switch (request->_type) {
+        case Lancelot::ResponseType_PLACED:
+        case Lancelot::ResponseType_NEW:
+        case Lancelot::ResponseType_REPLACED:
+        case Lancelot::ResponseType_CANCELLED:
+        case Lancelot::ResponseType_REPLACE_REJECT:
+        case Lancelot::ResponseType_CANCEL_REJECT:
+        case Lancelot::ResponseType_NEW_REJECT:
+        case Lancelot::ResponseType_FILLED: {
+            processOrder(response, static_cast<Lancelot::ResponseType>(request->_type));
+            break;
         }
-    } else {
-        LOG(ERROR, "{} {}", __FUNCTION__, "Unable to decompress data!")
+        case Lancelot::ResponseType_PENDING:
+        case Lancelot::ResponseType_SUBCRIBED:
+        case Lancelot::ResponseType_APPLIED:
+        case Lancelot::ResponseType_UNSUBSCRIBED:
+        case Lancelot::ResponseType_TERMINATED: {
+            processStrategy(response, static_cast<Lancelot::ResponseType>(request->_type));
+            break;
+        }
+        case Lancelot::ResponseType_UPDATES: {
+            processUpdates(response);
+            break;
+        }
+        case Lancelot::ResponseType_EXCHANGE_DISCONNECT: {
+            Utils::ResetPortfolio(StrategyStatus_DISCONNECTED);
+            break;
+        }
+        case Lancelot::ResponseType_TRACKER: { break; }
     }
+
 }
 
 void MessageBroker::processOrder(const nlohmann::json& input_, Lancelot::ResponseType type_) {
@@ -128,11 +122,7 @@ void MessageBroker::processUpdates(const nlohmann::json& input_) {
         const auto& arguments = input_.at(JSON_ARGUMENTS);
         for (const auto& argument : arguments.items()) {
             auto iterator = strategy->ParameterInfoList.find(argument.key());
-            if (iterator != strategy->ParameterInfoList.end()) {
-                if (iterator->second.Type == DataType_UPDATES) {
-                    iterator->second.Parameter.Text = argument.value().get<std::string>();
-                }
-            }
+            if (iterator != strategy->ParameterInfoList.end()) { if (iterator->second.Type == DataType_UPDATES) { iterator->second.Parameter.Text = argument.value().get<std::string>(); } }
         }
     }
 }

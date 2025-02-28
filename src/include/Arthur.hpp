@@ -55,7 +55,7 @@ using ExecutorType = boost::asio::io_context::executor_type;
 using WorkerT      = boost::asio::executor_work_guard<ExecutorType>;
 
 namespace Lancelot {
-enum RequestType : int;
+enum RequestType : uint8_t;
 }
 enum VisualTheme : int;
 

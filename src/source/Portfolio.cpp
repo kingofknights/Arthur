@@ -196,7 +196,7 @@ void Portfolio::DrawNewPortfolioCreation() {
             case DataType_CLIENT: {
                 if (ImGui::BeginCombo(name.data(), info.Text.data())) {
                     for (const auto& [exchangeName, client] : ClientCodeList) {
-                        if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::toString(exchangeName), client).data())) {
+                        if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::ToString(exchangeName), client).data())) {
                             info.Text = client;
                         }
                     }
@@ -386,7 +386,7 @@ void Portfolio::DrawGlobalParam() {
             case DataType_CLIENT: {
                 if (ImGui::BeginCombo(name.data(), value.Info.Parameter.Text.data())) {
                     for (const auto& [exchangeName, client] : ClientCodeList) {
-                        if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::toString(exchangeName), client).data())) {
+                        if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::ToString(exchangeName), client).data())) {
                             value.Info.Parameter.Text = client;
                         }
                     }
