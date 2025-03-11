@@ -78,10 +78,10 @@ Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _ba
     _tradeHistoryPtr      = std::make_unique<TradeHistory>();
     _optionChainPtr       = std::make_unique<OptionChain>();
     //_messageBroker        = std::make_unique<MessageBroker>(_backendComService);
-    //_multicastReceiverPtr = std::make_unique<MulticastReceiver>(_backendComService);
-    _orderBookPtr  = std::make_unique<OrderBook>(ORDER_ALL_BOOK);
-    _rejectBookPtr = std::make_unique<OrderBook>(REJECT_BOOK);
-    _tradeSoundPtr = std::make_unique<Sound>("collide.wav");
+    _multicastReceiverPtr = std::make_unique<MulticastReceiver>(_backendComService);
+    _orderBookPtr         = std::make_unique<OrderBook>(ORDER_ALL_BOOK);
+    _rejectBookPtr        = std::make_unique<OrderBook>(REJECT_BOOK);
+    _tradeSoundPtr        = std::make_unique<Sound>("collide.wav");
 
     imports(TRADING_APP_CONFIG_PATH);
     SetTheme(static_cast<VisualTheme>(_theme));
@@ -106,8 +106,8 @@ Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _ba
         _openOrdersPtr->cancelOrderFunctionCallback(std::move(callback));
     }
     {
-        //auto callback = [&](const OrderInfoPtrT& orderInfo_) { AddTrade(orderInfo_); };
-       // _messageBroker->setCallback(std::move(callback));
+        // auto callback = [&](const OrderInfoPtrT& orderInfo_) { AddTrade(orderInfo_); };
+        // _messageBroker->setCallback(std::move(callback));
     }
 
     startAllThreads();
@@ -454,6 +454,9 @@ void Arthur::startAllThreads() {
         auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { marketEventHandler(token_); });
         _threadGroup.push_back(std::move(thread));
     }
+    _multicastReceiverPtr->bindMC("127.0.0.1", 1223);
+    _multicastReceiverPtr->read();
+
     //{ _messageBroker->makeConnection(_ipaddress, _port); }
 }
 
@@ -475,15 +478,10 @@ double MemoryUsage::GetRamUsage() {
 }
 
 void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lancelot::RequestType type_) {
-
 }
 
 void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_, Lancelot::RequestType type_) {
-
-
 }
 
 void Arthur::cancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
-
-
 }

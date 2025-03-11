@@ -6,12 +6,12 @@
 
 #include <boost/asio.hpp>
 
-#include "../DataFeed/NeatData.hpp"
+#include "../DataFeed/CentralFeed.hpp"
 
-class MulticastReceiver : protected NeatFuture {
+class MulticastReceiver : protected CentralFeed {
   public:
     explicit MulticastReceiver(boost::asio::io_service& ioService_);
-    void bindMC(const std::string& lan_, const std::string& address_, int port_);
+    void bindMC(const std::string& address_, int port_);
     void read();
 
   protected:
