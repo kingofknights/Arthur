@@ -22,7 +22,7 @@ add_subdirectory(Demo)
 add_subdirectory(Audio)
 
 add_executable(${PROJECT_NAME} main.cpp ${APP_ICON_RESOURCE_WINDOWS})
-#add_dependencies(${PROJECT_NAME} SDL3-static)
+# add_dependencies(${PROJECT_NAME} SDL3-static)
 
 target_link_libraries(
   ${PROJECT_NAME}
@@ -40,7 +40,7 @@ target_link_libraries(
   ${PROJECT_NAME}
   PUBLIC ImGui
          ImGuiFileDialog
-         SDL3-shared
+         SDL3-static
          OpenGL::GL
          Threads::Threads)
 
