@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "../include/OrderForm.hpp"
 
 #include "../API/Common.hpp"
@@ -8,6 +10,7 @@
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 #include "../include/Utils.hpp"
+#include "imgui_internal.h"
 
 extern ClientCodeListT ClientCodeList;
 
@@ -16,7 +19,7 @@ OrderForm::OrderForm(boost::asio::io_context::strand& strand_) : _order{}, _colo
 void OrderForm::paint(const char* name_) {
     ImGui::PushStyleColor(ImGuiCol_FrameBg, _color);
     ImGui::PushStyleColor(ImGuiCol_Border, _color);
-    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5F, 0.5F));
     if (ImGui::BeginPopupModal(name_, nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
         MarketWatch::LadderView(_order.Self);
         ImGui::Separator();
@@ -48,12 +51,10 @@ void OrderForm::SentToBroker() {
 
 void OrderForm::DrawInputItem() {
     if (ImGui::InputDouble("Price", &_order.Price, 0.050000000000f, 0.5000000000f, "%.2f")) {
-        if (_order.Price < 0) _order.Price = 0;
+        _order.Price = std::max<double>(_order.Price, 0);
     }
     if (ImGui::InputInt("Quantity", &_order.Quantity, _order.LotSize)) {
-        if (_order.Quantity < _order.LotSize) {
-            _order.Quantity = _order.LotSize;
-        }
+        _order.Quantity = std::max(_order.Quantity, _order.LotSize);
     }
     bool enable = _order.Status != OrderStatus_NEW;
     ImGui::BeginDisabled(enable);
@@ -93,6 +94,7 @@ void OrderForm::DrawInputItem() {
     if (ImGui::Button(ICON_MD_CANCEL " Cancel", { -FLT_MIN, 0 })) {
         ImGui::CloseCurrentPopup();
     }
+    ImGui::EndColumns();
 }
 void OrderForm::publishOrderCallback(PublishOrderFunctionT publishOrderFunction_) {
     _publishOrderFunction = std::move(publishOrderFunction_);

@@ -12,6 +12,9 @@
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 
+#include "imgui_internal.h"
+#include "misc/cpp/imgui_stdlib.h"
+
 extern std::string                      StatusDisplay;
 extern GlobalPortfolioScannerContainerT GlobalPortfolioScannerContainer;
 
@@ -25,7 +28,7 @@ PortfolioScanner::PortfolioScanner(const std::string& strategyName_) : _hasParam
 }
 
 void PortfolioScanner::paint(bool* show_) {
-    if (not *show_) return;
+    if (not*show_) return;
     if (_hasParameter and _strategyID != INT_MIN) {
         ScannerWindow(show_);
     } else {
@@ -59,6 +62,7 @@ void PortfolioScanner::ScannerWindow(bool* show_) {
         SecondColumn();
         ImGui::NextColumn();
         ThirdColumn();
+        ImGui::EndColumns();
         ImGui::EndPopup();
     }
 }

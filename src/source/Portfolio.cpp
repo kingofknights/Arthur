@@ -1,5 +1,6 @@
 #include "../include/Portfolio.hpp"
 
+#include <algorithm>
 #include <boost/algorithm/string.hpp>
 
 #include "../API/Common.hpp"
@@ -12,11 +13,15 @@
 #include "../include/TableColumnInfo.hpp"
 #include "../include/Utils.hpp"
 
+#include "ImGuiFileDialog.h"
+#include "misc/cpp/imgui_stdlib.h"
+
 extern AllContractT    AllContract;
 extern std::string     StatusDisplay;
 extern ClientCodeListT ClientCodeList;
 
 #define ADDITIONAL_OPTION "Additional Options"
+#define NEW_STRATEGY_CREATION "New Strategy"
 
 AddContractToMarketWatchSignal Portfolio::_addContractToMarketWatchSignal;
 
@@ -34,12 +39,10 @@ void Portfolio::paint() {
             auto iterator = _strategyList.erase(_strategyList.begin() + _toBeDeleted);
 
             if (iterator != _strategyList.end()) {
-                StrategyRowPtrT row = *iterator;
-                row->Selected       = true;
+                iterator->get()->Selected = true;
             } else if (not _strategyList.empty()) {
                 --iterator;
-                StrategyRowPtrT row = *iterator;
-                row->Selected       = true;
+                iterator->get()->Selected = true;
             }
         }
 
@@ -58,11 +61,11 @@ void Portfolio::paint() {
 
     if (ImGui::BeginPopupModal(("Error Closing:- " + _name).data(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
         ImGui::Text("Total Portfolio status:-");
-        ImGui::LabelText("InActive", "[%d]", _status.Inactive);
-        ImGui::LabelText("Active", "[%d]", _status.Active);
-        ImGui::LabelText("Apply", "[%d]", _status.Apply);
-        ImGui::LabelText("Waiting", "[%d]", _status.Waiting);
-        ImGui::LabelText("Terminate", "[%d]", _status.Terminate);
+        ImGui::LabelText("InActive", "[%ud]", _status.Inactive);
+        ImGui::LabelText("Active", "[%ud]", _status.Active);
+        ImGui::LabelText("Apply", "[%ud]", _status.Apply);
+        ImGui::LabelText("Waiting", "[%ud]", _status.Waiting);
+        ImGui::LabelText("Terminate", "[%ud]", _status.Terminate);
 
         if (ImGui::Button(ICON_MD_ARROW_BACK " Understand", ImVec2(-1, 0))) {
             ImGui::CloseCurrentPopup();
@@ -73,22 +76,22 @@ void Portfolio::paint() {
     _scannerAddQueue.consume_one([&](const StrategyRowPtrT& row_) { _strategyList.push_back(row_); });
 }
 
-std::string Portfolio::getStrategyName() const {
+auto Portfolio::getStrategyName() const -> std::string {
     return _strategyName;
 }
 
-bool Portfolio::closed() const {
+auto Portfolio::closed() const -> bool {
     return not _open;
 }
 
 void Portfolio::DrawPortfolioWindow() {
-    ImGui::BeginDisabled(_portFolioNumber > MAX_PORTFOLIO_ALLOWED);
+    ImGui::BeginDisabled(PortFolioNumber > MAX_PORTFOLIO_ALLOWED);
     if (ImGui::Button(ICON_MD_ADD_CIRCLE " New")) {
         _showGlobalParameter = true;
-        ImGui::OpenPopup(("New Strategy:- " + _name).data());
+        ImGui::OpenPopup(NEW_STRATEGY_CREATION);
     }
     ImGui::EndDisabled();
-    if (_portFolioNumber < MAX_PORTFOLIO_ALLOWED) DrawNewStrategyPopUpWindow();
+    DrawNewStrategyPopUpWindow();
 
     ImGui::SameLine();
     if (ImGui::Button(FORMAT("{} Subscribe {} ##Subcribe", ICON_MD_PLAYLIST_PLAY, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
@@ -116,7 +119,9 @@ void Portfolio::DrawPortfolioWindow() {
         _showGlobalParameter = true;
     }
 
-    if (_showGlobalParameter) DrawGlobalParamPopupWindow();
+    if (_showGlobalParameter) {
+        DrawGlobalParamPopupWindow();
+    }
 
     ImGui::SameLine();
 
@@ -137,13 +142,13 @@ void Portfolio::DrawPortfolioWindow() {
         }
         ImGui::BeginDisabled(_exportActivated);
         if (ImGui::Button(ICON_MD_UPLOAD " Export", buttonSize)) {
-            ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".json", ".");
+            ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".json");
             _action = ExportImport_EXPORT;
         }
         ImGui::EndDisabled();
 
         if (ImGui::Button(ICON_MD_DOWNLOAD " Import", buttonSize)) {
-            ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".json", ".");
+            ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".json");
             _action = ExportImport_IMPORT;
         }
 
@@ -249,7 +254,7 @@ void Portfolio::DrawNewPortfolioCreation() {
             }
             case DataType_COMBO: {
                 std::string data(info.Text);
-                std::replace(data.begin(), data.end(), ';', '\0');
+                std::ranges::replace(data, ';', '\0');
                 data.append("\0\0");
                 ImGui::Combo(name.data(), &info.Integer, data.data());
                 break;
@@ -363,7 +368,7 @@ void Portfolio::DrawStrategyRow(StrategyRowPtrT& row_, int index_) {
                             row_->Changed = true;
                         }
                     } else {
-                        ImGui::Text("%b", info.Check);
+                        ImGui::Text("%d", info.Check);
                     }
                     break;
                 }
@@ -440,7 +445,7 @@ void Portfolio::DrawGlobalParam() {
 
 void Portfolio::AppendStrategy() {
     StrategyRowPtrT row = std::make_shared<StrategyRowT>();
-    row->PF             = ++_portFolioNumber;
+    row->PF             = ++PortFolioNumber;
     row->Subscribed     = false;
     row->Selected       = false;
     row->Status         = StrategyStatus_INACTIVE;
@@ -470,15 +475,15 @@ void Portfolio::ModifyGlobalParam() {
     }
 }
 
-std::string Portfolio::getName() const {
+auto Portfolio::getName() const -> std::string {
     return _name;
 }
 
-void        Portfolio::ResetSelection() {
+void Portfolio::ResetSelection() {
 #pragma omp parallel
 #pragma omp for
-    for (const StrategyListT::value_type& valueType_ : _strategyList) {
-        valueType_->Selected = false;
+    for (const StrategyListT::value_type& valueType : _strategyList) {
+        valueType->Selected = false;
     }
 }
 
@@ -489,13 +494,15 @@ void Portfolio::RemoveSelection() {
 }
 
 void Portfolio::DrawNewStrategyPopUpWindow() {
-    if (ImGui::BeginPopupModal(("New Strategy:- " + _name).data(), &_showGlobalParameter, ImGuiWindowFlags_AlwaysAutoResize)) {
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5F, 0.5F));
+    if (ImGui::BeginPopupModal(NEW_STRATEGY_CREATION, &_showGlobalParameter)) {
         DrawNewPortfolioCreation();
 
         if (ImGui::Button(ICON_MD_DONE " Submit")) {
             AppendStrategy();
 
-            if (_portFolioNumber == MAX_PORTFOLIO_ALLOWED) {
+            if (PortFolioNumber == MAX_PORTFOLIO_ALLOWED) {
+                LOG(INFO, "{} {} {}", __PRETTY_FUNCTION__, PortFolioNumber, static_cast<int>(MAX_PORTFOLIO_ALLOWED));
                 ImGui::CloseCurrentPopup();
             }
         }
@@ -510,7 +517,7 @@ void Portfolio::DrawNewStrategyPopUpWindow() {
 }
 
 void Portfolio::DrawGlobalParamPopupWindow() {
-    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5F, 0.5F));
     if (ImGui::BeginPopupModal(("Global Params:- " + _name).data(), &_showGlobalParameter, ImGuiWindowFlags_AlwaysAutoResize)) {
         DrawGlobalParam();
         if (ImGui::Button(ICON_MD_UPDATE " Update")) {
@@ -545,7 +552,7 @@ void Portfolio::setCallback(const boost::signals2::slot<void(const std::string&)
 
 void Portfolio::AddScannerPortfolio(const ParameterInfoListT& list_) {
     StrategyRowPtrT row    = std::make_shared<StrategyRowT>();
-    row->PF                = ++_portFolioNumber;
+    row->PF                = ++PortFolioNumber;
     row->Subscribed        = false;
     row->Selected          = false;
     row->Status            = StrategyStatus_INACTIVE;

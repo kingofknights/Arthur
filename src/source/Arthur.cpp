@@ -15,8 +15,6 @@
 #include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
 #include "../API/TokenInfo.hpp"
-#include "../Audio/Sound.hpp"
-#include "../Demo/Demo.hpp"
 #include "../Knight/Scanner.hpp"
 #include "../include/Colors.hpp"
 #include "../include/ConfigLoader.hpp"
@@ -40,7 +38,7 @@
 
 class MemoryUsage {
   public:
-    static double GetRamUsage();
+    static auto GetRamUsage() -> double;
 };
 
 extern bool                 BackendConnected;
@@ -54,26 +52,24 @@ extern AllContractT         AllContract;
 #define ORDER_ALL_BOOK "Order All Book"
 #define REJECT_BOOK "Reject Book"
 
-Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _backendWorker(_backendComService.get_executor()), _backendStrand(_backendComService) {
+Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _backendWorker(_backendComService.get_executor()), _closeMainWindow(closeMainWindow_) {
     Themes::AddIconFonts("Ruda-Bold.ttf", 18.0f);
-#if 1
     UserID     = 101;
     _ipaddress = "127.0.0.1";
     _port      = "9090";
 
     LOG(INFO, "Loading SqlLite3 Database : {}", DATABASE_PATH)
     Lancelot::ContractInfo::Initialize(DATABASE_PATH, Utils::GetAllContractCallback);
-    std::sort(AllContract.begin(), AllContract.end(), std::less<>());
+    std::ranges::sort(AllContract, std::less<>());
     Utils::GetClientList(UserID);
     Utils::CreateSupportFolder();
     ConfigLoader::Instance();
 
-    _demoPtr              = std::make_unique<Demo>();
     _templateBuilderPtr   = std::make_unique<TemplateBuilder>();
     _positionPtr          = std::make_unique<Position>(_backendComService);
-    _OrderFormPtr         = std::make_shared<OrderForm>(_backendStrand);
-    _marketWatchPtr       = std::make_unique<MarketWatch>(_OrderFormPtr);
-    _openOrdersPtr        = std::make_unique<OpenOrders>(_OrderFormPtr, _backendStrand);
+    _orderFormPtr         = std::make_shared<OrderForm>(_backendStrand);
+    _marketWatchPtr       = std::make_unique<MarketWatch>(_orderFormPtr);
+    _openOrdersPtr        = std::make_unique<OpenOrders>(_orderFormPtr, _backendStrand);
     _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_backendStrand);
     _tradeHistoryPtr      = std::make_unique<TradeHistory>();
     _optionChainPtr       = std::make_unique<OptionChain>();
@@ -81,7 +77,6 @@ Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _ba
     _multicastReceiverPtr = std::make_unique<MulticastReceiver>(_backendComService);
     _orderBookPtr         = std::make_unique<OrderBook>(ORDER_ALL_BOOK);
     _rejectBookPtr        = std::make_unique<OrderBook>(REJECT_BOOK);
-    _tradeSoundPtr        = std::make_unique<Sound>("collide.wav");
 
     imports(TRADING_APP_CONFIG_PATH);
     SetTheme(static_cast<VisualTheme>(_theme));
@@ -99,7 +94,7 @@ Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _ba
     }
     {
         auto callback = [&](const OrderFormInfoT& ManualOrderInfo_, Lancelot::RequestType type_) { manualOrderRequestEvent(ManualOrderInfo_, type_); };
-        _OrderFormPtr->publishOrderCallback(std::move(callback));
+        _orderFormPtr->publishOrderCallback(std::move(callback));
     }
     {
         auto callback = [&](const OrderInfoPtrT& orderInfo_) { cancelOrderEvent(orderInfo_); };
@@ -111,7 +106,6 @@ Arthur::Arthur(bool* closeMainWindow_) : _closeMainWindow(closeMainWindow_), _ba
     }
 
     startAllThreads();
-#endif
 }
 
 Arthur::~Arthur() {
@@ -163,20 +157,11 @@ Arthur::~Arthur() {
         LOG(INFO, "{}", "Excel Automation : stopping")
         LOG(INFO, "{}", "Excel Automation : stopped")
 
-        LOG(INFO, "{}", "Demo Thread : stopping")
-        timer.start();
-        _demoPtr.reset();
-        LOG(INFO, "{} {}", "Demo Thread : stopped", timer.get_elapsed_ns())
-
         LOG(INFO, "{}", "Manual Order : stopping")
         timer.start();
-        _OrderFormPtr.reset();
+        _orderFormPtr.reset();
         LOG(INFO, "{} {}", "Manual Order : stopped", timer.get_elapsed_ns())
 
-        LOG(INFO, "{}", "Sound: stopping")
-        timer.start();
-        _tradeSoundPtr.reset();
-        LOG(INFO, "{} {}", "Sound: stopped", timer.get_elapsed_ns())
         _orderBookPtr.reset();
         _rejectBookPtr.reset();
 
@@ -192,9 +177,8 @@ Arthur::~Arthur() {
 }
 
 void Arthur::paint() {
-    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+    ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
-#if 1
     Menu();
     if (_showDemoWindow) {
         ImGui::ShowDemoWindow(&_showDemoWindow);
@@ -209,7 +193,6 @@ void Arthur::paint() {
     _orderBookPtr->paint(&_showOrderBook);
     _rejectBookPtr->paint(&_showRejectBook);
     Utils::StatusBar();
-#endif
 }
 
 void Arthur::AddTrade(const OrderInfoPtrT& tradeInfo_) {
@@ -229,7 +212,6 @@ void Arthur::AddTrade(const OrderInfoPtrT& tradeInfo_) {
             _openOrdersPtr->Insert(tradeInfo_, false);
             _tradeHistoryPtr->Insert(tradeInfo_);
             _positionPtr->Insert(tradeInfo_);
-            _tradeSoundPtr->Play();
             break;
         }
         case OrderStatus_NEW_REJECT:
@@ -311,10 +293,6 @@ auto Arthur::Menu() -> void {
         ImGui::TextColored(UpDownColor(BackendConnected), "%s%s:%s", ICON_MD_LAN, _ipaddress.data(), _port.data());
         ImGui::SameLine();
 
-        if (ImGui::Button(ICON_MD_PLAY_ARROW " Play Demo")) {
-            _demoPtr->startAndStop();
-        }
-
         ImGui::EndMainMenuBar();
     }
 }
@@ -362,13 +340,17 @@ void Arthur::SetTheme(VisualTheme theme_) {
             ImGui::StyleColorsDark();
             break;
         }
+        case VisualTheme_END:
+            break;
     }
     _theme = theme_;
 }
 
 auto Arthur::imports(std::string_view path_) -> void {
     std::fstream file(path_.data(), std::ios::in);
-    if (not file.is_open()) return;
+    if (not file.is_open()) {
+        return;
+    }
 
     nlohmann::ordered_json root = nlohmann::ordered_json::parse(file);
 
@@ -441,12 +423,6 @@ auto Arthur::exports(std::string_view path_) -> void {
 void Arthur::startAllThreads() {
     {
         auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { run(token_); });
-        _threadGroup.push_back(std::move(thread));
-    }
-
-    {
-        DemoOrderInfoSignal.connect([&](const OrderInfoPtrT& orderInfo_) { AddTrade(orderInfo_); });
-        auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { _demoPtr->Run(token_); });
         _threadGroup.push_back(std::move(thread));
     }
 

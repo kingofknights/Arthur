@@ -18,6 +18,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "IconsMaterialDesign.h"
 #include "imgui.h"
 
 #pragma pack(push, 1)
@@ -31,7 +32,7 @@ constexpr int MARKET_WATCH_LADDER_COUNT = 5;
 constexpr int STRATEGY_NAME_LENGTH      = 50;
 
 using PricePointsT = struct PricePointsT {
-    float    Price;
+    double   Price;
     uint32_t Quantity;
     uint32_t Order;
 };
@@ -52,16 +53,16 @@ using MarketWatchDataT = struct MarketWatchDataT {
 
     uint32_t Token;
     uint32_t LastTradeQuantity;
-    float    AverageTradePrice;
-    float    LastTradePrice;
-    float    LowDPR;
-    float    HighDPR;
+    double   AverageTradePrice;
+    double   LastTradePrice;
+    double   LowDPR;
+    double   HighDPR;
 
-    float OpenPrice;
-    float HighPrice;
-    float LowPrice;
-    float ClosePrice;
-    float PercentageChange;
+    double OpenPrice;
+    double HighPrice;
+    double LowPrice;
+    double ClosePrice;
+    double PercentageChange;
 
     uint32_t TotalBuyQuantity;
     uint32_t TotalSellQuantity;

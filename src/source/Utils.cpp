@@ -16,6 +16,8 @@
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 
+#include "imgui_internal.h"
+
 extern std::string              StatusDisplay;
 extern AllContractT             AllContract;
 extern ClientCodeListT          ClientCodeList;
@@ -206,7 +208,7 @@ void Utils::DrawTradeRow(const OrderInfoPtrT& tradeInfo_, int& first_, int secon
     ImGui::PopStyleColor();
 }
 
-void        Utils::ContractFilter(ImGuiTextFilter& filter_, std::string& index_) {
+void Utils::ContractFilter(ImGuiTextFilter& filter_, std::string& index_) {
 #pragma omp parallel
 #pragma omp for
     if (ImGui::BeginListBox("##Filter Contract")) {

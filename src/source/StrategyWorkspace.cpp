@@ -4,7 +4,6 @@
 
 #include "../include/Configuration.hpp"
 #include "../include/Portfolio.hpp"
-#include "../include/PreCompileHeader.hpp"
 #include "../include/Structure.hpp"
 
 extern StrategyNameListT StrategyNameList;

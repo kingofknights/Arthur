@@ -1,8 +1,6 @@
-#ifndef ARTHUR_INCLUDE_COLOR_HPP
-#define ARTHUR_INCLUDE_COLOR_HPP
 #pragma once
 
-#include "PreCompileHeader.hpp"
+#include "imgui.h"
 
 inline const ImVec4 COLOR_RED                 = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
 inline const ImVec4 COLOR_GREEN               = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
@@ -104,13 +102,11 @@ inline const ImVec4 COLOR_LIGHT_SEA_GREEN     = ImVec4(0.13f, 0.7f, 0.67f, 1.0f)
 inline const ImVec4 SELECTED_ROW_COLOR = COLOR_GRAY;
 
 template<typename T>
-constexpr ImVec4 UpDownColor(T t) {
+constexpr auto UpDownColor(T t) -> ImVec4 {
     return t > 0 ? COLOR_GREEN : COLOR_RED;
 }
 
 template<typename Side>
-constexpr ImVec4 BuySellColor(Side side_) {
+constexpr auto BuySellColor(Side side_) -> ImVec4 {
     return side_ == 0 ? COLOR_GREEN : COLOR_RED;
 }
-
-#endif// ARTHUR_INCLUDE_COLOR_HPP

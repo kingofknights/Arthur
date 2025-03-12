@@ -15,10 +15,13 @@
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 #include "../include/Utils.hpp"
+#include "imgui.h"
+#include "imgui_internal.h"
 extern AllContractT             AllContract;
 extern AddContractToDemoSignalT AddContractToDemoSignal;
 
 #define MARKET_WATCH_CONFIG_PATH "Config/MarketWatch.json"
+
 MarketWatch::MarketWatch(const OrderFormPtrT& manualOrder_) : _manualOrderPtr(manualOrder_), _ladderDataPtr(std::make_shared<MarketWatchDataT>()) {
     Imports(MARKET_WATCH_CONFIG_PATH);
 }
@@ -42,7 +45,7 @@ void MarketWatch::DrawMarketWatchTable(bool* show_) {
             DrawSearchBox();
         } else {
             if (ImGui::BeginCombo("##AllContracts", _currentContract.data())) {
-                _clipper.Begin(AllContract.size());
+                _clipper.Begin(static_cast<int>(AllContract.size()));
                 while (_clipper.Step()) {
                     auto begin = AllContract.begin() + _clipper.DisplayStart;
                     auto end   = begin + (_clipper.DisplayEnd - _clipper.DisplayStart);
@@ -87,7 +90,7 @@ void MarketWatch::DrawMarketWatchTable(bool* show_) {
             }
             ImGui::TableHeadersRow();
 
-            _clipper.Begin(_liveUpdates.size());
+            _clipper.Begin(static_cast<int>(_liveUpdates.size()));
             while (_clipper.Step()) {
                 auto begin = _liveUpdates.begin() + _clipper.DisplayStart;
                 auto end   = begin + (_clipper.DisplayEnd - _clipper.DisplayStart);
@@ -138,17 +141,19 @@ void MarketWatch::ContractCell(int contract_, int index_, const char* data_, con
         }
 
         if (open) {
-            OrderFormInfoT info{ .Gateway     = 0,
-                                 .Price       = pointer_->LastTradePrice,
-                                 .Quantity    = (int)Lancelot::ContractInfo::GetLotMultiple(pointer_->Token),
-                                 .LotSize     = info.Quantity,
-                                 .OrderNumber = 0,
-                                 .Type        = 0,
-                                 .Side        = side,
-                                 .Status      = OrderStatus_NEW,
-                                 .Contract    = Lancelot::ContractInfo::GetDescription(pointer_->Token),
-                                 .Client      = "Pro",
-                                 .Self        = pointer_ };
+            OrderFormInfoT info{
+                .Gateway     = 0,
+                .Price       = pointer_->LastTradePrice,
+                .Quantity    = (int)Lancelot::ContractInfo::GetLotMultiple(pointer_->Token),
+                .LotSize     = info.Quantity,
+                .OrderNumber = 0,
+                .Type        = 0,
+                .Side        = side,
+                .Status      = OrderStatus_NEW,
+                .Contract    = Lancelot::ContractInfo::GetDescription(pointer_->Token),
+                .Client      = "Pro",
+                .Self        = pointer_,
+            };
             _manualOrderPtr->Update(info);
             ImGui::OpenPopup(NEW_ORDER_WINDOW);
         }
@@ -171,7 +176,7 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) {
             ImGui::TableSetupColumn(columnName, ImGuiTableColumnFlags_WidthStretch);
         }
         ImGui::TableHeadersRow();
-        for (int i = 0; i < MARKET_WATCH_LADDER_COUNT; ++i) {
+        for (size_t i = 0; i < MARKET_WATCH_LADDER_COUNT; ++i) {
             ImGui::TableNextRow();
             NextCell(MarketWatchToolTipColumnIndex_BUY_ORDER, "%d", pointer_->Bid[i].Order, BuySellColor(Lancelot::Side_BUY));
             NextCell(MarketWatchToolTipColumnIndex_BUY_QUANTITY, "%d", pointer_->Bid[i].Quantity, BuySellColor(Lancelot::Side_BUY));
@@ -182,7 +187,6 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) {
         }
         ImGui::EndTable();
     }
-
     ImGui::Columns(2, nullptr, false);
 
     ImGui::LabelText("Open", "%.2f", pointer_->OpenPrice);
@@ -193,7 +197,6 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) {
     ImGui::LabelText("High", "%.2f", pointer_->HighPrice);
     ImGui::LabelText("Close", "%.2f", pointer_->ClosePrice);
     ImGui::LabelText("ATP", "%.2f", pointer_->AverageTradePrice);
-
     ImGui::EndColumns();
 
     auto  range  = (pointer_->HighPrice - pointer_->LowPrice);
@@ -205,7 +208,7 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) {
     ImGui::PushStyleColor(ImGuiCol_PlotHistogram, BuySellColor(Lancelot::Side_BUY));
     ImGui::PushStyleColor(ImGuiCol_FrameBg, BuySellColor(Lancelot::Side_SELL));
 
-    ImGui::ProgressBar(moment, ImVec2(-FLT_MIN, 0), "Price Movement");
+    ImGui::ProgressBar(moment, ImVec2(0, 0), "Price Movement");
     ImGui::ProgressBar(ratio, ImVec2(-FLT_MIN, 0), "Buy Sell Ratio");
 
     ImGui::PopStyleColor(2);
@@ -219,7 +222,9 @@ void MarketWatch::addContractToMarketWatch(const std::string& contract_) {
     auto token = Lancelot::ContractInfo::GetToken(contract_);
     if (not _subscribed.contains(token)) {
         auto ref = ContractInfo::GetLiveDataRef(token);
-        if (not ref) return;
+        if (not ref) {
+            return;
+        }
         _liveUpdates.push_back(ref);
         _subscribed.emplace(token);
         AddContractToDemoSignal(token);
@@ -261,34 +266,36 @@ void MarketWatch::Exports(std::string_view path_) {
     }
     nlohmann::ordered_json root;
 
-    for (const LiveContainerT::value_type& valueType_ : _liveUpdates) {
-        root[valueType_->Description.data()] = valueType_->Token;
+    for (const LiveContainerT::value_type& valueType : _liveUpdates) {
+        root[valueType->Description.data()] = valueType->Token;
     }
 
     std::fstream file(path_.data(), std::ios::out | std::ios::trunc);
-    if (not file.is_open()) return;
+    if (not file.is_open()) {
+        return;
+    }
     file << root.dump();
     file.close();
 }
 
-void MarketWatch::DrawColumn(const MarketWatchDataPtrT& data, int index_) {
-    ContractCell(index_, MarketWatchColumnIndex_CONTACT_NAME, data->Description.data(), data);
-    NextCell(MarketWatchColumnIndex_ATP, "%.2f", data->AverageTradePrice, UpDownColor(data->Color.ATP));
-    NextCell(MarketWatchColumnIndex_LTP, "%.2f", data->LastTradePrice, UpDownColor(data->Color.LTP));
-    NextCell(MarketWatchColumnIndex_LTQ, "%d", data->LastTradeQuantity);
-    NextCell(MarketWatchColumnIndex_LTT, "%s", data->LastTradeTime.data());
-    NextCell(MarketWatchColumnIndex_TOP_BID, "%.2f", data->Bid[0].Price, UpDownColor(data->Color.TopBid));
-    NextCell(MarketWatchColumnIndex_TOP_ASK, "%.2f", data->Ask[0].Price, UpDownColor(data->Color.TopAsk));
-    NextCell(MarketWatchColumnIndex_OPEN, "%.2f", data->OpenPrice);
-    NextCell(MarketWatchColumnIndex_HIGH, "%.2f", data->HighPrice);
-    NextCell(MarketWatchColumnIndex_LOW, "%.2f", data->LowPrice);
-    NextCell(MarketWatchColumnIndex_CLOSE, "%.2f", data->ClosePrice);
-    NextCell(MarketWatchColumnIndex_LOWDPR, "%.2f", data->LowDPR);
-    NextCell(MarketWatchColumnIndex_HIGHDPR, "%.2f", data->HighDPR);
-    NextCell(MarketWatchColumnIndex_TOTAL_BUY_QUANTITY, "%llu", data->TotalBuyQuantity);
-    NextCell(MarketWatchColumnIndex_TOTAL_SELL_QUANTITY, "%llu", data->TotalSellQuantity);
-    NextCell(MarketWatchColumnIndex_VOLUME_TRADED_TODAY, "%llu", data->VolumeTradedToday);
-    NextCell(MarketWatchColumnIndex_OPEN_INTEREST, "%llu", data->OpenInterest);
+void MarketWatch::DrawColumn(const MarketWatchDataPtrT& data_, int index_) {
+    ContractCell(index_, MarketWatchColumnIndex_CONTACT_NAME, data_->Description.data(), data_);
+    NextCell(MarketWatchColumnIndex_ATP, "%.2f", data_->AverageTradePrice, UpDownColor(data_->Color.ATP));
+    NextCell(MarketWatchColumnIndex_LTP, "%.2f", data_->LastTradePrice, UpDownColor(data_->Color.LTP));
+    NextCell(MarketWatchColumnIndex_LTQ, "%d", data_->LastTradeQuantity);
+    NextCell(MarketWatchColumnIndex_LTT, "%s", data_->LastTradeTime.data());
+    NextCell(MarketWatchColumnIndex_TOP_BID, "%.2f", data_->Bid[0].Price, UpDownColor(data_->Color.TopBid));
+    NextCell(MarketWatchColumnIndex_TOP_ASK, "%.2f", data_->Ask[0].Price, UpDownColor(data_->Color.TopAsk));
+    NextCell(MarketWatchColumnIndex_OPEN, "%.2f", data_->OpenPrice);
+    NextCell(MarketWatchColumnIndex_HIGH, "%.2f", data_->HighPrice);
+    NextCell(MarketWatchColumnIndex_LOW, "%.2f", data_->LowPrice);
+    NextCell(MarketWatchColumnIndex_CLOSE, "%.2f", data_->ClosePrice);
+    NextCell(MarketWatchColumnIndex_LOWDPR, "%.2f", data_->LowDPR);
+    NextCell(MarketWatchColumnIndex_HIGHDPR, "%.2f", data_->HighDPR);
+    NextCell(MarketWatchColumnIndex_TOTAL_BUY_QUANTITY, "%llu", data_->TotalBuyQuantity);
+    NextCell(MarketWatchColumnIndex_TOTAL_SELL_QUANTITY, "%llu", data_->TotalSellQuantity);
+    NextCell(MarketWatchColumnIndex_VOLUME_TRADED_TODAY, "%llu", data_->VolumeTradedToday);
+    NextCell(MarketWatchColumnIndex_OPEN_INTEREST, "%llu", data_->OpenInterest);
 }
 
 void MarketWatch::Remove() {
@@ -298,11 +305,11 @@ void MarketWatch::Remove() {
     _toBeDeleted = -1;
 
     if (iterator != _liveUpdates.end()) {
-        _selectedRow   = std::distance(_liveUpdates.begin(), iterator);
+        _selectedRow   = (int)std::distance(_liveUpdates.begin(), iterator);
         _ladderDataPtr = *iterator;
     } else if (not _liveUpdates.empty()) {
         --iterator;
-        _selectedRow   = std::distance(_liveUpdates.begin(), iterator);
+        _selectedRow   = (int)std::distance(_liveUpdates.begin(), iterator);
         _ladderDataPtr = *iterator;
     } else {
         _ladderDataPtr.reset();

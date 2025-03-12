@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/asio.hpp>
+#include <cstdint>
 #include <functional>
 
 #include "PortfolioScanner.hpp"
@@ -18,7 +19,8 @@ class PortfolioInterface : public PortfolioScanner {
 
   protected:
     static StrategyActionT StrategyAction;
-    static ImVec4          GetStatusColor(StrategyStatus status_, bool changed_);
+
+    static auto GetStatusColor(StrategyStatus status_, bool changed_) -> ImVec4;
 
     void subscribeAll();
     void subscribeSelected();
@@ -38,9 +40,10 @@ class PortfolioInterface : public PortfolioScanner {
     enum {
         MAX_PORTFOLIO_ALLOWED = 9999
     };
-    static int _portFolioNumber;
-    bool       _open            = true;
-    bool       _exportActivated = false;
+    static uint32_t PortFolioNumber;
+
+    bool _open            = true;
+    bool _exportActivated = false;
 
     const std::string _name;
     const std::string _strategyName;

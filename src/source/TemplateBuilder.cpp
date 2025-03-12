@@ -12,6 +12,8 @@
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 
+#include "misc/cpp/imgui_stdlib.h"
+
 extern StrategyNameListT StrategyNameList;
 extern std::string       StatusDisplay;
 

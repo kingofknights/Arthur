@@ -1,21 +1,24 @@
 include(FetchContent)
 
-FetchContent_Declare(
-  imGui URL https://github.com/ocornut/imgui/archive/refs/heads/docking.zip)
+FetchContent_Declare(imgui URL https://github.com/ocornut/imgui/archive/refs/heads/docking.zip)
 
 FetchContent_MakeAvailable(imgui)
 FetchContent_GetProperties(imgui)
 
 message(STATUS "Imgui : ${imgui_SOURCE_DIR}")
 
+include_directories(${imgui_SOURCE_DIR})
+
 set(BACKEND ${imgui_SOURCE_DIR}/backends)
 
 set(IMGUI_BACKEND
-    ${BACKEND}/imgui_impl_opengl3.h ${BACKEND}/imgui_impl_opengl3.cpp
-    ${BACKEND}/imgui_impl_glfw.h ${BACKEND}/imgui_impl_glfw.cpp)
+    ${BACKEND}/imgui_impl_opengl3.h
+    ${BACKEND}/imgui_impl_opengl3.cpp
+    ${BACKEND}/imgui_impl_glfw.h
+    ${BACKEND}/imgui_impl_glfw.cpp)
 
 add_library(
-  Imgui SHARED
+  Imgui STATIC
   ${imgui_SOURCE_DIR}/imconfig.h
   ${imgui_SOURCE_DIR}/imgui.cpp
   ${imgui_SOURCE_DIR}/imgui.h
@@ -31,5 +34,4 @@ add_library(
   ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
   ${IMGUI_BACKEND})
 
-target_include_directories(Imgui PRIVATE ${imgui_SOURCE_DIR})
 set_target_properties(Imgui PROPERTIES C_CPPCHECK "" CXX_CPPCHECK "")

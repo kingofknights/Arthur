@@ -30,7 +30,7 @@ class MarketWatch {
     void ContractCell(int contract_, int index_, const char* data_, const MarketWatchDataPtrT& pointer_);
     void Imports(std::string_view path_);
     void Exports(std::string_view path_);
-    void DrawColumn(const MarketWatchDataPtrT& marketWatchDataPtr_, int index_);
+    void DrawColumn(const MarketWatchDataPtrT& data_, int index_);
     void Remove();
     void DrawSearchBox();
 

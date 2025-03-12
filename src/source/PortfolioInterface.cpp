@@ -1,6 +1,7 @@
 #include "../include/PortfolioInterface.hpp"
 
 #include <boost/algorithm/string.hpp>
+#include <cstdint>
 #include <future>
 #include <nlohmann/json.hpp>
 
@@ -14,7 +15,7 @@
 
 extern std::string StatusDisplay;
 
-int             PortfolioInterface::_portFolioNumber = 0;
+uint32_t        PortfolioInterface::PortFolioNumber = 0;
 StrategyActionT PortfolioInterface::StrategyAction;
 
 PortfolioInterface::PortfolioInterface(std::string_view name_, std::string_view strategyName_, boost::asio::io_context::strand& strand_)
@@ -229,7 +230,7 @@ void PortfolioInterface::Imports(std::string_view path_) {
             StrategyRowPtrT strategyRow    = std::make_shared<StrategyRowT>();
             strategyRow->Changed           = false;
             strategyRow->Subscribed        = false;
-            strategyRow->PF                = ++_portFolioNumber;
+            strategyRow->PF                = ++PortFolioNumber;
             strategyRow->Status            = StrategyStatus_INACTIVE;
             strategyRow->ParameterInfoList = parameterInfoList;
             _strategyList.emplace_back(strategyRow);

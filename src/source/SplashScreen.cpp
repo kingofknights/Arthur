@@ -24,7 +24,7 @@ void SplashScreen::paint() { DrawSplashScreen(); }
 
 void SplashScreen::DrawSplashScreen() {
     if (ImGui::Begin("Splash Screen", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::Image((void*)(intptr_t)_image, ImVec2(_width, _height));
+        ImGui::Image(_image, ImVec2(_width, _height));
     }
     ImGui::End();
 }

@@ -14,7 +14,6 @@
 
 class TemplateBuilder;
 class ExcelWindow;
-class Demo;
 class Position;
 class MarketWatch;
 class OrderForm;
@@ -25,7 +24,6 @@ class TradeHistory;
 class MessageBroker;
 class OptionChain;
 class OrderBook;
-class Sound;
 
 struct OrderInfoT;
 struct OrderFormInfoT;
@@ -44,9 +42,7 @@ using StrategyWorkspacePtrT = std::unique_ptr<StrategyWorkspace>;
 using TradeHistoryPtrT      = std::unique_ptr<TradeHistory>;
 using MessageBrokerPtrT     = std::unique_ptr<MessageBroker>;
 using OptionChainPtrT       = std::unique_ptr<OptionChain>;
-using DemoPtrT              = std::unique_ptr<Demo>;
 using OrderBookPtrT         = std::unique_ptr<OrderBook>;
-using SoundPtrT             = std::unique_ptr<Sound>;
 
 using ThreadGroupT = std::vector<std::unique_ptr<std::jthread>>;
 using TimerT       = std::unique_ptr<boost::asio::deadline_timer>;
@@ -81,11 +77,10 @@ class Arthur {
     void cancelOrderEvent(const OrderInfoPtrT& orderInfo_);
 
   private:
-    DemoPtrT              _demoPtr;
     MessageBrokerPtrT     _messageBroker;
     TemplateBuilderPtrT   _templateBuilderPtr;
     PositionPtrT          _positionPtr;
-    OrderFormPtrT         _OrderFormPtr;
+    OrderFormPtrT         _orderFormPtr;
     MarketWatchPtrT       _marketWatchPtr;
     MulticastReceiverPtrT _multicastReceiverPtr;
     OpenOrdersPtrT        _openOrdersPtr;
@@ -94,7 +89,6 @@ class Arthur {
     OptionChainPtrT       _optionChainPtr;
     OrderBookPtrT         _orderBookPtr;
     OrderBookPtrT         _rejectBookPtr;
-    SoundPtrT             _tradeSoundPtr;
 
     bool _showTemplateBuilder   = false;
     bool _showDemoWindow        = false;

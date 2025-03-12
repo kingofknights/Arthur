@@ -23,4 +23,3 @@ SpotInfoT                        Nifty;
 SpotInfoT                        VIX;
 
 AddContractToDemoSignalT AddContractToDemoSignal;
-DemoOrderInfoSignalT     DemoOrderInfoSignal;

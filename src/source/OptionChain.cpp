@@ -1,7 +1,5 @@
 #include "../include/OptionChain.hpp"
 
-#include <Greeks/Greeks.hpp>
-
 #include "../API/ContractInfo.hpp"
 #include "../include/Colors.hpp"
 #include "../include/Configuration.hpp"
@@ -9,10 +7,22 @@
 #include "../include/Signal.hpp"
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
+#include "imgui.h"
+#include "imgui_internal.h"
+#include <Greeks/Greeks.hpp>
+#include <ctime>
 
 extern AddContractToDemoSignalT AddContractToDemoSignal;
 
-std::string FormatTimeToString(time_t rawtime, std::string Format);
+namespace {
+auto FormatTimeToString(time_t rawtime_, std::string format_) -> std::string {
+    char   timestamp[50];
+    time_t secs = (rawtime_) + 315513000;
+    tm*    ptm  = localtime(&secs);
+    size_t len  = strftime(timestamp, 20, format_.data(), ptm);
+    return { timestamp, len };
+}
+}// namespace
 
 OptionChain::OptionChain() : _future(std::make_shared<MarketWatchDataT>()) {}
 
@@ -33,13 +43,13 @@ void OptionChain::DrawOptionChain(bool* show_) {
         ImGui::NextColumn();
         ImGui::TextColored(UpDownColor(_future->PercentageChange), "Change : %.2f", _future->PercentageChange);
         ImGui::NextColumn();
-        ImGui::Text("Bid Qty : %d", _future->Bid[0].Quantity);
+        ImGui::Text("Bid Qty : %ud", _future->Bid[0].Quantity);
         ImGui::NextColumn();
         ImGui::TextColored(UpDownColor(_future->Color.TopBid), "Bid Price : %.2f", _future->Bid[0].Price);
         ImGui::NextColumn();
         ImGui::TextColored(UpDownColor(_future->Color.TopAsk), "Ask Price : %.2f", _future->Ask[0].Price);
         ImGui::NextColumn();
-        ImGui::Text("Ask Qty : %d", _future->Ask[0].Quantity);
+        ImGui::Text("Ask Qty : %ud", _future->Ask[0].Quantity);
         ImGui::EndColumns();
 
         if (ImGui::BeginTable("Option Chain Table", OptionChainColumnIndex_END, TableFlags)) {

@@ -2,8 +2,6 @@
 
 #include <string>
 
-#include "imgui.h"
-
 namespace Themes {
 
 void AddIconFonts(const std::string& ttf_, float size_);
