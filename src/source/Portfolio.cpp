@@ -87,9 +87,9 @@ auto Portfolio::closed() const -> bool {
 void Portfolio::DrawPortfolioWindow() {
     ImGui::BeginDisabled(PortFolioNumber > MAX_PORTFOLIO_ALLOWED);
     if (ImGui::Button(ICON_MD_ADD_CIRCLE " New")) {
-        _showGlobalParameter = true;
-        ImGui::OpenPopup(NEW_STRATEGY_CREATION);
+        ImGui::OpenPopup((NEW_STRATEGY_CREATION + _strategyName).data());
     }
+
     ImGui::EndDisabled();
     DrawNewStrategyPopUpWindow();
 
@@ -116,12 +116,9 @@ void Portfolio::DrawPortfolioWindow() {
     ImGui::SameLine();
     if (ImGui::Button(ICON_MD_TUNE " Global Param")) {
         ImGui::OpenPopup(("Global Params:- " + _name).data());
-        _showGlobalParameter = true;
     }
 
-    if (_showGlobalParameter) {
-        DrawGlobalParamPopupWindow();
-    }
+    DrawGlobalParamPopupWindow();
 
     ImGui::SameLine();
 
@@ -495,7 +492,7 @@ void Portfolio::RemoveSelection() {
 
 void Portfolio::DrawNewStrategyPopUpWindow() {
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5F, 0.5F));
-    if (ImGui::BeginPopupModal(NEW_STRATEGY_CREATION, &_showGlobalParameter)) {
+    if (ImGui::BeginPopupModal((NEW_STRATEGY_CREATION + _strategyName).data(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
         DrawNewPortfolioCreation();
 
         if (ImGui::Button(ICON_MD_DONE " Submit")) {
@@ -512,13 +509,14 @@ void Portfolio::DrawNewStrategyPopUpWindow() {
         if (ImGui::Button(ICON_MD_CANCEL " Cancel")) {
             ImGui::CloseCurrentPopup();
         }
+
         ImGui::EndPopup();
     }
 }
 
 void Portfolio::DrawGlobalParamPopupWindow() {
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5F, 0.5F));
-    if (ImGui::BeginPopupModal(("Global Params:- " + _name).data(), &_showGlobalParameter, ImGuiWindowFlags_AlwaysAutoResize)) {
+    if (ImGui::BeginPopupModal(("Global Params:- " + _name).data(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
         DrawGlobalParam();
         if (ImGui::Button(ICON_MD_UPDATE " Update")) {
             ModifyGlobalParam();

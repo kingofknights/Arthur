@@ -21,7 +21,7 @@ class StrategyWorkspace {
     void Imports(std::string_view path_);
 
   private:
-    char _strategyWorkspaceName[STRATEGY_NAME_LENGTH]{};
+    std::string _strategyWorkspaceName;
 
     PortfolioContainerT _portfolioContainer;
     std::string         _deleteWorkspace;

@@ -36,7 +36,6 @@ class Portfolio final : public PortfolioInterface {
 
   private:
     bool _showScanner            = false;
-    bool _showGlobalParameter    = false;
     int  _toBeDeleted            = -1;
     int  _multipleSelectionCount = 0;
 

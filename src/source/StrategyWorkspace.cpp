@@ -1,10 +1,10 @@
 #include "../include/StrategyWorkspace.hpp"
 
-#include <nlohmann/json.hpp>
-
 #include "../include/Configuration.hpp"
 #include "../include/Portfolio.hpp"
 #include "../include/Structure.hpp"
+#include "misc/cpp/imgui_stdlib.h"
+#include <nlohmann/json.hpp>
 
 extern StrategyNameListT StrategyNameList;
 
@@ -25,7 +25,7 @@ void StrategyWorkspace::paint(bool* show_) {
 void StrategyWorkspace::DrawAddNewWorkspace() {
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
     if (ImGui::BeginPopupModal(CREATE_NEW_WORKSPACE_WINDOW_NAME, &_newWorkspace, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::InputTextWithHint("Workspace Name", "Set Workspace Name", _strategyWorkspaceName, STRATEGY_NAME_LENGTH);
+        ImGui::InputTextWithHint("Workspace Name", "Set Workspace Name", &_strategyWorkspaceName);
         if (ImGui::BeginCombo("Strategy List", _strategyListIndex.data())) {
             for (const auto& item : StrategyNameList) {
                 if (ImGui::Selectable(item.data())) {
@@ -35,10 +35,10 @@ void StrategyWorkspace::DrawAddNewWorkspace() {
             ImGui::EndCombo();
         }
 
-        ImGui::BeginDisabled(not strlen(_strategyWorkspaceName));
+        ImGui::BeginDisabled(not(_strategyWorkspaceName.empty()));
         if (ImGui::Button(ICON_MD_DONE " Submit")) {
             _portfolioContainer.emplace(_strategyWorkspaceName, std::make_shared<Portfolio>(_strategyWorkspaceName, _strategyListIndex, _strand));
-            std::memset(_strategyWorkspaceName, '\0', IM_ARRAYSIZE(_strategyWorkspaceName));
+            _strategyWorkspaceName.clear();
             Exports(STRATEGY_CONFIG_FILE_NAME);
             ImGui::CloseCurrentPopup();
         }

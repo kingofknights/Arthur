@@ -28,7 +28,7 @@ void TemplateBuilder::paint(bool* show_) {
 
     ImGui::PushItemWidth(ImGui::GetWindowWidth() / 3.0f);
 
-    ImGui::InputTextWithHint("Strategy Name", "Enter Strategy Name", &_strategyName, STRATEGY_NAME_LENGTH);
+    ImGui::InputTextWithHint("Strategy Name", "Enter Strategy Name", &_strategyName);
     ImGui::SameLine();
 
     if (ImGui::BeginCombo("Load Column", _strategyLoad.data())) {
@@ -50,14 +50,14 @@ void TemplateBuilder::paint(bool* show_) {
 
     ImGui::Separator();
 
-    ImGui::InputText("Parameter Name", &_parameterName, STRATEGY_NAME_LENGTH);
+    ImGui::InputText("Parameter Name", &_parameterName);
     ImGui::SameLine();
 
     if (ImGui::Combo("Type", &_parameterType, ColumnGeneratorDataType, DataType_END)) {
         SetDefaultValue(static_cast<DataType>(_parameterType));
     }
 
-    ImGui::InputText("Parameter Value", &_parameterValue, STRATEGY_NAME_LENGTH);
+    ImGui::InputText("Parameter Value", &_parameterValue);
     ImGui::SameLine();
 
     ImGui::BeginDisabled(_parameterName.empty());
