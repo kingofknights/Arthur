@@ -13,6 +13,10 @@ link_directories(${Boost_LIBRARY_DIRS})
 message(STATUS "Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost_LIBRARY_DIRS ${Boost_LIBRARY_DIRS}")
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Lancelot)
+
+add_subdirectory(Lancelot)
 add_subdirectory(include)
 add_subdirectory(source)
 add_subdirectory(DataFeed)
@@ -32,6 +36,7 @@ target_link_libraries(
           DataFeed
           Knight
           Greeks
+          Lancelot
           # Excel
 )
 

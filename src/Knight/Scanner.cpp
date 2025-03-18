@@ -1,11 +1,11 @@
 #include "Scanner.hpp"
 
-#include <Lancelot/Logger/Logger.hpp>
 #include <boost/preprocessor.hpp>
 
 #include "../API/BaseScanner.hpp"
 #include "../API/TokenInfo.hpp"
 #include "../include/Utils.hpp"
+#include "Lancelot/Lancelot.hpp"
 
 extern ScannerContainerT ScannerContainer;
 

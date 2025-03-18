@@ -9,10 +9,31 @@
 #include "../include/Enums.hpp"
 #include "../include/Structure.hpp"
 #include "../include/Utils.hpp"
-#include "Lancelot/Enums.hpp"
-#include "Lancelot/Logger/Logger.hpp"
-#include "Lancelot/Structure.hpp"
+#include "Lancelot/Lancelot.hpp"
 
+constexpr auto GetResponseStatus(int response_) noexcept -> OrderStatus {
+    switch (response_) {
+        case 10:
+            return OrderStatus_PLACED;
+        case 20:
+            return OrderStatus_NEW;
+        case 21:
+            return OrderStatus_REPLACED;
+        case 22:
+            return OrderStatus_CANCELLED;
+        case 30:
+            return OrderStatus_NEW_REJECT;
+        case 31:
+            return OrderStatus_REPLACE_REJECT;
+        case 32:
+            return OrderStatus_CANCEL_REJECT;
+        case 40:
+            return OrderStatus_PARTIAL_FILLED;
+        case 41:
+            return OrderStatus_FILLED;
+    }
+    return OrderStatus_NEW_REJECT;
+}
 MessageBroker::MessageBroker(boost::asio::io_context& ioContext_)
     : TBaseSocket(ioContext_) {}
 
@@ -66,7 +87,7 @@ void MessageBroker::processOrder(const char* buffer_) {
     info->Price            = response->_price,
     info->FillPrice        = 0,
     info->Side             = static_cast<Lancelot::Side>(response->_side);
-    info->StatusValue      = static_cast<OrderStatus>(response->_orderStatus);
+    info->StatusValue      = GetResponseStatus(response->_orderStatus);
     info->Contract         = Lancelot::ContractInfo::GetDescription(info->Token);
     info->Time             = FORMAT("{}", response->_timestamp);
     info->Client           = FORMAT("{}", response->_user._user);

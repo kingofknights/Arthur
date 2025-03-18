@@ -108,5 +108,5 @@ constexpr auto UpDownColor(T t) -> ImVec4 {
 
 template<typename Side>
 constexpr auto BuySellColor(Side side_) -> ImVec4 {
-    return side_ == 0 ? COLOR_GREEN : COLOR_RED;
+    return side_ == 1 ? COLOR_GREEN : COLOR_RED;
 }

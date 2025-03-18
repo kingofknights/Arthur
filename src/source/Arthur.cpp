@@ -3,6 +3,7 @@
 //
 
 #include "../include/Arthur.hpp"
+#include "Lancelot/Structure.hpp"
 
 #if _WIN32
 #include <Psapi.h>
@@ -481,8 +482,28 @@ void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lanc
             _messageBroker->Write_Sync((char*)&order, sizeof(Lancelot::ManualOrder));
             break;
         }
-        case Lancelot::RequestType_MODIFY:
-        case Lancelot::RequestType_CANCEL:
+        case Lancelot::RequestType_MODIFY: {
+            Lancelot::ModifyOrder order{
+                ._header = {
+                    ._type   = 4010,
+                    ._length = sizeof(Lancelot::ModifyOrder) - sizeof(Lancelot::Header),
+                },
+                ._user = {
+                    ._user      = static_cast<int16_t>(UserID),
+                    ._portfolio = 9999,
+                },
+                ._token         = ManualOrderInfo.Self->Token,
+                ._orderSequence = ManualOrderInfo.Gateway,
+                ._price         = static_cast<uint32_t>(ManualOrderInfo.Price * 100.0),
+                ._quantity      = static_cast<uint32_t>(ManualOrderInfo.Quantity),
+                ._triggerPrice  = 0,
+            };
+            _messageBroker->Write_Sync((char*)&order, sizeof(Lancelot::ModifyOrder));
+            break;
+        }
+        case Lancelot::RequestType_CANCEL: {
+            break;
+        }
         case Lancelot::RequestType_APPLY:
         case Lancelot::RequestType_SUBSCRIBE:
         case Lancelot::RequestType_UNSUBSCRIBE:
@@ -495,4 +516,18 @@ void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_
 }
 
 void Arthur::cancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
+    Lancelot::CancelOrder order{
+        ._header = {
+            ._type   = 4011,
+            ._length = sizeof(Lancelot::CancelOrder) - sizeof(Lancelot::Header),
+        },
+        ._user = {
+            ._user      = static_cast<int16_t>(UserID),
+            ._portfolio = 9999,
+        },
+        ._token         = orderInfo_->Token,
+        ._orderSequence = orderInfo_->Gateway,
+
+    };
+    _messageBroker->Write_Sync((char*)&order, sizeof(Lancelot::CancelOrder));
 }

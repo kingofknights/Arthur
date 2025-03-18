@@ -1,6 +1,6 @@
 #include "MathParser.hpp"
 
-#include <Lancelot/Logger/Logger.hpp>
+#include "Lancelot/Lancelot.hpp"
 
 MathParser::MathParser() {
     this->SymbolTable.add_variable("token_", _token);

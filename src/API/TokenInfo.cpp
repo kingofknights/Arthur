@@ -4,7 +4,7 @@
 
 #include "TokenInfo.hpp"
 
-#include <Lancelot/ContractInfo/ContractInfo.hpp>
+#include "Lancelot/Lancelot.hpp"
 
 #include "../include/Structure.hpp"
 #include "ContractInfo.hpp"

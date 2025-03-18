@@ -10,6 +10,7 @@
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 #include "../include/Utils.hpp"
+#include "imgui.h"
 
 #define CANCEL_ALL_ORDER_WINDOW "Cancel All Order Window"
 
@@ -114,18 +115,20 @@ void OpenOrders::DrawManualOrderRequestedForCancel() {
                 auto begin = _cancelOrder.begin() + _clipper.DisplayStart;
                 auto end   = begin + (_clipper.DisplayEnd - _clipper.DisplayStart);
                 int  i     = _clipper.DisplayStart;
+                ImGui::PushID(i);
                 for (auto iterator = begin; iterator < end; ++iterator, ++i) {
                     ImGui::TableNextRow();
                     Utils::DrawTradeRow(*iterator, _selectedRow, -2);
                 }
+                ImGui::PopID();
             }
             ImGui::EndTable();
         }
         ImGui::Separator();
         if (ImGui::Button(ICON_MD_DONE " Process")) {
             auto _ = std::async(std::launch::async, [&]() {
-                for (const auto& tradeInfo_ : _cancelOrder) {
-                    _strand.post([&]() { _cancelPendingOrderFunction(tradeInfo_); });
+                for (const auto& tradeInfo : _cancelOrder) {
+                    _strand.post([&]() { _cancelPendingOrderFunction(tradeInfo); });
                 }
             });
             ImGui::CloseCurrentPopup();

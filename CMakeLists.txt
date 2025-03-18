@@ -24,7 +24,6 @@ include_directories(third_party/stb)
 include(./cmake/Imgui.cmake)
 include(./cmake/ImguiFD.cmake)
 
-include_directories(repo/Lancelot/include)
 include_directories(repo/Greeks)
 
 set(FONT_FILE

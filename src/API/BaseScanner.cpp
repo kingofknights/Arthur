@@ -1,7 +1,6 @@
 #include "BaseScanner.hpp"
 
-#include <Lancelot/ContractInfo/ContractInfo.hpp>
-#include <Lancelot/Logger/Logger.hpp>
+#include "Lancelot/Lancelot.hpp"
 #include <boost/algorithm/string.hpp>
 #include <nlohmann/json.hpp>
 
