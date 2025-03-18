@@ -56,7 +56,7 @@ Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _ba
     Themes::AddIconFonts("Ruda-Bold.ttf", 18.0f);
     UserID     = 101;
     _ipaddress = "127.0.0.1";
-    _port      = "9090";
+    _port      = "9898";
 
     LOG(INFO, "Loading SqlLite3 Database : {}", DATABASE_PATH)
     Lancelot::ContractInfo::Initialize(DATABASE_PATH, Utils::GetAllContractCallback);
@@ -73,7 +73,7 @@ Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _ba
     _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_backendStrand);
     _tradeHistoryPtr      = std::make_unique<TradeHistory>();
     _optionChainPtr       = std::make_unique<OptionChain>();
-    //_messageBroker        = std::make_unique<MessageBroker>(_backendComService);
+    _messageBroker        = std::make_unique<MessageBroker>(_backendComService);
     _multicastReceiverPtr = std::make_unique<MulticastReceiver>(_backendComService);
     _orderBookPtr         = std::make_unique<OrderBook>(ORDER_ALL_BOOK);
     _rejectBookPtr        = std::make_unique<OrderBook>(REJECT_BOOK);
@@ -101,8 +101,8 @@ Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _ba
         _openOrdersPtr->cancelOrderFunctionCallback(std::move(callback));
     }
     {
-        // auto callback = [&](const OrderInfoPtrT& orderInfo_) { AddTrade(orderInfo_); };
-        // _messageBroker->setCallback(std::move(callback));
+        auto callback = [&](const OrderInfoPtrT& orderInfo_) { AddTrade(orderInfo_); };
+        _messageBroker->setCallback(std::move(callback));
     }
 
     startAllThreads();
@@ -196,6 +196,7 @@ void Arthur::paint() {
 }
 
 void Arthur::AddTrade(const OrderInfoPtrT& tradeInfo_) {
+    LOG(INFO, "{} {}", __PRETTY_FUNCTION__, static_cast<int>(tradeInfo_->StatusValue));
     switch (tradeInfo_->StatusValue) {
         case OrderStatus_PLACED:
         case OrderStatus_NEW:
@@ -433,7 +434,7 @@ void Arthur::startAllThreads() {
     _multicastReceiverPtr->bindMC("127.0.0.1", 1223);
     _multicastReceiverPtr->read();
 
-    //{ _messageBroker->makeConnection(_ipaddress, _port); }
+    { _messageBroker->makeConnection(_ipaddress, _port); }
 }
 
 void Arthur::marketEventHandler(std::stop_token& stopToken_) {
@@ -454,6 +455,40 @@ double MemoryUsage::GetRamUsage() {
 }
 
 void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lancelot::RequestType type_) {
+    switch (type_) {
+        case Lancelot::RequestType_LOGIN: {
+            break;
+        }
+        case Lancelot::RequestType_NEW: {
+            Lancelot::ManualOrder order{
+                ._header = {
+                    ._type   = 4001,
+                    ._length = sizeof(Lancelot::ManualOrder) - sizeof(Lancelot::Header),
+                },
+                ._user = {
+                    ._user      = static_cast<int16_t>(UserID),
+                    ._portfolio = 9999,
+                },
+                ._token         = ManualOrderInfo.Self->Token,
+                ._price         = static_cast<uint32_t>(ManualOrderInfo.Price * 100.0),
+                ._quantity      = static_cast<uint32_t>(ManualOrderInfo.Quantity),
+                ._triggerPrice  = 0,
+                ._side          = ManualOrderInfo.Side,
+                ._orderSequence = 0,
+                ._orderType     = static_cast<int16_t>(ManualOrderInfo.Type),
+                ._nnf           = 0,
+            };
+            _messageBroker->Write_Sync((char*)&order, sizeof(Lancelot::ManualOrder));
+            break;
+        }
+        case Lancelot::RequestType_MODIFY:
+        case Lancelot::RequestType_CANCEL:
+        case Lancelot::RequestType_APPLY:
+        case Lancelot::RequestType_SUBSCRIBE:
+        case Lancelot::RequestType_UNSUBSCRIBE:
+        case Lancelot::RequestType_SUBSCRIBE_APPLY:
+            break;
+    }
 }
 
 void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_, Lancelot::RequestType type_) {

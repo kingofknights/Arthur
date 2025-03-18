@@ -237,8 +237,8 @@ inline constexpr const char* OrderStatusInfoName[] = {
 };
 
 inline constexpr const char* OrderTypeName[] = {
-    "Limit",
-    "Market",
     "IOC",
+    "Market",
+    "Limit",
     "Spread"
 };

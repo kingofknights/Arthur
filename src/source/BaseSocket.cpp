@@ -4,6 +4,9 @@
 #include "../include/Enums.hpp"
 #include "../include/Structure.hpp"
 #include "../include/Utils.hpp"
+#include "Lancelot/Structure.hpp"
+#include <boost/asio/buffer.hpp>
+#include <boost/asio/completion_condition.hpp>
 
 extern int  UserID;
 extern bool BackendConnected;
@@ -45,7 +48,6 @@ void TBaseSocket::internalConnectHandler(const boost::system::error_code& error_
         _socket->set_option(boost::asio::ip::tcp::no_delay(true));
         Utils::ResetPortfolio(StrategyStatus_INACTIVE);
 
-
         Read();
     }
 }
@@ -54,16 +56,23 @@ void TBaseSocket::Write_Async(const char* buffer, size_t size_) {
     boost::asio::async_write(*this->_socket, boost::asio::buffer(buffer, size_), boost::asio::transfer_exactly(size_), [this](const boost::system::error_code& errorCode_, size_t size_) { WriteHandler(errorCode_, size_); });
 }
 
-void TBaseSocket::Write_Sync(char* buffer, size_t size_) { boost::asio::write(*this->_socket, boost::asio::buffer(buffer, size_), boost::asio::transfer_exactly(size_), _errorCode); }
+void TBaseSocket::Write_Sync(char* buffer, size_t size_) {
+    boost::asio::write(*this->_socket, boost::asio::buffer(buffer, size_), boost::asio::transfer_exactly(size_), _errorCode);
+}
 
 void TBaseSocket::Read() {
-    boost::asio::async_read(*this->_socket, boost::asio::buffer(_buffer, sizeof(Lancelot::Header)), boost::asio::transfer_exactly(sizeof(Lancelot::Header)), [this](const boost::system::error_code& error_code_, size_t size_) { ReadHandlerBody(error_code_, size_); });
+    boost::asio::async_read(*this->_socket, boost::asio::buffer(_buffer, sizeof(Lancelot::Header)), boost::asio::transfer_exactly(sizeof(Lancelot::Header)), [this](const boost::system::error_code& error_code_, size_t size_) {
+        ReadHandlerBody(error_code_, size_);
+    });
 }
 
 void TBaseSocket::ReadHandlerBody(const boost::system::error_code& error_code_, size_t size_) {
     if (!error_code_) {
-        process(_buffer, size_);
-        Read();
+        const auto* header = reinterpret_cast<Lancelot::Header*>(_buffer);
+        boost::asio::async_read(*this->_socket, boost::asio::buffer(_buffer + sizeof(Lancelot::Header), header->_length), boost::asio::transfer_exactly(header->_length), [this](const boost::system::error_code& error_code_, size_t size_) {
+            process(_buffer, size_);
+            Read();
+        });
     } else {
         LOG(WARNING, "Read error: {}", error_code_.message());
         _socket->close();

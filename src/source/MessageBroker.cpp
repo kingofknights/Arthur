@@ -9,6 +9,9 @@
 #include "../include/Enums.hpp"
 #include "../include/Structure.hpp"
 #include "../include/Utils.hpp"
+#include "Lancelot/Enums.hpp"
+#include "Lancelot/Logger/Logger.hpp"
+#include "Lancelot/Structure.hpp"
 
 MessageBroker::MessageBroker(boost::asio::io_context& ioContext_)
     : TBaseSocket(ioContext_) {}
@@ -17,25 +20,14 @@ void MessageBroker::setCallback(UpdateTradeFunctionT updateTradeFunction_) { _up
 
 void MessageBroker::process(const char* buffer_, size_t size_) {
     const auto* request = reinterpret_cast<const Lancelot::Header*>(buffer_);
+    LOG(INFO, "{} {} {} {}", __PRETTY_FUNCTION__, size_, request->_type, request->_length);
 
-    char buffer[2048]{};
-    int  size = 0;
-
-    std::stringstream ss;
-    ss << (buffer);
-    LOG(INFO, "{} {}", __FUNCTION__, ss.str())
-    nlohmann::json        json     = nlohmann::json::parse(ss);
-    const nlohmann::json& response = json.at(JSON_PARAMS);
     switch (request->_type) {
-        case Lancelot::ResponseType_PLACED:
-        case Lancelot::ResponseType_NEW:
-        case Lancelot::ResponseType_REPLACED:
-        case Lancelot::ResponseType_CANCELLED:
-        case Lancelot::ResponseType_REPLACE_REJECT:
-        case Lancelot::ResponseType_CANCEL_REJECT:
-        case Lancelot::ResponseType_NEW_REJECT:
+        case 4002: {
+            processOrder(buffer_);
+            break;
+        }
         case Lancelot::ResponseType_FILLED: {
-            processOrder(response, static_cast<Lancelot::ResponseType>(request->_type));
             break;
         }
         case Lancelot::ResponseType_PENDING:
@@ -43,39 +35,42 @@ void MessageBroker::process(const char* buffer_, size_t size_) {
         case Lancelot::ResponseType_APPLIED:
         case Lancelot::ResponseType_UNSUBSCRIBED:
         case Lancelot::ResponseType_TERMINATED: {
-            processStrategy(response, static_cast<Lancelot::ResponseType>(request->_type));
+            processStrategy({}, static_cast<Lancelot::ResponseType>(request->_type));
             break;
         }
         case Lancelot::ResponseType_UPDATES: {
-            processUpdates(response);
+            processUpdates({});
             break;
         }
         case Lancelot::ResponseType_EXCHANGE_DISCONNECT: {
             Utils::ResetPortfolio(StrategyStatus_DISCONNECTED);
             break;
         }
-        case Lancelot::ResponseType_TRACKER: { break; }
+        case Lancelot::ResponseType_TRACKER: {
+            break;
+        }
     }
-
 }
 
-void MessageBroker::processOrder(const nlohmann::json& input_, Lancelot::ResponseType type_) {
-    OrderInfoPtrT info = std::make_shared<OrderInfoT>();
-    info->PF           = input_.at(JSON_PF_NUMBER).get<uint32_t>();
-    info->Gateway      = input_.at(JSON_UNIQUE_ID).get<uint32_t>();
-    info->Token        = input_.at(JSON_TOKEN).get<uint32_t>();
-    info->Quantity     = input_.at(JSON_QUANTITY).get<int>();
-    info->FillQuantity = input_.at(JSON_FILL_QUANTITY).get<int>();
-    info->Remaining    = input_.at(JSON_REMAINING).get<int>();
-    info->OrderNo      = input_.at(JSON_ORDER_ID).get<long>();
-    info->Price        = input_.at(JSON_PRICE).get<float>();
-    info->FillPrice    = input_.at(JSON_FILL_PRICE).get<float>();
-    info->Side         = static_cast<Lancelot::Side>(input_.at(JSON_SIDE).get<int>());
-    info->StatusValue  = static_cast<OrderStatus>(type_);
-    info->Contract     = Lancelot::ContractInfo::GetDescription(info->Token);
-    info->Time         = input_.at(JSON_TIME).get<std::string>();
-    info->Client       = input_.at(JSON_CLIENT).get<std::string>();
-    info->Message      = input_.at(JSON_MESSAGE).get<std::string>();
+void MessageBroker::processOrder(const char* buffer_) {
+    LOG(INFO, "{}", __PRETTY_FUNCTION__);
+    const auto*   response = reinterpret_cast<const Lancelot::HedgeOrderResponse*>(buffer_);
+    OrderInfoPtrT info     = std::make_shared<OrderInfoT>();
+    info->PF               = response->_user._portfolio,
+    info->Gateway          = response->_clientOrderNumber,
+    info->Token            = response->_token,
+    info->Quantity         = response->_quantity,
+    info->FillQuantity     = 0,
+    info->Remaining        = response->_quantity,
+    info->OrderNo          = response->_exchangeOrderNumber,
+    info->Price            = response->_price,
+    info->FillPrice        = 0,
+    info->Side             = static_cast<Lancelot::Side>(response->_side);
+    info->StatusValue      = static_cast<OrderStatus>(response->_orderStatus);
+    info->Contract         = Lancelot::ContractInfo::GetDescription(info->Token);
+    info->Time             = FORMAT("{}", response->_timestamp);
+    info->Client           = FORMAT("{}", response->_user._user);
+    info->Message          = FORMAT("{}", response->_errorCode);
     _updateTradeFunction(info);
 }
 
@@ -122,7 +117,9 @@ void MessageBroker::processUpdates(const nlohmann::json& input_) {
         const auto& arguments = input_.at(JSON_ARGUMENTS);
         for (const auto& argument : arguments.items()) {
             auto iterator = strategy->ParameterInfoList.find(argument.key());
-            if (iterator != strategy->ParameterInfoList.end()) { if (iterator->second.Type == DataType_UPDATES) { iterator->second.Parameter.Text = argument.value().get<std::string>(); } }
+            if (iterator != strategy->ParameterInfoList.end()) {
+                if (iterator->second.Type == DataType_UPDATES) { iterator->second.Parameter.Text = argument.value().get<std::string>(); }
+            }
         }
     }
 }

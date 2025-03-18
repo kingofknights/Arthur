@@ -21,7 +21,7 @@ class MessageBroker : public TBaseSocket {
   protected:
     void process(const char* buffer_, size_t size_) override;
 
-    void processOrder(const nlohmann::json& input_, Lancelot::ResponseType type_);
+    void processOrder(const char* buffer_);
 
     static void processStrategy(const nlohmann::json& input_, Lancelot::ResponseType type_);
 
