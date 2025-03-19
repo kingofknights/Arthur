@@ -3,6 +3,7 @@
 //
 
 #include "../include/Arthur.hpp"
+#include "Enums.hpp"
 #include "Lancelot/Structure.hpp"
 
 #if _WIN32
@@ -48,7 +49,7 @@ extern DemoOrderInfoSignalT DemoOrderInfoSignal;
 extern MarketEventQueueT    MarketEventQueue;
 extern AllContractT         AllContract;
 
-#define DATABASE_PATH "/home/vikram.lodhi@corp.merillife.com/Projects/historical/20240912/fo_ref_contract_master.20240912.csv"
+#define DATABASE_PATH "fo_ref_contract_master.csv"
 #define TRADING_APP_CONFIG_PATH "Config/Arthur.json"
 #define ORDER_ALL_BOOK "Order All Book"
 #define REJECT_BOOK "Reject Book"
@@ -463,7 +464,7 @@ void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lanc
         case Lancelot::RequestType_NEW: {
             Lancelot::ManualOrder order{
                 ._header = {
-                    ._type   = 4001,
+                    ._type   = type_,
                     ._length = sizeof(Lancelot::ManualOrder) - sizeof(Lancelot::Header),
                 },
                 ._user = {
@@ -485,7 +486,7 @@ void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lanc
         case Lancelot::RequestType_MODIFY: {
             Lancelot::ModifyOrder order{
                 ._header = {
-                    ._type   = 4010,
+                    ._type   = type_,
                     ._length = sizeof(Lancelot::ModifyOrder) - sizeof(Lancelot::Header),
                 },
                 ._user = {
@@ -513,12 +514,26 @@ void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lanc
 }
 
 void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_, Lancelot::RequestType type_) {
+    auto buffer = Utils::strategySerialize(row_, name_, type_);
+
+    Lancelot::StrategyHeader header{
+        ._header = {
+            ._type   = type_,
+            ._length = buffer.length() + sizeof(Lancelot::UserPortfolio),
+        },
+        ._user = {
+            ._user      = UserID,
+            ._portfolio = row_->PF,
+        }
+    };
+    _messageBroker->Write_Sync((char*)&header, sizeof(header));
+    _messageBroker->Write_Sync(buffer.data(), buffer.length());
 }
 
 void Arthur::cancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
     Lancelot::CancelOrder order{
         ._header = {
-            ._type   = 4011,
+            ._type   = Lancelot::RequestType_CANCEL,
             ._length = sizeof(Lancelot::CancelOrder) - sizeof(Lancelot::Header),
         },
         ._user = {

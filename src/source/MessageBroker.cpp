@@ -2,6 +2,8 @@
 // Created by VIKLOD on 11-03-2023.
 //
 
+#include <utility>
+
 #include "../include/MessageBroker.hpp"
 
 #include "../API/Common.hpp"
@@ -10,6 +12,7 @@
 #include "../include/Structure.hpp"
 #include "../include/Utils.hpp"
 #include "Lancelot/Lancelot.hpp"
+#include "Structure.hpp"
 
 constexpr auto GetResponseStatus(int response_) noexcept -> OrderStatus {
     switch (response_) {
@@ -37,7 +40,7 @@ constexpr auto GetResponseStatus(int response_) noexcept -> OrderStatus {
 MessageBroker::MessageBroker(boost::asio::io_context& ioContext_)
     : TBaseSocket(ioContext_) {}
 
-void MessageBroker::setCallback(UpdateTradeFunctionT updateTradeFunction_) { _updateTradeFunction = updateTradeFunction_; }
+void MessageBroker::setCallback(UpdateTradeFunctionT updateTradeFunction_) { _updateTradeFunction = std::move(updateTradeFunction_); }
 
 void MessageBroker::process(const char* buffer_, size_t size_) {
     const auto* request = reinterpret_cast<const Lancelot::Header*>(buffer_);
@@ -56,7 +59,8 @@ void MessageBroker::process(const char* buffer_, size_t size_) {
         case Lancelot::ResponseType_APPLIED:
         case Lancelot::ResponseType_UNSUBSCRIBED:
         case Lancelot::ResponseType_TERMINATED: {
-            processStrategy({}, static_cast<Lancelot::ResponseType>(request->_type));
+            const auto* response = reinterpret_cast<const Lancelot::StrategyHeader*>(buffer_);
+            processStrategy(response->_user._portfolio, static_cast<Lancelot::ResponseType>(response->_header._type));
             break;
         }
         case Lancelot::ResponseType_UPDATES: {
@@ -95,9 +99,8 @@ void MessageBroker::processOrder(const char* buffer_) {
     _updateTradeFunction(info);
 }
 
-void MessageBroker::processStrategy(const nlohmann::json& input_, Lancelot::ResponseType type_) {
-    int  pf  = input_.at(JSON_PF_NUMBER).get<int>();
-    auto ptr = Utils::GetStrategyRow(pf);
+void MessageBroker::processStrategy(uint32_t pf_, Lancelot::ResponseType type_) {
+    auto ptr = Utils::GetStrategyRow(pf_);
     if (ptr.has_value()) {
         const auto& strategy = ptr->lock();
         switch (type_) {

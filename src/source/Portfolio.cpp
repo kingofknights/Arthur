@@ -499,7 +499,6 @@ void Portfolio::DrawNewStrategyPopUpWindow() {
             AppendStrategy();
 
             if (PortFolioNumber == MAX_PORTFOLIO_ALLOWED) {
-                LOG(INFO, "{} {} {}", __PRETTY_FUNCTION__, PortFolioNumber, static_cast<int>(MAX_PORTFOLIO_ALLOWED));
                 ImGui::CloseCurrentPopup();
             }
         }

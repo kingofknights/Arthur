@@ -35,7 +35,7 @@ void StrategyWorkspace::DrawAddNewWorkspace() {
             ImGui::EndCombo();
         }
 
-        ImGui::BeginDisabled(not(_strategyWorkspaceName.empty()));
+        ImGui::BeginDisabled(_strategyWorkspaceName.empty());
         if (ImGui::Button(ICON_MD_DONE " Submit")) {
             _portfolioContainer.emplace(_strategyWorkspaceName, std::make_shared<Portfolio>(_strategyWorkspaceName, _strategyListIndex, _strand));
             _strategyWorkspaceName.clear();

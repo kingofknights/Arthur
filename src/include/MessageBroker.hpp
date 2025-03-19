@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <functional>
 #include <nlohmann/json.hpp>
 
@@ -23,7 +24,7 @@ class MessageBroker : public TBaseSocket {
 
     void processOrder(const char* buffer_);
 
-    static void processStrategy(const nlohmann::json& input_, Lancelot::ResponseType type_);
+    static void processStrategy(uint32_t pf_, Lancelot::ResponseType type_);
 
     static void processUpdates(const nlohmann::json& input_);
 
