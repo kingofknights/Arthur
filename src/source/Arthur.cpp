@@ -55,11 +55,30 @@ extern AllContractT         AllContract;
 #define REJECT_BOOK "Reject Book"
 
 Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _backendWorker(_backendComService.get_executor()), _closeMainWindow(closeMainWindow_) {
-    Themes::AddIconFonts("Ruda-Bold.ttf", 18.0f);
-    UserID     = 101;
-    _ipaddress = "127.0.0.1";
-    _port      = "9898";
 
+    std::string fontFile = "Ruda-Bold.ttf";
+    float       fontSize = 18.0F;
+    UserID               = 101;
+    _ipaddress           = "127.0.0.1";
+    _port                = "9898";
+
+    std::fstream file("setting.json");
+    if (file.is_open()) {
+        LOG(INFO, "unable to open setting.json", false);
+
+        nlohmann::json        json    = nlohmann::json::parse(file);
+        const nlohmann::json& font    = json["font"];
+        const nlohmann::json& backend = json["backend"];
+
+        font["file"].get_to(fontFile);
+        font["size"].get_to(fontSize);
+
+        backend["ip"].get_to(_ipaddress);
+        backend["port"].get_to(_port);
+        backend["user"].get_to(UserID);
+    }
+
+    Themes::AddIconFonts(fontFile, fontSize);
     LOG(INFO, "Loading SqlLite3 Database : {}", DATABASE_PATH)
     Lancelot::ContractInfo::Initialize(DATABASE_PATH, Utils::GetAllContractCallback);
     std::ranges::sort(AllContract, std::less<>());
