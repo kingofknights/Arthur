@@ -40,8 +40,8 @@ void BaseScanner::UpdateUser(double PF_, const std::string& update) {
             if (split_.size() == 2) {
                 const std::string& key   = split_[0];
                 const std::string& value = split_[1];
-                auto               item  = ScannerResult.ParameterInfoList.find(key);
-                if (item != ScannerResult.ParameterInfoList.end()) {
+                auto               item  = ScannerResult._parameterInfoList.find(key);
+                if (item != ScannerResult._parameterInfoList.end()) {
                     auto& parameter = item->second.Parameter;
                     switch (item->second.Type) {
                         case DataType_CONTRACT: {
@@ -76,7 +76,7 @@ void BaseScanner::UpdateUser(double PF_, const std::string& update) {
             }
         }
 
-        ScannerResult.PortfolioPtr->AddScannerPortfolio(ScannerResult.ParameterInfoList);
+        ScannerResult._portfolio->AddScannerPortfolio(ScannerResult._parameterInfoList);
     }
 }
 

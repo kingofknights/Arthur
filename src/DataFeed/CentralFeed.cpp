@@ -3,14 +3,14 @@
 #include "../include/Structure.hpp"
 #include <cstdint>
 
-constexpr static int MarketWatchLadderCount = 5;
-constexpr static int TimestampLength        = 50;
+constexpr static int TimestampLength = 50;
 
 using TokenT    = uint32_t;
 using PriceT    = uint32_t;
 using QuantityT = uint32_t;
 
 extern MarketEventQueueT MarketEventQueue;
+
 #pragma pack(push, 1)
 struct MarketWatchDataCentralT {
     struct PricePointsT {
@@ -53,43 +53,43 @@ void CentralFeed::Process(char* buffer, size_t size_) {
     if (not ref) {
         return;
     }
-    float TopBid = ref->Bid[0].Price;
-    float TopAsk = ref->Ask[0].Price;
-    float LTP    = ref->LastTradePrice;
-    float ATP    = ref->AverageTradePrice;
+    float TopBid = ref->_bid[0]._price;
+    float TopAsk = ref->_ask[0]._price;
+    float LTP    = ref->_ltp;
+    float ATP    = ref->_atp;
 
     for (int i = 0; i < 5; ++i) {
-        ref->Bid[i].Price    = (pointer->_bid[i]._price) / 100.0f;
-        ref->Bid[i].Quantity = (pointer->_bid[i]._quantity);
-        ref->Bid[i].Order    = (pointer->_bid[i]._order);
+        ref->_bid[i]._price    = (pointer->_bid[i]._price) / 100.0f;
+        ref->_bid[i]._quantity = (pointer->_bid[i]._quantity);
+        ref->_bid[i]._order    = (pointer->_bid[i]._order);
 
-        ref->Ask[i].Price    = (pointer->_ask[i]._price) / 100.0f;
-        ref->Ask[i].Quantity = (pointer->_ask[i]._quantity);
-        ref->Ask[i].Order    = (pointer->_ask[i]._order);
+        ref->_ask[i]._price    = (pointer->_ask[i]._price) / 100.0f;
+        ref->_ask[i]._quantity = (pointer->_ask[i]._quantity);
+        ref->_ask[i]._order    = (pointer->_ask[i]._order);
     }
 
-    ref->TotalBuyQuantity  = (pointer->_totalBuyQuantity);
-    ref->TotalSellQuantity = (pointer->_totalSellQuantity);
-    ref->VolumeTradedToday = (pointer->_volumeTradedToday);
+    ref->_totalBuyQuantity  = (pointer->_totalBuyQuantity);
+    ref->_totalSellQuantity = (pointer->_totalSellQuantity);
+    ref->_volumeTradedToday = (pointer->_volumeTradedToday);
 
-    ref->OpenPrice  = (pointer->_open) / 100.0f;
-    ref->HighPrice  = (pointer->_high) / 100.0f;
-    ref->LowPrice   = (pointer->_low) / 100.0f;
-    ref->ClosePrice = (pointer->_close) / 100.0f;
+    ref->_open  = (pointer->_open) / 100.0f;
+    ref->_high  = (pointer->_high) / 100.0f;
+    ref->_low   = (pointer->_low) / 100.0f;
+    ref->_close = (pointer->_close) / 100.0f;
 
-    ref->AverageTradePrice = (pointer->_averageTradePrice) / 100.0f;
-    ref->LastTradePrice    = (pointer->_lastTradePrice) / 100.0f;
-    ref->LastTradeQuantity = (pointer->_lastTradeQuantity);
+    ref->_atp = (pointer->_averageTradePrice) / 100.0f;
+    ref->_ltp = (pointer->_lastTradePrice) / 100.0f;
+    ref->_ltq = (pointer->_lastTradeQuantity);
 
-    std::memset(ref->LastTradeTime.data(), 0, 30);
-    std::memcpy(ref->LastTradeTime.data(), pointer->_lastTradeTime, 30);
+    std::memset(ref->_lastTradeTime.data(), 0, 30);
+    std::memcpy(ref->_lastTradeTime.data(), pointer->_lastTradeTime, 30);
 
-    ref->PercentageChange = ((float)(ref->ClosePrice - ref->LastTradePrice) / ref->ClosePrice) * 100;
+    ref->_pchange = ((float)(ref->_close - ref->_ltp) / ref->_close) * 100;
 
-    ref->Color.TopBid = TopBid > ref->Bid[0].Price;
-    ref->Color.TopAsk = TopAsk > ref->Ask[0].Price;
-    ref->Color.LTP    = LTP > ref->LastTradePrice;
-    ref->Color.ATP    = ATP > ref->AverageTradePrice;
+    ref->_color._topBid = TopBid > ref->_bid[0]._price;
+    ref->_color._topAsk = TopAsk > ref->_ask[0]._price;
+    ref->_color._ltp    = LTP > ref->_ltp;
+    ref->_color._atp    = ATP > ref->_atp;
 
     MarketEventQueue.push(ref);
 }

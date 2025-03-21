@@ -37,8 +37,8 @@ void OrderForm::Update(OrderFormInfoT& info_) {
     if (exchange != _exchange) {
         _exchange = exchange;
         for (const auto& item : ClientCodeList) {
-            if (_exchange == item.Exchange) {
-                _clientCode  = item.ClientCode;
+            if (_exchange == item._exchange) {
+                _clientCode  = item._clientCode;
                 info_.Client = _clientCode;
                 break;
             }
@@ -60,10 +60,10 @@ void OrderForm::DrawInputItem() {
     ImGui::BeginDisabled(enable);
     if (ImGui::BeginCombo("Broker", FORMAT("[{}] {}", Lancelot::ToString(_exchange), _clientCode).data())) {
         for (const auto& code_ : ClientCodeList) {
-            if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::ToString(code_.Exchange), code_.ClientCode).data())) {
-                _order.Client = code_.ClientCode;
-                _exchange     = code_.Exchange;
-                _clientCode   = code_.ClientCode;
+            if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::ToString(code_._exchange), code_._clientCode).data())) {
+                _order.Client = code_._clientCode;
+                _exchange     = code_._exchange;
+                _clientCode   = code_._clientCode;
             }
         }
         ImGui::EndCombo();

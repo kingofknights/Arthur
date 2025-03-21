@@ -28,48 +28,48 @@ enum OrderStatus : int;
 enum StrategyStatus : int;
 enum OrderType : int;
 
-constexpr int MARKET_WATCH_LADDER_COUNT = 5;
-constexpr int STRATEGY_NAME_LENGTH      = 50;
+constexpr int MarketWatchLadderCount = 5;
+constexpr int StrategyNameLength     = 50;
 
 using PricePointsT = struct PricePointsT {
-    double   Price;
-    uint32_t Quantity;
-    uint32_t Order;
+    double   _price;
+    uint32_t _quantity;
+    uint32_t _order;
 };
 
 using ColorBitT = struct ColorBitT {
-    uint8_t TopBid : 1;
-    uint8_t TopAsk : 1;
-    uint8_t LTP : 1;
-    uint8_t ATP : 1;
-    uint8_t Dummy : 4;
+    uint8_t _topBid : 1;
+    uint8_t _topAsk : 1;
+    uint8_t _ltp : 1;
+    uint8_t _atp : 1;
+    uint8_t _dummy : 4;
 };
 
 using MarketWatchDataT = struct MarketWatchDataT {
-    std::array<PricePointsT, MARKET_WATCH_LADDER_COUNT> Bid;
-    std::array<PricePointsT, MARKET_WATCH_LADDER_COUNT> Ask;
-    std::array<char, STRATEGY_NAME_LENGTH>              LastTradeTime;
-    std::array<char, STRATEGY_NAME_LENGTH>              Description;
+    std::array<PricePointsT, MarketWatchLadderCount> _bid;
+    std::array<PricePointsT, MarketWatchLadderCount> _ask;
+    std::array<char, StrategyNameLength>             _lastTradeTime;
+    std::array<char, StrategyNameLength>             _description;
 
-    uint32_t Token;
-    uint32_t LastTradeQuantity;
-    double   AverageTradePrice;
-    double   LastTradePrice;
-    double   LowDPR;
-    double   HighDPR;
+    uint32_t _token;
+    uint32_t _ltq;
+    double   _atp;
+    double   _ltp;
+    double   _lowDpr;
+    double   _highDpr;
 
-    double OpenPrice;
-    double HighPrice;
-    double LowPrice;
-    double ClosePrice;
-    double PercentageChange;
+    double _open;
+    double _high;
+    double _low;
+    double _close;
+    double _pchange;
 
-    uint32_t TotalBuyQuantity;
-    uint32_t TotalSellQuantity;
-    uint32_t VolumeTradedToday;
-    uint32_t OpenInterest;
+    uint32_t _totalBuyQuantity;
+    uint32_t _totalSellQuantity;
+    uint32_t _volumeTradedToday;
+    uint32_t _openInterest;
 
-    ColorBitT Color;
+    ColorBitT _color;
 };
 
 using MarketWatchDataPtrT = std::shared_ptr<MarketWatchDataT>;
@@ -96,15 +96,15 @@ using GlobalParameterInfoT = struct GlobalParameterInfoT {
 };
 
 using OrderInfoT = struct OrderInfoT {
-    uint32_t PF;
+    uint32_t _portfolio;
     uint32_t Gateway;
-    uint32_t Token;
-    uint32_t Quantity;
+    uint32_t _token;
+    uint32_t _quantity;
     uint32_t FillQuantity;
-    uint32_t Remaining;
+    uint32_t _remaining;
     long     OrderNo;
-    float    Price;
-    float    FillPrice;
+    float    _price;
+    float    _fillPrice;
 
     Lancelot::Side Side;
     OrderStatus    StatusValue;
@@ -116,8 +116,8 @@ using OrderInfoT = struct OrderInfoT {
 
 using NetBookColumnT = struct NetBookColumnT {
     uint32_t PF;
-    uint32_t BuyQuantity;
-    uint32_t SellQuantity;
+    uint32_t _buyQuantity;
+    uint32_t _sellQuantity;
     int32_t  TotalQty;
 
     float LastLTP;
@@ -135,25 +135,25 @@ using NetBookColumnT = struct NetBookColumnT {
 };
 
 using GreeksT = struct GreeksT {
-    bool     IsCall;
-    bool     IsFuture;
-    uint32_t Expiry;
-    float    StrikePrice;
-    float    IV;
-    float    Delta;
-    float    Gamma;
-    float    Vega;
-    float    Theta;
+    bool     _isCall;
+    bool     _isFuture;
+    uint32_t _expiry;
+    float    _strike;
+    float    _impliedVol;
+    float    _delta;
+    float    _gamma;
+    float    _vega;
+    float    _theta;
 
-    MarketWatchDataPtrT Self;
-    MarketWatchDataPtrT Future;
+    MarketWatchDataPtrT _self;
+    MarketWatchDataPtrT _future;
 };
 using GreeksPtrT = std::shared_ptr<GreeksT>;
 
 using GreekBookColumnT = struct GreekBookColumnT {
     std::string Symbol;
-    uint32_t    BuyQuantity;
-    uint32_t    SellQuantity;
+    uint32_t    _buyQuantity;
+    uint32_t    _sellQuantity;
 
     float TotalSellPrice;
     float TotalBuyPrice;
@@ -164,14 +164,15 @@ using GreekBookColumnT = struct GreekBookColumnT {
 };
 
 using DValueT = struct DValueT {
-    float       Delta;
-    float       Gamma;
-    float       Vega;
-    float       Theta;
-    float       MTM;
-    float       MarketRate;
-    float       Value;
-    std::string Symbol;
+    float _delta;
+    float _gamma;
+    float _vega;
+    float _theta;
+    float _mtm;
+    float _ltp;
+    float _value;
+
+    std::string _symbol;
 };
 
 using PortfolioStatusT = struct PortfolioStatusT {
@@ -214,13 +215,13 @@ using StrategyRowT = struct StrategyRowT {
 };
 
 using OptionChainItemT = struct OptionChainItemT {
-    MarketWatchDataPtrT     Self;
-    Lancelot::ResultSetPtrT ResultSet;
+    MarketWatchDataPtrT     _self;
+    Lancelot::ResultSetPtrT _contract;
 };
 
 using OptionChainRowT = struct OptionChainRowT {
-    OptionChainItemT Call;
-    OptionChainItemT Put;
+    OptionChainItemT _call;
+    OptionChainItemT _put;
 };
 
 using ExcelContactItemT = struct ExcelContactItemT {
@@ -229,14 +230,14 @@ using ExcelContactItemT = struct ExcelContactItemT {
 };
 
 using ScannerFunctionInfoT = struct ScannerFunctionInfoT {
-    bool        Selected;
-    char        Variable;
-    std::string Name;
+    bool        _selected;
+    char        _variable;
+    std::string _name;
 };
 
 using ClientInfoT = struct ClientInfoT {
-    Lancelot::Exchange Exchange;
-    std::string        ClientCode;
+    Lancelot::Exchange _exchange;
+    std::string        _clientCode;
 };
 
 using TradeTrackerItemT = struct TradeTrackerItemT {
@@ -255,17 +256,17 @@ using SaveScannerItemT = struct SaveScannerItemT {
 class Portfolio;
 using PortfolioPtrT        = std::shared_ptr<Portfolio>;
 using ScannerResultOutputT = struct ScannerResultOutputT {
-    PortfolioPtrT      PortfolioPtr;
-    ParameterInfoListT ParameterInfoList;
+    PortfolioPtrT      _portfolio;
+    ParameterInfoListT _parameterInfoList;
 };
 #pragma pack(pop)
 
 struct Singleton {
-    Singleton()                            = default;
-    Singleton(const Singleton&)            = delete;
-    Singleton(Singleton&&)                 = delete;
-    Singleton& operator=(const Singleton&) = delete;
-    Singleton& operator=(Singleton&&)      = delete;
+    Singleton()                                    = default;
+    Singleton(const Singleton&)                    = delete;
+    Singleton(Singleton&&)                         = delete;
+    auto operator=(const Singleton&) -> Singleton& = delete;
+    auto operator=(Singleton&&) -> Singleton&      = delete;
 };
 
 class ExcelAutomation;

@@ -21,7 +21,7 @@ extern GlobalPortfolioScannerContainerT GlobalPortfolioScannerContainer;
 PortfolioScanner::PortfolioScanner(const std::string& strategyName_) : _hasParameter(false), _strategyID(INT_MIN), _strategyName(strategyName_), _selectedParam(0) {
     char variable = 'A';
     for (auto& column : ScannerFunctionList) {
-        ScannerFunctionInfoT info{ .Selected = false, .Variable = variable++, .Name = column };
+        ScannerFunctionInfoT info{ ._selected = false, ._variable = variable++, ._name = column };
         _scannerFunctionListContainer.push_back(info);
     }
     LoadParameter();
@@ -74,10 +74,10 @@ void PortfolioScanner::FirstColumn() {
         ImGui::TableHeadersRow();
         for (auto& column : _scannerFunctionListContainer) {
             ImGui::TableNextRow();
-            ImGui::PushID(column.Variable);
-            FirstCellWithPadding(ScannerFunctionColumnIndex_NAME, "%s", column.Name.data());
+            ImGui::PushID(column._variable);
+            FirstCellWithPadding(ScannerFunctionColumnIndex_NAME, "%s", column._name.data());
             ImGui::TableSetColumnIndex(ScannerFunctionColumnIndex_VARIABLE);
-            ImGui::Checkbox(FORMAT("{}", column.Variable).data(), &column.Selected);
+            ImGui::Checkbox(FORMAT("{}", column._variable).data(), &column._selected);
             ImGui::PopID();
         }
         ImGui::EndTable();
@@ -89,8 +89,8 @@ void PortfolioScanner::SecondColumn() {
 
     if (ImGui::BeginChild("Selected Functions", ImVec2(size.x, size.y / 2 - spacing), true)) {
         for (auto& column : _scannerFunctionListContainer) {
-            if (column.Selected) {
-                ImGui::Text("%c = %s", column.Variable, column.Name.data());
+            if (column._selected) {
+                ImGui::Text("%c = %s", column._variable, column._name.data());
             }
         }
     }
@@ -157,8 +157,8 @@ void PortfolioScanner::ThirdColumn() {
                 if (ImGui::Button(FORMAT("{} {}##Operations", item.Applied ? ICON_MD_STOP : ICON_MD_PLAY_ARROW, item.Applied ? "Stop" : "Apply").data(), ImVec2(-FLT_MIN, 0))) {
                     if (not item.Applied) {
                         if (not _strategyList.empty()) {
-                            ScannerResultOutputT ScannerResultOutput{ .PortfolioPtr      = std::static_pointer_cast<Portfolio>(shared_from_this()),
-                                                                      .ParameterInfoList = _strategyList.front()->ParameterInfoList };
+                            ScannerResultOutputT ScannerResultOutput{ ._portfolio         = std::static_pointer_cast<Portfolio>(shared_from_this()),
+                                                                      ._parameterInfoList = _strategyList.front()->ParameterInfoList };
                             GlobalPortfolioScannerContainer.insert_or_assign(item.UniqueID, ScannerResultOutput);
                         }
 
@@ -180,8 +180,8 @@ void PortfolioScanner::ThirdColumn() {
 void PortfolioScanner::CreateFormula() {
     std::stringstream ss;
     for (const auto& item : _scannerFunctionListContainer) {
-        if (item.Selected) {
-            ss << FORMAT("var {} := {}(token_);", item.Variable, item.Name, item.Variable);
+        if (item._selected) {
+            ss << FORMAT("var {} := {}(token_);", item._variable, item._name, item._variable);
         }
     }
     int64_t uniqueID = time(nullptr);

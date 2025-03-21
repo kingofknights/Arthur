@@ -14,7 +14,7 @@ extern MarketWatchDatContainerT MarketWatchDatContainer;
 double TokenInfo::ATP(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->AverageTradePrice;
+        return iterator->second->_atp;
     }
     return 0;
 }
@@ -22,7 +22,7 @@ double TokenInfo::ATP(double token_) {
 double TokenInfo::PercentChange(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->PercentageChange;
+        return iterator->second->_pchange;
     }
     return 0;
 }
@@ -30,7 +30,7 @@ double TokenInfo::PercentChange(double token_) {
 double TokenInfo::Open(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->OpenPrice;
+        return iterator->second->_open;
     }
     return 0;
 }
@@ -38,7 +38,7 @@ double TokenInfo::Open(double token_) {
 double TokenInfo::High(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->HighPrice;
+        return iterator->second->_high;
     }
     return 0;
 }
@@ -46,7 +46,7 @@ double TokenInfo::High(double token_) {
 double TokenInfo::Low(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->LowPrice;
+        return iterator->second->_low;
     }
     return 0;
 }
@@ -54,7 +54,7 @@ double TokenInfo::Low(double token_) {
 double TokenInfo::Close(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->ClosePrice;
+        return iterator->second->_close;
     }
     return 0;
 }
@@ -62,7 +62,7 @@ double TokenInfo::Close(double token_) {
 double TokenInfo::HighDPR(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->HighDPR;
+        return iterator->second->_highDpr;
     }
     return 0;
 }
@@ -70,7 +70,7 @@ double TokenInfo::HighDPR(double token_) {
 double TokenInfo::LowDPR(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->LowDPR;
+        return iterator->second->_lowDpr;
     }
     return 0;
 }
@@ -78,7 +78,7 @@ double TokenInfo::LowDPR(double token_) {
 double TokenInfo::TotalBuyQuantity(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->TotalBuyQuantity;
+        return iterator->second->_totalBuyQuantity;
     }
     return 0;
 }
@@ -86,7 +86,7 @@ double TokenInfo::TotalBuyQuantity(double token_) {
 double TokenInfo::TotalSellQuantity(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->TotalSellQuantity;
+        return iterator->second->_totalSellQuantity;
     }
     return 0;
 }
@@ -94,7 +94,7 @@ double TokenInfo::TotalSellQuantity(double token_) {
 double TokenInfo::VolumeTradedToday(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->VolumeTradedToday;
+        return iterator->second->_volumeTradedToday;
     }
     return 0;
 }
@@ -102,7 +102,7 @@ double TokenInfo::VolumeTradedToday(double token_) {
 double TokenInfo::OpenInterest(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->OpenInterest;
+        return iterator->second->_openInterest;
     }
     return 0;
 }
@@ -110,7 +110,7 @@ double TokenInfo::OpenInterest(double token_) {
 double TokenInfo::LTP(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->LastTradePrice;
+        return iterator->second->_ltp;
     }
     return 0;
 }
@@ -118,7 +118,7 @@ double TokenInfo::LTP(double token_) {
 double TokenInfo::LTQ(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->LastTradeQuantity;
+        return iterator->second->_ltq;
     }
     return 0;
 }
@@ -126,7 +126,7 @@ double TokenInfo::LTQ(double token_) {
 double TokenInfo::BidDepth(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->Bid[0].Price;
+        return iterator->second->_bid[0]._price;
     }
     return 0;
 }
@@ -134,7 +134,7 @@ double TokenInfo::BidDepth(double token_) {
 double TokenInfo::AskDepth(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->Ask[0].Price;
+        return iterator->second->_ask[0]._price;
     }
     return 0;
 }

@@ -81,18 +81,18 @@ void MessageBroker::processOrder(const char* buffer_) {
     LOG(INFO, "{}", __PRETTY_FUNCTION__);
     const auto*   response = reinterpret_cast<const Lancelot::HedgeOrderResponse*>(buffer_);
     OrderInfoPtrT info     = std::make_shared<OrderInfoT>();
-    info->PF               = response->_user._portfolio,
+    info->_portfolio       = response->_user._portfolio,
     info->Gateway          = response->_clientOrderNumber,
-    info->Token            = response->_token,
-    info->Quantity         = response->_quantity,
+    info->_token           = response->_token,
+    info->_quantity        = response->_quantity,
     info->FillQuantity     = 0,
-    info->Remaining        = response->_quantity,
+    info->_remaining       = response->_quantity,
     info->OrderNo          = response->_exchangeOrderNumber,
-    info->Price            = response->_price,
-    info->FillPrice        = 0,
+    info->_price           = response->_price,
+    info->_fillPrice       = 0,
     info->Side             = static_cast<Lancelot::Side>(response->_side);
     info->StatusValue      = GetResponseStatus(response->_orderStatus);
-    info->Contract         = Lancelot::ContractInfo::GetDescription(info->Token);
+    info->Contract         = Lancelot::ContractInfo::GetDescription(info->_token);
     info->Time             = FORMAT("{}", response->_timestamp);
     info->Client           = FORMAT("{}", response->_user._user);
     info->Message          = FORMAT("{}", response->_errorCode);

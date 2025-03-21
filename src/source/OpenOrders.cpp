@@ -47,18 +47,18 @@ void OpenOrders::DrawPendingBook(bool* show_) {
                     Utils::DrawTradeRow(tradeInfo_, _selectedRow, tradeInfo_->Gateway);
 
                     if (_selectedRow == tradeInfo_->Gateway and ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
-                        if (tradeInfo_->PF % 10000 and ImGui::IsKeyPressed(ImGuiKey_F2)) {
+                        if (tradeInfo_->_portfolio % 10000 and ImGui::IsKeyPressed(ImGuiKey_F2)) {
                             OrderFormInfoT info{ .Gateway     = tradeInfo_->Gateway,
-                                                 .Price       = tradeInfo_->Price,
-                                                 .Quantity    = (int)tradeInfo_->Quantity,
-                                                 .LotSize     = (int)Lancelot::ContractInfo::GetLotMultiple(tradeInfo_->Token),
+                                                 .Price       = tradeInfo_->_price,
+                                                 .Quantity    = (int)tradeInfo_->_quantity,
+                                                 .LotSize     = (int)Lancelot::ContractInfo::GetLotMultiple(tradeInfo_->_token),
                                                  .OrderNumber = tradeInfo_->OrderNo,
                                                  .Type        = 0,
                                                  .Side        = tradeInfo_->Side,
                                                  .Status      = OrderStatus_REPLACED,
-                                                 .Contract    = Lancelot::ContractInfo::GetDescription(tradeInfo_->Token),
+                                                 .Contract    = Lancelot::ContractInfo::GetDescription(tradeInfo_->_token),
                                                  .Client      = "PRO",
-                                                 .Self        = ContractInfo::GetLiveDataRef(tradeInfo_->Token) };
+                                                 .Self        = ContractInfo::GetLiveDataRef(tradeInfo_->_token) };
                             _manualOrderPtr->Update(info);
                             ImGui::OpenPopup(MODIFY_ORDER_WINDOW);
                         }
@@ -82,7 +82,7 @@ void OpenOrders::DrawPendingBook(bool* show_) {
             if (ImGui::Button("Cancel All")) {
                 _cancelOrder.clear();
                 for (const PendingBookContainerT::value_type& value : _container) {
-                    if (value.second->PF % 10000 == 9999) {
+                    if (value.second->_portfolio % 10000 == 9999) {
                         _cancelOrder.push_back(value.second);
                     }
                 }

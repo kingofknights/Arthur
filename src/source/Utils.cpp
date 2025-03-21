@@ -186,7 +186,7 @@ void Utils::ResetPortfolio(StrategyStatus status_) {
 void Utils::DrawTradeRow(const OrderInfoPtrT& tradeInfo_, int& first_, int second_) {
     ImVec4 color = BuySellColor(tradeInfo_->Side);
     ImGui::PushStyleColor(ImGuiCol_Text, color);
-    FirstCell(BooksColumnIndex_PF, FORMAT("{}", tradeInfo_->PF).data(), first_, second_);
+    FirstCell(BooksColumnIndex_PF, FORMAT("{}", tradeInfo_->_portfolio).data(), first_, second_);
     if (ImGui::IsItemHovered()) {
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
             first_ = second_;
@@ -194,11 +194,11 @@ void Utils::DrawTradeRow(const OrderInfoPtrT& tradeInfo_, int& first_, int secon
     }
 
     NextCell(BooksColumnIndex_CONTRACT, "%s", tradeInfo_->Contract.data());
-    NextCell(BooksColumnIndex_PRICE, "%.2f", tradeInfo_->Price);
-    NextCell(BooksColumnIndex_QUANTITY, "%d", tradeInfo_->Quantity);
-    NextCell(BooksColumnIndex_FILLPRICE, "%.2f", tradeInfo_->FillPrice);
+    NextCell(BooksColumnIndex_PRICE, "%.2f", tradeInfo_->_price);
+    NextCell(BooksColumnIndex_QUANTITY, "%d", tradeInfo_->_quantity);
+    NextCell(BooksColumnIndex_FILLPRICE, "%.2f", tradeInfo_->_fillPrice);
     NextCell(BooksColumnIndex_FILLQUANTITY, "%d", tradeInfo_->FillQuantity);
-    NextCell(BooksColumnIndex_REMAINING_QTY, "%d", tradeInfo_->Remaining);
+    NextCell(BooksColumnIndex_REMAINING_QTY, "%d", tradeInfo_->_remaining);
     NextCell(BooksColumnIndex_CLIENT, "%s", tradeInfo_->Client.data());
     NextCell(BooksColumnIndex_STATUS, "%s", OrderStatusInfoName[tradeInfo_->StatusValue]);
     NextCell(BooksColumnIndex_TIME, "%s", tradeInfo_->Time.data());
@@ -230,22 +230,22 @@ void Utils::GetClientList(int userId_) {
     ClientCodeList.clear();
 
     for (const auto& item : table) {
-        ClientInfoT clientInfo{ .Exchange = Lancelot::ContractInfo::GetExchange(item[ClientIndex_EXCHANGE]), .ClientCode = item[ClientIndex_CLIENTCODE] };
+        ClientInfoT clientInfo{ ._exchange = Lancelot::ContractInfo::GetExchange(item[ClientIndex_EXCHANGE]), ._clientCode = item[ClientIndex_CLIENTCODE] };
         ClientCodeList.push_back(clientInfo);
-        LOG(INFO, "Client Code for User [{}] is [{} {}]", userId_, Lancelot::ToString(clientInfo.Exchange), clientInfo.ClientCode);
+        LOG(INFO, "Client Code for User [{}] is [{} {}]", userId_, Lancelot::ToString(clientInfo._exchange), clientInfo._clientCode);
     }
 }
 
 void CreateMarketObject(uint32_t token_, std::string_view name_, float ltp_, float low_, float high_) {
-    auto marketData   = std::make_shared<MarketWatchDataT>();
-    marketData->Token = token_;
+    auto marketData    = std::make_shared<MarketWatchDataT>();
+    marketData->_token = token_;
 
-    std::memset(marketData->Description.data(), '\0', STRATEGY_NAME_LENGTH);
-    std::memcpy(marketData->Description.data(), name_.data(), name_.length());
-    marketData->LastTradePrice = ltp_;
-    marketData->LowPrice       = low_;
-    marketData->HighPrice      = high_;
-    marketData->ClosePrice     = ltp_;
+    std::memset(marketData->_description.data(), '\0', StrategyNameLength);
+    std::memcpy(marketData->_description.data(), name_.data(), name_.length());
+    marketData->_ltp   = ltp_;
+    marketData->_low   = low_;
+    marketData->_high  = high_;
+    marketData->_close = ltp_;
     MarketWatchDatContainer.emplace(token_, marketData);
 }
 

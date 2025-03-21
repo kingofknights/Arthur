@@ -39,17 +39,17 @@ void OptionChain::DrawOptionChain(bool* show_) {
         ImGui::NextColumn();
         ImGui::Text("Expiry : %s", _expiry.data());
         ImGui::NextColumn();
-        ImGui::TextColored(UpDownColor(_future->Color.LTP), "LTP : %.2f", _future->LastTradePrice);
+        ImGui::TextColored(UpDownColor(_future->_color._ltp), "LTP : %.2f", _future->_ltp);
         ImGui::NextColumn();
-        ImGui::TextColored(UpDownColor(_future->PercentageChange), "Change : %.2f", _future->PercentageChange);
+        ImGui::TextColored(UpDownColor(_future->_pchange), "Change : %.2f", _future->_pchange);
         ImGui::NextColumn();
-        ImGui::Text("Bid Qty : %ud", _future->Bid[0].Quantity);
+        ImGui::Text("Bid Qty : %ud", _future->_bid[0]._quantity);
         ImGui::NextColumn();
-        ImGui::TextColored(UpDownColor(_future->Color.TopBid), "Bid Price : %.2f", _future->Bid[0].Price);
+        ImGui::TextColored(UpDownColor(_future->_color._topBid), "Bid Price : %.2f", _future->_bid[0]._price);
         ImGui::NextColumn();
-        ImGui::TextColored(UpDownColor(_future->Color.TopAsk), "Ask Price : %.2f", _future->Ask[0].Price);
+        ImGui::TextColored(UpDownColor(_future->_color._topAsk), "Ask Price : %.2f", _future->_ask[0]._price);
         ImGui::NextColumn();
-        ImGui::Text("Ask Qty : %ud", _future->Ask[0].Quantity);
+        ImGui::Text("Ask Qty : %ud", _future->_ask[0]._quantity);
         ImGui::EndColumns();
 
         if (ImGui::BeginTable("Option Chain Table", OptionChainColumnIndex_END, TableFlags)) {
@@ -62,34 +62,34 @@ void OptionChain::DrawOptionChain(bool* show_) {
                 ImGui::TableNextRow();
 
                 const OptionChainRowT&  optionChainRow = valueType_.second;
-                const OptionChainItemT& Call           = optionChainRow.Call;
-                const OptionChainItemT& Put            = optionChainRow.Put;
+                const OptionChainItemT& Call           = optionChainRow._call;
+                const OptionChainItemT& Put            = optionChainRow._put;
 
-                float priceForCall = _future->Bid[0].Price ? _future->Bid[0].Price : _future->LastTradePrice;
+                float priceForCall = _future->_bid[0]._price ? _future->_bid[0]._price : _future->_ltp;
                 // FIXME : remove abs when working with live contracts
-                float expiryGap  = std::abs(Greeks::GetExpiryGap(Put.ResultSet->_expiryDate));
+                float expiryGap  = std::abs(Greeks::GetExpiryGap(Put._contract->_expiryDate));
                 float rate       = 0.0f;
-                float call_IV    = Greeks::GetIV(priceForCall, valueType_.first, rate, expiryGap, Call.Self->LastTradePrice, true);
+                float call_IV    = Greeks::GetIV(priceForCall, valueType_.first, rate, expiryGap, Call._self->_ltp, true);
                 float call_Theta = Greeks::GetTheta(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
                 float call_Vega  = Greeks::GetVega(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
                 float call_Gamma = Greeks::GetGamma(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
                 float call_Delta = Greeks::GetDelta(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
 
-                float priceForPut = _future->Ask[0].Price ? _future->Ask[0].Price : _future->LastTradePrice;
-                float put_IV      = Greeks::GetIV(priceForPut, valueType_.first, rate, expiryGap, Put.Self->LastTradePrice, false);
+                float priceForPut = _future->_ask[0]._price ? _future->_ask[0]._price : _future->_ltp;
+                float put_IV      = Greeks::GetIV(priceForPut, valueType_.first, rate, expiryGap, Put._self->_ltp, false);
                 float put_Theta   = Greeks::GetTheta(priceForPut, valueType_.first, put_IV, rate, expiryGap, false);
                 float put_Vega    = Greeks::GetVega(priceForPut, valueType_.first, put_IV, rate, expiryGap, false);
                 float put_Gamma   = Greeks::GetGamma(priceForPut, valueType_.first, put_IV, rate, expiryGap, false);
                 float put_Delta   = Greeks::GetDelta(priceForPut, valueType_.first, put_IV, rate, expiryGap, false);
 
                 ImU32 color     = ImGui::GetColorU32(COLOR_GRAY);
-                bool  needColor = valueType_.first < _future->LastTradePrice;
+                bool  needColor = valueType_.first < _future->_ltp;
 
-                NextCell(OptionChainColumnIndex_CALL_OI, "%d", Call.Self->OpenInterest);
+                NextCell(OptionChainColumnIndex_CALL_OI, "%d", Call._self->_openInterest);
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_VOLUME, "%d", Call.Self->VolumeTradedToday);
+                NextCell(OptionChainColumnIndex_CALL_VOLUME, "%d", Call._self->_volumeTradedToday);
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
@@ -114,54 +114,54 @@ void OptionChain::DrawOptionChain(bool* show_) {
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_LTP, "%.2f", Call.Self->LastTradePrice, UpDownColor(Call.Self->Color.LTP));
+                NextCell(OptionChainColumnIndex_CALL_LTP, "%.2f", Call._self->_ltp, UpDownColor(Call._self->_color._ltp));
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_CHANGE, "%.2f", Call.Self->PercentageChange);
+                NextCell(OptionChainColumnIndex_CALL_CHANGE, "%.2f", Call._self->_pchange);
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_BID_QTY, "%d", Call.Self->Bid[0].Quantity);
+                NextCell(OptionChainColumnIndex_CALL_BID_QTY, "%d", Call._self->_bid[0]._quantity);
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_BID_PRICE, "%.2f", Call.Self->Bid[0].Price, UpDownColor(Call.Self->Color.TopBid));
+                NextCell(OptionChainColumnIndex_CALL_BID_PRICE, "%.2f", Call._self->_bid[0]._price, UpDownColor(Call._self->_color._topBid));
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_ASK_PRICE, "%.2f", Call.Self->Ask[0].Price, UpDownColor(Call.Self->Color.TopAsk));
+                NextCell(OptionChainColumnIndex_CALL_ASK_PRICE, "%.2f", Call._self->_ask[0]._price, UpDownColor(Call._self->_color._topAsk));
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_ASK_QTY, "%d", Call.Self->Ask[0].Quantity);
+                NextCell(OptionChainColumnIndex_CALL_ASK_QTY, "%d", Call._self->_ask[0]._quantity);
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
 
                 NextCell(OptionChainColumnIndex_STRIKE_PRICE, "%.2f", valueType_.first);
 
-                NextCell(OptionChainColumnIndex_PUT_BID_QTY, "%d", Put.Self->Bid[0].Quantity);
+                NextCell(OptionChainColumnIndex_PUT_BID_QTY, "%d", Put._self->_bid[0]._quantity);
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_BID_PRICE, "%.2f", Put.Self->Bid[0].Price, UpDownColor(Put.Self->Color.TopBid));
+                NextCell(OptionChainColumnIndex_PUT_BID_PRICE, "%.2f", Put._self->_bid[0]._price, UpDownColor(Put._self->_color._topBid));
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_ASK_PRICE, "%.2f", Put.Self->Ask[0].Price, UpDownColor(Put.Self->Color.TopAsk));
+                NextCell(OptionChainColumnIndex_PUT_ASK_PRICE, "%.2f", Put._self->_ask[0]._price, UpDownColor(Put._self->_color._topAsk));
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_ASK_QTY, "%d", Put.Self->Ask[0].Quantity);
+                NextCell(OptionChainColumnIndex_PUT_ASK_QTY, "%d", Put._self->_ask[0]._quantity);
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_CHANGE, "%.2f", Put.Self->PercentageChange);
+                NextCell(OptionChainColumnIndex_PUT_CHANGE, "%.2f", Put._self->_pchange);
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_LTP, "%.2f", Put.Self->LastTradePrice, UpDownColor(Put.Self->Color.LTP));
+                NextCell(OptionChainColumnIndex_PUT_LTP, "%.2f", Put._self->_ltp, UpDownColor(Put._self->_color._ltp));
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
@@ -189,11 +189,11 @@ void OptionChain::DrawOptionChain(bool* show_) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
 
-                NextCell(OptionChainColumnIndex_PUT_VOLUME, "%ld", Put.Self->VolumeTradedToday);
+                NextCell(OptionChainColumnIndex_PUT_VOLUME, "%ld", Put._self->_volumeTradedToday);
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_OI, "%d", Put.Self->OpenInterest);
+                NextCell(OptionChainColumnIndex_PUT_OI, "%d", Put._self->_openInterest);
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
@@ -218,8 +218,8 @@ void OptionChain::SetOptionForFuture(const std::string& contract_) {
 
     _future = future;
 
-    AddContractToDemoSignal(future->Token);
-    uint32_t futurePrice_ = future->LastTradePrice * 100.0;
+    AddContractToDemoSignal(future->_token);
+    uint32_t futurePrice_ = future->_ltp * 100.0;
     _symbol               = Lancelot::ContractInfo::GetSymbol(token_);
     _expiry               = FormatTimeToString(expiry_, "%d-%m-%Y");
 
@@ -233,11 +233,11 @@ void OptionChain::LoadOptions(const std::string& symbol_, uint32_t expiry_, uint
     for (const auto& row : table) {
         auto             callToken = std::stoi(row[0]);
         auto             putToken  = std::stoi(row[1]);
-        OptionChainItemT call{ .Self = ContractInfo::GetLiveDataRef(callToken), .ResultSet = Lancelot::ContractInfo::GetResultSet(callToken) };
-        OptionChainItemT put{ .Self = ContractInfo::GetLiveDataRef(putToken), .ResultSet = Lancelot::ContractInfo::GetResultSet(putToken) };
-        OptionChainRowT  optionChainRow{ .Call = call, .Put = put };
+        OptionChainItemT call{ ._self = ContractInfo::GetLiveDataRef(callToken), ._contract = Lancelot::ContractInfo::GetResultSet(callToken) };
+        OptionChainItemT put{ ._self = ContractInfo::GetLiveDataRef(putToken), ._contract = Lancelot::ContractInfo::GetResultSet(putToken) };
+        OptionChainRowT  optionChainRow{ ._call = call, ._put = put };
 
-        _optionChainContainer.emplace(std::stof(row[2]) / call.ResultSet->_divisor, optionChainRow);
+        _optionChainContainer.emplace(std::stof(row[2]) / call._contract->_divisor, optionChainRow);
         AddContractToDemoSignal(callToken);
         AddContractToDemoSignal(putToken);
     }

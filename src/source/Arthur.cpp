@@ -460,7 +460,7 @@ void Arthur::startAllThreads() {
 
 void Arthur::marketEventHandler(std::stop_token& stopToken_) {
     while (not stopToken_.stop_requested()) {
-        MarketEventQueue.consume_one([&](const MarketWatchDataPtrT& pointer_) { Scanner::GetInstance().Process(pointer_->Token); });
+        MarketEventQueue.consume_one([&](const MarketWatchDataPtrT& pointer_) { Scanner::GetInstance().Process(pointer_->_token); });
     }
     LOG(WARNING, "{} {}", __FUNCTION__, "Exiting")
 }
@@ -490,7 +490,7 @@ void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lanc
                     ._user      = static_cast<int16_t>(UserID),
                     ._portfolio = 9999,
                 },
-                ._token         = ManualOrderInfo.Self->Token,
+                ._token         = ManualOrderInfo.Self->_token,
                 ._price         = static_cast<uint32_t>(ManualOrderInfo.Price * 100.0),
                 ._quantity      = static_cast<uint32_t>(ManualOrderInfo.Quantity),
                 ._triggerPrice  = 0,
@@ -512,7 +512,7 @@ void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lanc
                     ._user      = static_cast<int16_t>(UserID),
                     ._portfolio = 9999,
                 },
-                ._token         = ManualOrderInfo.Self->Token,
+                ._token         = ManualOrderInfo.Self->_token,
                 ._orderSequence = ManualOrderInfo.Gateway,
                 ._price         = static_cast<uint32_t>(ManualOrderInfo.Price * 100.0),
                 ._quantity      = static_cast<uint32_t>(ManualOrderInfo.Quantity),
@@ -559,7 +559,7 @@ void Arthur::cancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
             ._user      = static_cast<int16_t>(UserID),
             ._portfolio = 9999,
         },
-        ._token         = orderInfo_->Token,
+        ._token         = orderInfo_->_token,
         ._orderSequence = orderInfo_->Gateway,
 
     };
