@@ -40,17 +40,17 @@ std::string Utils::manualSerialize(const OrderFormInfoT& manualOrderInfo_) {
     json[JSON_ID] = ++Id;
 
     nlohmann::json params;
-    if (manualOrderInfo_.OrderNumber == 0) {
-        params[JSON_TOKEN]      = Lancelot::ContractInfo::GetToken(manualOrderInfo_.Contract);
-        params[JSON_SIDE]       = manualOrderInfo_.Side;
-        params[JSON_CLIENT]     = manualOrderInfo_.Client;
-        params[JSON_ORDER_TYPE] = manualOrderInfo_.Type;
+    if (manualOrderInfo_._orderNumber == 0) {
+        params[JSON_TOKEN]      = Lancelot::ContractInfo::GetToken(manualOrderInfo_._contract);
+        params[JSON_SIDE]       = manualOrderInfo_._side;
+        params[JSON_CLIENT]     = manualOrderInfo_._client;
+        params[JSON_ORDER_TYPE] = manualOrderInfo_._type;
     } else {
-        params[JSON_UNIQUE_ID] = manualOrderInfo_.Gateway;
-        params[JSON_ORDER_ID]  = manualOrderInfo_.OrderNumber;
+        params[JSON_UNIQUE_ID] = manualOrderInfo_._uniqueId;
+        params[JSON_ORDER_ID]  = manualOrderInfo_._orderNumber;
     }
-    params[JSON_PRICE]    = FORMAT("{:.2f}", manualOrderInfo_.Price);
-    params[JSON_QUANTITY] = manualOrderInfo_.Quantity;
+    params[JSON_PRICE]    = FORMAT("{:.2f}", manualOrderInfo_._price);
+    params[JSON_QUANTITY] = manualOrderInfo_._quantity;
 
     json[JSON_PARAMS] = params;
     return json.dump();
@@ -61,8 +61,8 @@ std::string Utils::cancelOrderSerialize(const OrderInfoPtrT& orderInfo_) {
     json[JSON_ID] = ++Id;
 
     nlohmann::json params;
-    params[JSON_UNIQUE_ID] = orderInfo_->Gateway;
-    params[JSON_ORDER_ID]  = orderInfo_->OrderNo;
+    params[JSON_UNIQUE_ID] = orderInfo_->_uniqueId;
+    params[JSON_ORDER_ID]  = orderInfo_->_orderNumber;
 
     json[JSON_PARAMS] = params;
     return json.dump();
@@ -74,33 +74,33 @@ std::string Utils::strategySerialize(const StrategyRowPtrT& row_, const std::str
     json[JSON_ID] = ++Id;
 
     nlohmann::json params;
-    params[JSON_PF_NUMBER]     = row_->PF;
+    params[JSON_PF_NUMBER]     = row_->_portfolio;
     params[JSON_STRATEGY_NAME] = name_;
 
     if (type_ != Lancelot::RequestType_UNSUBSCRIBE) {
         nlohmann::json arguments;
-        for (const auto& [key_, value] : row_->ParameterInfoList) {
-            switch (value.Type) {
+        for (const auto& [key_, value] : row_->_parameterInfoList) {
+            switch (value._type) {
                 case DataType_INT: {
-                    arguments[key_] = FORMAT("{}", value.Parameter.Integer);
+                    arguments[key_] = FORMAT("{}", value._parameter._integer);
                     break;
                 }
                 case DataType_COMBO:
                 case DataType_CLIENT:
                 case DataType_TEXT: {
-                    arguments[key_] = value.Parameter.Text;
+                    arguments[key_] = value._parameter._text;
                     break;
                 }
                 case DataType_CONTRACT: {
-                    arguments[key_] = FORMAT("{}", Lancelot::ContractInfo::GetToken(value.Parameter.Text));
+                    arguments[key_] = FORMAT("{}", Lancelot::ContractInfo::GetToken(value._parameter._text));
                     break;
                 }
                 case DataType_FLOAT: {
-                    arguments[key_] = FORMAT("{}", value.Parameter.Floating);
+                    arguments[key_] = FORMAT("{}", value._parameter._floating);
                     break;
                 }
                 case DataType_RADIO: {
-                    arguments[key_] = FORMAT("{}", value.Parameter.Check);
+                    arguments[key_] = FORMAT("{}", value._parameter._check);
                     break;
                 }
                 case DataType_UPDATES:
@@ -175,9 +175,9 @@ void Utils::ResetPortfolio(StrategyStatus status_) {
     auto _ = std::async(std::launch::async, [&] {
         for (const GlobalStrategyListT::value_type& valueType_ : GlobalStrategyList) {
             if (not valueType_.second.expired()) {
-                auto ptr        = valueType_.second.lock();
-                ptr->Subscribed = false;
-                ptr->Status     = status_;
+                auto ptr         = valueType_.second.lock();
+                ptr->_subscribed = false;
+                ptr->_status     = status_;
             }
         };
     });
@@ -193,18 +193,18 @@ void Utils::DrawTradeRow(const OrderInfoPtrT& tradeInfo_, int& first_, int secon
         }
     }
 
-    NextCell(BooksColumnIndex_CONTRACT, "%s", tradeInfo_->Contract.data());
+    NextCell(BooksColumnIndex_CONTRACT, "%s", tradeInfo_->_contract.data());
     NextCell(BooksColumnIndex_PRICE, "%.2f", tradeInfo_->_price);
     NextCell(BooksColumnIndex_QUANTITY, "%d", tradeInfo_->_quantity);
     NextCell(BooksColumnIndex_FILLPRICE, "%.2f", tradeInfo_->_fillPrice);
     NextCell(BooksColumnIndex_FILLQUANTITY, "%d", tradeInfo_->_fillQuantity);
     NextCell(BooksColumnIndex_REMAINING_QTY, "%d", tradeInfo_->_remaining);
-    NextCell(BooksColumnIndex_CLIENT, "%s", tradeInfo_->Client.data());
-    NextCell(BooksColumnIndex_STATUS, "%s", OrderStatusInfoName[tradeInfo_->StatusValue]);
-    NextCell(BooksColumnIndex_TIME, "%s", tradeInfo_->Time.data());
-    NextCell(BooksColumnIndex_GATEWAY, "%d", tradeInfo_->Gateway);
-    NextCell(BooksColumnIndex_ORDERNUMBER, "%ld", tradeInfo_->OrderNo);
-    NextCell(BooksColumnIndex_MESSAGE, "%s", tradeInfo_->Message.data());
+    NextCell(BooksColumnIndex_CLIENT, "%s", tradeInfo_->_client.data());
+    NextCell(BooksColumnIndex_STATUS, "%s", OrderStatusInfoName[tradeInfo_->_statusValue]);
+    NextCell(BooksColumnIndex_TIME, "%s", tradeInfo_->_time.data());
+    NextCell(BooksColumnIndex_GATEWAY, "%d", tradeInfo_->_uniqueId);
+    NextCell(BooksColumnIndex_ORDERNUMBER, "%ld", tradeInfo_->_orderNumber);
+    NextCell(BooksColumnIndex_MESSAGE, "%s", tradeInfo_->_message.data());
     ImGui::PopStyleColor();
 }
 
@@ -242,10 +242,10 @@ void CreateMarketObject(uint32_t token_, std::string_view name_, float ltp_, flo
 
     std::memset(marketData->_description.data(), '\0', StrategyNameLength);
     std::memcpy(marketData->_description.data(), name_.data(), name_.length());
-    marketData->_ltp   = ltp_;
-    marketData->_low   = low_;
-    marketData->_high  = high_;
-    marketData->_close = ltp_;
+    marketData->_lastTradePrice = ltp_;
+    marketData->_low            = low_;
+    marketData->_high           = high_;
+    marketData->_close          = ltp_;
     MarketWatchDatContainer.emplace(token_, marketData);
 }
 

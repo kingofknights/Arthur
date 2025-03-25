@@ -205,7 +205,7 @@ void Arthur::paint() {
         ImGui::ShowDemoWindow(&_showDemoWindow);
     }
 
-    _positionPtr->paint(&_showPosition);
+    _positionPtr->Paint(&_showPosition);
     _marketWatchPtr->paint(&_showMarketWatch, &_showPriceLadder);
     _openOrdersPtr->paint(&_showOpenOrders);
     _strategyWorkspacePtr->paint(&_showStrategyWorkspace);
@@ -217,8 +217,8 @@ void Arthur::paint() {
 }
 
 void Arthur::AddTrade(const OrderInfoPtrT& tradeInfo_) {
-    LOG(INFO, "{} {}", __PRETTY_FUNCTION__, static_cast<int>(tradeInfo_->StatusValue));
-    switch (tradeInfo_->StatusValue) {
+    LOG(INFO, "{} {}", __PRETTY_FUNCTION__, static_cast<int>(tradeInfo_->_statusValue));
+    switch (tradeInfo_->_statusValue) {
         case OrderStatus_PLACED:
         case OrderStatus_NEW:
         case OrderStatus_REPLACED: {
@@ -490,13 +490,13 @@ void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lanc
                     ._user      = static_cast<int16_t>(UserID),
                     ._portfolio = 9999,
                 },
-                ._token         = ManualOrderInfo.Self->_token,
-                ._price         = static_cast<uint32_t>(ManualOrderInfo.Price * 100.0),
-                ._quantity      = static_cast<uint32_t>(ManualOrderInfo.Quantity),
+                ._token         = ManualOrderInfo._marketWatch->_token,
+                ._price         = static_cast<uint32_t>(ManualOrderInfo._price * 100.0),
+                ._quantity      = static_cast<uint32_t>(ManualOrderInfo._quantity),
                 ._triggerPrice  = 0,
-                ._side          = ManualOrderInfo.Side,
+                ._side          = ManualOrderInfo._side,
                 ._orderSequence = 0,
-                ._orderType     = static_cast<int16_t>(ManualOrderInfo.Type),
+                ._orderType     = static_cast<int16_t>(ManualOrderInfo._type),
                 ._nnf           = 0,
             };
             _messageBroker->Write_Sync((char*)&order, sizeof(Lancelot::ManualOrder));
@@ -512,10 +512,10 @@ void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lanc
                     ._user      = static_cast<int16_t>(UserID),
                     ._portfolio = 9999,
                 },
-                ._token         = ManualOrderInfo.Self->_token,
-                ._orderSequence = ManualOrderInfo.Gateway,
-                ._price         = static_cast<uint32_t>(ManualOrderInfo.Price * 100.0),
-                ._quantity      = static_cast<uint32_t>(ManualOrderInfo.Quantity),
+                ._token         = ManualOrderInfo._marketWatch->_token,
+                ._orderSequence = ManualOrderInfo._uniqueId,
+                ._price         = static_cast<uint32_t>(ManualOrderInfo._price * 100.0),
+                ._quantity      = static_cast<uint32_t>(ManualOrderInfo._quantity),
                 ._triggerPrice  = 0,
             };
             _messageBroker->Write_Sync((char*)&order, sizeof(Lancelot::ModifyOrder));
@@ -542,7 +542,7 @@ void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_
         },
         ._user = {
             ._user      = UserID,
-            ._portfolio = row_->PF,
+            ._portfolio = row_->_portfolio,
         }
     };
     _messageBroker->Write_Sync((char*)&header, sizeof(header));
@@ -560,7 +560,7 @@ void Arthur::cancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
             ._portfolio = 9999,
         },
         ._token         = orderInfo_->_token,
-        ._orderSequence = orderInfo_->Gateway,
+        ._orderSequence = orderInfo_->_uniqueId,
 
     };
     _messageBroker->Write_Sync((char*)&order, sizeof(Lancelot::CancelOrder));

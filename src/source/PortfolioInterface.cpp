@@ -55,8 +55,8 @@ ImVec4 PortfolioInterface::GetStatusColor(StrategyStatus status_, bool changed_)
 void PortfolioInterface::subscribeAll() {
     auto _ = std::async(std::launch::async, [&]() {
         for (const StrategyListT::value_type& value_type : _strategyList) {
-            if (value_type->Changed or value_type->Status == StrategyStatus_TERMINATED or value_type->Status == StrategyStatus_INACTIVE) {
-                value_type->Status = StrategyStatus_WAITING;
+            if (value_type->_changed or value_type->_status == StrategyStatus_TERMINATED or value_type->_status == StrategyStatus_INACTIVE) {
+                value_type->_status = StrategyStatus_WAITING;
                 doStrategyAction(value_type, _strategyName, Lancelot::RequestType_SUBSCRIBE);
             }
         }
@@ -66,8 +66,8 @@ void PortfolioInterface::subscribeAll() {
 void PortfolioInterface::subscribeSelected() {
     auto _ = std::async(std::launch::async, [&]() {
         for (const StrategyListT::value_type& value_type : _strategyList) {
-            if ((value_type->Changed or value_type->Status == StrategyStatus_TERMINATED or value_type->Status == StrategyStatus_INACTIVE) and value_type->Selected) {
-                value_type->Status = StrategyStatus_WAITING;
+            if ((value_type->_changed or value_type->_status == StrategyStatus_TERMINATED or value_type->_status == StrategyStatus_INACTIVE) and value_type->_selected) {
+                value_type->_status = StrategyStatus_WAITING;
                 doStrategyAction(value_type, _strategyName, Lancelot::RequestType_SUBSCRIBE);
             }
         }
@@ -77,7 +77,7 @@ void PortfolioInterface::subscribeSelected() {
 void PortfolioInterface::applySelected() {
     auto _ = std::async(std::launch::async, [&]() {
         for (const StrategyListT::value_type& value_type : _strategyList) {
-            if ((value_type->Changed or value_type->Status == StrategyStatus_ACTIVE) and value_type->Subscribed and value_type->Selected) {
+            if ((value_type->_changed or value_type->_status == StrategyStatus_ACTIVE) and value_type->_subscribed and value_type->_selected) {
                 doStrategyAction(value_type, _strategyName, Lancelot::RequestType_APPLY);
             }
         }
@@ -87,7 +87,7 @@ void PortfolioInterface::applySelected() {
 void PortfolioInterface::applyAll() {
     auto _ = std::async(std::launch::async, [&]() {
         for (const StrategyListT::value_type& value_type : _strategyList) {
-            if ((value_type->Changed or value_type->Status == StrategyStatus_ACTIVE) and value_type->Subscribed) {
+            if ((value_type->_changed or value_type->_status == StrategyStatus_ACTIVE) and value_type->_subscribed) {
                 doStrategyAction(value_type, _strategyName, Lancelot::RequestType_APPLY);
             }
         }
@@ -97,7 +97,7 @@ void PortfolioInterface::applyAll() {
 void PortfolioInterface::unsubscribeAll() {
     auto _ = std::async(std::launch::async, [&]() {
         for (const StrategyListT::value_type& value_type : _strategyList) {
-            if (value_type->Changed or value_type->Status == StrategyStatus_ACTIVE or value_type->Status == StrategyStatus_APPLIED) {
+            if (value_type->_changed or value_type->_status == StrategyStatus_ACTIVE or value_type->_status == StrategyStatus_APPLIED) {
                 doStrategyAction(value_type, _strategyName, Lancelot::RequestType_UNSUBSCRIBE);
             }
         }
@@ -107,7 +107,7 @@ void PortfolioInterface::unsubscribeAll() {
 void PortfolioInterface::unsubscribeSelected() {
     auto _ = std::async(std::launch::async, [&]() {
         for (const StrategyListT::value_type& value_type : _strategyList) {
-            if ((value_type->Changed or value_type->Status == StrategyStatus_ACTIVE or value_type->Status == StrategyStatus_APPLIED) and value_type->Selected) {
+            if ((value_type->_changed or value_type->_status == StrategyStatus_ACTIVE or value_type->_status == StrategyStatus_APPLIED) and value_type->_selected) {
                 doStrategyAction(value_type, _strategyName, Lancelot::RequestType_UNSUBSCRIBE);
             }
         }
@@ -122,21 +122,21 @@ void PortfolioInterface::Exports(std::string_view path_) {
     nlohmann::ordered_json root;
     for (const StrategyRowPtrT& strategyRow : _strategyList) {
         nlohmann::ordered_json list;
-        for (const ParameterInfoListT::value_type& value_type : strategyRow->ParameterInfoList) {
+        for (const ParameterInfoListT::value_type& value_type : strategyRow->_parameterInfoList) {
             const std::string_view parameterName  = value_type.first;
             const ParameterInfoT&  parameterValue = value_type.second;
             nlohmann::ordered_json config;
-            switch (parameterValue.Type) {
+            switch (parameterValue._type) {
                 case DataType_INT: {
-                    config["Value"] = FORMAT("{}", parameterValue.Parameter.Integer);
+                    config["Value"] = FORMAT("{}", parameterValue._parameter._integer);
                     break;
                 }
                 case DataType_FLOAT: {
-                    config["Value"] = FORMAT("{}", parameterValue.Parameter.Floating);
+                    config["Value"] = FORMAT("{}", parameterValue._parameter._floating);
                     break;
                 }
                 case DataType_RADIO: {
-                    config["Value"] = FORMAT("{:d}", parameterValue.Parameter.Check);
+                    config["Value"] = FORMAT("{:d}", parameterValue._parameter._check);
                     break;
                 }
                 case DataType_COMBO:
@@ -144,7 +144,7 @@ void PortfolioInterface::Exports(std::string_view path_) {
                 case DataType_UPDATES:
                 case DataType_TEXT:
                 case DataType_CONTRACT: {
-                    config["Value"] = parameterValue.Parameter.Text;
+                    config["Value"] = parameterValue._parameter._text;
                     break;
                 }
                 case DataType_END: {
@@ -152,7 +152,7 @@ void PortfolioInterface::Exports(std::string_view path_) {
                 }
             }
 
-            config["Type"]      = parameterValue.Type;
+            config["Type"]      = parameterValue._type;
             list[parameterName] = config;
         }
         root.push_back(list);
@@ -178,33 +178,33 @@ void PortfolioInterface::Imports(std::string_view path_) {
         for (const auto& config : item.value().items()) {
             const auto& value = config.value();
 
-            parameterInfo.Type         = value.at("Type").get<DataType>();
+            parameterInfo._type        = value.at("Type").get<DataType>();
             std::string parameterValue = value.at("Value").get<std::string>();
-            switch (parameterInfo.Type) {
+            switch (parameterInfo._type) {
                 case DataType_INT: {
-                    parameterInfo.Parameter.Integer = std::stoi(parameterValue);
+                    parameterInfo._parameter._integer = std::stoi(parameterValue);
                     break;
                 }
                 case DataType_FLOAT: {
-                    parameterInfo.Parameter.Floating = std::stof(parameterValue);
+                    parameterInfo._parameter._floating = std::stof(parameterValue);
                     break;
                 }
                 case DataType_COMBO:
                 case DataType_CLIENT:
                 case DataType_UPDATES:
                 case DataType_TEXT: {
-                    parameterInfo.Parameter.Text = parameterValue;
+                    parameterInfo._parameter._text = parameterValue;
                     break;
                 }
                 case DataType_RADIO: {
-                    parameterInfo.Parameter.Check = parameterValue == "1";
+                    parameterInfo._parameter._check = parameterValue == "1";
                     break;
                 }
                 case DataType_CONTRACT: {
-                    parameterInfo.Parameter.Text = parameterValue;
+                    parameterInfo._parameter._text = parameterValue;
 
-                    auto token         = Lancelot::ContractInfo::GetToken(parameterValue);
-                    parameterInfo.Self = ContractInfo::GetLiveDataRef(token);
+                    auto token                 = Lancelot::ContractInfo::GetToken(parameterValue);
+                    parameterInfo._marketWatch = ContractInfo::GetLiveDataRef(token);
 #if REMOVE_EXPIRED_TOKEN
                     if (token == -1) {
                         add = false;
@@ -227,14 +227,14 @@ void PortfolioInterface::Imports(std::string_view path_) {
             parameterInfoList.emplace(config.key(), parameterInfo);
         }
         if (add) {
-            StrategyRowPtrT strategyRow    = std::make_shared<StrategyRowT>();
-            strategyRow->Changed           = false;
-            strategyRow->Subscribed        = false;
-            strategyRow->PF                = ++PortFolioNumber;
-            strategyRow->Status            = StrategyStatus_INACTIVE;
-            strategyRow->ParameterInfoList = parameterInfoList;
+            StrategyRowPtrT strategyRow     = std::make_shared<StrategyRowT>();
+            strategyRow->_changed           = false;
+            strategyRow->_subscribed        = false;
+            strategyRow->_portfolio         = ++PortFolioNumber;
+            strategyRow->_status            = StrategyStatus_INACTIVE;
+            strategyRow->_parameterInfoList = parameterInfoList;
             _strategyList.emplace_back(strategyRow);
-            Utils::AppendPortfolio(strategyRow->PF, strategyRow);
+            Utils::AppendPortfolio(strategyRow->_portfolio, strategyRow);
         }
     }
     StatusDisplay = FORMAT("Importing done : {} {}", path_, _strategyList.size());
@@ -243,42 +243,42 @@ void PortfolioInterface::Imports(std::string_view path_) {
 
 void PortfolioInterface::updateAll(GlobalParameterInfoT& info_) {
     std::ranges::for_each(_strategyList, [&info_](const StrategyListT::value_type& value) {
-        auto iterator = value->ParameterInfoList.find(info_.Name);
-        if (iterator != value->ParameterInfoList.end()) {
-            bool status = (value->Status == StrategyStatus_ACTIVE || value->Status == StrategyStatus_APPLIED);
+        auto iterator = value->_parameterInfoList.find(info_._name);
+        if (iterator != value->_parameterInfoList.end()) {
+            bool status = (value->_status == StrategyStatus_ACTIVE || value->_status == StrategyStatus_APPLIED);
 
             if (status) {
-                value->Changed = true;
+                value->_changed = true;
             }
 
-            ParameterValueT& parameterValue = iterator->second.Parameter;
-            switch (info_.Info.Type) {
+            ParameterValueT& parameterValue = iterator->second._parameter;
+            switch (info_._parameterInfo._type) {
                 case DataType_INT: {
-                    parameterValue.Integer = info_.Info.Parameter.Integer;
+                    parameterValue._integer = info_._parameterInfo._parameter._integer;
                     break;
                 }
                 case DataType_FLOAT: {
-                    parameterValue.Floating = info_.Info.Parameter.Floating;
+                    parameterValue._floating = info_._parameterInfo._parameter._floating;
                     break;
                 }
                 case DataType_TEXT: {
-                    parameterValue.Text = info_.Info.Parameter.Text;
+                    parameterValue._text = info_._parameterInfo._parameter._text;
 
                     break;
                 }
                 case DataType_RADIO: {
-                    parameterValue.Check = info_.Info.Parameter.Check;
+                    parameterValue._check = info_._parameterInfo._parameter._check;
                     break;
                 }
                 case DataType_COMBO: {
                     std::vector<std::string> result;
-                    boost::split(result, info_.Info.Parameter.Text, boost::is_any_of(";"));
-                    parameterValue.Text = result.at(info_.Info.Parameter.Integer);
+                    boost::split(result, info_._parameterInfo._parameter._text, boost::is_any_of(";"));
+                    parameterValue._text = result.at(info_._parameterInfo._parameter._integer);
 
                     break;
                 }
                 case DataType_CLIENT: {
-                    parameterValue.Text = info_.Info.Parameter.Text;
+                    parameterValue._text = info_._parameterInfo._parameter._text;
                     break;
                 }
                 case DataType_UPDATES:
@@ -295,25 +295,25 @@ PortfolioStatusT PortfolioInterface::checkAnyActive() {
     PortfolioStatusT status{ false, 0, 0, 0, 0, 0 };
 
     std::ranges::for_each(_strategyList, [&](const StrategyListT::value_type& valueType_) {
-        switch (valueType_->Status) {
+        switch (valueType_->_status) {
             case StrategyStatus_INACTIVE: {
-                status.Inactive += 1;
+                status._inactive += 1;
                 break;
             }
             case StrategyStatus_ACTIVE: {
-                status.Active += 1;
+                status._active += 1;
                 break;
             }
             case StrategyStatus_APPLIED: {
-                status.Apply += 1;
+                status._apply += 1;
                 break;
             }
             case StrategyStatus_TERMINATED: {
-                status.Terminate += 1;
+                status._terminate += 1;
                 break;
             }
             case StrategyStatus_WAITING: {
-                status.Waiting += 1;
+                status._waiting += 1;
                 break;
             }
             case StrategyStatus_DISCONNECTED: {
@@ -322,7 +322,7 @@ PortfolioStatusT PortfolioInterface::checkAnyActive() {
         }
     });
 
-    status.Close = status.Active || status.Apply || status.Waiting;
+    status._close = status._active || status._apply || status._waiting;
     return status;
 }
 
@@ -333,28 +333,28 @@ void PortfolioInterface::ParseConfig(std::string_view config_) {
     for (const auto& item : paramConfig.items()) {
         const auto&    value = item.value();
         ParameterInfoT param;
-        param.Type       = static_cast<DataType>(value["DataType"].get<int>());
+        param._type      = static_cast<DataType>(value["DataType"].get<int>());
         std::string data = value["Value"].get<std::string>();
 
-        switch (param.Type) {
+        switch (param._type) {
             case DataType_CLIENT:
             case DataType_UPDATES:
             case DataType_COMBO:
             case DataType_TEXT:
             case DataType_CONTRACT: {
-                param.Parameter.Text = data;
+                param._parameter._text = data;
                 break;
             }
             case DataType_INT: {
-                param.Parameter.Integer = std::stoi(data);
+                param._parameter._integer = std::stoi(data);
                 break;
             }
             case DataType_FLOAT: {
-                param.Parameter.Floating = std::stof(data);
+                param._parameter._floating = std::stof(data);
                 break;
             }
             case DataType_RADIO: {
-                param.Parameter.Check = std::stoi(data);
+                param._parameter._check = std::stoi(data);
                 break;
             }
             case DataType_END: {
@@ -362,13 +362,13 @@ void PortfolioInterface::ParseConfig(std::string_view config_) {
             }
         }
         _paramList.insert(ParameterInfoListT ::value_type(item.key(), param));
-        GlobalParameterInfoT global{ .Update = false, .Name = item.key(), .Info = param };
+        GlobalParameterInfoT global{ ._update = false, ._name = item.key(), ._parameterInfo = param };
         _globalParamList.push_back(global);
     }
 }
 
 void PortfolioInterface::doStrategyAction(const StrategyRowPtrT& strategy_, const std::string& name_, Lancelot::RequestType type_) {
-    strategy_->Status = StrategyStatus_PENDING;
+    strategy_->_status = StrategyStatus_PENDING;
     _strand.post([strategy_, type_, name_]() { StrategyAction(strategy_, name_, type_); });
 }
 

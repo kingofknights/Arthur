@@ -41,7 +41,7 @@ void OrderBook::DrawOrderBookTable(bool* show_) {
                     Utils::DrawTradeRow(tradeInfo_, _selectedRow, i);
                     if (_selectedRow == i) {
                         if (ImGui::IsKeyPressed(ImGuiKey_F4)) {
-                            OrderHistory::Instance().LoadOrderHistory(tradeInfo_->OrderNo);
+                            OrderHistory::Instance().LoadOrderHistory(tradeInfo_->_orderNumber);
                             ImGui::OpenPopup(ORDER_HISTORY_POPUP_WINDOW);
                         }
                         OrderHistory::Instance().paint(nullptr);

@@ -55,8 +55,8 @@ void CentralFeed::Process(char* buffer, size_t size_) {
     }
     float TopBid = ref->_bid[0]._price;
     float TopAsk = ref->_ask[0]._price;
-    float LTP    = ref->_ltp;
-    float ATP    = ref->_atp;
+    float LTP    = ref->_lastTradePrice;
+    float ATP    = ref->_averageTradePrice;
 
     for (int i = 0; i < 5; ++i) {
         ref->_bid[i]._price    = (pointer->_bid[i]._price) / 100.0f;
@@ -77,19 +77,19 @@ void CentralFeed::Process(char* buffer, size_t size_) {
     ref->_low   = (pointer->_low) / 100.0f;
     ref->_close = (pointer->_close) / 100.0f;
 
-    ref->_atp = (pointer->_averageTradePrice) / 100.0f;
-    ref->_ltp = (pointer->_lastTradePrice) / 100.0f;
-    ref->_ltq = (pointer->_lastTradeQuantity);
+    ref->_averageTradePrice = (pointer->_averageTradePrice) / 100.0f;
+    ref->_lastTradePrice    = (pointer->_lastTradePrice) / 100.0f;
+    ref->_lastTradePrice    = (pointer->_lastTradeQuantity);
 
     std::memset(ref->_lastTradeTime.data(), 0, 30);
     std::memcpy(ref->_lastTradeTime.data(), pointer->_lastTradeTime, 30);
 
-    ref->_pchange = ((float)(ref->_close - ref->_ltp) / ref->_close) * 100;
+    ref->_pchange = ((float)(ref->_close - ref->_lastTradePrice) / ref->_close) * 100;
 
     ref->_color._topBid = TopBid > ref->_bid[0]._price;
     ref->_color._topAsk = TopAsk > ref->_ask[0]._price;
-    ref->_color._ltp    = LTP > ref->_ltp;
-    ref->_color._atp    = ATP > ref->_atp;
+    ref->_color._ltp    = LTP > ref->_lastTradePrice;
+    ref->_color._atp    = ATP > ref->_averageTradePrice;
 
     MarketEventQueue.push(ref);
 }

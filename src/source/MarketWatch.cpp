@@ -148,17 +148,17 @@ void MarketWatch::ContractCell(int contract_, int index_, const char* data_, con
 
         if (open) {
             OrderFormInfoT info{
-                .Gateway     = 0,
-                .Price       = pointer_->_ltp,
-                .Quantity    = (int)Lancelot::ContractInfo::GetLotMultiple(pointer_->_token),
-                .LotSize     = info.Quantity,
-                .OrderNumber = 0,
-                .Type        = 0,
-                .Side        = side,
-                .Status      = OrderStatus_NEW,
-                .Contract    = Lancelot::ContractInfo::GetDescription(pointer_->_token),
-                .Client      = "Pro",
-                .Self        = pointer_,
+                ._uniqueId    = 0,
+                ._price       = pointer_->_lastTradePrice,
+                ._quantity    = (int)Lancelot::ContractInfo::GetLotMultiple(pointer_->_token),
+                ._lotSize     = info._quantity,
+                ._orderNumber = 0,
+                ._type        = 0,
+                ._side        = side,
+                ._status      = OrderStatus_NEW,
+                ._contract    = Lancelot::ContractInfo::GetDescription(pointer_->_token),
+                ._client      = "Pro",
+                ._marketWatch = pointer_,
             };
             _manualOrderPtr->Update(info);
             ImGui::OpenPopup(NEW_ORDER_WINDOW);
@@ -197,16 +197,16 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) {
 
     ImGui::LabelText("Open", "%.2f", pointer_->_open);
     ImGui::LabelText("Low", "%.2f", pointer_->_low);
-    ImGui::LabelText("LTP", "%.2f", pointer_->_ltp);
+    ImGui::LabelText("LTP", "%.2f", pointer_->_lastTradePrice);
 
     ImGui::NextColumn();
     ImGui::LabelText("High", "%.2f", pointer_->_high);
     ImGui::LabelText("Close", "%.2f", pointer_->_close);
-    ImGui::LabelText("ATP", "%.2f", pointer_->_atp);
+    ImGui::LabelText("ATP", "%.2f", pointer_->_averageTradePrice);
     ImGui::EndColumns();
 
     auto  range  = (pointer_->_high - pointer_->_low);
-    float moment = float(pointer_->_ltp - pointer_->_low) / float(range == 0 ? 1 : range);
+    float moment = float(pointer_->_lastTradePrice - pointer_->_low) / float(range == 0 ? 1 : range);
 
     uint64_t total = (pointer_->_totalBuyQuantity + pointer_->_totalSellQuantity);
     float    ratio = float(pointer_->_totalBuyQuantity) / float(total == 0 ? 1 : total);
@@ -220,7 +220,7 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) {
     ImGui::PopStyleColor(2);
 }
 
-void MarketWatch::Connect(OptionChainContractSlot callback_) {
+void MarketWatch::Connect(OptionChainContractSlotT callback_) {
     _optionChainContractSignal.connect(callback_);
 }
 
@@ -286,9 +286,9 @@ void MarketWatch::Exports(std::string_view path_) {
 
 void MarketWatch::DrawColumn(const MarketWatchDataPtrT& data_, int index_) {
     ContractCell(index_, MarketWatchColumnIndex_CONTACT_NAME, data_->_description.data(), data_);
-    NextCell(MarketWatchColumnIndex_ATP, "%.2f", data_->_atp, UpDownColor(data_->_color._atp));
-    NextCell(MarketWatchColumnIndex_LTP, "%.2f", data_->_ltp, UpDownColor(data_->_color._ltp));
-    NextCell(MarketWatchColumnIndex_LTQ, "%d", data_->_ltq);
+    NextCell(MarketWatchColumnIndex_ATP, "%.2f", data_->_averageTradePrice, UpDownColor(data_->_color._atp));
+    NextCell(MarketWatchColumnIndex_LTP, "%.2f", data_->_lastTradePrice, UpDownColor(data_->_color._ltp));
+    NextCell(MarketWatchColumnIndex_LTQ, "%d", data_->_lastTradePrice);
     NextCell(MarketWatchColumnIndex_LTT, "%s", data_->_lastTradeTime.data());
     NextCell(MarketWatchColumnIndex_TOP_BID, "%.2f", data_->_bid[0]._price, UpDownColor(data_->_color._topBid));
     NextCell(MarketWatchColumnIndex_TOP_ASK, "%.2f", data_->_ask[0]._price, UpDownColor(data_->_color._topAsk));

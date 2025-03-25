@@ -43,29 +43,29 @@ void OpenOrders::DrawPendingBook(bool* show_) {
                 for (auto& iterator = begin; iterator != end; ++iterator) {
                     ImGui::TableNextRow();
                     const OrderInfoPtrT& tradeInfo_ = iterator->second;
-                    ImGui::PushID(tradeInfo_->Gateway);
-                    Utils::DrawTradeRow(tradeInfo_, _selectedRow, tradeInfo_->Gateway);
+                    ImGui::PushID(tradeInfo_->_uniqueId);
+                    Utils::DrawTradeRow(tradeInfo_, _selectedRow, tradeInfo_->_uniqueId);
 
-                    if (_selectedRow == tradeInfo_->Gateway and ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
+                    if (_selectedRow == tradeInfo_->_uniqueId and ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
                         if (tradeInfo_->_portfolio % 10000 and ImGui::IsKeyPressed(ImGuiKey_F2)) {
-                            OrderFormInfoT info{ .Gateway     = tradeInfo_->Gateway,
-                                                 .Price       = tradeInfo_->_price,
-                                                 .Quantity    = (int)tradeInfo_->_quantity,
-                                                 .LotSize     = (int)Lancelot::ContractInfo::GetLotMultiple(tradeInfo_->_token),
-                                                 .OrderNumber = tradeInfo_->OrderNo,
-                                                 .Type        = 0,
-                                                 .Side        = tradeInfo_->_side,
-                                                 .Status      = OrderStatus_REPLACED,
-                                                 .Contract    = Lancelot::ContractInfo::GetDescription(tradeInfo_->_token),
-                                                 .Client      = "PRO",
-                                                 .Self        = ContractInfo::GetLiveDataRef(tradeInfo_->_token) };
+                            OrderFormInfoT info{ ._uniqueId    = tradeInfo_->_uniqueId,
+                                                 ._price       = tradeInfo_->_price,
+                                                 ._quantity    = (int)tradeInfo_->_quantity,
+                                                 ._lotSize     = (int)Lancelot::ContractInfo::GetLotMultiple(tradeInfo_->_token),
+                                                 ._orderNumber = tradeInfo_->_orderNumber,
+                                                 ._type        = 0,
+                                                 ._side        = tradeInfo_->_side,
+                                                 ._status      = OrderStatus_REPLACED,
+                                                 ._contract    = Lancelot::ContractInfo::GetDescription(tradeInfo_->_token),
+                                                 ._client      = "PRO",
+                                                 ._marketWatch = ContractInfo::GetLiveDataRef(tradeInfo_->_token) };
                             _manualOrderPtr->Update(info);
                             ImGui::OpenPopup(MODIFY_ORDER_WINDOW);
                         }
                         _manualOrderPtr->paint(MODIFY_ORDER_WINDOW);
 
                         if (ImGui::IsKeyPressed(ImGuiKey_F4)) {
-                            OrderHistory::Instance().LoadOrderHistory(tradeInfo_->OrderNo);
+                            OrderHistory::Instance().LoadOrderHistory(tradeInfo_->_orderNumber);
                             ImGui::OpenPopup(ORDER_HISTORY_POPUP_WINDOW);
                         }
                         OrderHistory::Instance().paint(nullptr);
@@ -145,18 +145,18 @@ void OpenOrders::DrawManualOrderRequestedForCancel() {
 
 void OpenOrders::Update(const OrderInfoPtrT& tradeInfo_, bool insert_) {
     {
-        auto iterator = _hashing.find(tradeInfo_->Gateway);
+        auto iterator = _hashing.find(tradeInfo_->_uniqueId);
         if (iterator != _hashing.end()) {
             if (_container.erase(iterator->second)) {
                 _buyCount -= tradeInfo_->_side == Lancelot::Side_BUY;
                 _sellCount -= tradeInfo_->_side == Lancelot::Side_SELL;
             }
         }
-        _hashing[tradeInfo_->Gateway] = tradeInfo_->Time;
+        _hashing[tradeInfo_->_uniqueId] = tradeInfo_->_time;
     }
 
     if (insert_) {
-        auto success = _container.emplace(tradeInfo_->Time, tradeInfo_).second;
+        auto success = _container.emplace(tradeInfo_->_time, tradeInfo_).second;
         _buyCount += tradeInfo_->_side == Lancelot::Side_BUY;
         _sellCount += tradeInfo_->_side == Lancelot::Side_SELL;
     }

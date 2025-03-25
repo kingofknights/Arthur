@@ -32,8 +32,8 @@ void TradeTracker::DrawTracker(bool* show_) {
                     ImGui::TableNextRow();
                     TradeTrackerItemT& TradeTrackerItem = *iterator;
                     NextCell(TradeTrackerColumn_ID, "%d", i);
-                    NextCell(TradeTrackerColumn_NAME, "%s", TradeTrackerItem.Strategy.data());
-                    NextCell(TradeTrackerColumn_DESCRIPTIONS, "%s", TradeTrackerItem.Descriptions.data());
+                    NextCell(TradeTrackerColumn_NAME, "%s", TradeTrackerItem._strategy.data());
+                    NextCell(TradeTrackerColumn_DESCRIPTIONS, "%s", TradeTrackerItem._descriptions.data());
                 }
             }
             ImGui::EndTable();

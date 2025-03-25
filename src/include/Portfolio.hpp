@@ -17,10 +17,10 @@ class Portfolio final : public PortfolioInterface {
     [[nodiscard]] std::string getName() const;
     [[nodiscard]] bool        closed() const;
 
-    static void setCallback(const AddContractToMarketWatchSignal::slot_type& slot_);
+    static void setCallback(const AddContractToMarketWatchSignalT::slot_type& slot_);
 
   protected:
-    static AddContractToMarketWatchSignal _addContractToMarketWatchSignal;
+    static AddContractToMarketWatchSignalT AddContractToMarketWatchSignal;
 
     void DrawPortfolioWindow();
     void DrawNewPortfolioCreation();
@@ -42,12 +42,12 @@ class Portfolio final : public PortfolioInterface {
     std::string      _exchange;
     ExportImport     _action;
     PortfolioStatusT _status{
-        .Close     = false,
-        .Inactive  = 0,
-        .Active    = 0,
-        .Apply     = 0,
-        .Waiting   = 0,
-        .Terminate = 0,
+        ._close     = false,
+        ._inactive  = 0,
+        ._active    = 0,
+        ._apply     = 0,
+        ._waiting   = 0,
+        ._terminate = 0,
     };
     ImGuiListClipper  _clipper;
     ImGuiListClipper  _contractClipper;

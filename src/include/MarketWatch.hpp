@@ -20,7 +20,7 @@ class MarketWatch {
 
     void paint(bool* showMarketWatch_, bool* showLadder_);
     void addContractToMarketWatch(const std::string& contract_);
-    void Connect(OptionChainContractSlot callback_);
+    void Connect(OptionChainContractSlotT callback_);
 
   protected:
     void DrawMarketWatchTable(bool* show_);
@@ -35,9 +35,9 @@ class MarketWatch {
     void DrawSearchBox();
 
   private:
-    OrderFormPtrT             _manualOrderPtr;
-    MarketWatchDataPtrT       _ladderDataPtr;
-    OptionChainContractSignal _optionChainContractSignal;
+    OrderFormPtrT              _manualOrderPtr;
+    MarketWatchDataPtrT        _ladderDataPtr;
+    OptionChainContractSignalT _optionChainContractSignal;
 
     int  _toBeDeleted  = -1;
     int  _selectedRow  = -1;

@@ -14,7 +14,7 @@ extern MarketWatchDatContainerT MarketWatchDatContainer;
 double TokenInfo::ATP(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->_atp;
+        return iterator->second->_averageTradePrice;
     }
     return 0;
 }
@@ -110,7 +110,7 @@ double TokenInfo::OpenInterest(double token_) {
 double TokenInfo::LTP(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->_ltp;
+        return iterator->second->_lastTradePrice;
     }
     return 0;
 }
@@ -118,7 +118,7 @@ double TokenInfo::LTP(double token_) {
 double TokenInfo::LTQ(double token_) {
     const auto iterator = MarketWatchDatContainer.find(token_);
     if (iterator != MarketWatchDatContainer.end()) {
-        return iterator->second->_ltq;
+        return iterator->second->_lastTradePrice;
     }
     return 0;
 }

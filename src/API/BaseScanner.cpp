@@ -42,29 +42,29 @@ void BaseScanner::UpdateUser(double PF_, const std::string& update) {
                 const std::string& value = split_[1];
                 auto               item  = ScannerResult._parameterInfoList.find(key);
                 if (item != ScannerResult._parameterInfoList.end()) {
-                    auto& parameter = item->second.Parameter;
-                    switch (item->second.Type) {
+                    auto& parameter = item->second._parameter;
+                    switch (item->second._type) {
                         case DataType_CONTRACT: {
-                            int token         = stoi(value);
-                            parameter.Text    = Lancelot::ContractInfo::GetDescription(token);
-                            item->second.Self = ContractInfo::GetLiveDataRef(token);
+                            int token                 = stoi(value);
+                            parameter._text           = Lancelot::ContractInfo::GetDescription(token);
+                            item->second._marketWatch = ContractInfo::GetLiveDataRef(token);
                             break;
                         }
                         case DataType_INT: {
-                            parameter.Integer = stoi(value);
+                            parameter._integer = stoi(value);
                             break;
                         }
                         case DataType_FLOAT: {
-                            parameter.Floating = stod(value);
+                            parameter._floating = stod(value);
                             break;
                         }
                         case DataType_CLIENT:
                         case DataType_TEXT: {
-                            parameter.Text = value;
+                            parameter._text = value;
                             break;
                         }
                         case DataType_RADIO: {
-                            parameter.Check = value == "true";
+                            parameter._check = value == "true";
                             break;
                         }
                         case DataType_COMBO:

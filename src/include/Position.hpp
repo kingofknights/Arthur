@@ -7,25 +7,23 @@
 #include "Enums.hpp"
 #include "Structure.hpp"
 
-enum NetBookCalculation;
-
 class Position {
   public:
-    Position(boost::asio::io_context& ioContext_);
+    explicit Position(boost::asio::io_context& ioContext_);
     void Insert(const OrderInfoPtrT& tradeInfo_);
-    void paint(bool* show_);
+    void Paint(bool* show_);
 
   protected:
-    void   DrawBook(bool* show_);
-    void   SymbolBoolWiseBookUpdate(const OrderInfoPtrT& tradeInfo_);
-    void   PFWiseBookUpdate(const OrderInfoPtrT& tradeInfo_);
-    void   GreekBookUpdate(const OrderInfoPtrT& tradeInfo_);
-    void   DrawSymbolWiseNetBook();
-    void   DrawPFWiseNetBook();
-    void   DrawGreekNetBook();
-    void   UpdateGreekValue();
-    void   TimerEvent();
-    double CalculateSymbolWisePNL(const NetBookColumnPtrT& column);
+    void DrawBook(bool* show_);
+    void SymbolBoolWiseBookUpdate(const OrderInfoPtrT& tradeInfo_);
+    void PFWiseBookUpdate(const OrderInfoPtrT& tradeInfo_);
+    void GreekBookUpdate(const OrderInfoPtrT& tradeInfo_);
+    void DrawSymbolWiseNetBook();
+    void DrawPFWiseNetBook();
+    void DrawGreekNetBook();
+    void UpdateGreekValue();
+    void TimerEvent();
+    auto CalculateSymbolWisePNL(const NetBookColumnPtrT& column_) -> double;
 
   private:
     PendingTradeUpdateT          _pendingTradeUpdate;

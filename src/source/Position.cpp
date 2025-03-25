@@ -14,13 +14,13 @@
 template<typename Type>
 void UpdateTradeInfoNetbook(Type& data, const OrderInfoPtrT& tradeInfo_) {
     if (tradeInfo_->_side == Lancelot::Side_BUY) {
-        data->TotalBuyPrice += tradeInfo_->_price * tradeInfo_->_quantity;
+        data->_totalBuyPrice += tradeInfo_->_price * tradeInfo_->_quantity;
         data->_buyQuantity += tradeInfo_->_quantity;
-        data->AverageBuyPrice = data->TotalBuyPrice / data->_buyQuantity;
+        data->_averageBuyPrice = data->_totalBuyPrice / data->_buyQuantity;
     } else {
-        data->TotalSellPrice += tradeInfo_->_price * tradeInfo_->_quantity;
+        data->_totalSellPrice += tradeInfo_->_price * tradeInfo_->_quantity;
         data->_sellQuantity += tradeInfo_->_quantity;
-        data->AverageSellPrice = data->TotalSellPrice / data->_sellQuantity;
+        data->_averageSellPrice = data->_totalSellPrice / data->_sellQuantity;
     }
 }
 
@@ -30,23 +30,23 @@ void UpdateNetBook(Container& container_, Sequencial& sequencial_, Key key_, con
     if (iterator != container_.end()) {
         NetBookColumnPtrT& data = iterator->second;
         UpdateTradeInfoNetbook(data, tradeInfo_);
-        data->NetInvestment = data->TotalBuyPrice - data->TotalSellPrice;
-        data->TotalQty      = data->_buyQuantity - data->_sellQuantity;
+        data->_netInvestment = data->_totalBuyPrice - data->_totalSellPrice;
+        data->_totalQuantity = data->_buyQuantity - data->_sellQuantity;
     } else {
-        NetBookColumnPtrT data = std::make_shared<NetBookColumnT>();
-        data->AverageBuyPrice  = 0;
-        data->AverageSellPrice = 0;
-        data->_buyQuantity     = 0;
-        data->_sellQuantity    = 0;
-        data->TotalBuyPrice    = 0;
-        data->TotalSellPrice   = 0;
-        data->LastLTP          = 0;
-        data->LastPNL          = 0;
-        data->PF               = tradeInfo_->_portfolio;
-        data->Self             = ContractInfo::GetLiveDataRef(tradeInfo_->_token);
+        NetBookColumnPtrT data  = std::make_shared<NetBookColumnT>();
+        data->_averageBuyPrice  = 0;
+        data->_averageSellPrice = 0;
+        data->_buyQuantity      = 0;
+        data->_sellQuantity     = 0;
+        data->_totalBuyPrice    = 0;
+        data->_totalSellPrice   = 0;
+        data->_lastTradePrice   = 0;
+        data->_lastPNL          = 0;
+        data->_portfolio        = tradeInfo_->_portfolio;
+        data->_marketWatch      = ContractInfo::GetLiveDataRef(tradeInfo_->_token);
         UpdateTradeInfoNetbook(data, tradeInfo_);
-        data->NetInvestment = data->TotalBuyPrice - data->TotalSellPrice;
-        data->TotalQty      = data->_buyQuantity - data->_sellQuantity;
+        data->_netInvestment = data->_totalBuyPrice - data->_totalSellPrice;
+        data->_totalQuantity = data->_buyQuantity - data->_sellQuantity;
 
         container_.emplace(key_, data);
         sequencial_.push_back(std::make_pair(key_, data));
@@ -91,7 +91,7 @@ void Position::Insert(const OrderInfoPtrT& tradeInfo_) {
     _pendingTradeUpdate.push(tradeInfo_);
 }
 
-void Position::paint(bool* show_) {
+void Position::Paint(bool* show_) {
     _pendingTradeUpdate.consume_one([this](const OrderInfoPtrT& tradeInfo_) {
         SymbolBoolWiseBookUpdate(tradeInfo_);
         PFWiseBookUpdate(tradeInfo_);
@@ -123,31 +123,31 @@ void Position::GreekBookUpdate(const OrderInfoPtrT& tradeInfo_) {
 
         GreeksPtrT greek = std::make_shared<GreeksT>();
         {
-            auto* resultSet    = Lancelot::ContractInfo::GetResultSet(tradeInfo_->_token);
-            greek->_isCall     = resultSet->_option == Lancelot::OptionType_CALL;
-            greek->_isFuture   = resultSet->_instType == Lancelot::Instrument_FUTURE;
-            greek->_expiry     = resultSet->_expiryDate;
-            greek->_strike     = resultSet->_strikePrice;
-            greek->_impliedVol = 1;
-            greek->_delta      = 1;
-            greek->_gamma      = 1;
-            greek->_vega       = 1;
-            greek->_theta      = 1;
-            greek->_self       = ContractInfo::GetLiveDataRef(tradeInfo_->_token);
-            greek->_future     = ContractInfo::GetLiveDataRef(Lancelot::ContractInfo::GetFuture(tradeInfo_->_token));
+            auto* resultSet     = Lancelot::ContractInfo::GetResultSet(tradeInfo_->_token);
+            greek->_isCall      = resultSet->_option == Lancelot::OptionType_CALL;
+            greek->_isFuture    = resultSet->_instType == Lancelot::Instrument_FUTURE;
+            greek->_expiry      = resultSet->_expiryDate;
+            greek->_strike      = resultSet->_strikePrice;
+            greek->_impliedVol  = 1;
+            greek->_delta       = 1;
+            greek->_gamma       = 1;
+            greek->_vega        = 1;
+            greek->_theta       = 1;
+            greek->_marketWatch = ContractInfo::GetLiveDataRef(tradeInfo_->_token);
+            greek->_future      = ContractInfo::GetLiveDataRef(Lancelot::ContractInfo::GetFuture(tradeInfo_->_token));
             _greekList.push_back(greek);
         }
 
         _greekList.push_back(greek);
 
-        data->Symbol           = Lancelot::ContractInfo::GetSymbol(tradeInfo_->_token);
-        data->_buyQuantity     = 0;
-        data->_sellQuantity    = 0;
-        data->TotalSellPrice   = 0;
-        data->TotalBuyPrice    = 0;
-        data->AverageSellPrice = 0;
-        data->AverageBuyPrice  = 0;
-        data->Greeks           = greek;
+        data->_symbol           = Lancelot::ContractInfo::GetSymbol(tradeInfo_->_token);
+        data->_buyQuantity      = 0;
+        data->_sellQuantity     = 0;
+        data->_totalSellPrice   = 0;
+        data->_totalBuyPrice    = 0;
+        data->_averageSellPrice = 0;
+        data->_averageBuyPrice  = 0;
+        data->_greeks           = greek;
 
         UpdateTradeInfoNetbook(data, tradeInfo_);
         _greekBookContainer.emplace(tradeInfo_->_token, data);
@@ -155,26 +155,26 @@ void Position::GreekBookUpdate(const OrderInfoPtrT& tradeInfo_) {
 }
 
 double Position::CalculateSymbolWisePNL(const NetBookColumnPtrT& column) {
-    if (column->LastLTP == column->Self->_ltp) {
-        return column->LastPNL;
+    if (column->_lastTradePrice == column->_marketWatch->_lastTradePrice) {
+        return column->_lastPNL;
     }
-    column->LastLTP = column->Self->_ltp;
+    column->_lastTradePrice = column->_marketWatch->_lastTradePrice;
 
-    double MTM = 0;
-    float  BPL = std::min(column->_buyQuantity, column->_sellQuantity) * (column->AverageSellPrice - column->AverageBuyPrice);
+    float mtm = 0;
+    float bpl = std::min(column->_buyQuantity, column->_sellQuantity) * (column->_averageSellPrice - column->_averageBuyPrice);
     if (column->_buyQuantity > column->_sellQuantity) {
-        MTM = (column->_buyQuantity - column->_sellQuantity) * (column->LastLTP - column->AverageBuyPrice);
+        mtm = (column->_buyQuantity - column->_sellQuantity) * (column->_lastTradePrice - column->_averageBuyPrice);
     } else if (column->_buyQuantity < column->_sellQuantity) {
-        MTM = (column->_sellQuantity - column->_buyQuantity) * (column->AverageSellPrice - column->LastLTP);
+        mtm = (column->_sellQuantity - column->_buyQuantity) * (column->_averageSellPrice - column->_lastTradePrice);
     } else {
-        BPL = column->TotalSellPrice - column->TotalBuyPrice;
+        bpl = column->_totalSellPrice - column->_totalBuyPrice;
     }
 
-    double PNL      = MTM + BPL;
-    column->MTM     = MTM;
-    column->PNL     = PNL;
-    column->LastPNL = PNL;
-    return PNL;
+    float pnl        = mtm + bpl;
+    column->_mtm     = mtm;
+    column->_pnl     = pnl;
+    column->_lastPNL = pnl;
+    return pnl;
 }
 
 void Position::DrawSymbolWiseNetBook() {
@@ -194,16 +194,16 @@ void Position::DrawSymbolWiseNetBook() {
             for (auto iterator = begin; iterator < end; ++iterator) {
                 ImGui::TableNextRow();
                 auto column = iterator->second;
-                NextCell(SymbolWiseNetBookColumnIndex_CONTRACT, "%s", column->Self->_description.data());
-                NextCell(SymbolWiseNetBookColumnIndex_AVGBID, "%0.2f", column->AverageBuyPrice);
+                NextCell(SymbolWiseNetBookColumnIndex_CONTRACT, "%s", column->_marketWatch->_description.data());
+                NextCell(SymbolWiseNetBookColumnIndex_AVGBID, "%0.2f", column->_averageBuyPrice);
                 NextCell(SymbolWiseNetBookColumnIndex_BUYQTY, "%d", column->_buyQuantity);
                 NextCell(SymbolWiseNetBookColumnIndex_SELLQTY, "%d", column->_sellQuantity);
-                NextCell(SymbolWiseNetBookColumnIndex_AVGSELL, "%0.2f", column->AverageSellPrice);
-                NextCell(SymbolWiseNetBookColumnIndex_TOTAL, "%d", column->TotalQty, UpDownColor(column->TotalQty));
-                NextCell(SymbolWiseNetBookColumnIndex_NETINVEST, "%.2f", column->NetInvestment, UpDownColor(column->NetInvestment));
-                NextCell(SymbolWiseNetBookColumnIndex_MTM, "%d", column->MTM, UpDownColor(column->MTM));
-                NextCell(SymbolWiseNetBookColumnIndex_LTP, "%.2f", column->Self->_ltp, UpDownColor(column->Self->_color._ltp));
-                NextCell(SymbolWiseNetBookColumnIndex_PNL, "%d", column->PNL, UpDownColor(column->PNL));
+                NextCell(SymbolWiseNetBookColumnIndex_AVGSELL, "%0.2f", column->_averageSellPrice);
+                NextCell(SymbolWiseNetBookColumnIndex_TOTAL, "%d", column->_totalQuantity, UpDownColor(column->_totalQuantity));
+                NextCell(SymbolWiseNetBookColumnIndex_NETINVEST, "%.2f", column->_netInvestment, UpDownColor(column->_netInvestment));
+                NextCell(SymbolWiseNetBookColumnIndex_MTM, "%d", column->_mtm, UpDownColor(column->_mtm));
+                NextCell(SymbolWiseNetBookColumnIndex_LTP, "%.2f", column->_marketWatch->_lastTradePrice, UpDownColor(column->_marketWatch->_color._ltp));
+                NextCell(SymbolWiseNetBookColumnIndex_PNL, "%d", column->_pnl, UpDownColor(column->_pnl));
             }
         }
 
@@ -232,17 +232,17 @@ void Position::DrawPFWiseNetBook() {
                 ImGui::TableNextRow();
                 auto column = iterator->second;
 
-                NextCell(PFWiseNetBookColumnIndex_PF, "%d", column->PF);
-                NextCell(PFWiseNetBookColumnIndex_CONTRACT, "%s", column->Self->_description.data());
-                NextCell(PFWiseNetBookColumnIndex_AVGBID, "%0.2f", column->AverageBuyPrice);
+                NextCell(PFWiseNetBookColumnIndex_PF, "%d", column->_portfolio);
+                NextCell(PFWiseNetBookColumnIndex_CONTRACT, "%s", column->_marketWatch->_description.data());
+                NextCell(PFWiseNetBookColumnIndex_AVGBID, "%0.2f", column->_averageBuyPrice);
                 NextCell(PFWiseNetBookColumnIndex_BUYQTY, "%d", column->_buyQuantity);
                 NextCell(PFWiseNetBookColumnIndex_SELLQTY, "%d", column->_sellQuantity);
-                NextCell(PFWiseNetBookColumnIndex_AVGSELL, "%0.2f", column->AverageSellPrice);
-                NextCell(PFWiseNetBookColumnIndex_TOTAL, "%d", column->TotalQty, UpDownColor(column->TotalQty));
-                NextCell(PFWiseNetBookColumnIndex_NETINVEST, "%.2f", column->NetInvestment, UpDownColor(column->NetInvestment));
-                NextCell(PFWiseNetBookColumnIndex_MTM, "%d", column->MTM, UpDownColor(column->MTM));
-                NextCell(PFWiseNetBookColumnIndex_LTP, "%.2f", column->Self->_ltp, UpDownColor(column->Self->_color._ltp));
-                NextCell(PFWiseNetBookColumnIndex_PNL, "%d", column->PNL, UpDownColor(column->PNL));
+                NextCell(PFWiseNetBookColumnIndex_AVGSELL, "%0.2f", column->_averageSellPrice);
+                NextCell(PFWiseNetBookColumnIndex_TOTAL, "%d", column->_totalQuantity, UpDownColor(column->_totalQuantity));
+                NextCell(PFWiseNetBookColumnIndex_NETINVEST, "%.2f", column->_netInvestment, UpDownColor(column->_netInvestment));
+                NextCell(PFWiseNetBookColumnIndex_MTM, "%d", column->_mtm, UpDownColor(column->_mtm));
+                NextCell(PFWiseNetBookColumnIndex_LTP, "%.2f", column->_marketWatch->_lastTradePrice, UpDownColor(column->_marketWatch->_color._ltp));
+                NextCell(PFWiseNetBookColumnIndex_PNL, "%d", column->_pnl, UpDownColor(column->_pnl));
             }
         }
 
@@ -254,33 +254,34 @@ void Position::DrawPFWiseNetBook() {
 }
 
 void Position::DrawGreekNetBook() {
-    float                                    M2M   = 0;
-    float                                    Theta = 0;
-    float                                    Vega  = 0;
-    std::unordered_map<std::string, DValueT> ValueT;
+    float m2M   = 0;
+    float theta = 0;
+    float vega  = 0;
+
+    std::unordered_map<std::string, DValueT> valueMap;
 
     for (auto& [key, column] : _greekBookContainer) {
         DValueT DValue;
         float   Qty = (column->_buyQuantity - column->_sellQuantity);
-        float   LTP = column->Greeks->_future->_ltp;
+        float   LTP = column->_greeks->_future->_lastTradePrice;
         DValue._ltp = LTP;
         if (column->_buyQuantity > column->_sellQuantity) {
-            DValue._mtm = (Qty) * (LTP - column->AverageBuyPrice);
+            DValue._mtm = (Qty) * (LTP - column->_averageBuyPrice);
         } else if (column->_buyQuantity < column->_sellQuantity) {
-            DValue._mtm = (-Qty) * (column->AverageSellPrice - LTP);
+            DValue._mtm = (-Qty) * (column->_averageSellPrice - LTP);
         }
 
-        DValue._delta = Qty * column->Greeks->_delta;
-        DValue._gamma = Qty * column->Greeks->_gamma;
-        DValue._vega  = Qty * column->Greeks->_vega;
-        DValue._theta = Qty * column->Greeks->_theta;
+        DValue._delta = Qty * column->_greeks->_delta;
+        DValue._gamma = Qty * column->_greeks->_gamma;
+        DValue._vega  = Qty * column->_greeks->_vega;
+        DValue._theta = Qty * column->_greeks->_theta;
 
-        M2M += DValue._mtm;
-        Theta += DValue._theta;
-        Vega += DValue._vega;
+        m2M += DValue._mtm;
+        theta += DValue._theta;
+        vega += DValue._vega;
 
-        auto iterator = ValueT.find(column->Symbol);
-        if (iterator != ValueT.end()) {
+        auto iterator = valueMap.find(column->_symbol);
+        if (iterator != valueMap.end()) {
             auto& value = iterator->second;
             value._delta += DValue._delta;
             value._gamma += DValue._gamma;
@@ -289,8 +290,8 @@ void Position::DrawGreekNetBook() {
             value._mtm += DValue._mtm;
             value._value = value._ltp * value._delta;
         } else {
-            DValue._symbol = column->Symbol;
-            ValueT.emplace(column->Symbol, DValue);
+            DValue._symbol = column->_symbol;
+            valueMap.emplace(column->_symbol, DValue);
         }
     }
 
@@ -304,9 +305,9 @@ void Position::DrawGreekNetBook() {
         }
         ImGui::TableHeadersRow();
 
-        _clipper.Begin(ValueT.size());
+        _clipper.Begin(static_cast<int>(valueMap.size()));
         while (_clipper.Step()) {
-            auto begin = ValueT.begin();
+            auto begin = valueMap.begin();
             std::ranges::advance(begin, _clipper.DisplayStart);
             auto end = begin;
             std::ranges::advance(end, _clipper.DisplayEnd - _clipper.DisplayStart);
@@ -328,22 +329,24 @@ void Position::DrawGreekNetBook() {
     }
 
     ImGui::Separator();
-    ImGui::TextColored(UpDownColor(M2M), "| MTM : %.4f |", M2M);
+    ImGui::TextColored(UpDownColor(m2M), "| MTM : %.4f |", m2M);
     ImGui::SameLine();
-    ImGui::TextColored(UpDownColor(Theta), "| Theta : %.4f |", Theta);
+    ImGui::TextColored(UpDownColor(theta), "| Theta : %.4f |", theta);
     ImGui::SameLine();
-    ImGui::TextColored(UpDownColor(Vega), "| Vega : %.4f |", Vega);
+    ImGui::TextColored(UpDownColor(vega), "| Vega : %.4f |", vega);
 }
 
 void Position::UpdateGreekValue() {
     if (_calculation == NetBookCalculation_GREEK) {
         for (const GreeksPtrT& column : _greekList) {
-            if (column->_isFuture) continue;
+            if (column->_isFuture) {
+                continue;
+            }
             double ExpiryGap = std::abs(Greeks::GetExpiryGap(column->_expiry));
-            float  LTP       = column->_isCall ? (column->_future->_bid[0]._price ? column->_future->_bid[0]._price : column->_future->_ltp)
-                                               : (column->_future->_ask[0]._price ? column->_future->_ask[0]._price : column->_future->_ltp);
+            float  LTP       = column->_isCall ? (column->_future->_bid[0]._price ? column->_future->_bid[0]._price : column->_future->_lastTradePrice)
+                                               : (column->_future->_ask[0]._price ? column->_future->_ask[0]._price : column->_future->_lastTradePrice);
 
-            column->_impliedVol = Greeks::GetIV(LTP, column->_strike, 0, ExpiryGap, column->_self->_ltp, column->_isCall);
+            column->_impliedVol = Greeks::GetIV(LTP, column->_strike, 0, ExpiryGap, column->_marketWatch->_lastTradePrice, column->_isCall);
             column->_delta      = Greeks::GetDelta(LTP, column->_strike, column->_impliedVol, 0, ExpiryGap, column->_isCall);
             column->_gamma      = Greeks::GetGamma(LTP, column->_strike, column->_impliedVol, 0, ExpiryGap, column->_isCall);
             column->_vega       = Greeks::GetVega(LTP, column->_strike, column->_impliedVol, 0, ExpiryGap, column->_isCall);
@@ -362,5 +365,7 @@ void Position::UpdateGreekValue() {
 
 void Position::TimerEvent() {
     _timer.expires_from_now(boost::posix_time::seconds(1));
-    _timer.async_wait([&](const boost::system::error_code& err) { UpdateGreekValue(); });
+    _timer.async_wait([&](const boost::system::error_code& err_) { if(not err_) {
+    UpdateGreekValue(); 
+} });
 }

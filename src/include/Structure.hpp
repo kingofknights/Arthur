@@ -54,9 +54,9 @@ using MarketWatchDataT = struct MarketWatchDataT {
     std::array<char, StrategyNameLength>             _description;
 
     uint32_t _token;
-    uint32_t _ltq;
-    double   _atp;
-    double   _ltp;
+    uint32_t _lastTradeQuantity;
+    double   _averageTradePrice;
+    double   _lastTradePrice;
     double   _lowDpr;
     double   _highDpr;
 
@@ -77,63 +77,69 @@ using MarketWatchDataT = struct MarketWatchDataT {
 using MarketWatchDataPtrT = std::shared_ptr<MarketWatchDataT>;
 
 using ParameterValueT = struct ParameterValueT {
-    bool        Check{ false };
-    int         Integer{ 0 };
-    float       Floating{ 0.0f };
-    std::string Text;
+    bool        _check{ false };
+    int         _integer{ 0 };
+    float       _floating{ 0.0F };
+    std::string _text;
 };
 
 using ParameterInfoT = struct ParameterInfoT {
-    bool                SearchEnable{ false };
-    DataType            Type;
-    ParameterValueT     Parameter;
-    ImGuiTextFilter     Filter;
-    MarketWatchDataPtrT Self;
+    bool                _searchEnable{ false };
+    DataType            _type;
+    ParameterValueT     _parameter;
+    ImGuiTextFilter     _filter;
+    MarketWatchDataPtrT _marketWatch;
 };
 
 using GlobalParameterInfoT = struct GlobalParameterInfoT {
-    bool           Update;
-    std::string    Name;
-    ParameterInfoT Info;
+    bool           _update;
+    std::string    _name;
+    ParameterInfoT _parameterInfo;
 };
 
 using OrderInfoT = struct OrderInfoT {
     uint32_t _portfolio;
-    uint32_t Gateway;
+    uint32_t _uniqueId;
     uint32_t _token;
     uint32_t _quantity;
     uint32_t _fillQuantity;
     uint32_t _remaining;
-    long     OrderNo;
+    long     _orderNumber;
     float    _price;
     float    _fillPrice;
 
     Lancelot::Side _side;
-    OrderStatus    StatusValue;
-    std::string    Contract;
-    std::string    Time;
-    std::string    Client;
-    std::string    Message;
+
+    OrderStatus _statusValue;
+    std::string _contract;
+    std::string _time;
+    std::string _client;
+    std::string _message;
 };
 
+using BookInfoT = struct BookInfoT {
+    float   _price;
+    float   _average;
+    int32_t _quantity;
+};
 using NetBookColumnT = struct NetBookColumnT {
-    uint32_t PF;
+    uint32_t _portfolio;
     uint32_t _buyQuantity;
     uint32_t _sellQuantity;
-    int32_t  TotalQty;
+    int32_t  _totalQuantity;
 
-    float LastLTP;
-    float AverageBuyPrice;
-    float AverageSellPrice;
-    float NetInvestment;
-    float TotalBuyPrice;
-    float TotalSellPrice;
+    float _lastTradePrice;
+    float _averageBuyPrice;
+    float _averageSellPrice;
+    float _netInvestment;
+    float _totalBuyPrice;
+    float _totalSellPrice;
 
-    float LastPNL;
-    float PNL;
-    float MTM;
+    float _lastPNL;
+    float _pnl;
+    float _mtm;
 
-    MarketWatchDataPtrT Self;
+    MarketWatchDataPtrT _marketWatch;
 };
 
 using GreeksT = struct GreeksT {
@@ -147,22 +153,22 @@ using GreeksT = struct GreeksT {
     float    _vega;
     float    _theta;
 
-    MarketWatchDataPtrT _self;
+    MarketWatchDataPtrT _marketWatch;
     MarketWatchDataPtrT _future;
 };
 using GreeksPtrT = std::shared_ptr<GreeksT>;
 
 using GreekBookColumnT = struct GreekBookColumnT {
-    std::string Symbol;
+    std::string _symbol;
     uint32_t    _buyQuantity;
     uint32_t    _sellQuantity;
 
-    float TotalSellPrice;
-    float TotalBuyPrice;
-    float AverageSellPrice;
-    float AverageBuyPrice;
+    float _totalSellPrice;
+    float _totalBuyPrice;
+    float _averageSellPrice;
+    float _averageBuyPrice;
 
-    GreeksPtrT Greeks;
+    GreeksPtrT _greeks;
 };
 
 using DValueT = struct DValueT {
@@ -178,46 +184,47 @@ using DValueT = struct DValueT {
 };
 
 using PortfolioStatusT = struct PortfolioStatusT {
-    bool     Close;
-    uint32_t Inactive;
-    uint32_t Active;
-    uint32_t Apply;
-    uint32_t Waiting;
-    uint32_t Terminate;
+    bool     _close;
+    uint32_t _inactive;
+    uint32_t _active;
+    uint32_t _apply;
+    uint32_t _waiting;
+    uint32_t _terminate;
 };
 
 using OrderFormInfoT = struct OrderFormInfoT {
-    uint32_t            Gateway;
-    double              Price;
-    int                 Quantity;
-    int                 LotSize;
-    long                OrderNumber;
-    int                 Type;
-    Lancelot::Side      Side;
-    OrderStatus         Status;
-    std::string         Contract;
-    std::string         Client;
-    MarketWatchDataPtrT Self;
+    uint32_t       _uniqueId;
+    double         _price;
+    int            _quantity;
+    int            _lotSize;
+    long           _orderNumber;
+    int            _type;
+    Lancelot::Side _side;
+    OrderStatus    _status;
+    std::string    _contract;
+    std::string    _client;
+
+    MarketWatchDataPtrT _marketWatch;
 };
 
 using SpotInfoT = struct SpotInfoT {
-    float Value;
-    float Change;
+    float _value;
+    float _change;
 };
 
 using ParameterInfoListT = std::map<std::string, ParameterInfoT>;
 
 using StrategyRowT = struct StrategyRowT {
-    bool               Changed;
-    bool               Subscribed;
-    bool               Selected;
-    uint32_t           PF;
-    StrategyStatus     Status;
-    ParameterInfoListT ParameterInfoList;
+    bool               _changed;
+    bool               _subscribed;
+    bool               _selected;
+    uint32_t           _portfolio;
+    StrategyStatus     _status;
+    ParameterInfoListT _parameterInfoList;
 };
 
 using OptionChainItemT = struct OptionChainItemT {
-    MarketWatchDataPtrT     _self;
+    MarketWatchDataPtrT     _marketWatch;
     Lancelot::ResultSetPtrT _contract;
 };
 
@@ -227,8 +234,8 @@ using OptionChainRowT = struct OptionChainRowT {
 };
 
 using ExcelContactItemT = struct ExcelContactItemT {
-    size_t              Index;
-    MarketWatchDataPtrT Self;
+    size_t              _indea;
+    MarketWatchDataPtrT _marketWatch;
 };
 
 using ScannerFunctionInfoT = struct ScannerFunctionInfoT {
@@ -243,20 +250,21 @@ using ClientInfoT = struct ClientInfoT {
 };
 
 using TradeTrackerItemT = struct TradeTrackerItemT {
-    int         PF;
-    std::string Strategy;
-    std::string Descriptions;
+    int         _portfolio;
+    std::string _strategy;
+    std::string _descriptions;
 };
 
 using SaveScannerItemT = struct SaveScannerItemT {
-    bool        Applied;
-    int64_t     UniqueID;
-    std::string Name;
-    std::string ExpandedEquation;
+    bool        _applied;
+    int64_t     _uniqueID;
+    std::string _name;
+    std::string _expandedEquation;
 };
 
 class Portfolio;
-using PortfolioPtrT        = std::shared_ptr<Portfolio>;
+using PortfolioPtrT = std::shared_ptr<Portfolio>;
+
 using ScannerResultOutputT = struct ScannerResultOutputT {
     PortfolioPtrT      _portfolio;
     ParameterInfoListT _parameterInfoList;

@@ -136,14 +136,14 @@ void PortfolioScanner::ThirdColumn() {
             ImGui::TableHeadersRow();
             int i = 0;
             for (SaveScannerItemT& item : _scannerSaveContainer) {
-                ImGui::PushID(item.Name.data());
+                ImGui::PushID(item._name.data());
                 ImGui::TableNextRow();
 
                 FirstCell(ScannerSavedColumnIndex_NUMBER, FORMAT("#{}", i).data(), _selectedScanner, i);
 
                 if (ImGui::IsItemHovered()) {
                     ImGui::BeginTooltip();
-                    ImGui::Text("%s", item.ExpandedEquation.data());
+                    ImGui::Text("%s", item._expandedEquation.data());
                     ImGui::EndTooltip();
                 }
                 if (_selectedScanner == i) {
@@ -151,21 +151,21 @@ void PortfolioScanner::ThirdColumn() {
                         _deleteScannerID = i;
                     }
                 }
-                NextCell(ScannerSavedColumnIndex_NAME, "%s", item.Name.data());
+                NextCell(ScannerSavedColumnIndex_NAME, "%s", item._name.data());
                 ImGui::TableSetColumnIndex(ScannerSavedColumnIndex_OPERATIONS);
 
-                if (ImGui::Button(FORMAT("{} {}##Operations", item.Applied ? ICON_MD_STOP : ICON_MD_PLAY_ARROW, item.Applied ? "Stop" : "Apply").data(), ImVec2(-FLT_MIN, 0))) {
-                    if (not item.Applied) {
+                if (ImGui::Button(FORMAT("{} {}##Operations", item._applied ? ICON_MD_STOP : ICON_MD_PLAY_ARROW, item._applied ? "Stop" : "Apply").data(), ImVec2(-FLT_MIN, 0))) {
+                    if (not item._applied) {
                         if (not _strategyList.empty()) {
                             ScannerResultOutputT ScannerResultOutput{ ._portfolio         = std::static_pointer_cast<Portfolio>(shared_from_this()),
-                                                                      ._parameterInfoList = _strategyList.front()->ParameterInfoList };
-                            GlobalPortfolioScannerContainer.insert_or_assign(item.UniqueID, ScannerResultOutput);
+                                                                      ._parameterInfoList = _strategyList.front()->_parameterInfoList };
+                            GlobalPortfolioScannerContainer.insert_or_assign(item._uniqueID, ScannerResultOutput);
                         }
 
-                        item.Applied = Scanner::GetInstance().EvaluateExp(item.UniqueID, item.ExpandedEquation, false);
+                        item._applied = Scanner::GetInstance().EvaluateExp(item._uniqueID, item._expandedEquation, false);
                     } else {
-                        Scanner::GetInstance().ScannerUnsubscribe(item.UniqueID);
-                        item.Applied = false;
+                        Scanner::GetInstance().ScannerUnsubscribe(item._uniqueID);
+                        item._applied = false;
                     }
                 }
 
@@ -190,7 +190,7 @@ void PortfolioScanner::CreateFormula() {
 
     _unfoldedFormula = ss.str();
 
-    _scannerSaveContainer.emplace_back(SaveScannerItemT{ .Applied = false, .UniqueID = uniqueID, .Name = _formulaName, .ExpandedEquation = _unfoldedFormula });
+    _scannerSaveContainer.emplace_back(SaveScannerItemT{ ._applied = false, ._uniqueID = uniqueID, ._name = _formulaName, ._expandedEquation = _unfoldedFormula });
 }
 void PortfolioScanner::Export(std::string_view path_) {
     if (_scannerSaveContainer.empty()) {
@@ -201,10 +201,10 @@ void PortfolioScanner::Export(std::string_view path_) {
     nlohmann::ordered_json root;
     for (const auto& ScannerItem : _scannerSaveContainer) {
         nlohmann::json item;
-        item["ID"]               = ScannerItem.UniqueID;
-        item["Name"]             = ScannerItem.Name;
-        item["ExpandedEquation"] = ScannerItem.ExpandedEquation;
-        LOG(INFO, "Exporting Scanner {} {}", ScannerItem.UniqueID, ScannerItem.Name)
+        item["ID"]               = ScannerItem._uniqueID;
+        item["Name"]             = ScannerItem._name;
+        item["ExpandedEquation"] = ScannerItem._expandedEquation;
+        LOG(INFO, "Exporting Scanner {} {}", ScannerItem._uniqueID, ScannerItem._name)
         root.emplace_back(item);
     }
     LOG(INFO, "{} {}", __FUNCTION__, "Done")
@@ -226,7 +226,7 @@ void PortfolioScanner::Import(std::string_view path_) {
         std::string name             = value.at("Name").template get<std::string>();
         std::string expandedEquation = value.at("ExpandedEquation").template get<std::string>();
         LOG(INFO, "Importing Scanner {} {}", uniqueID, name)
-        _scannerSaveContainer.emplace_back(SaveScannerItemT{ .Applied = false, .UniqueID = uniqueID, .Name = name, .ExpandedEquation = expandedEquation });
+        _scannerSaveContainer.emplace_back(SaveScannerItemT{ ._applied = false, ._uniqueID = uniqueID, ._name = name, ._expandedEquation = expandedEquation });
     });
     LOG(INFO, "{} {}", __FUNCTION__, "Done")
     file.close();
