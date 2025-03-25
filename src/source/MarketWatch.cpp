@@ -17,6 +17,7 @@
 #include "../include/Utils.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "misc/cpp/imgui_stdlib.h"
 extern AllContractT             AllContract;
 extern AddContractToDemoSignalT AddContractToDemoSignal;
 
@@ -68,9 +69,14 @@ void MarketWatch::DrawMarketWatchTable(bool* show_) {
         }
         ImGui::EndDisabled();
         ImGui::SameLine();
+        if (_searchOrDrop) {
+            ImGui::SetNextItemWidth(ImGui::GetWindowWidth() / 8);
+            ImGui::InputText("Filter##_month", &_month, ImGuiInputTextFlags_CharsUppercase);
+        }
+        ImGui::SameLine();
         if (ImGui::Button(ICON_MD_ALL_INCLUSIVE " Future")) {
             for (const auto& contract : AllContract) {
-                if (contract.starts_with("FUT")) {
+                if (contract.starts_with("FUT") and (_month.empty() ? true : (contract.find(_month) != std::string::npos))) {
                     addContractToMarketWatch(contract);
                 }
             }

@@ -44,6 +44,7 @@ class MarketWatch {
     bool _searchOrDrop = false;
 
     std::string      _currentContract;
+    std::string      _month;
     LiveContainerT   _liveUpdates;
     SubscribedT      _subscribed;
     ImGuiListClipper _clipper;

@@ -28,13 +28,15 @@ enum OrderStatus : int;
 enum StrategyStatus : int;
 enum OrderType : int;
 
+using QuantityT = uint32_t;
+
 constexpr int MarketWatchLadderCount = 5;
 constexpr int StrategyNameLength     = 50;
 
 using PricePointsT = struct PricePointsT {
-    double   _price;
-    uint32_t _quantity;
-    uint32_t _order;
+    double    _price;
+    QuantityT _quantity;
+    QuantityT _order;
 };
 
 using ColorBitT = struct ColorBitT {
@@ -64,10 +66,10 @@ using MarketWatchDataT = struct MarketWatchDataT {
     double _close;
     double _pchange;
 
-    uint32_t _totalBuyQuantity;
-    uint32_t _totalSellQuantity;
-    uint32_t _volumeTradedToday;
-    uint32_t _openInterest;
+    QuantityT _totalBuyQuantity;
+    QuantityT _totalSellQuantity;
+    QuantityT _volumeTradedToday;
+    QuantityT _openInterest;
 
     ColorBitT _color;
 };
@@ -100,13 +102,13 @@ using OrderInfoT = struct OrderInfoT {
     uint32_t Gateway;
     uint32_t _token;
     uint32_t _quantity;
-    uint32_t FillQuantity;
+    uint32_t _fillQuantity;
     uint32_t _remaining;
     long     OrderNo;
     float    _price;
     float    _fillPrice;
 
-    Lancelot::Side Side;
+    Lancelot::Side _side;
     OrderStatus    StatusValue;
     std::string    Contract;
     std::string    Time;

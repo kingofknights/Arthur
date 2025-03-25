@@ -54,7 +54,7 @@ void OpenOrders::DrawPendingBook(bool* show_) {
                                                  .LotSize     = (int)Lancelot::ContractInfo::GetLotMultiple(tradeInfo_->_token),
                                                  .OrderNumber = tradeInfo_->OrderNo,
                                                  .Type        = 0,
-                                                 .Side        = tradeInfo_->Side,
+                                                 .Side        = tradeInfo_->_side,
                                                  .Status      = OrderStatus_REPLACED,
                                                  .Contract    = Lancelot::ContractInfo::GetDescription(tradeInfo_->_token),
                                                  .Client      = "PRO",
@@ -148,8 +148,8 @@ void OpenOrders::Update(const OrderInfoPtrT& tradeInfo_, bool insert_) {
         auto iterator = _hashing.find(tradeInfo_->Gateway);
         if (iterator != _hashing.end()) {
             if (_container.erase(iterator->second)) {
-                _buyCount -= tradeInfo_->Side == Lancelot::Side_BUY;
-                _sellCount -= tradeInfo_->Side == Lancelot::Side_SELL;
+                _buyCount -= tradeInfo_->_side == Lancelot::Side_BUY;
+                _sellCount -= tradeInfo_->_side == Lancelot::Side_SELL;
             }
         }
         _hashing[tradeInfo_->Gateway] = tradeInfo_->Time;
@@ -157,8 +157,8 @@ void OpenOrders::Update(const OrderInfoPtrT& tradeInfo_, bool insert_) {
 
     if (insert_) {
         auto success = _container.emplace(tradeInfo_->Time, tradeInfo_).second;
-        _buyCount += tradeInfo_->Side == Lancelot::Side_BUY;
-        _sellCount += tradeInfo_->Side == Lancelot::Side_SELL;
+        _buyCount += tradeInfo_->_side == Lancelot::Side_BUY;
+        _sellCount += tradeInfo_->_side == Lancelot::Side_SELL;
     }
 }
 void OpenOrders::Insert(const OrderInfoPtrT& tradeInfo_, bool insert_) {

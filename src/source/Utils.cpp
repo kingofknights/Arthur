@@ -184,7 +184,7 @@ void Utils::ResetPortfolio(StrategyStatus status_) {
 }
 
 void Utils::DrawTradeRow(const OrderInfoPtrT& tradeInfo_, int& first_, int second_) {
-    ImVec4 color = BuySellColor(tradeInfo_->Side);
+    ImVec4 color = BuySellColor(tradeInfo_->_side);
     ImGui::PushStyleColor(ImGuiCol_Text, color);
     FirstCell(BooksColumnIndex_PF, FORMAT("{}", tradeInfo_->_portfolio).data(), first_, second_);
     if (ImGui::IsItemHovered()) {
@@ -197,7 +197,7 @@ void Utils::DrawTradeRow(const OrderInfoPtrT& tradeInfo_, int& first_, int secon
     NextCell(BooksColumnIndex_PRICE, "%.2f", tradeInfo_->_price);
     NextCell(BooksColumnIndex_QUANTITY, "%d", tradeInfo_->_quantity);
     NextCell(BooksColumnIndex_FILLPRICE, "%.2f", tradeInfo_->_fillPrice);
-    NextCell(BooksColumnIndex_FILLQUANTITY, "%d", tradeInfo_->FillQuantity);
+    NextCell(BooksColumnIndex_FILLQUANTITY, "%d", tradeInfo_->_fillQuantity);
     NextCell(BooksColumnIndex_REMAINING_QTY, "%d", tradeInfo_->_remaining);
     NextCell(BooksColumnIndex_CLIENT, "%s", tradeInfo_->Client.data());
     NextCell(BooksColumnIndex_STATUS, "%s", OrderStatusInfoName[tradeInfo_->StatusValue]);

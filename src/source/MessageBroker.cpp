@@ -85,12 +85,12 @@ void MessageBroker::processOrder(const char* buffer_) {
     info->Gateway          = response->_clientOrderNumber,
     info->_token           = response->_token,
     info->_quantity        = response->_quantity,
-    info->FillQuantity     = 0,
+    info->_fillQuantity     = 0,
     info->_remaining       = response->_quantity,
     info->OrderNo          = response->_exchangeOrderNumber,
     info->_price           = response->_price,
     info->_fillPrice       = 0,
-    info->Side             = static_cast<Lancelot::Side>(response->_side);
+    info->_side             = static_cast<Lancelot::Side>(response->_side);
     info->StatusValue      = GetResponseStatus(response->_orderStatus);
     info->Contract         = Lancelot::ContractInfo::GetDescription(info->_token);
     info->Time             = FORMAT("{}", response->_timestamp);

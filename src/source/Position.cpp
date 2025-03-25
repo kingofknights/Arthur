@@ -13,7 +13,7 @@
 
 template<typename Type>
 void UpdateTradeInfoNetbook(Type& data, const OrderInfoPtrT& tradeInfo_) {
-    if (tradeInfo_->Side == Lancelot::Side_BUY) {
+    if (tradeInfo_->_side == Lancelot::Side_BUY) {
         data->TotalBuyPrice += tradeInfo_->_price * tradeInfo_->_quantity;
         data->_buyQuantity += tradeInfo_->_quantity;
         data->AverageBuyPrice = data->TotalBuyPrice / data->_buyQuantity;

@@ -10,8 +10,10 @@
 #include "Structure.hpp"
 
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <cctype>
 #include <sstream>
 #include <unordered_map>
 
@@ -63,7 +65,8 @@ void LoadResultSetTable(const TableWithColumnNameT& table_, const ResultSetLoadi
             ss << ' ' << resultSetPtr->_symbol.data();
             if (resultSetPtr->_strikePrice > 0) ss << ' ' << (resultSetPtr->_strikePrice) << ' ' << (resultSetPtr->_option == Lancelot::OptionType_CALL ? "CE" : "PE");
             ss << ' ' << FORMAT("{:%d%b}", fmt::localtime(resultSetPtr->_expiryDate));
-            resultSetPtr->_description = ss.str();
+            auto description           = boost::to_upper_copy(ss.str());
+            resultSetPtr->_description = description;
         }
         resultSetPtr->_strikePrice /= resultSetPtr->_divisor;
         details::ResultSetContainer.emplace(resultSetPtr->_token, resultSetPtr);
@@ -76,6 +79,10 @@ void LoadResultSetTable(const TableWithColumnNameT& table_, const ResultSetLoadi
 
 void ContractInfo::Initialize(const std::string& name_, const ResultSetLoadingCallbackT& callback_) {
     std::fstream file(name_, std::ios::in);
+    if (not file.is_open()) {
+        LOG(INFO, "unable to open contract file {}", name_);
+        return;
+    }
     // TableWithColumnIndexT table;
 
     while (not file.eof()) {
@@ -113,7 +120,8 @@ void ContractInfo::Initialize(const std::string& name_, const ResultSetLoadingCa
             ss << ' ' << resultSetPtr->_symbol.data();
             if (resultSetPtr->_strikePrice > 0) ss << ' ' << (resultSetPtr->_strikePrice) << ' ' << (resultSetPtr->_option == Lancelot::OptionType_CALL ? "CE" : "PE");
             ss << ' ' << FORMAT("{:%d%b}", fmt::localtime(resultSetPtr->_expiryDate));
-            resultSetPtr->_description = ss.str();
+            auto description           = boost::to_upper_copy(ss.str());
+            resultSetPtr->_description = description;
         }
 
         auto low  = boost::lexical_cast<float>(result[LOW_DPR]);

@@ -11,10 +11,10 @@
 void TradeHistory::paint(bool* show_) {
     _pendingTradeUpdate.consume_one([this](const OrderInfoPtrT& orderInfo_) {
         _container.push_back(orderInfo_);
-        _totalBuy += orderInfo_->Side == Lancelot::Side_BUY;
-        _totalSell += orderInfo_->Side == Lancelot::Side_SELL;
-        _buyValue += orderInfo_->Side == Lancelot::Side_BUY ? orderInfo_->_price * orderInfo_->_quantity : 0;
-        _sellValue += orderInfo_->Side == Lancelot::Side_SELL ? orderInfo_->_price * orderInfo_->_quantity : 0;
+        _totalBuy += orderInfo_->_side == Lancelot::Side_BUY;
+        _totalSell += orderInfo_->_side == Lancelot::Side_SELL;
+        _buyValue += orderInfo_->_side == Lancelot::Side_BUY ? orderInfo_->_price * orderInfo_->_quantity : 0;
+        _sellValue += orderInfo_->_side == Lancelot::Side_SELL ? orderInfo_->_price * orderInfo_->_quantity : 0;
         _netValue = _totalSell - _totalBuy;
     });
     if (*show_) {
