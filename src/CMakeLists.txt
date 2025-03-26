@@ -2,7 +2,7 @@ set(Boost_NO_WARN_NEW_VERSIONS OFF)
 
 find_package(Boost REQUIRED COMPONENTS system thread filesystem)
 find_package(fmt REQUIRED)
-find_package(glfw3 REQUIRED)
+# find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 find_package(nlohmann_json REQUIRED)
@@ -26,7 +26,11 @@ add_subdirectory(API)
 # add_subdirectory(Audio)
 
 add_executable(${PROJECT_NAME} main.cpp ${APP_ICON_RESOURCE_WINDOWS})
-add_dependencies(${PROJECT_NAME} Imgui ImguiFD)
+add_dependencies(
+  ${PROJECT_NAME}
+  Imgui
+  ImguiFD
+  glfw)
 
 target_link_libraries(
   ${PROJECT_NAME}
