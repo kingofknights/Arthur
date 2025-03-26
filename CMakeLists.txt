@@ -24,6 +24,9 @@ include_directories(third_party/stb)
 include(./cmake/Imgui.cmake)
 include(./cmake/ImguiFD.cmake)
 include(./cmake/Glfw3.cmake)
+include(./cmake/Nlohmann-json.cmake)
+include(./cmake/Fmt.cmake)
+include(./cmake/SqliteCpp.cmake)
 
 include_directories(repo/Greeks)
 

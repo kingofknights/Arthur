@@ -8,6 +8,7 @@ FetchContent_GetProperties(imgui)
 message(STATUS "Imgui : ${imgui_SOURCE_DIR}")
 
 include_directories(${imgui_SOURCE_DIR})
+include_directories(${imgui_SOURCE_DIR}/misc/cpp)
 
 set(BACKEND ${imgui_SOURCE_DIR}/backends)
 

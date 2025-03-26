@@ -3,16 +3,13 @@
 //
 
 #include "../include/Arthur.hpp"
+
 #include "Enums.hpp"
 #include "Lancelot/Structure.hpp"
 
 #if _WIN32
 #include <Psapi.h>
 #endif
-
-#include <algorithm>
-#include <nlohmann/json.hpp>
-#include <thread>
 
 #include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
@@ -38,6 +35,11 @@
 #include "../include/Utils.hpp"
 #include "../include/plf_nanotimer.h"
 
+#include <nlohmann/json.hpp>
+
+#include <algorithm>
+#include <thread>
+
 class MemoryUsage {
   public:
     static auto GetRamUsage() -> double;
@@ -49,13 +51,12 @@ extern DemoOrderInfoSignalT DemoOrderInfoSignal;
 extern MarketEventQueueT    MarketEventQueue;
 extern AllContractT         AllContract;
 
-#define DATABASE_PATH "fo_ref_contract_master.csv"
+#define DATABASE_PATH           "fo_ref_contract_master.csv"
 #define TRADING_APP_CONFIG_PATH "Config/Arthur.json"
-#define ORDER_ALL_BOOK "Order All Book"
-#define REJECT_BOOK "Reject Book"
+#define ORDER_ALL_BOOK          "Order All Book"
+#define REJECT_BOOK             "Reject Book"
 
 Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _backendWorker(_backendComService.get_executor()), _closeMainWindow(closeMainWindow_) {
-
     std::string fontFile = "Ruda-Bold.ttf";
     float       fontSize = 18.0F;
     UserID               = 101;
@@ -110,7 +111,7 @@ Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _ba
         _marketWatchPtr->Connect(std::move(callback));
     }
     {
-        auto callback = [&](const std::string& contract_) { _marketWatchPtr->addContractToMarketWatch(contract_); };
+        auto callback = [&](const std::string& contract_) { _marketWatchPtr->AddContractToMarketWatch(contract_); };
         Portfolio::setCallback(std::move(callback));
     }
     {
@@ -206,9 +207,9 @@ void Arthur::paint() {
     }
 
     _positionPtr->Paint(&_showPosition);
-    _marketWatchPtr->paint(&_showMarketWatch, &_showPriceLadder);
+    _marketWatchPtr->Paint(&_showMarketWatch, &_showPriceLadder);
     _openOrdersPtr->paint(&_showOpenOrders);
-    _strategyWorkspacePtr->paint(&_showStrategyWorkspace);
+    _strategyWorkspacePtr->Paint(&_showStrategyWorkspace);
     _tradeHistoryPtr->paint(&_showTradeHistory);
     _optionChainPtr->paint(&_showOptionChain);
     _orderBookPtr->paint(&_showOrderBook);
@@ -455,7 +456,9 @@ void Arthur::startAllThreads() {
     _multicastReceiverPtr->bindMC("127.0.0.1", 1223);
     _multicastReceiverPtr->read();
 
-    { _messageBroker->makeConnection(_ipaddress, _port); }
+    {
+        _messageBroker->makeConnection(_ipaddress, _port);
+    }
 }
 
 void Arthur::marketEventHandler(std::stop_token& stopToken_) {
@@ -543,8 +546,7 @@ void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_
         ._user = {
             ._user      = UserID,
             ._portfolio = row_->_portfolio,
-        }
-    };
+        }};
     _messageBroker->Write_Sync((char*)&header, sizeof(header));
     _messageBroker->Write_Sync(buffer.data(), buffer.length());
 }

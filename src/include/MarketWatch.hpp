@@ -10,32 +10,41 @@
 class OrderForm;
 using OrderFormPtrT = std::shared_ptr<OrderForm>;
 
-class MarketWatch {
+class MarketWatch final {
   public:
-    MarketWatch(const OrderFormPtrT& manualOrder_);
+    explicit MarketWatch(const OrderFormPtrT& manualOrder_);
+
     ~MarketWatch();
 
     static void ToolTipDisplay(const MarketWatchDataPtrT& pointer_);
+
     static void LadderView(const MarketWatchDataPtrT& pointer_);
 
-    void paint(bool* showMarketWatch_, bool* showLadder_);
-    void addContractToMarketWatch(const std::string& contract_);
+    void Paint(bool* showMarketWatch_, bool* showLadder_);
+
+    void AddContractToMarketWatch(const std::string& contract_);
+
     void Connect(OptionChainContractSlotT callback_);
 
   protected:
     void DrawMarketWatchTable(bool* show_);
+
     void DrawLadderWatchWindow(bool* show_);
 
-  private:
     void ContractCell(int contract_, int index_, const char* data_, const MarketWatchDataPtrT& pointer_);
-    void Imports(std::string_view path_);
-    void Exports(std::string_view path_);
+
+    void Imports(const std::string& path_);
+
+    void Exports(const std::string& path_);
+
     void DrawColumn(const MarketWatchDataPtrT& data_, int index_);
+
     void Remove();
+
     void DrawSearchBox();
 
   private:
-    OrderFormPtrT              _manualOrderPtr;
+    const OrderFormPtrT        _manualOrderPtr;
     MarketWatchDataPtrT        _ladderDataPtr;
     OptionChainContractSignalT _optionChainContractSignal;
 

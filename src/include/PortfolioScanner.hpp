@@ -8,11 +8,11 @@
 
 class PortfolioScanner : public std::enable_shared_from_this<PortfolioScanner> {
   public:
-    PortfolioScanner(const std::string& strategyName_);
+    explicit PortfolioScanner(std::string strategyName_);
 
-    void paint(bool* show_);
-    void Export(std::string_view path_);
-    void Import(std::string_view path_);
+    void Paint(bool* show_);
+    void Export(const std::string& path_);
+    void Import(const std::string& path_);
 
   protected:
     void ScannerWindow(bool* show_);
@@ -28,6 +28,7 @@ class PortfolioScanner : public std::enable_shared_from_this<PortfolioScanner> {
     StrategyListT      _strategyList;
 
   private:
+    const std::string             _strategyName;
     ScannerFunctionListContainerT _scannerFunctionListContainer;
     ScannerInfoFromDatabaseT      _scannerInfoFromDatabase;
     ScannerSaveContainerT         _scannerSaveContainer;
@@ -39,6 +40,5 @@ class PortfolioScanner : public std::enable_shared_from_this<PortfolioScanner> {
     int         _deleteScannerID = -1;
     std::string _equations;
     std::string _formulaName;
-    std::string _strategyName;
     std::string _unfoldedFormula;
 };

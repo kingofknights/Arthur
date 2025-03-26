@@ -3,27 +3,30 @@
 #include "../include/Configuration.hpp"
 #include "../include/Portfolio.hpp"
 #include "../include/Structure.hpp"
-#include "misc/cpp/imgui_stdlib.h"
+
+#include <imgui_stdlib.h>
 #include <nlohmann/json.hpp>
+
+#include <fstream>
 
 extern StrategyNameListT StrategyNameList;
 
-#define STRATEGY_CONFIG_FILE_NAME "Config/StrategyWorkspace.json"
+#define STRATEGY_CONFIG_FILE_NAME        "Config/StrategyWorkspace.json"
 #define CREATE_NEW_WORKSPACE_WINDOW_NAME "Add New Workspace"
-#define STRATEGY_CANVAS_NAME "Workspace Canvas"
+#define STRATEGY_CANVAS_NAME             "Workspace Canvas"
 
 StrategyWorkspace::StrategyWorkspace(boost::asio::io_context::strand& strand_) : _strand(strand_) {
     Imports(STRATEGY_CONFIG_FILE_NAME);
 }
 
-void StrategyWorkspace::paint(bool* show_) {
+void StrategyWorkspace::Paint(bool* show_) {
     if (*show_) {
         DrawWindow(show_);
     }
 }
 
 void StrategyWorkspace::DrawAddNewWorkspace() {
-    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5F, 0.5F));
     if (ImGui::BeginPopupModal(CREATE_NEW_WORKSPACE_WINDOW_NAME, &_newWorkspace, ImGuiWindowFlags_AlwaysAutoResize)) {
         ImGui::InputTextWithHint("Workspace Name", "Set Workspace Name", &_strategyWorkspaceName);
         if (ImGui::BeginCombo("Strategy List", _strategyListIndex.data())) {
@@ -53,7 +56,7 @@ void StrategyWorkspace::DrawAddNewWorkspace() {
     }
 }
 
-void StrategyWorkspace::Exports(std::string_view path_) {
+void StrategyWorkspace::Exports(const std::string& path_) {
     if (_portfolioContainer.empty()) {
         std::remove(path_.data());
         return;
@@ -62,7 +65,7 @@ void StrategyWorkspace::Exports(std::string_view path_) {
     nlohmann::ordered_json root;
     std::ranges::for_each(_portfolioContainer, [&](const PortfolioContainerT::value_type& valueType_) { root[valueType_.first.data()] = valueType_.second->getStrategyName(); });
 
-    std::fstream file(path_.data(), std::ios::trunc | std::ios::out);
+    std::fstream file(path_, std::ios::trunc | std::ios::out);
     if (not file.is_open()) {
         return;
     }
@@ -70,9 +73,11 @@ void StrategyWorkspace::Exports(std::string_view path_) {
     file.close();
 }
 
-void StrategyWorkspace::Imports(std::string_view path_) {
-    std::fstream file(path_.data(), std::ios::in);
-    if (not file.is_open()) return;
+void StrategyWorkspace::Imports(const std::string& path_) {
+    std::fstream file(path_, std::ios::in);
+    if (not file.is_open()) {
+        return;
+    }
 
     nlohmann::ordered_json root = nlohmann::ordered_json::parse(file);
     std::ranges::for_each(root.items(), [&](const auto& valueType_) {
@@ -90,7 +95,9 @@ void StrategyWorkspace::DrawWindow(bool* show_) {
             _newWorkspace = true;
         }
 
-        if (_newWorkspace) DrawAddNewWorkspace();
+        if (_newWorkspace) {
+            DrawAddNewWorkspace();
+        }
         ImGui::Separator();
         if (ImGui::BeginTabBar(STRATEGY_CANVAS_NAME, StrategyWorkspaceTabFlags)) {
             for (const auto& [name, portfolio] : _portfolioContainer) {

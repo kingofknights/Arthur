@@ -1,10 +1,5 @@
 #include "../include/PortfolioInterface.hpp"
 
-#include <boost/algorithm/string.hpp>
-#include <cstdint>
-#include <future>
-#include <nlohmann/json.hpp>
-
 #include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
 #include "../include/Colors.hpp"
@@ -13,12 +8,19 @@
 #include "../include/Structure.hpp"
 #include "../include/Utils.hpp"
 
+#include <nlohmann/json.hpp>
+
+#include <boost/algorithm/string.hpp>
+
+#include <fstream>
+#include <future>
+
 extern std::string StatusDisplay;
 
 uint32_t        PortfolioInterface::PortFolioNumber = 0;
 StrategyActionT PortfolioInterface::StrategyAction;
 
-PortfolioInterface::PortfolioInterface(std::string_view name_, std::string_view strategyName_, boost::asio::io_context::strand& strand_)
+PortfolioInterface::PortfolioInterface(const std::string& name_, std::string_view strategyName_, boost::asio::io_context::strand& strand_)
     : PortfolioScanner(strategyName_.data()), _name(name_), _strategyName(strategyName_), _strand(strand_) {
     const std::string jsonData = ConfigLoader::Instance().getStrategyColumn(_strategyName);
     ParseConfig(jsonData);
@@ -113,7 +115,7 @@ void PortfolioInterface::unsubscribeSelected() {
         }
     });
 }
-void PortfolioInterface::Exports(std::string_view path_) {
+void PortfolioInterface::Exports(const std::string& path_) {
     if (_strategyList.empty()) {
         std::remove(path_.data());
         return;
@@ -164,8 +166,8 @@ void PortfolioInterface::Exports(std::string_view path_) {
     StatusDisplay = FORMAT("Exporting done : {} {}", path_, _strategyList.size());
 }
 
-void PortfolioInterface::Imports(std::string_view path_) {
-    std::fstream file(path_.data(), std::ios::in);
+void PortfolioInterface::Imports(const std::string& path_) {
+    std::fstream file(path_, std::ios::in);
     if (not file.is_open()) {
         return;
     }
@@ -292,7 +294,7 @@ void PortfolioInterface::updateAll(GlobalParameterInfoT& info_) {
 }
 
 PortfolioStatusT PortfolioInterface::checkAnyActive() {
-    PortfolioStatusT status{ false, 0, 0, 0, 0, 0 };
+    PortfolioStatusT status{false, 0, 0, 0, 0, 0};
 
     std::ranges::for_each(_strategyList, [&](const StrategyListT::value_type& valueType_) {
         switch (valueType_->_status) {
@@ -362,7 +364,7 @@ void PortfolioInterface::ParseConfig(std::string_view config_) {
             }
         }
         _paramList.insert(ParameterInfoListT ::value_type(item.key(), param));
-        GlobalParameterInfoT global{ ._update = false, ._name = item.key(), ._parameterInfo = param };
+        GlobalParameterInfoT global{._update = false, ._name = item.key(), ._parameterInfo = param};
         _globalParamList.push_back(global);
     }
 }

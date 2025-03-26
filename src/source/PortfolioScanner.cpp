@@ -3,8 +3,6 @@
 //
 #include "../include/PortfolioScanner.hpp"
 
-#include <nlohmann/json.hpp>
-
 #include "../Knight/Scanner.hpp"
 #include "../include/Configuration.hpp"
 #include "../include/Enums.hpp"
@@ -12,23 +10,29 @@
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 
-#include "imgui_internal.h"
-#include "misc/cpp/imgui_stdlib.h"
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <imgui_stdlib.h>
+#include <nlohmann/json.hpp>
+
+#include <utility>
 
 extern std::string                      StatusDisplay;
 extern GlobalPortfolioScannerContainerT GlobalPortfolioScannerContainer;
 
-PortfolioScanner::PortfolioScanner(const std::string& strategyName_) : _hasParameter(false), _strategyID(INT_MIN), _strategyName(strategyName_), _selectedParam(0) {
+PortfolioScanner::PortfolioScanner(std::string strategyName_) : _strategyName(std::move(strategyName_)), _hasParameter(false), _selectedParam(0), _strategyID(INT_MIN) {
     char variable = 'A';
-    for (auto& column : ScannerFunctionList) {
-        ScannerFunctionInfoT info{ ._selected = false, ._variable = variable++, ._name = column };
+    for (const auto& column : ScannerFunctionList) {
+        ScannerFunctionInfoT info{._selected = false, ._variable = variable++, ._name = column};
         _scannerFunctionListContainer.push_back(info);
     }
     LoadParameter();
 }
 
-void PortfolioScanner::paint(bool* show_) {
-    if (not*show_) return;
+void PortfolioScanner::Paint(bool* show_) {
+    if (not*show_) {
+        return;
+    }
     if (_hasParameter and _strategyID != INT_MIN) {
         ScannerWindow(show_);
     } else {
@@ -54,7 +58,7 @@ void PortfolioScanner::LoadParameter() {
 }
 
 void PortfolioScanner::ScannerWindow(bool* show_) {
-    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5F, 0.5F));
     if (ImGui::BeginPopupModal(SCANNER_WINDOW, show_)) {
         ImGui::Columns(3);
         FirstColumn();
@@ -84,10 +88,10 @@ void PortfolioScanner::FirstColumn() {
     }
 }
 void PortfolioScanner::SecondColumn() {
-    ImVec2      size    = ImGui::GetContentRegionAvail();
-    const float spacing = ImGui::GetStyle().ItemSpacing.y;
+    const ImVec2 size    = ImGui::GetContentRegionAvail();
+    const float  spacing = ImGui::GetStyle().ItemSpacing.y;
 
-    if (ImGui::BeginChild("Selected Functions", ImVec2(size.x, size.y / 2 - spacing), true)) {
+    if (ImGui::BeginChild("Selected Functions", ImVec2(size.x, (size.y / 2) - spacing), ImGuiChildFlags_Borders)) {
         for (auto& column : _scannerFunctionListContainer) {
             if (column._selected) {
                 ImGui::Text("%c = %s", column._variable, column._name.data());
@@ -96,9 +100,9 @@ void PortfolioScanner::SecondColumn() {
     }
     ImGui::EndChild();
 
-    if (ImGui::BeginChild("Formula", ImVec2(size.x, size.y / 2 - spacing), true)) {
+    if (ImGui::BeginChild("Formula", ImVec2(size.x, (size.y / 2) - spacing), ImGuiChildFlags_Borders)) {
         const float frameHeight = ImGui::GetFrameHeightWithSpacing() * 3;
-        ImGui::InputTextMultiline("##Equations", &_equations, ImVec2(size.x, size.y / 2 - frameHeight));
+        ImGui::InputTextMultiline("##Equations", &_equations, ImVec2(size.x, (size.y / 2) - frameHeight));
         ImGui::Separator();
         ImGui::SetNextItemWidth(size.x);
         ImGui::InputTextWithHint("##Name", "Enter Formula Name", &_formulaName);
@@ -111,10 +115,10 @@ void PortfolioScanner::SecondColumn() {
     ImGui::EndChild();
 }
 void PortfolioScanner::ThirdColumn() {
-    ImVec2      size        = ImGui::GetContentRegionAvail();
-    const float frameHeight = ImGui::GetStyle().ItemSpacing.y;
+    const ImVec2 size        = ImGui::GetContentRegionAvail();
+    const float  frameHeight = ImGui::GetStyle().ItemSpacing.y;
 
-    if (ImGui::BeginChild("ScannerAPI", ImVec2(size.x, size.y / 2 - frameHeight), true)) {
+    if (ImGui::BeginChild("ScannerAPI", ImVec2(size.x, (size.y / 2) - frameHeight), ImGuiChildFlags_Borders)) {
         ImGui::Text("%s", FORMAT("ScannerAPI({}, {}, {})", "uniqueID", _strategyID, _selectedParam).data());
         ImGui::Separator();
         for (const auto& item : _scannerInfoFromDatabase) {
@@ -128,7 +132,7 @@ void PortfolioScanner::ThirdColumn() {
         _scannerSaveContainer.erase(_scannerSaveContainer.begin() + _deleteScannerID);
         _deleteScannerID = -1;
     }
-    if (ImGui::BeginChild("Saved  Functions", ImVec2(size.x, size.y / 2 - frameHeight), true)) {
+    if (ImGui::BeginChild("Saved  Functions", ImVec2(size.x, (size.y / 2) - frameHeight), ImGuiChildFlags_Borders)) {
         if (ImGui::BeginTable("Saved Functions", ScannerSavedColumnIndex_END, TableFlags)) {
             for (auto& column : ScannerSavedTableColumnName) {
                 ImGui::TableSetupColumn(column, TableColumnFlags | ImGuiTableColumnFlags_WidthStretch);
@@ -157,9 +161,11 @@ void PortfolioScanner::ThirdColumn() {
                 if (ImGui::Button(FORMAT("{} {}##Operations", item._applied ? ICON_MD_STOP : ICON_MD_PLAY_ARROW, item._applied ? "Stop" : "Apply").data(), ImVec2(-FLT_MIN, 0))) {
                     if (not item._applied) {
                         if (not _strategyList.empty()) {
-                            ScannerResultOutputT ScannerResultOutput{ ._portfolio         = std::static_pointer_cast<Portfolio>(shared_from_this()),
-                                                                      ._parameterInfoList = _strategyList.front()->_parameterInfoList };
-                            GlobalPortfolioScannerContainer.insert_or_assign(item._uniqueID, ScannerResultOutput);
+                            ScannerResultOutputT scannerResultOutput{
+                                ._portfolio         = std::static_pointer_cast<Portfolio>(shared_from_this()),
+                                ._parameterInfoList = _strategyList.front()->_parameterInfoList,
+                            };
+                            GlobalPortfolioScannerContainer.insert_or_assign(item._uniqueID, scannerResultOutput);
                         }
 
                         item._applied = Scanner::GetInstance().EvaluateExp(item._uniqueID, item._expandedEquation, false);
@@ -190,34 +196,36 @@ void PortfolioScanner::CreateFormula() {
 
     _unfoldedFormula = ss.str();
 
-    _scannerSaveContainer.emplace_back(SaveScannerItemT{ ._applied = false, ._uniqueID = uniqueID, ._name = _formulaName, ._expandedEquation = _unfoldedFormula });
+    _scannerSaveContainer.emplace_back(SaveScannerItemT{._applied = false, ._uniqueID = uniqueID, ._name = _formulaName, ._expandedEquation = _unfoldedFormula});
 }
-void PortfolioScanner::Export(std::string_view path_) {
+
+void PortfolioScanner::Export(const std::string& path_) {
     if (_scannerSaveContainer.empty()) {
         std::remove(path_.data());
         return;
     }
 
     nlohmann::ordered_json root;
-    for (const auto& ScannerItem : _scannerSaveContainer) {
+    for (const auto& scannerItem : _scannerSaveContainer) {
         nlohmann::json item;
-        item["ID"]               = ScannerItem._uniqueID;
-        item["Name"]             = ScannerItem._name;
-        item["ExpandedEquation"] = ScannerItem._expandedEquation;
-        LOG(INFO, "Exporting Scanner {} {}", ScannerItem._uniqueID, ScannerItem._name)
+        item["ID"]               = scannerItem._uniqueID;
+        item["Name"]             = scannerItem._name;
+        item["ExpandedEquation"] = scannerItem._expandedEquation;
+        LOG(INFO, "Exporting Scanner {} {}", scannerItem._uniqueID, scannerItem._name)
         root.emplace_back(item);
     }
-    LOG(INFO, "{} {}", __FUNCTION__, "Done")
-    std::fstream file(path_.data(), std::ios::trunc | std::ios::out);
+    std::fstream file(path_, std::ios::trunc | std::ios::out);
     if (not file.is_open()) {
         return;
     }
     file << root.dump();
     file.close();
 }
-void PortfolioScanner::Import(std::string_view path_) {
-    std::fstream file(path_.data(), std::ios::in);
-    if (not file.is_open()) return;
+void PortfolioScanner::Import(const std::string& path_) {
+    std::fstream file(path_, std::ios::in);
+    if (not file.is_open()) {
+        return;
+    }
 
     nlohmann::ordered_json root = nlohmann::ordered_json::parse(file);
     std::ranges::for_each(root.items(), [&](const auto& valueType_) {
@@ -226,7 +234,7 @@ void PortfolioScanner::Import(std::string_view path_) {
         std::string name             = value.at("Name").template get<std::string>();
         std::string expandedEquation = value.at("ExpandedEquation").template get<std::string>();
         LOG(INFO, "Importing Scanner {} {}", uniqueID, name)
-        _scannerSaveContainer.emplace_back(SaveScannerItemT{ ._applied = false, ._uniqueID = uniqueID, ._name = name, ._expandedEquation = expandedEquation });
+        _scannerSaveContainer.emplace_back(SaveScannerItemT{._applied = false, ._uniqueID = uniqueID, ._name = name, ._expandedEquation = expandedEquation});
     });
     LOG(INFO, "{} {}", __FUNCTION__, "Done")
     file.close();

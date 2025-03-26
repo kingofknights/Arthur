@@ -4,8 +4,6 @@
 
 #include "../include/MarketWatch.hpp"
 
-#include <nlohmann/json.hpp>
-
 #include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
 #include "../include/Colors.hpp"
@@ -15,9 +13,14 @@
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 #include "../include/Utils.hpp"
-#include "imgui.h"
-#include "imgui_internal.h"
-#include "misc/cpp/imgui_stdlib.h"
+
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <imgui_stdlib.h>
+#include <nlohmann/json.hpp>
+
+#include <fstream>
+
 extern AllContractT             AllContract;
 extern AddContractToDemoSignalT AddContractToDemoSignal;
 
@@ -64,7 +67,7 @@ void MarketWatch::DrawMarketWatchTable(bool* show_) {
         ImGui::SameLine();
         ImGui::BeginDisabled(_currentContract.empty());
         if (ImGui::Button(ICON_MD_ADD_BOX " Add Stock")) {
-            addContractToMarketWatch(_currentContract);
+            AddContractToMarketWatch(_currentContract);
             _filter.Clear();
         }
         ImGui::EndDisabled();
@@ -77,7 +80,7 @@ void MarketWatch::DrawMarketWatchTable(bool* show_) {
         if (ImGui::Button(ICON_MD_ALL_INCLUSIVE " Future")) {
             for (const auto& contract : AllContract) {
                 if (contract.starts_with("FUT") and (_month.empty() ? true : (contract.find(_month) != std::string::npos))) {
-                    addContractToMarketWatch(contract);
+                    AddContractToMarketWatch(contract);
                 }
             }
         }
@@ -224,7 +227,7 @@ void MarketWatch::Connect(OptionChainContractSlotT callback_) {
     _optionChainContractSignal.connect(callback_);
 }
 
-void MarketWatch::addContractToMarketWatch(const std::string& contract_) {
+void MarketWatch::AddContractToMarketWatch(const std::string& contract_) {
     auto token = Lancelot::ContractInfo::GetToken(contract_);
     if (not _subscribed.contains(token)) {
         auto ref = ContractInfo::GetLiveDataRef(token);
@@ -237,7 +240,7 @@ void MarketWatch::addContractToMarketWatch(const std::string& contract_) {
     }
 }
 
-void MarketWatch::paint(bool* showMarketWatch_, bool* showLadder_) {
+void MarketWatch::Paint(bool* showMarketWatch_, bool* showLadder_) {
     if (*showMarketWatch_) {
         DrawMarketWatchTable(showMarketWatch_);
     }
@@ -255,17 +258,19 @@ void MarketWatch::DrawLadderWatchWindow(bool* show_) {
     ImGui::End();
 }
 
-void MarketWatch::Imports(std::string_view path_) {
-    std::fstream file(path_.data(), std::ios::in);
-    if (not file.is_open()) return;
+void MarketWatch::Imports(const std::string& path_) {
+    std::fstream file(path_, std::ios::in);
+    if (not file.is_open()) {
+        return;
+    }
 
     nlohmann::ordered_json root = nlohmann::ordered_json::parse(file);
-    std::ranges::for_each(root.items(), [&](auto& value_) { addContractToMarketWatch(value_.key()); });
+    std::ranges::for_each(root.items(), [&](auto& value_) { AddContractToMarketWatch(value_.key()); });
 
     file.close();
 }
 
-void MarketWatch::Exports(std::string_view path_) {
+void MarketWatch::Exports(const std::string& path_) {
     if (_subscribed.empty()) {
         std::remove(path_.data());
         return;
@@ -276,7 +281,7 @@ void MarketWatch::Exports(std::string_view path_) {
         root[valueType->_description.data()] = valueType->_token;
     }
 
-    std::fstream file(path_.data(), std::ios::out | std::ios::trunc);
+    std::fstream file(path_, std::ios::out | std::ios::trunc);
     if (not file.is_open()) {
         return;
     }

@@ -1,8 +1,5 @@
 #include "../include/Portfolio.hpp"
 
-#include <algorithm>
-#include <boost/algorithm/string.hpp>
-
 #include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
 #include "../include/ConfigLoader.hpp"
@@ -12,15 +9,18 @@
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 #include "../include/Utils.hpp"
-
 #include "ImGuiFileDialog.h"
 #include "misc/cpp/imgui_stdlib.h"
+
+#include <boost/algorithm/string.hpp>
+
+#include <algorithm>
 
 extern AllContractT    AllContract;
 extern std::string     StatusDisplay;
 extern ClientCodeListT ClientCodeList;
 
-#define ADDITIONAL_OPTION "Additional Options"
+#define ADDITIONAL_OPTION     "Additional Options"
 #define NEW_STRATEGY_CREATION "New Strategy"
 
 AddContractToMarketWatchSignalT Portfolio::AddContractToMarketWatchSignal;
@@ -127,7 +127,7 @@ void Portfolio::DrawPortfolioWindow() {
         ImGui::OpenPopup(SCANNER_WINDOW);
     }
     if (_showScanner) {
-        PortfolioScanner::paint(&_showScanner);
+        PortfolioScanner::Paint(&_showScanner);
     }
     ImGui::SameLine();
     if (ImGui::Button(ICON_MD_APP_SETTINGS_ALT " Options")) ImGui::OpenPopup(ADDITIONAL_OPTION);
@@ -341,7 +341,7 @@ void Portfolio::DrawStrategyRow(StrategyRowPtrT& row_, int index_) {
                 }
                 case DataType_FLOAT: {
                     if (row_->_selected) {
-                        if (ImGui::InputFloat(name.data(), &info._floating, 0.01, 1)) {
+                        if (ImGui::InputFloat(name.data(), &info._floating, 0.01F, 1)) {
                             row_->_changed = true;
                         }
                     } else {
@@ -405,7 +405,7 @@ void Portfolio::DrawGlobalParam() {
             case DataType_FLOAT: {
                 ImGui::Checkbox("##Update", &value._update);
                 ImGui::SameLine();
-                ImGui::InputFloat(name.data(), &value._parameterInfo._parameter._floating, 0.01, 1);
+                ImGui::InputFloat(name.data(), &value._parameterInfo._parameter._floating, 0.01F, 1);
                 break;
             }
             case DataType_TEXT: {
@@ -455,7 +455,7 @@ void Portfolio::AppendStrategy() {
             std::string              options = info._parameter._text;
             std::vector<std::string> result;
             boost::split(result, options, boost::is_any_of(";"));
-            info._parameter._text = result.at(info._parameter._integer);
+            info._parameter._text = result.at(static_cast<size_t>(info._parameter._integer));
         }
         row->_parameterInfoList.emplace(valueType);
     }
