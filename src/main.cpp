@@ -85,9 +85,9 @@ auto main(int /*unused*/, char** /*unused*/) -> int {
     ImGuiIO& imo = ImGui::GetIO();
     imo.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;// Enable Keyboard Controls
     imo.ConfigFlags |= ImGuiConfigFlags_DockingEnable;    // Enable Docking
-    imo.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;  // Enable Multi-Viewport / Platform Windows
-    // io.ConfigViewportsNoAutoMerge = true;
-    // io.ConfigViewportsNoTaskBarIcon = true;
+    // imo.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;  // Enable Multi-Viewport / Platform Windows
+    // imo.ConfigViewportsNoAutoMerge   = true;
+    // imo.ConfigViewportsNoTaskBarIcon = true;
 
     // Setup Dear ImGui style
     // ImGui::StyleColorsDark();
