@@ -8,7 +8,7 @@ find_package(Threads REQUIRED)
 if(USE_SYSTEM_LIB)
   find_package(glfw3 REQUIRED)
   find_package(fmt REQUIRED)
-  find_package(nlohmann-json REQUIRED)
+  find_package(nlohmann_json REQUIRED)
   find_package(SQLiteCpp REQUIRED)
 endif()
 
