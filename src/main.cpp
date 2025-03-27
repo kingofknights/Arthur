@@ -7,6 +7,9 @@
 // - Documentation        https://dearimgui.com/docs (same as your local docs/ folder).
 // - Introduction, links and more at the top of imgui.cpp
 
+#if _WIN32
+#include <windows.h>
+#endif
 #include "include/Arthur.hpp"
 
 #include <imgui.h>
@@ -23,6 +26,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #define STB_IMAGE_IMPLEMENTATION
+#include <GL/gl.h>
 #include <stb_image.h>
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
