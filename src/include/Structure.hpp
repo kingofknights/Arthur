@@ -5,9 +5,14 @@
 #pragma once
 
 // #define DISABLE_LOGGING
-#include <Lancelot.hpp>
-#include <array>
+#include "Lancelot.hpp"
+
+#include <IconsMaterialDesign.h>
+#include <imgui.h>
+
 #include <boost/lockfree/spsc_queue.hpp>
+
+#include <array>
 #include <cstdint>
 #include <deque>
 #include <list>
@@ -17,9 +22,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-#include "IconsMaterialDesign.h"
-#include "imgui.h"
 
 #pragma pack(push, 1)
 
@@ -42,9 +44,9 @@ using PricePointsT = struct PricePointsT {
 using ColorBitT = struct ColorBitT {
     uint8_t _topBid : 1;
     uint8_t _topAsk : 1;
-    uint8_t _ltp : 1;
-    uint8_t _atp : 1;
-    uint8_t _dummy : 4;
+    uint8_t _ltp    : 1;
+    uint8_t _atp    : 1;
+    uint8_t _dummy  : 4;
 };
 
 using MarketWatchDataT = struct MarketWatchDataT {
@@ -77,14 +79,14 @@ using MarketWatchDataT = struct MarketWatchDataT {
 using MarketWatchDataPtrT = std::shared_ptr<MarketWatchDataT>;
 
 using ParameterValueT = struct ParameterValueT {
-    bool        _check{ false };
-    int         _integer{ 0 };
-    float       _floating{ 0.0F };
+    bool        _check{false};
+    int         _integer{0};
+    float       _floating{0.0F};
     std::string _text;
 };
 
 using ParameterInfoT = struct ParameterInfoT {
-    bool                _searchEnable{ false };
+    bool                _searchEnable{false};
     DataType            _type;
     ParameterValueT     _parameter;
     ImGuiTextFilter     _filter;
@@ -317,7 +319,7 @@ using GlobalPortfolioScannerContainerT = std::unordered_map<int64_t, ScannerResu
 using GreeksListT = std::list<GreeksPtrT>;
 using SubscribedT = std::set<uint32_t>;
 
-template<typename Type, size_t Size = 30000>
+template <typename Type, size_t Size = 30000>
 using QueueT                = boost::lockfree::spsc_queue<Type, boost::lockfree::capacity<Size>>;
 using PendingOrderUpdateT   = QueueT<std::pair<OrderInfoPtrT, bool>>;
 using PendingTradeUpdateT   = QueueT<OrderInfoPtrT>;

@@ -10,7 +10,8 @@
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 #include "../include/Utils.hpp"
-#include "imgui.h"
+
+#include <imgui.h>
 
 #define CANCEL_ALL_ORDER_WINDOW "Cancel All Order Window"
 
@@ -48,17 +49,17 @@ void OpenOrders::DrawPendingBook(bool* show_) {
 
                     if (_selectedRow == tradeInfo_->_uniqueId and ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
                         if (tradeInfo_->_portfolio % 10000 and ImGui::IsKeyPressed(ImGuiKey_F2)) {
-                            OrderFormInfoT info{ ._uniqueId    = tradeInfo_->_uniqueId,
-                                                 ._price       = tradeInfo_->_price,
-                                                 ._quantity    = (int)tradeInfo_->_quantity,
-                                                 ._lotSize     = (int)Lancelot::ContractInfo::GetLotMultiple(tradeInfo_->_token),
-                                                 ._orderNumber = tradeInfo_->_orderNumber,
-                                                 ._type        = 0,
-                                                 ._side        = tradeInfo_->_side,
-                                                 ._status      = OrderStatus_REPLACED,
-                                                 ._contract    = Lancelot::ContractInfo::GetDescription(tradeInfo_->_token),
-                                                 ._client      = "PRO",
-                                                 ._marketWatch = ContractInfo::GetLiveDataRef(tradeInfo_->_token) };
+                            OrderFormInfoT info{._uniqueId    = tradeInfo_->_uniqueId,
+                                                ._price       = tradeInfo_->_price,
+                                                ._quantity    = (int)tradeInfo_->_quantity,
+                                                ._lotSize     = (int)Lancelot::ContractInfo::GetLotMultiple(tradeInfo_->_token),
+                                                ._orderNumber = tradeInfo_->_orderNumber,
+                                                ._type        = 0,
+                                                ._side        = tradeInfo_->_side,
+                                                ._status      = OrderStatus_REPLACED,
+                                                ._contract    = Lancelot::ContractInfo::GetDescription(tradeInfo_->_token),
+                                                ._client      = "PRO",
+                                                ._marketWatch = ContractInfo::GetLiveDataRef(tradeInfo_->_token)};
                             _manualOrderPtr->Update(info);
                             ImGui::OpenPopup(MODIFY_ORDER_WINDOW);
                         }

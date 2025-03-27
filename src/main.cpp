@@ -7,17 +7,23 @@
 // - Documentation        https://dearimgui.com/docs (same as your local docs/ folder).
 // - Introduction, links and more at the top of imgui.cpp
 
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
 #include "include/Arthur.hpp"
+
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 #include <cstdio>
 #define GL_SILENCE_DEPRECATION
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
-#include <GLFW/glfw3.h>// Will drag system OpenGL headers
+
+#include <GLFW/glfw3.h>  // Will drag system OpenGL headers
+
+#define _CRT_SECURE_NO_WARNINGS
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -60,8 +66,8 @@ auto main(int /*unused*/, char** /*unused*/) -> int {
     const char* glsl_version = "#version 150";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);// 3.2+ only
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);          // Required on Mac
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
 #else
     // GL 3.0 + GLSL 130
     const char* glsl_version = "#version 130";
@@ -77,14 +83,14 @@ auto main(int /*unused*/, char** /*unused*/) -> int {
         return 1;
     }
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);// Enable vsync
+    glfwSwapInterval(1);  // Enable vsync
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& imo = ImGui::GetIO();
-    imo.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;// Enable Keyboard Controls
-    imo.ConfigFlags |= ImGuiConfigFlags_DockingEnable;    // Enable Docking
+    imo.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
+    imo.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Enable Docking
     // imo.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;  // Enable Multi-Viewport / Platform Windows
     // imo.ConfigViewportsNoAutoMerge   = true;
     // imo.ConfigViewportsNoTaskBarIcon = true;
@@ -193,4 +199,53 @@ auto main(int /*unused*/, char** /*unused*/) -> int {
     glfwTerminate();
 
     return 0;
+}
+
+auto LoadTextureFromMemory(const void* data_, size_t data_size_, GLuint* out_texture_, int* out_width_, int* out_height_) -> bool {
+    int            imageWidth  = 0;
+    int            imageHeight = 0;
+    unsigned char* imageData   = stbi_load_from_memory((const unsigned char*)data_, (int)data_size_, &imageWidth, &imageHeight, nullptr, 4);
+    if (imageData == nullptr) {
+        return false;
+    }
+
+    // Create a OpenGL texture identifier
+    GLuint imageTexture;
+    glGenTextures(1, &imageTexture);
+    glBindTexture(GL_TEXTURE_2D, imageTexture);
+
+    // Setup filtering parameters for display
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Upload pixels into texture
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+    stbi_image_free(imageData);
+
+    *out_texture_ = imageTexture;
+    *out_width_   = imageWidth;
+    *out_height_  = imageHeight;
+
+    return true;
+}
+
+auto LoadTextureFromFile(const char* file_, GLuint* out_, int* width_, int* height_) -> bool {
+    FILE* file = fopen(file_, "rb");
+    if (file == nullptr) {
+        return false;
+    }
+    fseek(file, 0, SEEK_END);
+    auto fileSize = static_cast<int>(ftell(file));
+    if (fileSize == -1) {
+        return false;
+    }
+
+    fseek(file, 0, SEEK_SET);
+    void* fileData = IM_ALLOC(static_cast<size_t>(fileSize));
+    fread(fileData, 1, static_cast<size_t>(fileSize), file);
+    fclose(file);
+    bool ret = LoadTextureFromMemory(fileData, static_cast<size_t>(fileSize), out_, width_, height_);
+    IM_FREE(fileData);
+    return ret;
 }

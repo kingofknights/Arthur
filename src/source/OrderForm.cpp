@@ -1,5 +1,3 @@
-#include <algorithm>
-
 #include "../include/OrderForm.hpp"
 
 #include "../API/Common.hpp"
@@ -10,7 +8,10 @@
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 #include "../include/Utils.hpp"
-#include "imgui_internal.h"
+
+#include <imgui_internal.h>
+
+#include <algorithm>
 
 extern ClientCodeListT ClientCodeList;
 
@@ -85,13 +86,13 @@ void OrderForm::DrawInputItem() {
     }
 
     ImGui::Columns(2, nullptr, false);
-    if (ImGui::IsKeyPressed(ImGuiKey_Enter) or ImGui::IsKeyPressed(ImGuiKey_KeypadEnter) or ImGui::Button(ICON_MD_DONE " Submit", { -FLT_MIN, 0 })) {
+    if (ImGui::IsKeyPressed(ImGuiKey_Enter) or ImGui::IsKeyPressed(ImGuiKey_KeypadEnter) or ImGui::Button(ICON_MD_DONE " Submit", {-FLT_MIN, 0})) {
         SentToBroker();
         if (enable) ImGui::CloseCurrentPopup();
     }
 
     ImGui::NextColumn();
-    if (ImGui::Button(ICON_MD_CANCEL " Cancel", { -FLT_MIN, 0 })) {
+    if (ImGui::Button(ICON_MD_CANCEL " Cancel", {-FLT_MIN, 0})) {
         ImGui::CloseCurrentPopup();
     }
     ImGui::EndColumns();
