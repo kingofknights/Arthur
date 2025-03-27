@@ -99,10 +99,13 @@ add_executable(${PROJECT_NAME} main.cpp ${APP_ICON_RESOURCE_WINDOWS})
 
 add_dependencies(${PROJECT_NAME} Imgui)
 add_dependencies(${PROJECT_NAME} ImguiFD)
-add_dependencies(${PROJECT_NAME} glfw)
-add_dependencies(${PROJECT_NAME} nlohmann_json)
-add_dependencies(${PROJECT_NAME} fmt)
-add_dependencies(${PROJECT_NAME} SQLiteCpp)
+
+if(NOT USE_SYSTEM_LIB)
+  add_dependencies(${PROJECT_NAME} glfw)
+  add_dependencies(${PROJECT_NAME} nlohmann_json)
+  add_dependencies(${PROJECT_NAME} fmt)
+  add_dependencies(${PROJECT_NAME} SQLiteCpp)
+endif()
 
 target_sources(${PROJECT_NAME} PRIVATE ${HEADER_FILES})
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})
