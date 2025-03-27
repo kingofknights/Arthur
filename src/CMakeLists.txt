@@ -7,17 +7,17 @@ find_package(Threads REQUIRED)
 
 if(USE_SYSTEM_LIB)
   find_package(glfw3 REQUIRED)
-  find_package(fmt REQUIRED)
+  find_package(fmt CONFIG REQUIRED)
   find_package(nlohmann_json REQUIRED)
   find_package(SQLiteCpp REQUIRED)
 endif()
 
-include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
 message(STATUS "Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost_LIBRARY_DIRS ${Boost_LIBRARY_DIRS}")
+message(STATUS "OPENGL_INCLUDE_DIR ${OPENGL_INCLUDE_DIR}")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Lancelot)
@@ -120,6 +120,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Greeks)
 target_compile_definitions(${PROJECT_NAME} PUBLIC IMGUI_IMPL_OPENGL_ES2)
 target_include_directories(${PROJECT_NAME} PUBLIC ${imgui_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC ${imgui_SOURCE_DIR}/backends)
+target_include_directories(${PROJECT_NAME} PUBLIC ${OPENGL_INCLUDE_DIR})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw GL)
 target_link_libraries(${PROJECT_NAME} PRIVATE Imgui)
