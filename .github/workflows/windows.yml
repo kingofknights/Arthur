@@ -17,19 +17,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup CMake
-        uses: actions/setup-cmake@v2
-
-      - name: Setup Visual Sudio
-        uses: microcoft/setup-msbuild@v1
-
-      - name: Install VCPKG
-        run: |
-          git clone https://github.com/microsoft/vcpkg.git
-          cd vcpkg
-          ./bootstrap-vcpkg.bat
-          echo "::add-path::$PWD" >> $GITHUB_ENV
-
       - name: Install dependencies with vcpkg (from vcpkg.json)
         run: |
           .\vcpkg install --triplet x64-windows
