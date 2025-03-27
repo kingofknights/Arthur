@@ -1,6 +1,9 @@
 {
   "version-string": "1.0.0",
   "dependencies": [
+    "boost"
+  ],
+  "overrides": [
     {
       "name": "boost",
       "version": "1.76.0"
