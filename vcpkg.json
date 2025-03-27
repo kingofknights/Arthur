@@ -2,7 +2,7 @@
   "dependencies": [
     "fmt",
     "nlohmann-json",
-    "glfw",
+    "glfw3",
     "sqlitecpp"
   ],
   "builtin-baseline": "c7fc2998445046e8ba3a470eeb49ee1520fbd370"
