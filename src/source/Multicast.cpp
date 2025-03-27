@@ -3,13 +3,12 @@
 //
 
 #include "../include/Multicast.hpp"
-#include <asm-generic/socket.h>
+
 #include <boost/asio/detail/socket_option.hpp>
 #include <boost/asio/ip/address.hpp>
 #include <boost/asio/ip/address_v4.hpp>
 #include <boost/asio/ip/udp.hpp>
 #include <boost/asio/socket_base.hpp>
-#include <iostream>
 
 MulticastReceiver::MulticastReceiver(boost::asio::io_service& ioService_) : _socket(ioService_) {
 }
@@ -22,7 +21,6 @@ void MulticastReceiver::receiverFrom(const boost::system::error_code& errorCode_
 }
 
 void MulticastReceiver::bindMC(const std::string& address_, int port_) {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
     _endpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port_);
     _socket.open(boost::asio::ip::udp::v4());
     _socket.set_option(boost::asio::socket_base::reuse_address(true));

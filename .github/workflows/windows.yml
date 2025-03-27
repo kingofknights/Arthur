@@ -15,9 +15,9 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install dependencies with vcpkg (from vcpkg.json)
-        run: |
-          vcpkg install --triplet x64-windows
+      # - name: Install dependencies with vcpkg (from vcpkg.json)
+      #   run: |
+      #     vcpkg install --triplet x64-windows
 
       - name: Configure CMake
         run: cmake -B build -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
