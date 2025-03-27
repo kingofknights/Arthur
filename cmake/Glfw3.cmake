@@ -13,4 +13,4 @@ set(GLFW_BUILD_WAYLAND OFF)
 set(GLFW_BUILD_DOCS OFF)
 set(GLFW_BUILD_X11 ON)
 
-include_directories(${glfw_SOURCE_DIR})
+include_directories(${glfw_SOURCE_DIR}/include)
