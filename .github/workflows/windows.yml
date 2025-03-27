@@ -4,7 +4,7 @@ name: Build and Deployment
 
 on:
   push:
-    branches: ["master", "main"]
+    branches: ["main"]
 
 env:
   BUILD_TYPE: Release
@@ -19,7 +19,7 @@ jobs:
 
       - name: Install dependencies with vcpkg (from vcpkg.json)
         run: |
-          .\vcpkg install --triplet x64-windows
+          vcpkg install --triplet x64-windows
 
       - name: Configure CMake
         run: cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=$PWD/vcpkg/scripts/buildsystems/vcpkg.cmake
