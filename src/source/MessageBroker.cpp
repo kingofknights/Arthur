@@ -2,8 +2,6 @@
 // Created by VIKLOD on 11-03-2023.
 //
 
-#include <utility>
-
 #include "../include/MessageBroker.hpp"
 
 #include "../API/Common.hpp"
@@ -13,6 +11,8 @@
 #include "../include/Utils.hpp"
 #include "Lancelot/Lancelot.hpp"
 #include "Structure.hpp"
+
+#include <utility>
 
 constexpr auto GetResponseStatus(int response_) noexcept -> OrderStatus {
     switch (response_) {
@@ -44,7 +44,6 @@ void MessageBroker::setCallback(UpdateTradeFunctionT updateTradeFunction_) { _up
 
 void MessageBroker::process(const char* buffer_, size_t size_) {
     const auto* request = reinterpret_cast<const Lancelot::Header*>(buffer_);
-    LOG(INFO, "{} {} {} {}", __PRETTY_FUNCTION__, size_, request->_type, request->_length);
 
     switch (request->_type) {
         case 4002: {
@@ -78,7 +77,6 @@ void MessageBroker::process(const char* buffer_, size_t size_) {
 }
 
 void MessageBroker::processOrder(const char* buffer_) {
-    LOG(INFO, "{}", __PRETTY_FUNCTION__);
     const auto*   response = reinterpret_cast<const Lancelot::HedgeOrderResponse*>(buffer_);
     OrderInfoPtrT info     = std::make_shared<OrderInfoT>();
     info->_portfolio       = response->_user._portfolio,
@@ -142,7 +140,9 @@ void MessageBroker::processUpdates(const nlohmann::json& input_) {
         for (const auto& argument : arguments.items()) {
             auto iterator = strategy->_parameterInfoList.find(argument.key());
             if (iterator != strategy->_parameterInfoList.end()) {
-                if (iterator->second._type == DataType_UPDATES) { iterator->second._parameter._text = argument.value().get<std::string>(); }
+                if (iterator->second._type == DataType_UPDATES) {
+                    iterator->second._parameter._text = argument.value().get<std::string>();
+                }
             }
         }
     }

@@ -218,7 +218,6 @@ void Arthur::paint() {
 }
 
 void Arthur::AddTrade(const OrderInfoPtrT& tradeInfo_) {
-    LOG(INFO, "{} {}", __PRETTY_FUNCTION__, static_cast<int>(tradeInfo_->_statusValue));
     switch (tradeInfo_->_statusValue) {
         case OrderStatus_PLACED:
         case OrderStatus_NEW:
