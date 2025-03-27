@@ -1,30 +1,14 @@
 {
   "dependencies": [
     {
-      "name": "boost-system",
-      "version>=": "1.74.0"
-    },
-    {
-      "name": "boost-thread",
-      "version>=": "1.74.0"
-    },
-    {
-      "name": "boost-filesystem",
+      "name": "boost",
       "version>=": "1.74.0"
     }
   ],
   "overrides": [
     {
-      "name": "boost-system",
-      "version": "1.82.0"
-    },
-    {
-      "name": "boost-thread",
-      "version": "1.82.0"
-    },
-    {
-      "name": "boost-filesystem",
-      "version": "1.82.0"
+      "name": "boost",
+      "version": "1.74.0"
     }
   ],
   "builtin-baseline": "c7fc2998445046e8ba3a470eeb49ee1520fbd370"
