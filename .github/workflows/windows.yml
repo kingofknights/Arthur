@@ -1,0 +1,41 @@
+# This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
+name: Build and Deployment
+
+on:
+  push:
+    branches: ["master", "main"]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup CMake
+        uses: actions/setup-cmake@v2
+
+      - name: Setup Visual Sudio
+        uses: microcoft/setup-msbuild@v1
+
+      - name: Install VCPKG
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git
+          cd vcpkg
+          ./bootstrap-vcpkg.bat
+          echo "::add-path::$PWD" >> $GITHUB_ENV
+
+      - name: Install dependencies with vcpkg (from vcpkg.json)
+        run: |
+          .\vcpkg install --triplet x64-windows
+
+      - name: Configure CMake
+        run: cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=$PWD/vcpkg/scripts/buildsystems/vcpkg.cmake
+
+      - name: Build with CMake
+        run: cmake --build build --config ${{env.BUILD_TYPE}}
