@@ -1,6 +1,6 @@
 set(Boost_NO_WARN_NEW_VERSIONS OFF)
 
-find_package(Boost REQUIRED COMPONENTS system thread filesystem)
+find_package(Boost REQUIRED COMPONENTS system)
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 

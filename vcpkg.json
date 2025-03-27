@@ -1,13 +1,13 @@
 {
   "dependencies": [
     {
-      "name": "boost",
+      "name": "boost-system",
       "version>=": "1.74.0"
     }
   ],
   "overrides": [
     {
-      "name": "boost",
+      "name": "boost-system",
       "version": "1.74.0"
     }
   ],
