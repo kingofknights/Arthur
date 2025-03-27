@@ -15,12 +15,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # - name: Install dependencies with vcpkg (from vcpkg.json)
-      #   run: |
-      #     vcpkg install --triplet x64-windows
+      - name: Update submodule
+        run: |
+          git submodule init --recursive
+          git submodule update --recursive --remote
 
       - name: Configure CMake
-        run: cmake -B build -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
+        run: cmake -B build
+        # run: cmake -B build -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 
       - name: Build with CMake
         run: cmake --build build --config ${{env.BUILD_TYPE}}
