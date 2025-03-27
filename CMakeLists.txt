@@ -23,10 +23,15 @@ include_directories(third_party/stb)
 
 include(./cmake/Imgui.cmake)
 include(./cmake/ImguiFD.cmake)
-include(./cmake/Glfw3.cmake)
-include(./cmake/Nlohmann-json.cmake)
-include(./cmake/Fmt.cmake)
-include(./cmake/SqliteCpp.cmake)
+include(./cmake/Win32.cmake)
+
+option(USE_SYSTEM_LIB "Use system install libraries" ON)
+if(NOT USE_SYSTEM_LIB)
+  include(./cmake/Glfw3.cmake)
+  include(./cmake/Nlohmann-json.cmake)
+  include(./cmake/Fmt.cmake)
+  include(./cmake/SqliteCpp.cmake)
+endif()
 
 include_directories(repo/Greeks)
 

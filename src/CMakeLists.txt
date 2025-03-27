@@ -5,6 +5,13 @@ find_package(Boost REQUIRED COMPONENTS system filesystem)
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 
+if(USE_SYSTEM_LIB)
+  find_package(glfw3 REQUIRED)
+  find_package(fmt REQUIRED)
+  find_package(nlohmann-json REQUIRED)
+  find_package(SQLiteCpp REQUIRED)
+endif()
+
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
