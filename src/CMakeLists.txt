@@ -12,6 +12,7 @@ if(USE_SYSTEM_LIB)
   find_package(SQLiteCpp REQUIRED)
 endif()
 
+include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
