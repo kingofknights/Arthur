@@ -13,7 +13,6 @@
       "version>=": "1.74.0"
     }
   ],
-  "builtin-baseline": "761c81d43335a5d5ccc2ec8ad90bd7e2cbba734e",
   "overrides": [
     {
       "name": "boost-system",
@@ -27,5 +26,6 @@
       "name": "boost-filesystem",
       "version": "1.74.0"
     }
-  ]
+  ],
+  "builtin-baseline": "bedfdb774cfbe47da202169046ca15441a213f3e"
 }
