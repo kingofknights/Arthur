@@ -19,10 +19,10 @@ jobs:
 
       - name: Install dependencies with vcpkg (from vcpkg.json)
         run: |
-          vcpkg install --triplet x64-windows
+          vcpkg install --triplet x64-windows --keep-going
 
       - name: Configure CMake
-        run: cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=$PWD/vcpkg/scripts/buildsystems/vcpkg.cmake
+        run: cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
 
       - name: Build with CMake
         run: cmake --build build --config ${{env.BUILD_TYPE}}
