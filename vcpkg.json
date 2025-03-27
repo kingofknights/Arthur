@@ -13,5 +13,19 @@
       "version>=": "1.74.0"
     }
   ],
+  "overrides": [
+    {
+      "name": "boost-system",
+      "version": "1.82.0"
+    },
+    {
+      "name": "boost-thread",
+      "version": "1.82.0"
+    },
+    {
+      "name": "boost-filesystem",
+      "version": "1.82.0"
+    }
+  ],
   "builtin-baseline": "bedfdb774cfbe47da202169046ca15441a213f3e"
 }
