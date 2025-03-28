@@ -21,7 +21,7 @@ jobs:
           git submodule update --recursive --remote
 
       - name: Install boost
-        run: choco install boost-msvc-14.3 --internalize --version='1.78.0' --source=https://community.chocolatey.org/api/v2/
+        run: choco install boost-msvc-14.3
 
       - name: Configure Arthur
         working-directory: ${{github.workspace}}/
