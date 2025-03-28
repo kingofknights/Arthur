@@ -27,11 +27,11 @@
     },
     {
       "name": "boost-headers",
-      "version": "1.74.0"
+      "version": "1.84.0"
     },
     {
       "name": "boost-dll",
-      "version": "1.74.0"
+      "version": "1.84.0"
     }
   ]
 }
