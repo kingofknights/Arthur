@@ -23,6 +23,9 @@ jobs:
       - name: Install Boost
         run: choco install boost-msvc-14.1
 
+      - name: Install Dependencies
+        run: vcpkg install --triplet x64-windows
+
       - name: Configure CMake
         # run: cmake -B build
         run: cmake -B build -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake

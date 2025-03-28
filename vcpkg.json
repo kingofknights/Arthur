@@ -5,5 +5,23 @@
     "glfw3",
     "sqlitecpp"
   ],
-  "builtin-baseline": "c7fc2998445046e8ba3a470eeb49ee1520fbd370"
+  "builtin-baseline": "c7fc2998445046e8ba3a470eeb49ee1520fbd370",
+  "overrides": [
+    {
+      "name": "fmt",
+      "version": "10.0.0"
+    },
+    {
+      "name": "nlohmann-json",
+      "version": "v3.10.0"
+    },
+    {
+      "name": "glfw",
+      "version": "3.0"
+    },
+    {
+      "name": "sqlitecpp",
+      "version": "3.3.2"
+    }
+  ]
 }
