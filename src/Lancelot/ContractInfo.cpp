@@ -123,7 +123,7 @@ namespace Lancelot {
                 ss << (resultSetPtr->_strikePrice < 0 ? "FUT" : "OPT");
                 ss << ' ' << resultSetPtr->_symbol.data();
                 if (resultSetPtr->_strikePrice > 0) ss << ' ' << (resultSetPtr->_strikePrice) << ' ' << (resultSetPtr->_option == Lancelot::OptionType_CALL ? "CE" : "PE");
-                ss << ' ' << ToHuman(resultSetPtr->_expiryDate + TenYearsInSeconds);
+                ss << ' ' << ToHuman(resultSetPtr->_expiryDate + TenYearsInSeconds, "%d%b");
                 auto description           = boost::to_upper_copy(ss.str());
                 resultSetPtr->_description = description;
             }

@@ -5,10 +5,10 @@
 #include <fmt/printf.h>
 #include <fmt/ranges.h>
 
-inline static auto ToHuman(time_t time_) -> std::string {
+inline static auto ToHuman(time_t time_, std::string format_ = "%Y%m%d") -> std::string {
     std::array<char, 80>  buf{};
     const auto*           time  = localtime(&time_);
-    [[maybe_unused]] auto error = strftime(buf.data(), buf.size(), "%Y%m%d", time);
+    [[maybe_unused]] auto error = strftime(buf.data(), buf.size(), format_.data(), time);
     return {buf.data()};
 }
 
