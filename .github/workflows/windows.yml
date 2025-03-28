@@ -20,35 +20,16 @@ jobs:
           git submodule init
           git submodule update --recursive --remote
 
-      - name: Install boost
-        run: choco install boost-msvc-14.3
+      # - name: Install boost
+      #   run: choco install boost-msvc-14.3
 
-      - name: Install nlohmann json
+      - name: Download Dependencies
+        working-directory: ${{github.workspace}}/build
         run: |
           git clone https://github.com/nlohmann/json.git
-          cd json 
-          git checkout v3.11.3
-          cmake -B build -DCMAKE_GENERATOR=ninja
-          cd build
-          ninja install
-
-      - name: Install fmt
-        run: |
           git clone https://github.com/fmtlib/fmt.git
-          cd fmt
-          git checkout 11.1.4
-          cmake -B build -DCMAKE_GENERATOR=ninja
-          cd build
-          ninja install
-
-      - name: Install SQLiteCpp
-        run: |
-          git clone https://github.com/SRombauts/SQLiteCpp.git
-          cd SQLiteCpp
-          git checkout 3.3.2
-          cmake -B build -DCMAKE_GENERATOR=ninja
-          cd build
-          ninja install
+          git clone https://github.com/SRombauts/SQLiteCpp.git 
+          ls
 
       - name: Configure CMake
         run: cmake -B build
