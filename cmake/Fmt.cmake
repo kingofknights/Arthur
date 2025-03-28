@@ -6,3 +6,4 @@ FetchContent_MakeAvailable(fmt)
 FetchContent_GetProperties(fmt)
 
 message(STATUS "fmt_DIR : ${fmt_SOURCE_DIR}")
+include_directories(${fmt_SOURCE_DIR}/include)

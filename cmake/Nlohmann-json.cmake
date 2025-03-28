@@ -5,3 +5,4 @@ FetchContent_MakeAvailable(json)
 FetchContent_GetProperties(json)
 
 message(STATUS "json_DIR : ${json_SOURCE_DIR}")
+include_directories(${json_SOURCE_DIR}/include)

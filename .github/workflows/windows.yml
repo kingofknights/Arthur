@@ -27,6 +27,6 @@ jobs:
         working-directory: ${{github.workspace}}/
         run: cmake -B build
 
-      - name: list dependencies
+      - name: Build Arthur
         working-directory: ${{github.workspace}}/
-        run: tree
+        run: cmake --build build
