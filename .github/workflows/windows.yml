@@ -31,7 +31,8 @@ jobs:
         run: |
           git clone https://github.com/nlohmann/json.git
           git clone https://github.com/fmtlib/fmt.git
-          git clone https://github.com/SRombauts/SQLiteCpp.git 
+          git clone https://github.com/SRombauts/SQLiteCpp.git
+          git clone https://github.com/glfw/glfw.git
           ls
 
       - name: Install json
@@ -55,6 +56,14 @@ jobs:
         run: |
           git checkout 3.3.2
           cmake -B build -DSQLITECPP_BUILD_TESTS=OFF -DSQLITECPP_RUN_CPPLINT=OFF 
+          cmake --build build --config Release
+          cmake --install build --config Release
+
+      - name: Install glfw3
+        working-directory: ${{github.workspace}}/build/glfw
+        run: |
+          git checkout 3.4
+          cmake -B build -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF
           cmake --build build --config Release
           cmake --install build --config Release
 
