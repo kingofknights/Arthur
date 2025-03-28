@@ -7,7 +7,7 @@
     "glfw3",
     "sqlitecpp"
   ],
-  "builtin-baseline": "c7fc2998445046e8ba3a470eeb49ee1520fbd370",
+  "builtin-baseline": "b322364f06308bdd24823f9d8f03fe0cc86fd46f",
   "overrides": [
     {
       "name": "fmt",
