@@ -21,7 +21,7 @@ jobs:
           git submodule update --recursive --remote
 
       - name: Install conan
-        run: choco install conan
+        run: pip install conan
         #boost-msvc-14.3
 
       - name: Install Dependencies
