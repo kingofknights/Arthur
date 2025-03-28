@@ -1,5 +1,6 @@
 {
   "dependencies": [
+    "boost",
     "fmt",
     "nlohmann-json",
     "glfw3",
@@ -22,6 +23,10 @@
     {
       "name": "sqlitecpp",
       "version": "3.3.2"
+    },
+    {
+      "name": "boost",
+      "version": "1.74.0"
     }
   ]
 }
