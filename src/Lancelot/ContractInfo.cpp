@@ -20,9 +20,8 @@
 
 namespace Lancelot {
 
-    constexpr static int TenYearsInSeconds = 315513000;
-    using ResultSetContainerT              = std::unordered_map<uint32_t, ResultSetPtrT>;
-    using NameToTokenContainerT            = std::unordered_map<std::string, uint32_t>;
+    using ResultSetContainerT   = std::unordered_map<uint32_t, ResultSetPtrT>;
+    using NameToTokenContainerT = std::unordered_map<std::string, uint32_t>;
 
     namespace details {
         static ResultSetContainerT   ResultSetContainer;
@@ -65,10 +64,8 @@ namespace Lancelot {
                 std::stringstream ss;
                 ss << (resultSetPtr->_strikePrice < 0 ? "FUT" : "OPT");
                 ss << ' ' << resultSetPtr->_symbol.data();
-                if (resultSetPtr->_strikePrice > 0) {
-                    ss << ' ' << (resultSetPtr->_strikePrice) << ' ' << (resultSetPtr->_option == Lancelot::OptionType_CALL ? "CE" : "PE");
-                }
-                ss << ' ' << ToHuman(resultSetPtr->_expiryDate + TenYearsInSeconds);
+                if (resultSetPtr->_strikePrice > 0) ss << ' ' << (resultSetPtr->_strikePrice) << ' ' << (resultSetPtr->_option == Lancelot::OptionType_CALL ? "CE" : "PE");
+                ss << ' ' << FORMAT("{:%d%b}", fmt::localtime(resultSetPtr->_expiryDate));
                 auto description           = boost::to_upper_copy(ss.str());
                 resultSetPtr->_description = description;
             }
@@ -123,7 +120,7 @@ namespace Lancelot {
                 ss << (resultSetPtr->_strikePrice < 0 ? "FUT" : "OPT");
                 ss << ' ' << resultSetPtr->_symbol.data();
                 if (resultSetPtr->_strikePrice > 0) ss << ' ' << (resultSetPtr->_strikePrice) << ' ' << (resultSetPtr->_option == Lancelot::OptionType_CALL ? "CE" : "PE");
-                ss << ' ' << ToHuman(resultSetPtr->_expiryDate + TenYearsInSeconds, "%d%b");
+                ss << ' ' << FORMAT("{:%d%b}", fmt::localtime(resultSetPtr->_expiryDate));
                 auto description           = boost::to_upper_copy(ss.str());
                 resultSetPtr->_description = description;
             }

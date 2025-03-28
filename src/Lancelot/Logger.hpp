@@ -5,14 +5,6 @@
 #include <fmt/printf.h>
 #include <fmt/ranges.h>
 
-inline static auto ToHuman(time_t time_, std::string format_ = "%Y%m%d") -> std::string {
-    std::array<char, 80>  buf{};
-    const auto*           time  = localtime(&time_);
-    [[maybe_unused]] auto error = strftime(buf.data(), buf.size(), format_.data(), time);
-    return {buf.data()};
-}
-
-#define DISABLE_LOGGING
 #ifdef DISABLE_LOGGING
 #define LOG(...) ;
 #else
@@ -20,13 +12,13 @@ inline static auto ToHuman(time_t time_, std::string format_ = "%Y%m%d") -> std:
 #define LOG(TYPE, format, ...)   LOG_##TYPE(format, __VA_ARGS__)
 
 // Info Log with Green Color
-#define LOG_INFO(format, ...)    fmt::print(stderr, fmt::fg(fmt::color::green), "{:%Y-%m-%d %H:%M:%S} " format "\n", *std::localtime(std::time(0)), __VA_ARGS__);
+#define LOG_INFO(format, ...)    fmt::print(stderr, fmt::fg(fmt::color::green), "{:%Y-%m-%d %H:%M:%S} " format "\n", fmt : localtime(std::time(0)), __VA_ARGS__);
 
 // Info Log with Red Color
-#define LOG_ERROR(format, ...)   fmt::print(stderr, fmt::fg(fmt::color::red), "{:%Y-%m-%d %H:%M:%S} " format "\n", *std::localtime(std::time(0)), __VA_ARGS__);
+#define LOG_ERROR(format, ...)   fmt::print(stderr, fmt::fg(fmt::color::red), "{:%Y-%m-%d %H:%M:%S} " format "\n", fmt::localtime(std::time(0)), __VA_ARGS__);
 
 // Info Log with Purple Color
-#define LOG_WARNING(format, ...) fmt::print(stderr, fmt::fg(fmt::color::purple), "{:%Y-%m-%d %H:%M:%S} " format "\n", *std::localtime(std::time(0)), __VA_ARGS__);
+#define LOG_WARNING(format, ...) fmt::print(stderr, fmt::fg(fmt::color::purple), "{:%Y-%m-%d %H:%M:%S} " format "\n", fmt::localtime(std::time(0)), __VA_ARGS__);
 
 #endif
 // Return format with fmt
