@@ -17,7 +17,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 
-option(USE_SYSTEM_LIB "Use system install libraries" ON)
+option(USE_SYSTEM_LIB "Use system install libraries" OFF)
 
 add_subdirectory(repo)
 
@@ -40,6 +40,7 @@ endif()
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
+message(STATUS "fmt_INCLUDE_DIRS ${fmt_INCLUDE_DIRS}")
 message(STATUS "Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost_LIBRARY_DIRS ${Boost_LIBRARY_DIRS}")
 message(STATUS "OPENGL_INCLUDE_DIR ${OPENGL_INCLUDE_DIR}")
