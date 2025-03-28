@@ -40,7 +40,6 @@ endif()
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
-message(STATUS "fmt_INCLUDE_DIRS ${fmt_INCLUDE_DIRS}")
 message(STATUS "Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost_LIBRARY_DIRS ${Boost_LIBRARY_DIRS}")
 message(STATUS "OPENGL_INCLUDE_DIR ${OPENGL_INCLUDE_DIR}")
