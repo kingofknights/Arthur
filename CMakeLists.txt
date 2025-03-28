@@ -17,13 +17,9 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 
-option(USE_SYSTEM_LIB "Use system install libraries" OFF)
+option(USE_SYSTEM_LIB "Use system install libraries" ON)
 
 add_subdirectory(repo)
-
-find_package(Boost REQUIRED filesystem)
-find_package(OpenGL REQUIRED)
-find_package(Threads REQUIRED)
 
 if(USE_SYSTEM_LIB)
   find_package(glfw3 CONFIG REQUIRED)
@@ -36,6 +32,10 @@ else()
   include(./cmake/Fmt.cmake)
   include(./cmake/SqliteCpp.cmake)
 endif()
+
+find_package(OpenGL REQUIRED)
+find_package(Threads REQUIRED)
+find_package(Boost REQUIRED filesystem)
 
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})

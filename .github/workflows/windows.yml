@@ -54,6 +54,6 @@ jobs:
         working-directory: ${{github.workspace}}/build/SQLiteCpp
         run: |
           git checkout 3.3.2
-          cmake -B build -DSQLITECPP_BUILD_TESTS=OFF
+          cmake -B build -DSQLITECPP_BUILD_TESTS=OFF -DSQLITECPP_RUN_CPPLINT=OFF 
           cmake --build build --config Release
           cmake --install build --config Release
