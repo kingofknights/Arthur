@@ -13,7 +13,7 @@
     },
     {
       "name": "nlohmann-json",
-      "version": "v3.10.0"
+      "version": "3.11.2"
     },
     {
       "name": "glfw",
