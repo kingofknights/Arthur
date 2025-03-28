@@ -1,0 +1,32 @@
+name: Windows Build and Deployment
+
+on:
+  push:
+    branches: ["workflow"]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Update submodule
+        run: |
+          git submodule init
+          git submodule update --recursive --remote
+
+      - name: Install boost
+        run: choco install boost-msvc-14.3
+
+      - name: Configure Arthur
+        working-directory: ${{github.workspace}}/
+        run: cmake -B build
+
+      - name: list depedencies
+        working-directory: ${{github.workspace}}/
+        run: cmake -B build
