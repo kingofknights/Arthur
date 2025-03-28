@@ -1,7 +1,7 @@
 {
   "dependencies": [
-    "boost-system",
-    "boost-filesystem",
+    "boost-headers",
+    "boost-dll",
     "fmt",
     "nlohmann-json",
     "glfw3",
@@ -26,11 +26,11 @@
       "version": "3.3.2"
     },
     {
-      "name": "boost-system",
+      "name": "boost-headers",
       "version": "1.74.0"
     },
     {
-      "name": "boost-filesystem",
+      "name": "boost-dll",
       "version": "1.74.0"
     }
   ]

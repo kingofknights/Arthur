@@ -24,7 +24,7 @@ jobs:
       #   run: choco install boost-msvc-14.1
 
       - name: Install Dependencies
-        run: vcpkg install --triplet x64-windows
+        run: vcpkg install --triplet x64-windows --keep-going
 
       - name: Configure CMake
         # run: cmake -B build

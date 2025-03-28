@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/dll/shared_library.hpp>
+
 #include <map>
 #include <memory>
 #include <string>
