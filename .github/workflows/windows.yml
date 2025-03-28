@@ -2,7 +2,7 @@ name: Windows Build and Deployment
 
 on:
   push:
-    branches: ["workflow"]
+    branches: [ "workflow" ]
 
 env:
   BUILD_TYPE: Release
@@ -19,6 +19,14 @@ jobs:
         run: |
           git submodule init
           git submodule update --recursive --remote
+
+      - name: Cache Boost installation
+        uses: actions/cache@v2
+        with:
+          path: C:\tools\chocolatey\lib\boost_msvc_14.3
+          key: boost-msvc-14.3-${{ runner.os }}-${{ hashFiles('**/boost_msvc_14.3') }}
+          restore-keys: |
+            boost-msvc-14.3-${{ runner.os }}-
 
       - name: Install boost
         run: choco install boost-msvc-14.3
