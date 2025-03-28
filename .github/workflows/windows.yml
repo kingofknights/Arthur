@@ -38,22 +38,22 @@ jobs:
         working-directory: ${{github.workspace}}/build/json
         run: |
           git checkout v3.11.2
-          cmake -B build
-          cmake --build build
-          cmake --install build
+          cmake -B build --config Release -DJSON_BuildTests=OFF
+          cmake --build build --config Release
+          cmake --install build --config Release
 
       - name: Install fmt
         working-directory: ${{github.workspace}}/build/fmt
         run: |
           git checkout 10.0.0
-          cmake -B build
-          cmake --build build
-          cmake --install build
+          cmake -B build --config Release -DFMT_TEST=OFF
+          cmake --build build --config Release
+          cmake --install build --config Release
 
       - name: Install SQLiteCpp
         working-directory: ${{github.workspace}}/build/SQLiteCpp
         run: |
           git checkout 3.3.2
-          cmake -B build
-          cmake --build build
-          cmake --install build
+          cmake -B build --config Release -DSQLITECPP_BUILD_TESTS=OFF
+          cmake --build build --config Release
+          cmake --install build --config Release
