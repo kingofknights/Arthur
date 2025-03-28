@@ -18,7 +18,7 @@
 OpenOrders::OpenOrders(const OrderFormPtrT& manualOrder_, boost::asio::io_context::strand& strand_) : _manualOrderPtr(manualOrder_), _strand(strand_) {}
 
 void OpenOrders::paint(bool* show_) {
-    _pendingOrderUpdate.consume_one([this](const std::pair<OrderInfoPtrT, bool>& pair_) { Update(pair_.first, pair_.second); });
+    _pendingOrderUpdate.consume_one([this](const auto& pair_) { Update(pair_.first, pair_.second); });
     if (*show_) {
         DrawPendingBook(show_);
     }

@@ -92,7 +92,7 @@ void Position::Insert(const OrderInfoPtrT& tradeInfo_) {
 }
 
 void Position::Paint(bool* show_) {
-    _pendingTradeUpdate.consume_one([this](const OrderInfoPtrT& tradeInfo_) {
+    _pendingTradeUpdate.consume_one([this](OrderInfoPtrT tradeInfo_) {
         SymbolBoolWiseBookUpdate(tradeInfo_);
         PFWiseBookUpdate(tradeInfo_);
         GreekBookUpdate(tradeInfo_);

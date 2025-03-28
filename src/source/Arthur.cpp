@@ -462,7 +462,7 @@ void Arthur::startAllThreads() {
 
 void Arthur::marketEventHandler(std::stop_token& stopToken_) {
     while (not stopToken_.stop_requested()) {
-        MarketEventQueue.consume_one([&](const MarketWatchDataPtrT& pointer_) { Scanner::GetInstance().Process(pointer_->_token); });
+        MarketEventQueue.consume_one([&](MarketWatchDataPtrT pointer_) { Scanner::GetInstance().Process(pointer_->_token); });
     }
     LOG(WARNING, "{} {}", __FUNCTION__, "Exiting")
 }
