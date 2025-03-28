@@ -21,7 +21,7 @@ jobs:
           git submodule update --recursive --remote
 
       - name: Install boost
-        run: pip install boost-msvc-14.3
+        run: choco install boost-msvc-14.3
 
       - name: Install Dependencies
         run: vcpkg install --triplet x64-windows --keep-going
