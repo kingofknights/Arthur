@@ -2,14 +2,14 @@ set(Boost_NO_WARN_NEW_VERSIONS OFF)
 
 find_package(Boost REQUIRED COMPONENTS system filesystem)
 
-find_package(OpenGL REQUIRED)
+find_package(OpenGL CONFIG REQUIRED)
 find_package(Threads REQUIRED)
 
 if(USE_SYSTEM_LIB)
-  find_package(glfw3 REQUIRED)
+  find_package(glfw3 CONFIG REQUIRED)
   find_package(fmt CONFIG REQUIRED)
-  find_package(nlohmann_json REQUIRED)
-  find_package(SQLiteCpp REQUIRED)
+  find_package(nlohmann_json CONFIG REQUIRED)
+  find_package(SQLiteCpp CONFIG REQUIRED)
 endif()
 
 include_directories(${Boost_INCLUDE_DIRS})
