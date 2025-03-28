@@ -1,5 +1,7 @@
 #pragma once
 
+#define FMT_UNICODE 0
+
 #include <fmt/chrono.h>
 #include <fmt/color.h>
 #include <fmt/core.h>
