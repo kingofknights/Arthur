@@ -23,6 +23,16 @@ jobs:
       - name: Install boost
         run: choco install boost-msvc-14.3
 
+      - name: Install ninja
+        run: choco install ninja
+
+      - name: Install fmt
+        run: |
+          git clone https://github.com/fmtlib/fmt.git
+          cd fmt
+          cmake -B build -DCMAKE_GENERATOR=Ninja
+          ninja install
+
       # - name: Install Dependencies
       # run: vcpkg install --triplet x64-windows --keep-going
       - name: Configure CMake
