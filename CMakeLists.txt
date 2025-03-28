@@ -22,7 +22,7 @@ option(USE_SYSTEM_LIB "Use system install libraries" ON)
 add_subdirectory(repo)
 
 find_package(Boost REQUIRED)
-find_package(OpenGL CONFIG REQUIRED)
+find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 
 if(USE_SYSTEM_LIB)
