@@ -23,6 +23,9 @@ jobs:
       # - name: Install boost
       #   run: choco install boost-msvc-14.3
 
+      - name: Make working-directory
+        run: mkdir build
+
       - name: Download Dependencies
         working-directory: ${{github.workspace}}/build
         run: |
