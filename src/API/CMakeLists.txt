@@ -14,7 +14,7 @@ target_link_libraries(
   PUBLIC nlohmann_json::nlohmann_json
          fmt::fmt
          Boost::headers
-         Boost::dll)
+         Boost::filesystem)
 
 install(
   FILES BaseScanner.hpp

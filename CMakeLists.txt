@@ -21,7 +21,7 @@ option(USE_SYSTEM_LIB "Use system install libraries" ON)
 
 add_subdirectory(repo)
 
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED filesystem)
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 
