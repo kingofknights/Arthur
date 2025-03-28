@@ -1,27 +1,12 @@
 {
   "dependencies": [
-    "fmt",
-    "nlohmann-json",
-    "glfw3",
-    "sqlitecpp"
+    "glfw3"
   ],
   "builtin-baseline": "b322364f06308bdd24823f9d8f03fe0cc86fd46f",
   "overrides": [
     {
-      "name": "fmt",
-      "version": "10.0.0"
-    },
-    {
-      "name": "nlohmann-json",
-      "version": "3.11.2"
-    },
-    {
       "name": "glfw",
       "version": "3.0"
-    },
-    {
-      "name": "sqlitecpp",
-      "version": "3.3.2"
     }
   ]
 }

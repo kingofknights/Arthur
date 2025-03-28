@@ -23,18 +23,33 @@ jobs:
       - name: Install boost
         run: choco install boost-msvc-14.3
 
-      - name: Install ninja
-        run: choco install ninja
+      - name: Install nlohmann json
+        run: |
+          git clone https://github.com/nlohmann/json.git
+          cd json 
+          git checkout v3.11.3
+          cmake -B build -DCMAKE_GENERATOR=ninja
+          cd build
+          ninja install
 
       - name: Install fmt
         run: |
           git clone https://github.com/fmtlib/fmt.git
           cd fmt
-          cmake -B build -DCMAKE_GENERATOR=Ninja
+          git checkout 11.1.4
+          cmake -B build -DCMAKE_GENERATOR=ninja
+          cd build
           ninja install
 
-      # - name: Install Dependencies
-      # run: vcpkg install --triplet x64-windows --keep-going
+      - name: Install SQLiteCpp
+        run: |
+          git clone https://github.com/SRombauts/SQLiteCpp.git
+          cd SQLiteCpp
+          git checkout 3.3.2
+          cmake -B build -DCMAKE_GENERATOR=ninja
+          cd build
+          ninja install
+
       - name: Configure CMake
         run: cmake -B build
         # run: cmake -B build -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
