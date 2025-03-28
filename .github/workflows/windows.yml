@@ -20,8 +20,9 @@ jobs:
           git submodule init
           git submodule update --recursive --remote
 
-      # - name: Install Boost
-      # run: choco install boost-msvc-14.3
+      - name: Install conan
+        run: choco install conan
+        #boost-msvc-14.3
 
       - name: Install Dependencies
         # run: vcpkg install --triplet x64-windows --keep-going
