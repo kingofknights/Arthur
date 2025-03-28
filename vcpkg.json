@@ -1,7 +1,5 @@
 {
   "dependencies": [
-    "boost-headers",
-    "boost-dll",
     "fmt",
     "nlohmann-json",
     "glfw3",
@@ -24,14 +22,6 @@
     {
       "name": "sqlitecpp",
       "version": "3.3.2"
-    },
-    {
-      "name": "boost-headers",
-      "version": "1.84.0"
-    },
-    {
-      "name": "boost-dll",
-      "version": "1.84.0"
     }
   ]
 }
