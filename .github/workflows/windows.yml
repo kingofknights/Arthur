@@ -57,3 +57,9 @@ jobs:
           cmake -B build -DSQLITECPP_BUILD_TESTS=OFF -DSQLITECPP_RUN_CPPLINT=OFF 
           cmake --build build --config Release
           cmake --install build --config Release
+
+      - name: Configure Arthur
+        working-directory: ${{github.workspace}}/
+        run: |
+          cmake -B build  
+          cmake --build build --config Release
