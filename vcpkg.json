@@ -1,6 +1,7 @@
 {
   "dependencies": [
-    "boost",
+    "boost-system",
+    "boost-filesystem",
     "fmt",
     "nlohmann-json",
     "glfw3",
@@ -25,7 +26,11 @@
       "version": "3.3.2"
     },
     {
-      "name": "boost",
+      "name": "boost-system",
+      "version": "1.74.0"
+    },
+    {
+      "name": "boost-filesystem",
       "version": "1.74.0"
     }
   ]

@@ -8,6 +8,7 @@ project(
 include(cmake/StandardProjectSettings.cmake)
 include(cmake/PreventInSourceBuilds.cmake)
 
+set(Boost_NO_WARN_NEW_VERSIONS OFF)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -16,7 +17,32 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 
+option(USE_SYSTEM_LIB "Use system install libraries" ON)
+
 add_subdirectory(repo)
+
+find_package(Boost REQUIRED COMPONENTS system filesystem)
+find_package(OpenGL CONFIG REQUIRED)
+find_package(Threads REQUIRED)
+
+if(USE_SYSTEM_LIB)
+  find_package(glfw3 CONFIG REQUIRED)
+  find_package(fmt CONFIG REQUIRED)
+  find_package(nlohmann_json CONFIG REQUIRED)
+  find_package(SQLiteCpp CONFIG REQUIRED)
+else()
+  include(./cmake/Glfw3.cmake)
+  include(./cmake/Nlohmann-json.cmake)
+  include(./cmake/Fmt.cmake)
+  include(./cmake/SqliteCpp.cmake)
+endif()
+
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
+
+message(STATUS "Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}")
+message(STATUS "Boost_LIBRARY_DIRS ${Boost_LIBRARY_DIRS}")
+message(STATUS "OPENGL_INCLUDE_DIR ${OPENGL_INCLUDE_DIR}")
 
 include_directories(third_party/IconFontCppHeaders)
 include_directories(third_party/stb)
@@ -24,14 +50,6 @@ include_directories(third_party/stb)
 include(./cmake/Imgui.cmake)
 include(./cmake/ImguiFD.cmake)
 include(./cmake/Win32.cmake)
-
-option(USE_SYSTEM_LIB "Use system install libraries" ON)
-if(NOT USE_SYSTEM_LIB)
-  include(./cmake/Glfw3.cmake)
-  include(./cmake/Nlohmann-json.cmake)
-  include(./cmake/Fmt.cmake)
-  include(./cmake/SqliteCpp.cmake)
-endif()
 
 include_directories(repo/Greeks)
 
