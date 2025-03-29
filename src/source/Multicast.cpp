@@ -10,8 +10,6 @@
 #include <boost/asio/ip/udp.hpp>
 #include <boost/asio/socket_base.hpp>
 
-#include <asm-generic/socket.h>
-
 MulticastReceiver::MulticastReceiver(boost::asio::io_service& ioService_) : _socket(ioService_) {
 }
 
@@ -28,8 +26,8 @@ void MulticastReceiver::bindMC(const std::string& address_, int port_) {
     _socket.set_option(boost::asio::socket_base::reuse_address(true));
 #ifndef WIN32
     _socket.set_option(boost::asio::detail::socket_option::boolean<SOL_SOCKET, SO_REUSEPORT>(true));
-   #endif
-    
+#endif
+
     _socket.bind(_endpoint);
 }
 

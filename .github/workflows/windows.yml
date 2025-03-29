@@ -2,7 +2,7 @@ name: Windows Build and Deployment
 
 on:
   push:
-    branches: [ "workflow" ]
+    branches: [ "relesing_binary" ]
 
 env:
   BUILD_TYPE: Release
@@ -16,7 +16,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          lfs: 'true'
+          lfs: 'false'
           submodules: 'true'
 
       - name: Download boost
@@ -35,3 +35,22 @@ jobs:
       - name: Build Arthur
         working-directory: ${{github.workspace}}/
         run: cmake --build build
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Binary
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{github.workspace}}/build
+          asset_name: Arthur.exe
+          asset_content_type: application/zip
