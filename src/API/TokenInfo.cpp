@@ -4,10 +4,9 @@
 
 #include "TokenInfo.hpp"
 
-#include "Lancelot/Lancelot.hpp"
-
 #include "../include/Structure.hpp"
 #include "ContractInfo.hpp"
+#include "Lancelot/Lancelot.hpp"
 
 extern MarketWatchDatContainerT MarketWatchDatContainer;
 
@@ -143,7 +142,7 @@ double TokenInfo::Expiry(double token_) {
     int expiry = Lancelot::ContractInfo::GetExpiryDate(token_);
     if (expiry) {
         const time_t ts   = (expiry) + 315513000;
-        auto         time = *std::localtime(&ts);
+        auto         time = *::localtime(&ts);
         return time.tm_mon + 1;
     }
     return 0;
@@ -153,7 +152,7 @@ double TokenInfo::ExpiryWeek(double token_) {
     int expiry = Lancelot::ContractInfo::GetExpiryDate(token_);
     if (expiry) {
         const time_t ts   = (expiry) + 315513000;
-        auto         time = *std::localtime(&ts);
+        auto         time = *::localtime(&ts);
         int          week = 0;
         int          wday = time.tm_wday;
         for (int i = time.tm_mday; i > 0; --i) {

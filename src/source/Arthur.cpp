@@ -462,7 +462,7 @@ void Arthur::startAllThreads() {
 
 void Arthur::marketEventHandler(std::stop_token& stopToken_) {
     while (not stopToken_.stop_requested()) {
-        MarketEventQueue.consume_one([&](const MarketWatchDataPtrT& pointer_) { Scanner::GetInstance().Process(pointer_->_token); });
+        MarketEventQueue.consume_one([&](MarketWatchDataPtrT pointer_) { Scanner::GetInstance().Process(pointer_->_token); });
     }
     LOG(WARNING, "{} {}", __FUNCTION__, "Exiting")
 }
@@ -515,7 +515,7 @@ void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lanc
                     ._portfolio = 9999,
                 },
                 ._token         = ManualOrderInfo._marketWatch->_token,
-                ._orderSequence = ManualOrderInfo._uniqueId,
+                ._orderSequence = static_cast<int32_t>(ManualOrderInfo._uniqueId),
                 ._price         = static_cast<uint32_t>(ManualOrderInfo._price * 100.0),
                 ._quantity      = static_cast<uint32_t>(ManualOrderInfo._quantity),
                 ._triggerPrice  = 0,
@@ -540,11 +540,11 @@ void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_
     Lancelot::StrategyHeader header{
         ._header = {
             ._type   = type_,
-            ._length = buffer.length() + sizeof(Lancelot::UserPortfolio),
+            ._length = static_cast<int16_t>(buffer.length() + sizeof(Lancelot::UserPortfolio)),
         },
         ._user = {
-            ._user      = UserID,
-            ._portfolio = row_->_portfolio,
+            ._user      = static_cast<int16_t>(UserID),
+            ._portfolio = static_cast<int16_t>(row_->_portfolio),
         }};
     _messageBroker->Write_Sync((char*)&header, sizeof(header));
     _messageBroker->Write_Sync(buffer.data(), buffer.length());
@@ -561,7 +561,7 @@ void Arthur::cancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
             ._portfolio = 9999,
         },
         ._token         = orderInfo_->_token,
-        ._orderSequence = orderInfo_->_uniqueId,
+        ._orderSequence = static_cast<int16_t>(orderInfo_->_uniqueId),
 
     };
     _messageBroker->Write_Sync((char*)&order, sizeof(Lancelot::CancelOrder));

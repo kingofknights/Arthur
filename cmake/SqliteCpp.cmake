@@ -5,3 +5,4 @@ FetchContent_MakeAvailable(sqlite)
 FetchContent_GetProperties(sqlite)
 
 message(STATUS "SQLiteCpp_DIR : ${sqlite_SOURCE_DIR}")
+include_directories(${sqlite_SOURCE_DIR}/include)

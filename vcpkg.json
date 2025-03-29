@@ -1,31 +1,12 @@
 {
   "dependencies": [
-    {
-      "name": "boost-system",
-      "version>=": "1.74.0"
-    },
-    {
-      "name": "boost-thread",
-      "version>=": "1.74.0"
-    },
-    {
-      "name": "boost-filesystem",
-      "version>=": "1.74.0"
-    }
+    "glfw3"
   ],
-  "builtin-baseline": "761c81d43335a5d5ccc2ec8ad90bd7e2cbba734e",
+  "builtin-baseline": "b322364f06308bdd24823f9d8f03fe0cc86fd46f",
   "overrides": [
     {
-      "name": "boost-system",
-      "version": "1.74.0"
-    },
-    {
-      "name": "boost-thread",
-      "version": "1.74.0"
-    },
-    {
-      "name": "boost-filesystem",
-      "version": "1.74.0"
+      "name": "glfw",
+      "version": "3.0"
     }
   ]
 }

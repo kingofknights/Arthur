@@ -1,15 +1,3 @@
-set(Boost_NO_WARN_NEW_VERSIONS OFF)
-
-find_package(Boost REQUIRED COMPONENTS system thread filesystem)
-find_package(OpenGL REQUIRED)
-find_package(Threads REQUIRED)
-
-include_directories(${Boost_INCLUDE_DIRS})
-link_directories(${Boost_LIBRARY_DIRS})
-
-message(STATUS "Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}")
-message(STATUS "Boost_LIBRARY_DIRS ${Boost_LIBRARY_DIRS}")
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Lancelot)
 
@@ -91,6 +79,7 @@ add_executable(${PROJECT_NAME} main.cpp ${APP_ICON_RESOURCE_WINDOWS})
 
 add_dependencies(${PROJECT_NAME} Imgui)
 add_dependencies(${PROJECT_NAME} ImguiFD)
+
 add_dependencies(${PROJECT_NAME} glfw)
 add_dependencies(${PROJECT_NAME} nlohmann_json)
 add_dependencies(${PROJECT_NAME} fmt)
@@ -105,15 +94,17 @@ target_link_libraries(${PROJECT_NAME} PRIVATE DataFeed)
 target_link_libraries(${PROJECT_NAME} PRIVATE Knight)
 target_link_libraries(${PROJECT_NAME} PRIVATE Greeks)
 
-target_compile_definitions(${PROJECT_NAME} PUBLIC IMGUI_IMPL_OPENGL_ES2)
+target_compile_definitions(${PROJECT_NAME} PUBLIC IMGUI_IMPL_OPENGL_ES3)
 target_include_directories(${PROJECT_NAME} PUBLIC ${imgui_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC ${imgui_SOURCE_DIR}/backends)
+target_include_directories(${PROJECT_NAME} PUBLIC ${OPENGL_INCLUDE_DIR})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw GL)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
 target_link_libraries(${PROJECT_NAME} PRIVATE Imgui)
 target_link_libraries(${PROJECT_NAME} PRIVATE ImguiFD)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
-target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt-header-only)
+target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
 target_link_libraries(${PROJECT_NAME} PRIVATE SQLiteCpp)
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE ${PRECOMPILE_HEADERS})

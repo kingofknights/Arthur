@@ -35,4 +35,5 @@ add_library(
   ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
   ${IMGUI_BACKEND})
 
+target_include_directories(Imgui PRIVATE ${imgui_SOURCE_DIR}/examples/libs/glfw/include)
 set_target_properties(Imgui PROPERTIES C_CPPCHECK "" CXX_CPPCHECK "")

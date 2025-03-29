@@ -2,10 +2,11 @@ name: Windows Build and Deployment
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "workflow" ]
 
 env:
   BUILD_TYPE: Release
+  BOOST_PRE_DOWNLOAD_LINK: "https://boost.teeks99.com/bin/1.78.0/boost_1_78_0-msvc-14.3-64.exe"
 
 jobs:
   build:
@@ -14,13 +15,23 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          lfs: 'true'
+          submodules: 'true'
 
-      - name: Install dependencies with vcpkg (from vcpkg.json)
-        run: |
-          vcpkg install --triplet x64-windows
+      - name: Download boost
+        run: Invoke-WebRequest -Uri ${{env.BOOST_PRE_DOWNLOAD_LINK}} -OutFile  "boost_installer.exe"
 
-      - name: Configure CMake
-        run: cmake -B build -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
+      - name: Install Boost
+        run: Start-Process -FilePath "boost_installer.exe" -ArgumentList "/VERYSILENT" -Wait
 
-      - name: Build with CMake
-        run: cmake --build build --config ${{env.BUILD_TYPE}}
+      - name: Verify Installation
+        run: Get-Command "boost_*" -ErrorAction SilentlyContinue
+
+      - name: Configure Arthur
+        working-directory: ${{github.workspace}}/
+        run: cmake -B build -DFMT_UNICODE=0
+
+      - name: Build Arthur
+        working-directory: ${{github.workspace}}/
+        run: cmake --build build

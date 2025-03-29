@@ -73,7 +73,7 @@ void Portfolio::paint() {
         ImGui::SetItemDefaultFocus();
         ImGui::EndPopup();
     }
-    _scannerAddQueue.consume_one([&](const StrategyRowPtrT& row_) { _strategyList.push_back(row_); });
+    _scannerAddQueue.consume_one([&](StrategyRowPtrT row_) { _strategyList.push_back(std::move(row_)); });
 }
 
 auto Portfolio::getStrategyName() const -> std::string {

@@ -8,6 +8,7 @@ project(
 include(cmake/StandardProjectSettings.cmake)
 include(cmake/PreventInSourceBuilds.cmake)
 
+set(Boost_NO_WARN_NEW_VERSIONS OFF)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -18,15 +19,28 @@ set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 
 add_subdirectory(repo)
 
+include(./cmake/Glfw3.cmake)
+include(./cmake/Nlohmann-json.cmake)
+include(./cmake/Fmt.cmake)
+include(./cmake/SqliteCpp.cmake)
+
+find_package(OpenGL REQUIRED)
+find_package(Threads REQUIRED)
+find_package(Boost REQUIRED filesystem)
+
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
+
+message(STATUS "Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}")
+message(STATUS "Boost_LIBRARY_DIRS ${Boost_LIBRARY_DIRS}")
+message(STATUS "OPENGL_INCLUDE_DIR ${OPENGL_INCLUDE_DIR}")
+
 include_directories(third_party/IconFontCppHeaders)
 include_directories(third_party/stb)
 
 include(./cmake/Imgui.cmake)
 include(./cmake/ImguiFD.cmake)
-include(./cmake/Glfw3.cmake)
-include(./cmake/Nlohmann-json.cmake)
-include(./cmake/Fmt.cmake)
-include(./cmake/SqliteCpp.cmake)
+include(./cmake/Win32.cmake)
 
 include_directories(repo/Greeks)
 
