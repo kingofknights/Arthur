@@ -6,6 +6,7 @@ on:
 
 env:
   BUILD_TYPE: Release
+  BOOST_PRE_DOWNLOAD_LINK: https://boost.teeks99.com/bin/1.78.0/boost_1_78_0-msvc-14.3-64.exe
 
 jobs:
   build:
@@ -14,14 +15,12 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          lfs: 'true'
+          submodules: 'true'
 
-      - name: Update submodule
-        run: |
-          git submodule init
-          git submodule update --recursive --remote
-
-      - name: Install boost
-        run: choco install boost-msvc-14.3
+      - name: Download boost
+        run: Invoke-WebRequest -Uri ${{env.BOOST_PRE_DOWNLOAD_LINK}} --OutFile "boost_installer.exe"
 
       - name: Configure Arthur
         working-directory: ${{github.workspace}}/
