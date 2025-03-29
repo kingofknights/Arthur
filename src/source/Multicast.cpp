@@ -24,7 +24,10 @@ void MulticastReceiver::bindMC(const std::string& address_, int port_) {
     _endpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port_);
     _socket.open(boost::asio::ip::udp::v4());
     _socket.set_option(boost::asio::socket_base::reuse_address(true));
+#ifndef WIN32
     _socket.set_option(boost::asio::detail::socket_option::boolean<SOL_SOCKET, SO_REUSEPORT>(true));
+   #endif
+    
     _socket.bind(_endpoint);
 }
 
