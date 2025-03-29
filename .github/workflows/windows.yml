@@ -23,7 +23,7 @@ jobs:
         run: Invoke-WebRequest -Uri ${{env.BOOST_PRE_DOWNLOAD_LINK}} -OutFile  "boost_installer.exe"
 
       - name: Install Boost
-        run: Start-Process -FilePath "boost_installer.exe" -ArgumentList "/S" -Wait
+        run: Start-Process -FilePath "boost_installer.exe" -ArgumentList "/VERYSILENT" -Wait
 
       - name: Verify Installation
         run: Get-Command "boost_*" -ErrorAction SilentlyContinue
