@@ -6,7 +6,7 @@ on:
 
 env:
   BUILD_TYPE: Release
-  BOOST_PRE_DOWNLOAD_LINK: https://boost.teeks99.com/bin/1.78.0/boost_1_78_0-msvc-14.3-64.exe
+  BOOST_PRE_DOWNLOAD_LINK: "https://boost.teeks99.com/bin/1.78.0/boost_1_78_0-msvc-14.3-64.exe"
 
 jobs:
   build:
