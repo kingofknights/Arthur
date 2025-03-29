@@ -10,6 +10,8 @@
 #include <boost/asio/ip/udp.hpp>
 #include <boost/asio/socket_base.hpp>
 
+#include <asm-generic/socket.h>
+
 MulticastReceiver::MulticastReceiver(boost::asio::io_service& ioService_) : _socket(ioService_) {
 }
 
