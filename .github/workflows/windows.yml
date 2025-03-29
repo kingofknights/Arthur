@@ -20,7 +20,10 @@ jobs:
           submodules: 'true'
 
       - name: Download boost
-        run: Invoke-WebRequest -Uri ${{env.BOOST_PRE_DOWNLOAD_LINK}} --OutFile "boost_installer.exe"
+        run: |
+          Invoke-WebRequest -Uri ${{env.BOOST_PRE_DOWNLOAD_LINK}}
+          ls
+          
 
       - name: Configure Arthur
         working-directory: ${{github.workspace}}/
