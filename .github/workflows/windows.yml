@@ -30,12 +30,12 @@ jobs:
 
       - name: Configure Arthur
         working-directory: ${{github.workspace}}/
-        run: cmake -B build -DFMT_UNICODE=0
+        run: cmake -B build -DFMT_UNICODE=0 --config ${{env.BUILD_TYPE}}
 
       - name: Build Arthur
         working-directory: ${{github.workspace}}/
         run: |
-          cmake --build build
+          cmake --build build --config ${{env.BUILD_TYPE}}
           cd build
           ls
 
@@ -52,7 +52,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{github.workspace}}/build
+          asset_path: ${{github.workspace}}/build/x64/${{env.BUILD_TYPE}}/
           asset_name: |
             Arthur.exe
           asset_content_type: application/zip
