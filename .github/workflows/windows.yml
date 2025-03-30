@@ -45,7 +45,7 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ARTHUR_TOKEN }}
 
       - name: Upload Binary
         uses: actions/upload-release-asset@v1
