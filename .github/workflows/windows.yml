@@ -19,47 +19,37 @@ jobs:
           lfs: 'false'
           submodules: 'true'
 
-      #      - name: Download boost
-      #        run: Invoke-WebRequest -Uri ${{env.BOOST_PRE_DOWNLOAD_LINK}} -OutFile  "boost_installer.exe"
-      #
-      #      - name: Install Boost
-      #        run: Start-Process -FilePath "boost_installer.exe" -ArgumentList "/VERYSILENT" -Wait
-      #
-      #      - name: Verify Installation
-      #        run: Get-Command "boost_*" -ErrorAction SilentlyContinue
-      #
-      #      - name: Configure Arthur
-      #        working-directory: ${{github.workspace}}/
-      #        run: cmake -B build -DFMT_UNICODE=0
-      #
-      #      - name: Build Arthur
-      #        working-directory: ${{github.workspace}}/
-      #        run: cmake --build build
+      - name: Download boost
+        run: Invoke-WebRequest -Uri ${{env.BOOST_PRE_DOWNLOAD_LINK}} -OutFile  "boost_installer.exe"
 
-      - name: Create a Release
+      - name: Install Boost
+        run: Start-Process -FilePath "boost_installer.exe" -ArgumentList "/VERYSILENT" -Wait
+
+      - name: Verify Installation
+        run: Get-Command "boost_*" -ErrorAction SilentlyContinue
+
+      - name: Configure Arthur
+        working-directory: ${{github.workspace}}/
+        run: cmake -B build -DFMT_UNICODE=0
+
+      - name: Build Arthur
+        working-directory: ${{github.workspace}}/
+        run: cmake --build build
+
+      - name: Create GitHub Release
+        uses: marvinpinto/action-automatic-releases@latest
         id: create_release
-        uses: shogo82148/actions-create-release@v1
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Development Build"
 
-      - name: Upload Assets
-        uses: shogo82148/actions-upload-release-asset@v1
+      - name: Upload Binary
+        uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: |
-            ${{github.workspace}}/README.md
-
-#      - name: Create GitHub Release
-#        uses: marvinpinto/action-automatic-releases@latest
-#        id: create_release
-#        with:
-#          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-#          automatic_release_tag: "latest"
-#          prerelease: true
-#          title: "Development Build"
-#
-#      - name: Upload Binary
-#        uses: actions/upload-release-asset@v1
-#        with:
-#          upload_url: ${{ steps.create_release.outputs.upload_url }}
-#          asset_path: ${{github.workspace}}/build
-#          asset_name: README.md
-#          asset_content_type: application/zip
+          asset_path: ${{github.workspace}}/build
+          asset_name: |
+            Arthur.exe
+          asset_content_type: application/zip
