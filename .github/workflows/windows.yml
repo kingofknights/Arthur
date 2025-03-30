@@ -34,7 +34,10 @@ jobs:
 
       - name: Build Arthur
         working-directory: ${{github.workspace}}/
-        run: cmake --build build
+        run: |
+          cmake --build build
+          cd build
+          ls
 
       - name: Create GitHub Release
         uses: marvinpinto/action-automatic-releases@latest
