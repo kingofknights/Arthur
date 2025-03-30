@@ -19,22 +19,22 @@ jobs:
           lfs: 'false'
           submodules: 'true'
 
-      - name: Download boost
-        run: Invoke-WebRequest -Uri ${{env.BOOST_PRE_DOWNLOAD_LINK}} -OutFile  "boost_installer.exe"
-
-      - name: Install Boost
-        run: Start-Process -FilePath "boost_installer.exe" -ArgumentList "/VERYSILENT" -Wait
-
-      - name: Verify Installation
-        run: Get-Command "boost_*" -ErrorAction SilentlyContinue
-
-      - name: Configure Arthur
-        working-directory: ${{github.workspace}}/
-        run: cmake -B build -DFMT_UNICODE=0
-
-      - name: Build Arthur
-        working-directory: ${{github.workspace}}/
-        run: cmake --build build
+#      - name: Download boost
+#        run: Invoke-WebRequest -Uri ${{env.BOOST_PRE_DOWNLOAD_LINK}} -OutFile  "boost_installer.exe"
+#
+#      - name: Install Boost
+#        run: Start-Process -FilePath "boost_installer.exe" -ArgumentList "/VERYSILENT" -Wait
+#
+#      - name: Verify Installation
+#        run: Get-Command "boost_*" -ErrorAction SilentlyContinue
+#
+#      - name: Configure Arthur
+#        working-directory: ${{github.workspace}}/
+#        run: cmake -B build -DFMT_UNICODE=0
+#
+#      - name: Build Arthur
+#        working-directory: ${{github.workspace}}/
+#        run: cmake --build build
 
       - name: Create GitHub Release
         id: create_release
@@ -45,7 +45,7 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.ARTHUR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Binary
         uses: actions/upload-release-asset@v1
