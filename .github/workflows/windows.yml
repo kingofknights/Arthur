@@ -30,7 +30,7 @@ jobs:
 
       - name: Configure Arthur
         working-directory: ${{github.workspace}}/
-        run: cmake -B build -DFMT_UNICODE=0 --config ${{env.BUILD_TYPE}}
+        run: cmake -B build -DFMT_UNICODE=0 -DCMAKE_BUILDTYPE=${{env.BUILD_TYPE}}
 
       - name: Build Arthur
         working-directory: ${{github.workspace}}/
