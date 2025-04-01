@@ -95,7 +95,6 @@ Arthur::Arthur(bool* closeMainWindow_) : _strand(_executor), _backendWorker(_exe
 
     _templateBuilderPtr   = std::make_unique<TemplateBuilder>();
     _positionPtr          = std::make_unique<Position>(_executor);
-    _orderFormPtr         = std::make_unique<OrderForm>(_strand);
     _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_strand);
     _tradeHistoryPtr      = std::make_unique<TradeHistory>();
     _optionChainPtr       = std::make_unique<OptionChain>();
@@ -115,6 +114,10 @@ Arthur::Arthur(bool* closeMainWindow_) : _strand(_executor), _backendWorker(_exe
         AddTrade(orderInfo_);
     });
 
+    _orderFormPtr = std::make_unique<OrderForm>(_strand, [&](const OrderFormInfoT& info_, Lancelot::RequestType type_) {
+        ManualOrderRequestEvent(info_, type_);
+    });
+
     Imports(TRADING_APP_CONFIG_PATH);
     SetTheme(static_cast<VisualTheme>(_theme));
     {
@@ -124,10 +127,6 @@ Arthur::Arthur(bool* closeMainWindow_) : _strand(_executor), _backendWorker(_exe
     {
         auto callback                           = [&](const std::string& contract_) { _marketWatchPtr->AddContractToMarketWatch(contract_); };
         PortfolioInterface::AddContractFunction = std::move(callback);
-    }
-    {
-        auto callback = [&](const OrderFormInfoT& ManualOrderInfo_, Lancelot::RequestType type_) { ManualOrderRequestEvent(ManualOrderInfo_, type_); };
-        _orderFormPtr->publishOrderCallback(std::move(callback));
     }
 
     StartAllThreads();

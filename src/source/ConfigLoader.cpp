@@ -1,9 +1,9 @@
 #include "../include/ConfigLoader.hpp"
 
+#include "../include/Structure.hpp"
+
 #include <filesystem>
 #include <fstream>
-
-#include "../include/Structure.hpp"
 
 extern StrategyNameListT StrategyNameList;
 
@@ -13,15 +13,15 @@ ConfigLoader::ConfigLoader() {
     if (not std::filesystem::exists(path)) {
         std::filesystem::create_directories(path);
     }
-    getStrategyList();
+    GetStrategyList();
 }
 
-ConfigLoader& ConfigLoader::Instance() {
+auto ConfigLoader::Instance() -> ConfigLoader& {
     static ConfigLoader config;
     return config;
 }
 
-std::string ConfigLoader::getStrategyColumn(const std::string& strategyName_) {
+auto ConfigLoader::GetStrategyColumn(const std::string& strategyName_) -> std::string {
 #if LOAD_FROM_FILE
     std::ifstream file("Save/" + strategyName_ + ".json");
     if (file.is_open()) {
@@ -32,14 +32,16 @@ std::string ConfigLoader::getStrategyColumn(const std::string& strategyName_) {
 #else
     auto table = Lancelot::ContractInfo::GetResultWithIndex(FORMAT(GetStrategyColumns_, strategyName_));
     for (const auto& row : table) {
-        for (const auto& item : row) return item;
+        for (const auto& item : row) {
+            return item;
+        }
     }
 
 #endif
     return {};
 }
 
-bool ConfigLoader::saveStrategyColumn(const std::string& strategyName_, std::string_view params_) {
+bool ConfigLoader::SaveStrategyColumn(const std::string& strategyName_, std::string_view params_) {
 #if LOAD_FROM_FILE
     std::ofstream file("Save/" + strategyName_ + ".json", std::ios::trunc);
     if (file.is_open()) {
@@ -56,7 +58,7 @@ bool ConfigLoader::saveStrategyColumn(const std::string& strategyName_, std::str
     return true;
 }
 
-void ConfigLoader::getStrategyList() {
+void ConfigLoader::GetStrategyList() {
 #if LOAD_FROM_FILE
     std::string path = "Save/";
 
@@ -77,6 +79,6 @@ void ConfigLoader::getStrategyList() {
 #endif
 }
 
-BookOrderListT ConfigLoader::getOrderHistory(double orderNumber_) {
+auto ConfigLoader::GetOrderHistory(double orderNumber_) -> BookOrderListT {
     return {};
 }

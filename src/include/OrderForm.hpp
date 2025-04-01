@@ -1,35 +1,32 @@
 #pragma once
-#include <boost/asio.hpp>
-#include <functional>
 
+#include "Arthur_Fwd.hpp"
 #include "Structure.hpp"
 
-#define NEW_ORDER_WINDOW "Order Form Window"
+#define NEW_ORDER_WINDOW    "Order Form Window"
 #define MODIFY_ORDER_WINDOW "Modify Order Window"
 
-namespace Lancelot {
-enum Exchange : uint8_t;
-enum RequestType : uint8_t;
-}// namespace Lancelot
-
-using PublishOrderFunctionT = std::function<void(OrderFormInfoT, Lancelot::RequestType)>;
 class OrderForm final {
-  public:
-    explicit OrderForm(boost::asio::io_context::strand& strand_);
+    using FunctionT = std::function<void(OrderFormInfoT, Lancelot::RequestType)>;
 
-    void paint(const char* name_);
+  public:
+    OrderForm(ExecutorStrandT& strand_, FunctionT function_);
+
+    void Paint(const char* name_);
+
     void Update(OrderFormInfoT& info_);
-    void publishOrderCallback(PublishOrderFunctionT publishOrderFunction_);
+
+  protected:
+    void SentToBroker();
+
+    void DrawInputItem();
 
   private:
-    void SentToBroker();
-    void DrawInputItem();
+    ExecutorStrandT& _strand;
+    FunctionT        _function;
 
     OrderFormInfoT     _order;
     ImVec4             _color;
     std::string        _clientCode;
     Lancelot::Exchange _exchange;
-
-    boost::asio::io_context::strand& _strand;
-    PublishOrderFunctionT            _publishOrderFunction;
 };

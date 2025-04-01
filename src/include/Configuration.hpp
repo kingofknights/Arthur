@@ -1,56 +1,54 @@
-#ifndef ARTHUR_INCLUDE_CONFIGURATION_HPP
-#define ARTHUR_INCLUDE_CONFIGURATION_HPP
 #pragma once
 
 #include "Colors.hpp"
 
-constexpr ImGuiTableFlags GetTableFlags() {
-    ImGuiTableFlags Flags = ImGuiTableFlags_RowBg;
-    Flags |= ImGuiTableFlags_Resizable;
-    Flags |= ImGuiTableFlags_ScrollX;
-    Flags |= ImGuiTableFlags_ScrollY;
-    Flags |= ImGuiTableFlags_Borders;
-    Flags |= ImGuiTableFlags_Reorderable;
+constexpr auto GetTableFlags() -> ImGuiTableFlags {
+    ImGuiTableFlags flags = ImGuiTableFlags_RowBg;
+    flags |= ImGuiTableFlags_Resizable;
+    flags |= ImGuiTableFlags_ScrollX;
+    flags |= ImGuiTableFlags_ScrollY;
+    flags |= ImGuiTableFlags_Borders;
+    flags |= ImGuiTableFlags_Reorderable;
     //	Flags |= ImGuiTableFlags_NoHostExtendX;
     //	Flags |= ImGuiTableFlags_NoHostExtendY;
 
-    return Flags;
+    return flags;
 }
 
-constexpr ImGuiSelectableFlags GetSelectableFlags() {
-    ImGuiSelectableFlags Flags = ImGuiSelectableFlags_SpanAllColumns;
-    Flags |= ImGuiSelectableFlags_AllowItemOverlap;
-    return Flags;
+constexpr auto GetSelectableFlags() -> ImGuiSelectableFlags {
+    ImGuiSelectableFlags flags = ImGuiSelectableFlags_SpanAllColumns;
+    flags |= ImGuiSelectableFlags_AllowItemOverlap;
+    return flags;
 }
 
-constexpr ImGuiTabBarFlags GetStrategyWorkspaceTabFlags() {
-    ImGuiTabBarFlags Flags = ImGuiTabBarFlags_Reorderable;
-    Flags |= ImGuiTabBarFlags_AutoSelectNewTabs;
-    Flags |= ImGuiTabBarFlags_NoCloseWithMiddleMouseButton;
-    Flags |= ImGuiTabBarFlags_TabListPopupButton;
-    Flags |= ImGuiTabBarFlags_FittingPolicyScroll;
-    return Flags;
+constexpr auto GetStrategyWorkspaceTabFlags() -> ImGuiTabBarFlags {
+    ImGuiTabBarFlags flags = ImGuiTabBarFlags_Reorderable;
+    flags |= ImGuiTabBarFlags_AutoSelectNewTabs;
+    flags |= ImGuiTabBarFlags_NoCloseWithMiddleMouseButton;
+    flags |= ImGuiTabBarFlags_TabListPopupButton;
+    flags |= ImGuiTabBarFlags_FittingPolicyScroll;
+    return flags;
 }
 
-constexpr ImGuiWindowFlags GetMenuBarFlags() {
-    ImGuiWindowFlags Flags = ImGuiWindowFlags_NoScrollbar;
-    Flags |= ImGuiWindowFlags_NoSavedSettings;
-    Flags |= ImGuiWindowFlags_MenuBar;
-    return Flags;
+constexpr auto GetMenuBarFlags() -> ImGuiWindowFlags {
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoScrollbar;
+    flags |= ImGuiWindowFlags_NoSavedSettings;
+    flags |= ImGuiWindowFlags_MenuBar;
+    return flags;
 }
 
-constexpr ImGuiTabItemFlags GetPortfolioTabFlags() {
+constexpr auto GetPortfolioTabFlags() -> ImGuiTabItemFlags {
     return ImGuiTabItemFlags_NoCloseWithMiddleMouseButton;
 }
 
-constexpr ImGuiWindowFlags GetOverlayFlags() {
-    ImGuiWindowFlags Flags = ImGuiWindowFlags_NoDecoration;
-    Flags |= ImGuiWindowFlags_NoDocking;
-    Flags |= ImGuiWindowFlags_AlwaysAutoResize;
-    Flags |= ImGuiWindowFlags_NoSavedSettings;
-    Flags |= ImGuiWindowFlags_NoFocusOnAppearing;
-    Flags |= ImGuiWindowFlags_NoNav;
-    return Flags;
+constexpr auto GetOverlayFlags() -> ImGuiWindowFlags {
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration;
+    flags |= ImGuiWindowFlags_NoDocking;
+    flags |= ImGuiWindowFlags_AlwaysAutoResize;
+    flags |= ImGuiWindowFlags_NoSavedSettings;
+    flags |= ImGuiWindowFlags_NoFocusOnAppearing;
+    flags |= ImGuiWindowFlags_NoNav;
+    return flags;
 }
 
 inline constexpr ImGuiWindowFlags      OverlayFlags              = GetOverlayFlags();
@@ -62,14 +60,14 @@ inline constexpr ImGuiWindowFlags      MenuBarFlags              = GetMenuBarFla
 inline constexpr ImGuiWindowFlags      MainWindowFlags           = ImGuiWindowFlags_ChildWindow;
 inline constexpr ImGuiTableColumnFlags TableColumnFlags          = ImGuiTableColumnFlags_None;
 
-template<typename Type>
+template <typename Type>
 void NextCell(int index_, const char* format_, Type type_, ImVec4 color_) {
     if (ImGui::TableSetColumnIndex(index_)) {
         ImGui::TextColored(color_, format_, type_);
     }
 }
 
-template<typename Type>
+template <typename Type>
 void FirstCellWithPadding(int index_, const char* format_, Type type_, ImVec4 color_) {
     if (ImGui::TableSetColumnIndex(index_)) {
         ImGui::AlignTextToFramePadding();
@@ -77,14 +75,14 @@ void FirstCellWithPadding(int index_, const char* format_, Type type_, ImVec4 co
     }
 }
 
-template<typename Type>
+template <typename Type>
 void NextCell(int index_, const char* format_, Type type_) {
     if (ImGui::TableSetColumnIndex(index_)) {
         ImGui::Text(format_, type_);
     }
 }
 
-template<typename Type>
+template <typename Type>
 void FirstCellWithPadding(int index_, const char* format_, Type type_) {
     if (ImGui::TableSetColumnIndex(index_)) {
         ImGui::AlignTextToFramePadding();
@@ -92,8 +90,8 @@ void FirstCellWithPadding(int index_, const char* format_, Type type_) {
     }
 }
 
-template<typename Value>
-bool FirstCell(int index_, const char* data_, Value& first_, Value second_) {
+template <typename Value>
+auto FirstCell(int index_, const char* data_, Value& first_, Value second_) -> bool {
     ImGui::TableSetColumnIndex(index_);
     ImGui::AlignTextToFramePadding();
     bool ret = ImGui::Selectable(data_, first_ == second_, TableSelectableFlags);
@@ -103,5 +101,3 @@ bool FirstCell(int index_, const char* data_, Value& first_, Value second_) {
     }
     return ret;
 }
-
-#endif// ARTHUR_INCLUDE_CONFIGURATION_HPP

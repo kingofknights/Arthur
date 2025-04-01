@@ -72,7 +72,7 @@ void OpenOrders::DrawPendingBook(bool* show_) {
                             _manualOrder->Update(info);
                             ImGui::OpenPopup(MODIFY_ORDER_WINDOW);
                         }
-                        _manualOrder->paint(MODIFY_ORDER_WINDOW);
+                        _manualOrder->Paint(MODIFY_ORDER_WINDOW);
 
                         if (ImGui::IsKeyPressed(ImGuiKey_F4)) {
                             OrderHistory::Instance().LoadOrderHistory(tradeInfo_->_orderNumber);

@@ -128,7 +128,7 @@ void Portfolio::DrawPortfolioWindow() {
     if (ImGui::BeginPopup(ADDITIONAL_OPTION)) {
         ImVec2 buttonSize = ImVec2(120, 0);
         if (ImGui::Button(ICON_MD_REFRESH " Refresh", buttonSize)) {
-            const std::string jsonData = ConfigLoader::Instance().getStrategyColumn(_strategyName);
+            const std::string jsonData = ConfigLoader::Instance().GetStrategyColumn(_strategyName);
             ParseConfig(jsonData);
         }
         ImGui::BeginDisabled(_exportActivated);

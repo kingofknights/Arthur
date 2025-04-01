@@ -4,15 +4,14 @@
 
 #include "../include/TemplateBuilder.hpp"
 
-#include <nlohmann/json.hpp>
-
 #include "../include/ConfigLoader.hpp"
 #include "../include/Configuration.hpp"
 #include "../include/Enums.hpp"
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
-
 #include "misc/cpp/imgui_stdlib.h"
+
+#include <nlohmann/json.hpp>
 
 extern StrategyNameListT StrategyNameList;
 extern std::string       StatusDisplay;
@@ -43,7 +42,7 @@ void TemplateBuilder::paint(bool* show_) {
     ImGui::SameLine();
 
     if (ImGui::Button(ICON_MD_DOWNLOAD " Load", ImVec2(-FLT_MIN, 0.0f))) {
-        ParseConfig(ConfigLoader::Instance().getStrategyColumn(_strategyLoad));
+        ParseConfig(ConfigLoader::Instance().GetStrategyColumn(_strategyLoad));
         _strategyName.clear();
         _strategyName.clear();
     }
@@ -82,7 +81,7 @@ void TemplateBuilder::paint(bool* show_) {
     if (ImGui::Button(ICON_MD_SAVE " Save Config")) {
         std::string config = GetConfig();
         StatusDisplay      = FORMAT("Parameter updated : StrategyName ({}) -> Config : ({})", _strategyName, config);
-        ConfigLoader::Instance().saveStrategyColumn(_strategyName, config);
+        ConfigLoader::Instance().SaveStrategyColumn(_strategyName, config);
     }
     ImGui::EndDisabled();
 
@@ -116,7 +115,7 @@ void TemplateBuilder::ParseConfig(std::string_view config_) {
     _parameterList.clear();
     for (const auto& item : paramConfig.items()) {
         const auto& value = item.value();
-        ColumnInfoT param{ .Type = static_cast<DataType>(value["DataType"].get<int>()), .Value = value["Value"].get<std::string>() };
+        ColumnInfoT param{.Type = static_cast<DataType>(value["DataType"].get<int>()), .Value = value["Value"].get<std::string>()};
         _parameterList.emplace(item.key(), param);
     }
 }
@@ -148,7 +147,7 @@ void TemplateBuilder::DrawTable() {
 }
 
 void TemplateBuilder::AppendNewParameter() {
-    ColumnInfoT info{ .Type = static_cast<DataType>(_parameterType), .Value = _parameterValue };
+    ColumnInfoT info{.Type = static_cast<DataType>(_parameterType), .Value = _parameterValue};
     _parameterList.insert_or_assign(_parameterName, info);
     StatusDisplay = FORMAT("Strategy ({}) :- Parameter Added [ Name : ({}), Value: ({}) ]", _strategyName, _parameterName, _parameterValue);
 

@@ -172,7 +172,7 @@ void MarketWatch::ContractCell(int contract_, int index_, const char* data_, con
             _manualOrder->Update(info);
             ImGui::OpenPopup(NEW_ORDER_WINDOW);
         }
-        _manualOrder->paint(NEW_ORDER_WINDOW);
+        _manualOrder->Paint(NEW_ORDER_WINDOW);
     }
     if (ImGui::IsItemHovered()) {
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {

@@ -3,13 +3,15 @@
 
 class ConfigLoader : public Singleton {
   public:
-    static ConfigLoader& Instance();
+    static auto Instance() -> ConfigLoader&;
 
-    std::string getStrategyColumn(const std::string& strategyName_);
-    bool        saveStrategyColumn(const std::string& strategyName_, std::string_view params_);
-    void        getStrategyList();
+    static auto GetStrategyColumn(const std::string& strategyName_) -> std::string;
 
-    BookOrderListT getOrderHistory(double orderNumber_);
+    static auto SaveStrategyColumn(const std::string& strategyName_, std::string_view params_) -> bool;
+
+    void GetStrategyList();
+
+    static auto GetOrderHistory(double orderNumber_) -> BookOrderListT;
 
   private:
     ConfigLoader();

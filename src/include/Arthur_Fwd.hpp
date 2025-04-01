@@ -5,6 +5,7 @@
 #include <boost/asio.hpp>
 #include <boost/signals2.hpp>
 
+#include <deque>
 #include <functional>
 #include <memory>
 #include <thread>
@@ -69,3 +70,5 @@ using ErrorCodeT      = boost::system::error_code;
 using WorkerT         = boost::asio::executor_work_guard<ExecutorTypeT>;
 
 using AddContractFunctionT = std::function<void(const std::string&)>;
+
+using BookOrderListT = std::deque<OrderInfoPtrT>;
