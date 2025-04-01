@@ -105,7 +105,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
 target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
 target_link_libraries(${PROJECT_NAME} PRIVATE SQLiteCpp)
 
-target_precompile_headers(${PROJECT_NAME} PRIVATE ${PRECOMPILE_HEADERS})
+target_precompile_headers(${PROJECT_NAME} PUBLIC ${PRECOMPILE_HEADERS})
 
 add_custom_command(
   TARGET ${PROJECT_NAME}
