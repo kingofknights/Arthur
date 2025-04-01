@@ -2,7 +2,7 @@ name: Windows Build and Deployment
 
 on:
   push:
-    branches: ["main"]
+    branches: ["V1"]
 
 env:
   BUILD_TYPE: Release
@@ -32,6 +32,7 @@ jobs:
       - name: Build Arthur
         working-directory: ${{github.workspace}}/
         run: |
+          cmake --build build --config ${{env.BUILD_TYPE}} --target install -j6
           cmake --build build --config ${{env.BUILD_TYPE}} --target install -j6
           cd build
           tree
