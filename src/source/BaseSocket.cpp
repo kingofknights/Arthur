@@ -5,6 +5,7 @@
 #include "../include/Structure.hpp"
 #include "../include/Utils.hpp"
 #include "Lancelot/Structure.hpp"
+
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/completion_condition.hpp>
 
@@ -15,7 +16,7 @@ TBaseSocket::TBaseSocket(boost::asio::io_context& ioContext_) {
     this->_strand = std::make_shared<boost::asio::io_service::strand>(ioContext_);
 }
 
-void TBaseSocket::makeConnection(const std::string& IpAddress_, const std::string& Port_) {
+void TBaseSocket::MakeConnection(const std::string& IpAddress_, const std::string& Port_) {
     _ipAddress = IpAddress_;
     _port      = Port_;
 
@@ -77,6 +78,6 @@ void TBaseSocket::ReadHandlerBody(const boost::system::error_code& error_code_, 
         LOG(WARNING, "Read error: {}", error_code_.message());
         _socket->close();
         Utils::ResetPortfolio(StrategyStatus_DISCONNECTED);
-        makeConnection(_ipAddress, _port);
+        MakeConnection(_ipAddress, _port);
     }
 }

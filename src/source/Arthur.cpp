@@ -100,10 +100,10 @@ Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _ba
     _orderBookPtr         = std::make_unique<OrderBook>(ORDER_ALL_BOOK);
     _rejectBookPtr        = std::make_unique<OrderBook>(REJECT_BOOK);
 
-    imports(TRADING_APP_CONFIG_PATH);
+    Imports(TRADING_APP_CONFIG_PATH);
     SetTheme(static_cast<VisualTheme>(_theme));
     {
-        auto callback = [&](const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_) { strategyRequestEvent(row_, name_, type_); };
+        auto callback = [&](const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_) { StrategyRequestEvent(row_, name_, type_); };
         PortfolioInterface::setStrategyActionCallback(std::move(callback));
     }
     {
@@ -115,11 +115,11 @@ Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _ba
         Portfolio::setCallback(std::move(callback));
     }
     {
-        auto callback = [&](const OrderFormInfoT& ManualOrderInfo_, Lancelot::RequestType type_) { manualOrderRequestEvent(ManualOrderInfo_, type_); };
+        auto callback = [&](const OrderFormInfoT& ManualOrderInfo_, Lancelot::RequestType type_) { ManualOrderRequestEvent(ManualOrderInfo_, type_); };
         _orderFormPtr->publishOrderCallback(std::move(callback));
     }
     {
-        auto callback = [&](const OrderInfoPtrT& orderInfo_) { cancelOrderEvent(orderInfo_); };
+        auto callback = [&](const OrderInfoPtrT& orderInfo_) { CancelOrderEvent(orderInfo_); };
         _openOrdersPtr->cancelOrderFunctionCallback(std::move(callback));
     }
     {
@@ -127,11 +127,11 @@ Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _ba
         _messageBroker->setCallback(std::move(callback));
     }
 
-    startAllThreads();
+    StartAllThreads();
 }
 
 Arthur::~Arthur() {
-    exports(TRADING_APP_CONFIG_PATH);
+    Exports(TRADING_APP_CONFIG_PATH);
     LOG(INFO, "{}", __FUNCTION__)
     _backendWorker.reset();
     std::ranges::for_each(_threadGroup, [](std::unique_ptr<std::jthread>& thread_) {
@@ -198,7 +198,7 @@ Arthur::~Arthur() {
     }
 }
 
-void Arthur::paint() {
+void Arthur::Paint() {
     ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
     Menu();
@@ -319,7 +319,7 @@ auto Arthur::Menu() -> void {
     }
 }
 
-auto Arthur::run(std::stop_token& stopToken_) -> void {
+auto Arthur::Run(std::stop_token& stopToken_) -> void {
     while (not stopToken_.stop_requested()) {
         boost::system::error_code errorCode;
         _backendComService.run(errorCode);
@@ -368,7 +368,7 @@ void Arthur::SetTheme(VisualTheme theme_) {
     _theme = theme_;
 }
 
-auto Arthur::imports(std::string_view path_) -> void {
+auto Arthur::Imports(std::string_view path_) -> void {
     std::fstream file(path_.data(), std::ios::in);
     if (not file.is_open()) {
         return;
@@ -406,7 +406,7 @@ auto Arthur::imports(std::string_view path_) -> void {
     file.close();
 }
 
-auto Arthur::exports(std::string_view path_) -> void {
+auto Arthur::Exports(std::string_view path_) -> void {
     nlohmann::ordered_json root;
     root[Configuration[ConfigFile_DEMO]]               = _showDemoWindow;
     root[Configuration[ConfigFile_EXCEL_WINDOW]]       = _showExcelWindow;
@@ -442,25 +442,25 @@ auto Arthur::exports(std::string_view path_) -> void {
     LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_OPTION_CHAIN], _showOptionChain)
 }
 
-void Arthur::startAllThreads() {
+void Arthur::StartAllThreads() {
     {
-        auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { run(token_); });
+        auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { Run(token_); });
         _threadGroup.push_back(std::move(thread));
     }
 
     {
-        auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { marketEventHandler(token_); });
+        auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { MarketEventHandler(token_); });
         _threadGroup.push_back(std::move(thread));
     }
     _multicastReceiverPtr->bindMC("127.0.0.1", 1223);
     _multicastReceiverPtr->read();
 
     {
-        _messageBroker->makeConnection(_ipaddress, _port);
+        _messageBroker->MakeConnection(_ipaddress, _port);
     }
 }
 
-void Arthur::marketEventHandler(std::stop_token& stopToken_) {
+void Arthur::MarketEventHandler(std::stop_token& stopToken_) {
     while (not stopToken_.stop_requested()) {
         MarketEventQueue.consume_one([&](MarketWatchDataPtrT pointer_) { Scanner::GetInstance().Process(pointer_->_token); });
     }
@@ -477,7 +477,7 @@ double MemoryUsage::GetRamUsage() {
 #endif
 }
 
-void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lancelot::RequestType type_) {
+void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lancelot::RequestType type_) {
     switch (type_) {
         case Lancelot::RequestType_LOGIN: {
             break;
@@ -534,7 +534,7 @@ void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lanc
     }
 }
 
-void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_, Lancelot::RequestType type_) {
+void Arthur::StrategyRequestEvent(StrategyRowPtrT row_, const std::string& name_, Lancelot::RequestType type_) {
     auto buffer = Utils::strategySerialize(row_, name_, type_);
 
     Lancelot::StrategyHeader header{
@@ -550,7 +550,7 @@ void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_
     _messageBroker->Write_Sync(buffer.data(), buffer.length());
 }
 
-void Arthur::cancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
+void Arthur::CancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
     Lancelot::CancelOrder order{
         ._header = {
             ._type   = Lancelot::RequestType_CANCEL,

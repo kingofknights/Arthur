@@ -2,7 +2,7 @@ name: Windows Build and Deployment
 
 on:
   push:
-    branches: [ "relesing_binary" ]
+    branches: [ "main" ]
 
 env:
   BUILD_TYPE: Release

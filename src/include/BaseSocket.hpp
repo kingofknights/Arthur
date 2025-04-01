@@ -3,6 +3,7 @@
 #pragma once
 
 #include <boost/asio.hpp>
+
 #include <memory>
 
 class TBaseSocket {
@@ -11,7 +12,7 @@ class TBaseSocket {
 
     virtual ~TBaseSocket() = default;
 
-    void makeConnection(const std::string& IpAddress, const std::string& Port);
+    void MakeConnection(const std::string& address_, const std::string& port_);
     void Write_Async(const char* buffer, size_t size_);
     void Write_Sync(char* buffer, size_t size_);
 
@@ -20,7 +21,7 @@ class TBaseSocket {
 
     void Read();
     void ReadHandlerBody(const boost::system::error_code& error_code_, size_t size_);
-    void WriteHandler([[maybe_unused]] const boost::system::error_code& errorCode_, [[maybe_unused]] size_t size_){};
+    void WriteHandler([[maybe_unused]] const boost::system::error_code& errorCode_, [[maybe_unused]] size_t size_) {};
 
   private:
     void Connect(const boost::asio::ip::tcp::resolver::iterator& iterator_);
@@ -36,4 +37,4 @@ class TBaseSocket {
     std::shared_ptr<boost::asio::ip::tcp::socket>    _socket;
 };
 
-#endif// ARTHUR_INCLUDE_BASE_SOCKET_HPP
+#endif  // ARTHUR_INCLUDE_BASE_SOCKET_HPP

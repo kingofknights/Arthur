@@ -7,6 +7,7 @@
 #pragma once
 
 #include <boost/asio.hpp>
+
 #include <memory>
 #include <string_view>
 #include <thread>
@@ -47,11 +48,11 @@ using OrderBookPtrT         = std::unique_ptr<OrderBook>;
 using ThreadGroupT = std::vector<std::unique_ptr<std::jthread>>;
 using TimerT       = std::unique_ptr<boost::asio::deadline_timer>;
 
-using ExecutorType = boost::asio::io_context::executor_type;
-using WorkerT      = boost::asio::executor_work_guard<ExecutorType>;
+using ExecutorTypeT = boost::asio::io_context::executor_type;
+using WorkerT       = boost::asio::executor_work_guard<ExecutorTypeT>;
 
 namespace Lancelot {
-enum RequestType : uint8_t;
+    enum RequestType : uint8_t;
 }
 enum VisualTheme : int;
 
@@ -60,21 +61,30 @@ class Arthur {
     explicit Arthur(bool* closeMainWindow_);
 
     ~Arthur();
-    void paint();
+    void Paint();
+
     void AddTrade(const OrderInfoPtrT& tradeInfo_);
 
   protected:
-    static void marketEventHandler(std::stop_token& token_);
+    static void MarketEventHandler(std::stop_token& token_);
 
     void SetTheme(VisualTheme theme_);
+
     void Menu();
-    void run(std::stop_token& stopToken_);
-    void imports(std::string_view path_);
-    void exports(std::string_view path_);
-    void startAllThreads();
-    void manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lancelot::RequestType type_);
-    void strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_, Lancelot::RequestType type_);
-    void cancelOrderEvent(const OrderInfoPtrT& orderInfo_);
+
+    void Run(std::stop_token& stopToken_);
+
+    void Imports(std::string_view path_);
+
+    void Exports(std::string_view path_);
+
+    void StartAllThreads();
+
+    void ManualOrderRequestEvent(const OrderFormInfoT& info_, Lancelot::RequestType type_);
+
+    void StrategyRequestEvent(StrategyRowPtrT row_, const std::string& name_, Lancelot::RequestType type_);
+
+    void CancelOrderEvent(const OrderInfoPtrT& orderInfo_);
 
   private:
     MessageBrokerPtrT     _messageBroker;
@@ -114,4 +124,4 @@ class Arthur {
     std::string                     _port;
 };
 
-#endif// ARTHUR_INCLUDE_ARTHUR_HPP
+#endif  // ARTHUR_INCLUDE_ARTHUR_HPP
