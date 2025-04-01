@@ -6,6 +6,7 @@
 
 #include "Enums.hpp"
 #include "Lancelot/Structure.hpp"
+#include "Logger.hpp"
 
 #if _WIN32
 #include <Psapi.h>
@@ -60,23 +61,28 @@ Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _ba
     std::string fontFile = "Ruda-Bold.ttf";
     float       fontSize = 18.0F;
     UserID               = 101;
-    _ipaddress           = "127.0.0.1";
-    _port                = "9898";
 
     std::fstream file("setting.json");
     if (file.is_open()) {
         LOG(INFO, "unable to open setting.json", false);
 
-        nlohmann::json        json    = nlohmann::json::parse(file);
-        const nlohmann::json& font    = json["font"];
-        const nlohmann::json& backend = json["backend"];
+        nlohmann::json        json        = nlohmann::json::parse(file);
+        const nlohmann::json& font        = json["font"];
+        const nlohmann::json& backend     = json["backend"];
+        const nlohmann::json& marketwatch = json["marketwatch"];
 
         font["file"].get_to(fontFile);
         font["size"].get_to(fontSize);
 
-        backend["ip"].get_to(_ipaddress);
-        backend["port"].get_to(_port);
+        backend["ip"].get_to(_backend._address);
+        backend["port"].get_to(_backend._port);
         backend["user"].get_to(UserID);
+
+        marketwatch["ip"].get_to(_marketWatch._address);
+        marketwatch["port"].get_to(_marketWatch._port);
+    } else {
+        LOG(ERROR, "Config file not found : setting.json", false);
+        exit(1);
     }
 
     Themes::AddIconFonts(fontFile, fontSize);
@@ -278,15 +284,8 @@ auto Arthur::Menu() -> void {
         }
 
         if (ImGui::BeginMenu(ICON_MD_CONSTRUCTION " Tools ")) {
-            if (strcmp(_password, "Password") == 0) {
-                if (ImGui::MenuItem(ICON_MD_DEVELOPER_MODE " Demo")) {
-                    _showDemoWindow = not _showDemoWindow;
-                    if (not _showDemoWindow) {
-                        std::memset(_password, '\0', 10);
-                    }
-                }
-            } else {
-                ImGui::InputText("Password", _password, 10, ImGuiInputTextFlags_Password);
+            if (ImGui::MenuItem(ICON_MD_DEVELOPER_MODE " Demo")) {
+                _showDemoWindow = not _showDemoWindow;
             }
             ImGui::EndMenu();
         }
@@ -312,7 +311,7 @@ auto Arthur::Menu() -> void {
         ImGui::SameLine();
         ImGui::Text(ICON_MD_MEMORY " RAM : %.2f", MemoryUsage::GetRamUsage());
         ImGui::SameLine();
-        ImGui::TextColored(UpDownColor(BackendConnected), "%s%s:%s", ICON_MD_LAN, _ipaddress.data(), _port.data());
+        ImGui::TextColored(UpDownColor(BackendConnected), "%s%s:%hu", ICON_MD_LAN, _backend._address.data(), _backend._port);
         ImGui::SameLine();
 
         ImGui::EndMainMenuBar();
@@ -452,12 +451,11 @@ void Arthur::StartAllThreads() {
         auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { MarketEventHandler(token_); });
         _threadGroup.push_back(std::move(thread));
     }
-    _multicastReceiverPtr->bindMC("127.0.0.1", 1223);
+
+    _multicastReceiverPtr->bindMC(_marketWatch._address, _marketWatch._port);
     _multicastReceiverPtr->read();
 
-    {
-        _messageBroker->MakeConnection(_ipaddress, _port);
-    }
+    _messageBroker->MakeConnection(_backend._address, FORMAT("{}", _backend._port));
 }
 
 void Arthur::MarketEventHandler(std::stop_token& stopToken_) {
@@ -467,7 +465,7 @@ void Arthur::MarketEventHandler(std::stop_token& stopToken_) {
     LOG(WARNING, "{} {}", __FUNCTION__, "Exiting")
 }
 
-double MemoryUsage::GetRamUsage() {
+auto MemoryUsage::GetRamUsage() -> double {
 #if _WIN32
     PROCESS_MEMORY_COUNTERS_EX pmc;
     GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(PROCESS_MEMORY_COUNTERS_EX));
@@ -477,7 +475,7 @@ double MemoryUsage::GetRamUsage() {
 #endif
 }
 
-void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lancelot::RequestType type_) {
+void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& info_, Lancelot::RequestType type_) {
     switch (type_) {
         case Lancelot::RequestType_LOGIN: {
             break;
@@ -492,13 +490,13 @@ void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lanc
                     ._user      = static_cast<int16_t>(UserID),
                     ._portfolio = 9999,
                 },
-                ._token         = ManualOrderInfo._marketWatch->_token,
-                ._price         = static_cast<uint32_t>(ManualOrderInfo._price * 100.0),
-                ._quantity      = static_cast<uint32_t>(ManualOrderInfo._quantity),
+                ._token         = info_._marketWatch->_token,
+                ._price         = static_cast<uint32_t>(info_._price * 100.0),
+                ._quantity      = static_cast<uint32_t>(info_._quantity),
                 ._triggerPrice  = 0,
-                ._side          = ManualOrderInfo._side,
+                ._side          = info_._side,
                 ._orderSequence = 0,
-                ._orderType     = static_cast<int16_t>(ManualOrderInfo._type),
+                ._orderType     = static_cast<int16_t>(info_._type),
                 ._nnf           = 0,
             };
             _messageBroker->Write_Sync((char*)&order, sizeof(Lancelot::ManualOrder));
@@ -514,10 +512,10 @@ void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lanc
                     ._user      = static_cast<int16_t>(UserID),
                     ._portfolio = 9999,
                 },
-                ._token         = ManualOrderInfo._marketWatch->_token,
-                ._orderSequence = static_cast<int32_t>(ManualOrderInfo._uniqueId),
-                ._price         = static_cast<uint32_t>(ManualOrderInfo._price * 100.0),
-                ._quantity      = static_cast<uint32_t>(ManualOrderInfo._quantity),
+                ._token         = info_._marketWatch->_token,
+                ._orderSequence = static_cast<int32_t>(info_._uniqueId),
+                ._price         = static_cast<uint32_t>(info_._price * 100.0),
+                ._quantity      = static_cast<uint32_t>(info_._quantity),
                 ._triggerPrice  = 0,
             };
             _messageBroker->Write_Sync((char*)&order, sizeof(Lancelot::ModifyOrder));

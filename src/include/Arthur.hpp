@@ -48,6 +48,7 @@ using OrderBookPtrT         = std::unique_ptr<OrderBook>;
 using ThreadGroupT = std::vector<std::unique_ptr<std::jthread>>;
 using TimerT       = std::unique_ptr<boost::asio::deadline_timer>;
 
+using ExecutorT     = boost::asio::io_context;
 using ExecutorTypeT = boost::asio::io_context::executor_type;
 using WorkerT       = boost::asio::executor_work_guard<ExecutorTypeT>;
 
@@ -114,14 +115,19 @@ class Arthur {
     bool _showRejectBook        = false;
     int  _theme                 = 0;
 
-    boost::asio::io_context         _backendComService;
-    boost::asio::io_context::strand _backendStrand;
-    WorkerT                         _backendWorker;
-    ThreadGroupT                    _threadGroup;
-    bool*                           _closeMainWindow;
-    char                            _password[10]{};
-    std::string                     _ipaddress;
-    std::string                     _port;
+    ExecutorT         _backendComService;
+    ExecutorT::strand _backendStrand;
+    WorkerT           _backendWorker;
+    ThreadGroupT      _threadGroup;
+    bool*             _closeMainWindow;
+
+    struct Connection {
+        std::string _address;
+        uint16_t    _port;
+    };
+
+    Connection _backend;
+    Connection _marketWatch;
 };
 
 #endif  // ARTHUR_INCLUDE_ARTHUR_HPP
