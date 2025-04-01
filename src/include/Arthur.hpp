@@ -1,9 +1,3 @@
-//
-// Created by VIKLOD on 21-01-2023.
-//
-
-#ifndef ARTHUR_INCLUDE_ARTHUR_HPP
-#define ARTHUR_INCLUDE_ARTHUR_HPP
 #pragma once
 
 #include "Arthur_Fwd.hpp"
@@ -73,11 +67,11 @@ class Arthur {
     bool _showRejectBook        = false;
     int  _theme                 = 0;
 
-    ExecutorT         _backendComService;
-    ExecutorT::strand _backendStrand;
-    WorkerT           _backendWorker;
-    ThreadGroupT      _threadGroup;
-    bool*             _closeMainWindow;
+    ExecutorT       _executor;
+    ExecutorStrandT _strand;
+    WorkerT         _backendWorker;
+    ThreadGroupT    _threadGroup;
+    bool*           _closeMainWindow;
 
     struct Connection {
         std::string _address;
@@ -87,5 +81,3 @@ class Arthur {
     Connection _backend;
     Connection _marketWatch;
 };
-
-#endif  // ARTHUR_INCLUDE_ARTHUR_HPP

@@ -7,6 +7,8 @@
 #include "Enums.hpp"
 #include "Lancelot/Structure.hpp"
 #include "Logger.hpp"
+#include "include/Arthur_Fwd.hpp"
+#include "include/PortfolioInterface.hpp"
 
 #if _WIN32
 #include <Psapi.h>
@@ -55,7 +57,7 @@ extern AllContractT      AllContract;
 #define ORDER_ALL_BOOK          "Order All Book"
 #define REJECT_BOOK             "Reject Book"
 
-Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _backendWorker(_backendComService.get_executor()), _closeMainWindow(closeMainWindow_) {
+Arthur::Arthur(bool* closeMainWindow_) : _strand(_executor), _backendWorker(_executor.get_executor()), _closeMainWindow(closeMainWindow_) {
     std::string fontFile = "Ruda-Bold.ttf";
     float       fontSize = 18.0F;
     UserID               = 101;
@@ -92,13 +94,12 @@ Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _ba
     ConfigLoader::Instance();
 
     _templateBuilderPtr   = std::make_unique<TemplateBuilder>();
-    _positionPtr          = std::make_unique<Position>(_backendComService);
-    _orderFormPtr         = std::make_unique<OrderForm>(_backendStrand);
-    _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_backendStrand);
+    _positionPtr          = std::make_unique<Position>(_executor);
+    _orderFormPtr         = std::make_unique<OrderForm>(_strand);
+    _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_strand);
     _tradeHistoryPtr      = std::make_unique<TradeHistory>();
     _optionChainPtr       = std::make_unique<OptionChain>();
-    _messageBroker        = std::make_unique<MessageBroker>(_backendComService);
-    _multicastReceiverPtr = std::make_unique<MulticastReceiver>(_backendComService);
+    _multicastReceiverPtr = std::make_unique<MulticastReceiver>(_executor);
     _orderBookPtr         = std::make_unique<OrderBook>(ORDER_ALL_BOOK);
     _rejectBookPtr        = std::make_unique<OrderBook>(REJECT_BOOK);
 
@@ -106,27 +107,27 @@ Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _ba
         _optionChainPtr->SetOptionForFuture(contract_);
     });
 
-    _openOrdersPtr = std::make_unique<OpenOrders>(_orderFormPtr, _backendStrand, _showOpenOrders, [this](const auto& info_) {
+    _openOrdersPtr = std::make_unique<OpenOrders>(_orderFormPtr, _strand, _showOpenOrders, [this](const OrderInfoPtrT& info_) {
         CancelOrderEvent(info_);
+    });
+
+    _messageBroker = std::make_unique<MessageBroker>(_executor, [&](const OrderInfoPtrT& orderInfo_) {
+        AddTrade(orderInfo_);
     });
 
     Imports(TRADING_APP_CONFIG_PATH);
     SetTheme(static_cast<VisualTheme>(_theme));
     {
-        auto callback = [&](const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_) { StrategyRequestEvent(row_, name_, type_); };
-        PortfolioInterface::setStrategyActionCallback(std::move(callback));
+        auto callback                      = [&](const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_) { StrategyRequestEvent(row_, name_, type_); };
+        PortfolioInterface::StrategyAction = std::move(callback);
     }
     {
-        auto callback = [&](const std::string& contract_) { _marketWatchPtr->AddContractToMarketWatch(contract_); };
-        Portfolio::setCallback(std::move(callback));
+        auto callback                           = [&](const std::string& contract_) { _marketWatchPtr->AddContractToMarketWatch(contract_); };
+        PortfolioInterface::AddContractFunction = std::move(callback);
     }
     {
         auto callback = [&](const OrderFormInfoT& ManualOrderInfo_, Lancelot::RequestType type_) { ManualOrderRequestEvent(ManualOrderInfo_, type_); };
         _orderFormPtr->publishOrderCallback(std::move(callback));
-    }
-    {
-        auto callback = [&](const OrderInfoPtrT& orderInfo_) { AddTrade(orderInfo_); };
-        _messageBroker->setCallback(std::move(callback));
     }
 
     StartAllThreads();
@@ -146,7 +147,7 @@ Arthur::~Arthur() {
     try {
         LOG(INFO, "{}", "boost::asio::io_service : stopping")
         timer.start();
-        _backendComService.stop();
+        _executor.stop();
         LOG(INFO, "{} {}", "boost::asio::io_service : stopped", timer.get_elapsed_ns())
 
         LOG(INFO, "{}", "Column Generator : stopping")
@@ -317,7 +318,7 @@ auto Arthur::Menu() -> void {
 auto Arthur::Run(std::stop_token& stopToken_) -> void {
     while (not stopToken_.stop_requested()) {
         boost::system::error_code errorCode;
-        _backendComService.run(errorCode);
+        _executor.run(errorCode);
         LOG(WARNING, "boost::asio::io_service {}", errorCode.message())
     }
     LOG(WARNING, "{} {}", __FUNCTION__, "Exiting")

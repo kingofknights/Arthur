@@ -63,7 +63,7 @@ void StrategyWorkspace::Exports(const std::string& path_) {
     }
 
     nlohmann::ordered_json root;
-    std::ranges::for_each(_portfolioContainer, [&](const PortfolioContainerT::value_type& valueType_) { root[valueType_.first.data()] = valueType_.second->getStrategyName(); });
+    std::ranges::for_each(_portfolioContainer, [&](const PortfolioContainerT::value_type& valueType_) { root[valueType_.first.data()] = valueType_.second->GetStrategyName(); });
 
     std::fstream file(path_, std::ios::trunc | std::ios::out);
     if (not file.is_open()) {
@@ -102,10 +102,10 @@ void StrategyWorkspace::DrawWindow(bool* show_) {
         if (ImGui::BeginTabBar(STRATEGY_CANVAS_NAME, StrategyWorkspaceTabFlags)) {
             for (const auto& [name, portfolio] : _portfolioContainer) {
                 ImGui::PushID(name.data());
-                portfolio->paint();
-                if (portfolio->closed()) {
+                portfolio->Paint();
+                if (portfolio->Closed()) {
                     _deleteWorkspace = name;
-                    _fileName        = FORMAT("Save/{}.json", portfolio->getName());
+                    _fileName        = FORMAT("Save/{}.json", portfolio->GetName());
                 }
                 ImGui::PopID();
             }

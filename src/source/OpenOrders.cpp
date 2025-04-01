@@ -93,7 +93,7 @@ void OpenOrders::DrawPendingBook(bool* show_) {
             ImGui::Separator();
             if (ImGui::Button("Cancel All")) {
                 _cancelOrder.clear();
-                for (const PendingBookContainerT::value_type& value : _container) {
+                for (const auto& value : _container) {
                     if (value.second->_portfolio % 10000 == 9999) {
                         _cancelOrder.push_back(value.second);
                     }

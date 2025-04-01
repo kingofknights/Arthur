@@ -11,9 +11,18 @@
 #include <vector>
 
 namespace Lancelot {
-    struct Header;
-}
+    enum Exchange : uint8_t;
+    enum Instrument : uint8_t;
+    enum OptionType : uint8_t;
+    enum Side : uint8_t;
+    enum RequestType : uint8_t;
+    enum ResponseType : uint8_t;
 
+    struct Header;
+    struct HedgeOrderResponse;
+}  // namespace Lancelot
+
+class Arthur;
 class TemplateBuilder;
 class ExcelWindow;
 class Position;
@@ -58,8 +67,5 @@ using ExecutorTypeT   = ExecutorT::executor_type;
 using ExecutorStrandT = ExecutorT::strand;
 using ErrorCodeT      = boost::system::error_code;
 using WorkerT         = boost::asio::executor_work_guard<ExecutorTypeT>;
-
-using AddContractToMarketWatchSignalT = boost::signals2::signal<void(const std::string&)>;
-using AddContractToMarketWatchSlotT   = AddContractToMarketWatchSignalT::slot_type;
 
 using AddContractFunctionT = std::function<void(const std::string&)>;

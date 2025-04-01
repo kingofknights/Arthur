@@ -4,35 +4,30 @@
 
 #pragma once
 
+#include "Arthur_Fwd.hpp"
 #include "BaseSocket.hpp"
-#include "Structure.hpp"
 
-#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
-#include <cstdint>
-#include <functional>
+class MessageBroker final : public TBaseSocket {
+    using FunctionT  = std::function<void(OrderInfoPtrT)>;
+    using ContainerT = std::unordered_map<int, OrderInfoPtrT>;
 
-using UpdateTradeFunctionT = std::function<void(OrderInfoPtrT)>;
-
-class MessageBroker : public TBaseSocket {
   public:
-    MessageBroker(boost::asio::io_context& ioContext_);
-
-    void setCallback(UpdateTradeFunctionT updateTradeFunction_);
+    explicit MessageBroker(ExecutorT& executor_, FunctionT function_);
 
   protected:
     void ConnectedStatus(bool status_) noexcept override;
 
     void Process(const char* buffer_, size_t size_) override;
 
-    void processOrder(const char* buffer_);
+    void ProcessOrder(const char* buffer_);
 
-    static void processStrategy(uint32_t pf_, Lancelot::ResponseType type_);
+    static void ProcessStrategy(uint32_t pf_, Lancelot::ResponseType type_);
 
-    static void processUpdates(const nlohmann::json& input_);
-
-    UpdateTradeFunctionT _updateTradeFunction;
+    static void ProcessUpdates(const nlohmann::json& input_);
 
   private:
-    GlobalOrderInfoContainerT _globalOrderInfoContainer;
+    FunctionT  _function;
+    ContainerT _container;
 };

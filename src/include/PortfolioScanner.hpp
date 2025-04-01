@@ -11,16 +11,22 @@ class PortfolioScanner : public std::enable_shared_from_this<PortfolioScanner> {
     explicit PortfolioScanner(std::string strategyName_);
 
     void Paint(bool* show_);
+
     void Export(const std::string& path_);
+
     void Import(const std::string& path_);
 
   protected:
     void ScannerWindow(bool* show_);
+
     void LoadParameter();
 
     void FirstColumn();
+
     void SecondColumn();
+
     void ThirdColumn();
+
     void CreateFormula();
 
   protected:

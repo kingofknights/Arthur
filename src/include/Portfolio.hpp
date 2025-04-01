@@ -10,18 +10,14 @@ enum ExportImport : int;
 class Portfolio final : public PortfolioInterface {
   public:
     Portfolio(const std::string& workspaceName_, const std::string& strategyName_, boost::asio::io_context::strand& strand_);
-    void paint();
+
+    void Paint();
+
     void AddScannerPortfolio(const ParameterInfoListT& list_);
 
-    [[nodiscard]] std::string getStrategyName() const;
-    [[nodiscard]] std::string getName() const;
-    [[nodiscard]] bool        closed() const;
-
-    static void setCallback(const AddContractToMarketWatchSignalT::slot_type& slot_);
+    [[nodiscard]] auto Closed() const -> bool;
 
   protected:
-    static AddContractToMarketWatchSignalT AddContractToMarketWatchSignal;
-
     void DrawPortfolioWindow();
     void DrawNewPortfolioCreation();
     void DrawStrategyRow(StrategyRowPtrT& row_, int index_);

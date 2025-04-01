@@ -4,7 +4,9 @@
 #include "Structure.hpp"
 
 class OpenOrders {
-    using FunctionT = std::function<void(OrderInfoPtrT)>;
+    using FunctionT              = std::function<void(OrderInfoPtrT)>;
+    using PendingOrderContainerT = std::map<std::string, OrderInfoPtrT>;
+    using PendingOrderUpdateT    = QueueT<std::pair<OrderInfoPtrT, bool>>;
 
   public:
     OpenOrders(const OrderFormPtrT& manualOrder_, ExecutorStrandT& strand_, bool& show_, FunctionT function_);
@@ -27,9 +29,10 @@ class OpenOrders {
 
     bool& _show;
 
-    PendingBookContainerT                _container;
-    PendingOrderUpdateT                  _pendingOrderUpdate;
-    BookOrderListT                       _cancelOrder;
+    PendingOrderContainerT _container;
+    PendingOrderUpdateT    _pendingOrderUpdate;
+    BookOrderListT         _cancelOrder;
+
     std::unordered_map<int, std::string> _hashing;
 
     int  _buyCount         = 0;
