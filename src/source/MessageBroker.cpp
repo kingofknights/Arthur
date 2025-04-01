@@ -42,7 +42,7 @@ MessageBroker::MessageBroker(boost::asio::io_context& ioContext_)
 
 void MessageBroker::setCallback(UpdateTradeFunctionT updateTradeFunction_) { _updateTradeFunction = std::move(updateTradeFunction_); }
 
-void MessageBroker::process(const char* buffer_, size_t size_) {
+void MessageBroker::Process(const char* buffer_, size_t size_) {
     const auto* request = reinterpret_cast<const Lancelot::Header*>(buffer_);
 
     switch (request->_type) {

@@ -101,12 +101,12 @@ inline const ImVec4 COLOR_LIGHT_SEA_GREEN     = ImVec4(0.13f, 0.7f, 0.67f, 1.0f)
 
 inline const ImVec4 SELECTED_ROW_COLOR = COLOR_GRAY;
 
-template<typename T>
-constexpr auto UpDownColor(T t) -> ImVec4 {
-    return t > 0 ? COLOR_GREEN : COLOR_RED;
+template <typename Condition>
+constexpr auto UpDownColor(Condition condition_) -> ImVec4 {
+    return condition_ > 0 ? COLOR_GREEN : COLOR_RED;
 }
 
-template<typename Side>
+template <typename Side>
 constexpr auto BuySellColor(Side side_) -> ImVec4 {
-    return side_ == 1 ? COLOR_GREEN : COLOR_RED;
+    return UpDownColor(side_ == 1);
 }

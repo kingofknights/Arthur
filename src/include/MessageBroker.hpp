@@ -4,12 +4,13 @@
 
 #pragma once
 
-#include <cstdint>
-#include <functional>
-#include <nlohmann/json.hpp>
-
 #include "BaseSocket.hpp"
 #include "Structure.hpp"
+
+#include <nlohmann/json.hpp>
+
+#include <cstdint>
+#include <functional>
 
 using UpdateTradeFunctionT = std::function<void(OrderInfoPtrT)>;
 
@@ -20,7 +21,7 @@ class MessageBroker : public TBaseSocket {
     void setCallback(UpdateTradeFunctionT updateTradeFunction_);
 
   protected:
-    void process(const char* buffer_, size_t size_) override;
+    void Process(const char* buffer_, size_t size_) override;
 
     void processOrder(const char* buffer_);
 

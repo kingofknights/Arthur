@@ -17,7 +17,7 @@
 
 OpenOrders::OpenOrders(const OrderFormPtrT& manualOrder_, boost::asio::io_context::strand& strand_) : _manualOrderPtr(manualOrder_), _strand(strand_) {}
 
-void OpenOrders::paint(bool* show_) {
+void OpenOrders::Paint(bool* show_) {
     _pendingOrderUpdate.consume_one([this](const auto& pair_) { Update(pair_.first, pair_.second); });
     if (*show_) {
         DrawPendingBook(show_);
@@ -166,6 +166,6 @@ void OpenOrders::Insert(const OrderInfoPtrT& tradeInfo_, bool insert_) {
     _pendingOrderUpdate.push(std::make_pair(tradeInfo_, insert_));
 }
 
-void OpenOrders::cancelOrderFunctionCallback(CancelPendingOrderFunctionT cancelPendingOrderFunction_) {
+void OpenOrders::CancelOrderFunctionCallback(CancelPendingOrderFunctionT cancelPendingOrderFunction_) {
     _cancelPendingOrderFunction = std::move(cancelPendingOrderFunction_);
 }

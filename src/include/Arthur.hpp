@@ -6,51 +6,9 @@
 #define ARTHUR_INCLUDE_ARTHUR_HPP
 #pragma once
 
-#include <boost/asio.hpp>
+#include "Arthur_Fwd.hpp"
 
-#include <memory>
 #include <string_view>
-#include <thread>
-#include <vector>
-
-class TemplateBuilder;
-class ExcelWindow;
-class Position;
-class MarketWatch;
-class OrderForm;
-class MulticastReceiver;
-class OpenOrders;
-class StrategyWorkspace;
-class TradeHistory;
-class MessageBroker;
-class OptionChain;
-class OrderBook;
-
-struct OrderInfoT;
-struct OrderFormInfoT;
-struct StrategyRowT;
-
-using OrderInfoPtrT         = std::shared_ptr<OrderInfoT>;
-using StrategyRowPtrT       = std::shared_ptr<StrategyRowT>;
-using TemplateBuilderPtrT   = std::unique_ptr<TemplateBuilder>;
-using ExcelWindowPtrT       = std::unique_ptr<ExcelWindow>;
-using PositionPtrT          = std::unique_ptr<Position>;
-using MarketWatchPtrT       = std::unique_ptr<MarketWatch>;
-using OrderFormPtrT         = std::shared_ptr<OrderForm>;
-using MulticastReceiverPtrT = std::unique_ptr<MulticastReceiver>;
-using OpenOrdersPtrT        = std::unique_ptr<OpenOrders>;
-using StrategyWorkspacePtrT = std::unique_ptr<StrategyWorkspace>;
-using TradeHistoryPtrT      = std::unique_ptr<TradeHistory>;
-using MessageBrokerPtrT     = std::unique_ptr<MessageBroker>;
-using OptionChainPtrT       = std::unique_ptr<OptionChain>;
-using OrderBookPtrT         = std::unique_ptr<OrderBook>;
-
-using ThreadGroupT = std::vector<std::unique_ptr<std::jthread>>;
-using TimerT       = std::unique_ptr<boost::asio::deadline_timer>;
-
-using ExecutorT     = boost::asio::io_context;
-using ExecutorTypeT = boost::asio::io_context::executor_type;
-using WorkerT       = boost::asio::executor_work_guard<ExecutorTypeT>;
 
 namespace Lancelot {
     enum RequestType : uint8_t;

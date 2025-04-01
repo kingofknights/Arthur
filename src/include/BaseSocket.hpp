@@ -1,40 +1,46 @@
-#ifndef ARTHUR_INCLUDE_BASE_SOCKET_HPP
-#define ARTHUR_INCLUDE_BASE_SOCKET_HPP
 #pragma once
 
-#include <boost/asio.hpp>
-
-#include <memory>
+#include "Arthur_Fwd.hpp"
 
 class TBaseSocket {
+    using EndpointT         = boost::asio::ip::tcp::endpoint;
+    using SocketT           = boost::asio::ip::tcp::socket;
+    using BufferT           = std::array<char, 1024>;
+    using EndpointIteratorT = boost::asio::ip::tcp::resolver::iterator;
+
   public:
-    explicit TBaseSocket(boost::asio::io_context& ioContext_);
+    explicit TBaseSocket(ExecutorT& executor_);
 
     virtual ~TBaseSocket() = default;
 
-    void MakeConnection(const std::string& address_, const std::string& port_);
-    void Write_Async(const char* buffer, size_t size_);
-    void Write_Sync(char* buffer, size_t size_);
+    void MakeConnection(const std::string& address_, uint16_t port_);
+
+    void WriteAsync(void* buffer_, size_t size_);
+
+    void WriteSync(void* buffer_, size_t size_);
+
+    [[nodiscard]] auto IsConnected() const noexcept -> bool;
 
   protected:
-    virtual void process(const char* buffer_, size_t size_) = 0;
+    virtual void Process(const char* buffer_, size_t size_) = 0;
 
     void Read();
-    void ReadHandlerBody(const boost::system::error_code& error_code_, size_t size_);
-    void WriteHandler([[maybe_unused]] const boost::system::error_code& errorCode_, [[maybe_unused]] size_t size_) {};
+
+    void ReadHandlerBody(const ErrorCodeT& errorCode_, size_t size_);
+
+    void Reconnect(EndpointIteratorT endpoint_) noexcept;
 
   private:
-    void Connect(const boost::asio::ip::tcp::resolver::iterator& iterator_);
-    void internalConnectHandler(const boost::system::error_code& error_code_, boost::asio::ip::tcp::resolver::iterator iterator_);
+    void Connect(const EndpointIteratorT& endpoint_);
 
-    char _buffer[1024]{};
+    void InternalConnectHandler(const ErrorCodeT& error_code_, const EndpointIteratorT& endpoint_);
 
-    std::string _ipAddress;
-    std::string _port;
+    bool _connected = false;
 
-    boost::system::error_code                        _errorCode;
-    std::shared_ptr<boost::asio::io_context::strand> _strand;
-    std::shared_ptr<boost::asio::ip::tcp::socket>    _socket;
+    ExecutorStrandT   _strand;
+    SocketT           _socket;
+    TimerT            _timer;
+    ErrorCodeT        _errorCode;
+    BufferT           _buffer;
+    Lancelot::Header* _header;
 };
-
-#endif  // ARTHUR_INCLUDE_BASE_SOCKET_HPP

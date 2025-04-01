@@ -1,20 +1,17 @@
 #pragma once
 
-#include <boost/asio.hpp>
-#include <functional>
-
+#include "Arthur_Fwd.hpp"
 #include "Structure.hpp"
 
-class OrderForm;
-using OrderFormPtrT               = std::shared_ptr<OrderForm>;
-using CancelPendingOrderFunctionT = std::function<void(OrderInfoPtrT)>;
 class OpenOrders {
   public:
     explicit OpenOrders(const OrderFormPtrT& manualOrder_, boost::asio::io_context::strand& strand_);
 
-    void paint(bool* show_);
+    void Paint(bool* show_);
+
     void Insert(const OrderInfoPtrT& tradeInfo_, bool insert_);
-    void cancelOrderFunctionCallback(CancelPendingOrderFunctionT cancelPendingOrderFunction_);
+
+    void CancelOrderFunctionCallback(CancelPendingOrderFunctionT cancelPendingOrderFunction_);
 
   protected:
     void DrawPendingBook(bool* show_);

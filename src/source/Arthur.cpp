@@ -46,7 +46,6 @@ class MemoryUsage {
     static auto GetRamUsage() -> double;
 };
 
-extern bool                 BackendConnected;
 extern int                  UserID;
 extern DemoOrderInfoSignalT DemoOrderInfoSignal;
 extern MarketEventQueueT    MarketEventQueue;
@@ -126,7 +125,7 @@ Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _ba
     }
     {
         auto callback = [&](const OrderInfoPtrT& orderInfo_) { CancelOrderEvent(orderInfo_); };
-        _openOrdersPtr->cancelOrderFunctionCallback(std::move(callback));
+        _openOrdersPtr->CancelOrderFunctionCallback(std::move(callback));
     }
     {
         auto callback = [&](const OrderInfoPtrT& orderInfo_) { AddTrade(orderInfo_); };
@@ -214,7 +213,7 @@ void Arthur::Paint() {
 
     _positionPtr->Paint(&_showPosition);
     _marketWatchPtr->Paint(&_showMarketWatch, &_showPriceLadder);
-    _openOrdersPtr->paint(&_showOpenOrders);
+    _openOrdersPtr->Paint(&_showOpenOrders);
     _strategyWorkspacePtr->Paint(&_showStrategyWorkspace);
     _tradeHistoryPtr->paint(&_showTradeHistory);
     _optionChainPtr->paint(&_showOptionChain);
@@ -311,7 +310,7 @@ auto Arthur::Menu() -> void {
         ImGui::SameLine();
         ImGui::Text(ICON_MD_MEMORY " RAM : %.2f", MemoryUsage::GetRamUsage());
         ImGui::SameLine();
-        ImGui::TextColored(UpDownColor(BackendConnected), "%s%s:%hu", ICON_MD_LAN, _backend._address.data(), _backend._port);
+        ImGui::TextColored(UpDownColor(_messageBroker->IsConnected()), "%s%s:%hu", ICON_MD_LAN, _backend._address.data(), _backend._port);
         ImGui::SameLine();
 
         ImGui::EndMainMenuBar();
@@ -455,7 +454,7 @@ void Arthur::StartAllThreads() {
     _multicastReceiverPtr->bindMC(_marketWatch._address, _marketWatch._port);
     _multicastReceiverPtr->read();
 
-    _messageBroker->MakeConnection(_backend._address, FORMAT("{}", _backend._port));
+    _messageBroker->MakeConnection(_backend._address, _backend._port);
 }
 
 void Arthur::MarketEventHandler(std::stop_token& stopToken_) {
@@ -499,7 +498,7 @@ void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& info_, Lancelot::Requ
                 ._orderType     = static_cast<int16_t>(info_._type),
                 ._nnf           = 0,
             };
-            _messageBroker->Write_Sync((char*)&order, sizeof(Lancelot::ManualOrder));
+            _messageBroker->WriteSync((char*)&order, sizeof(Lancelot::ManualOrder));
             break;
         }
         case Lancelot::RequestType_MODIFY: {
@@ -518,7 +517,7 @@ void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& info_, Lancelot::Requ
                 ._quantity      = static_cast<uint32_t>(info_._quantity),
                 ._triggerPrice  = 0,
             };
-            _messageBroker->Write_Sync((char*)&order, sizeof(Lancelot::ModifyOrder));
+            _messageBroker->WriteSync((char*)&order, sizeof(Lancelot::ModifyOrder));
             break;
         }
         case Lancelot::RequestType_CANCEL: {
@@ -544,8 +543,8 @@ void Arthur::StrategyRequestEvent(StrategyRowPtrT row_, const std::string& name_
             ._user      = static_cast<int16_t>(UserID),
             ._portfolio = static_cast<int16_t>(row_->_portfolio),
         }};
-    _messageBroker->Write_Sync((char*)&header, sizeof(header));
-    _messageBroker->Write_Sync(buffer.data(), buffer.length());
+    _messageBroker->WriteSync((char*)&header, sizeof(header));
+    _messageBroker->WriteSync(buffer.data(), buffer.length());
 }
 
 void Arthur::CancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
@@ -562,5 +561,5 @@ void Arthur::CancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
         ._orderSequence = static_cast<int16_t>(orderInfo_->_uniqueId),
 
     };
-    _messageBroker->Write_Sync((char*)&order, sizeof(Lancelot::CancelOrder));
+    _messageBroker->WriteSync((char*)&order, sizeof(Lancelot::CancelOrder));
 }
