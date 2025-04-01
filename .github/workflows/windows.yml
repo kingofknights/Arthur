@@ -32,13 +32,13 @@ jobs:
       - name: Build Arthur
         working-directory: ${{github.workspace}}/
         run: |
-          cmake --build build --config ${{env.BUILD_TYPE}}
+          cmake --build build --config ${{env.BUILD_TYPE}} --target install -j6
           cd build
           tree
 
       - name: Release
         uses: softprops/action-gh-release@v2
-        # if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
             LICENSE 
@@ -63,4 +63,3 @@ jobs:
           asset_name: |
             Arthur.exe
           asset_content_type: application/zip
-
