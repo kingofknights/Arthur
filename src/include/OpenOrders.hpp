@@ -4,23 +4,29 @@
 #include "Structure.hpp"
 
 class OpenOrders {
-  public:
-    explicit OpenOrders(const OrderFormPtrT& manualOrder_, boost::asio::io_context::strand& strand_);
+    using FunctionT = std::function<void(OrderInfoPtrT)>;
 
-    void Paint(bool* show_);
+  public:
+    OpenOrders(const OrderFormPtrT& manualOrder_, ExecutorStrandT& strand_, bool& show_, FunctionT function_);
+
+    void Paint() noexcept;
 
     void Insert(const OrderInfoPtrT& tradeInfo_, bool insert_);
 
-    void CancelOrderFunctionCallback(CancelPendingOrderFunctionT cancelPendingOrderFunction_);
-
   protected:
     void DrawPendingBook(bool* show_);
+
     void Update(const OrderInfoPtrT& tradeInfo_, bool insert_);
+
     void DrawManualOrderRequestedForCancel();
 
   private:
-    CancelPendingOrderFunctionT          _cancelPendingOrderFunction;
-    OrderFormPtrT                        _manualOrderPtr;
+    const OrderFormPtrT& _manualOrder;
+    const FunctionT      _function;
+    ExecutorStrandT&     _strand;
+
+    bool& _show;
+
     PendingBookContainerT                _container;
     PendingOrderUpdateT                  _pendingOrderUpdate;
     BookOrderListT                       _cancelOrder;
@@ -31,6 +37,5 @@ class OpenOrders {
     int  _selectedRow      = -1;
     bool _closeCancelPopup = false;
 
-    ImGuiListClipper                 _clipper;
-    boost::asio::io_context::strand& _strand;
+    ImGuiListClipper _clipper;
 };

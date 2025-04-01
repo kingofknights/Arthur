@@ -3,7 +3,6 @@
 //
 
 #include "../API/BaseScanner.hpp"
-#include "../include/Signal.hpp"
 #include "../include/Structure.hpp"
 
 int         Id;
@@ -20,5 +19,3 @@ GlobalPortfolioScannerContainerT GlobalPortfolioScannerContainer;
 SpotInfoT                        BankNifty;
 SpotInfoT                        Nifty;
 SpotInfoT                        VIX;
-
-AddContractToDemoSignalT AddContractToDemoSignal;

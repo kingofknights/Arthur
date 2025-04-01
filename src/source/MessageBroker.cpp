@@ -147,3 +147,6 @@ void MessageBroker::processUpdates(const nlohmann::json& input_) {
         }
     }
 }
+void MessageBroker::ConnectedStatus(bool status_) noexcept {
+    Utils::ResetPortfolio(status_ ? StrategyStatus_INACTIVE : StrategyStatus_DISCONNECTED);
+}

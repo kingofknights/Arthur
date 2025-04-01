@@ -24,6 +24,8 @@ class TBaseSocket {
   protected:
     virtual void Process(const char* buffer_, size_t size_) = 0;
 
+    virtual void ConnectedStatus(bool status_) noexcept = 0;
+
     void Read();
 
     void ReadHandlerBody(const ErrorCodeT& errorCode_, size_t size_);

@@ -1,18 +1,7 @@
-#include "../include/BaseSocket.hpp"
+#include "include/BaseSocket.hpp"
 
-#include "../API/Common.hpp"
-#include "../include/Enums.hpp"
-#include "../include/Structure.hpp"
-#include "../include/Utils.hpp"
+#include "Lancelot/Logger.hpp"
 #include "Lancelot/Structure.hpp"
-#include "include/Arthur_Fwd.hpp"
-
-#include <boost/asio/buffer.hpp>
-#include <boost/asio/completion_condition.hpp>
-
-#include <chrono>
-#include <cstdint>
-#include <string>
 
 extern int UserID;
 
@@ -48,8 +37,8 @@ void TBaseSocket::InternalConnectHandler(const ErrorCodeT& error_code_, const En
         _socket.set_option(boost::asio::socket_base::keep_alive(true));
         _socket.set_option(boost::asio::socket_base::reuse_address(true));
         _socket.set_option(boost::asio::ip::tcp::no_delay(true));
-        Utils::ResetPortfolio(StrategyStatus_INACTIVE);
 
+        ConnectedStatus(_connected);
         Read();
     }
 }
@@ -91,7 +80,8 @@ void TBaseSocket::ReadHandlerBody(const ErrorCodeT& errorCode_, size_t size_) {
         _errorCode = _socket.close(_errorCode);
         _connected = false;
 
-        Utils::ResetPortfolio(StrategyStatus_DISCONNECTED);
+        ConnectedStatus(_connected);
+
         const auto endpoint = _socket.remote_endpoint();
         MakeConnection(endpoint.address().to_string(), endpoint.port());
     }

@@ -21,6 +21,8 @@ class MessageBroker : public TBaseSocket {
     void setCallback(UpdateTradeFunctionT updateTradeFunction_);
 
   protected:
+    void ConnectedStatus(bool status_) noexcept override;
+
     void Process(const char* buffer_, size_t size_) override;
 
     void processOrder(const char* buffer_);

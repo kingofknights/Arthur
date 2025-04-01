@@ -46,10 +46,9 @@ class MemoryUsage {
     static auto GetRamUsage() -> double;
 };
 
-extern int                  UserID;
-extern DemoOrderInfoSignalT DemoOrderInfoSignal;
-extern MarketEventQueueT    MarketEventQueue;
-extern AllContractT         AllContract;
+extern int               UserID;
+extern MarketEventQueueT MarketEventQueue;
+extern AllContractT      AllContract;
 
 #define DATABASE_PATH           "fo_ref_contract_master.csv"
 #define TRADING_APP_CONFIG_PATH "Config/Arthur.json"
@@ -94,9 +93,7 @@ Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _ba
 
     _templateBuilderPtr   = std::make_unique<TemplateBuilder>();
     _positionPtr          = std::make_unique<Position>(_backendComService);
-    _orderFormPtr         = std::make_shared<OrderForm>(_backendStrand);
-    _marketWatchPtr       = std::make_unique<MarketWatch>(_orderFormPtr);
-    _openOrdersPtr        = std::make_unique<OpenOrders>(_orderFormPtr, _backendStrand);
+    _orderFormPtr         = std::make_unique<OrderForm>(_backendStrand);
     _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_backendStrand);
     _tradeHistoryPtr      = std::make_unique<TradeHistory>();
     _optionChainPtr       = std::make_unique<OptionChain>();
@@ -105,15 +102,19 @@ Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _ba
     _orderBookPtr         = std::make_unique<OrderBook>(ORDER_ALL_BOOK);
     _rejectBookPtr        = std::make_unique<OrderBook>(REJECT_BOOK);
 
+    _marketWatchPtr = std::make_unique<MarketWatch>(_orderFormPtr, _showMarketWatch, _showPriceLadder, [&](const std::string& contract_) {
+        _optionChainPtr->SetOptionForFuture(contract_);
+    });
+
+    _openOrdersPtr = std::make_unique<OpenOrders>(_orderFormPtr, _backendStrand, _showOpenOrders, [this](const auto& info_) {
+        CancelOrderEvent(info_);
+    });
+
     Imports(TRADING_APP_CONFIG_PATH);
     SetTheme(static_cast<VisualTheme>(_theme));
     {
         auto callback = [&](const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_) { StrategyRequestEvent(row_, name_, type_); };
         PortfolioInterface::setStrategyActionCallback(std::move(callback));
-    }
-    {
-        auto callback = [&](const std::string& contract_) { _optionChainPtr->SetOptionForFuture(contract_); };
-        _marketWatchPtr->Connect(std::move(callback));
     }
     {
         auto callback = [&](const std::string& contract_) { _marketWatchPtr->AddContractToMarketWatch(contract_); };
@@ -122,10 +123,6 @@ Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _ba
     {
         auto callback = [&](const OrderFormInfoT& ManualOrderInfo_, Lancelot::RequestType type_) { ManualOrderRequestEvent(ManualOrderInfo_, type_); };
         _orderFormPtr->publishOrderCallback(std::move(callback));
-    }
-    {
-        auto callback = [&](const OrderInfoPtrT& orderInfo_) { CancelOrderEvent(orderInfo_); };
-        _openOrdersPtr->CancelOrderFunctionCallback(std::move(callback));
     }
     {
         auto callback = [&](const OrderInfoPtrT& orderInfo_) { AddTrade(orderInfo_); };
@@ -212,8 +209,8 @@ void Arthur::Paint() {
     }
 
     _positionPtr->Paint(&_showPosition);
-    _marketWatchPtr->Paint(&_showMarketWatch, &_showPriceLadder);
-    _openOrdersPtr->Paint(&_showOpenOrders);
+    _marketWatchPtr->Paint();
+    _openOrdersPtr->Paint();
     _strategyWorkspacePtr->Paint(&_showStrategyWorkspace);
     _tradeHistoryPtr->paint(&_showTradeHistory);
     _optionChainPtr->paint(&_showOptionChain);

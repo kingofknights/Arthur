@@ -1,9 +1,9 @@
 #pragma once
 
-#include <future>
-
+#include "Arthur_Fwd.hpp"
 #include "PortfolioInterface.hpp"
-#include "Signal.hpp"
+
+#include <future>
 
 enum ExportImport : int;
 
