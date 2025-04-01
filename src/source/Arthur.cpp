@@ -93,7 +93,7 @@ Arthur::Arthur(bool* closeMainWindow_) : _strand(_executor), _backendWorker(_exe
     Utils::CreateSupportFolder();
     ConfigLoader::Instance();
 
-    _templateBuilderPtr   = std::make_unique<TemplateBuilder>();
+    _templateBuilderPtr   = std::make_unique<TemplateBuilder>(_showTemplateBuilder);
     _positionPtr          = std::make_unique<Position>(_executor);
     _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_strand);
     _tradeHistoryPtr      = std::make_unique<TradeHistory>();
@@ -260,9 +260,11 @@ auto Arthur::Menu() -> void {
 
         if (ImGui::BeginMenu(ICON_MD_DESKTOP_WINDOWS " View")) {
             if (ImGui::Checkbox("Template Builder", &_showTemplateBuilder)) {
-                ImGui::OpenPopup(COLUMN_GENERATOR_WINDOW);
+                ImGui::OpenPopup(TemplateBuilder::BeginColumnGenerator);
             }
-            if (_showTemplateBuilder) _templateBuilderPtr->paint(&_showTemplateBuilder);
+            if (_showTemplateBuilder) {
+                _templateBuilderPtr->Paint(&_showTemplateBuilder);
+            }
 
             Utils::ToggleMenuItem("Market Watch", _showMarketWatch);
             Utils::ToggleMenuItem("Price Ladder", _showPriceLadder);

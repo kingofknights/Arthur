@@ -1,42 +1,44 @@
-//
-// Created by VIKLOD on 25-01-2023.
-//
-
-#ifndef ARTHUR_INCLUDE_COLUMN_GENERATOR_HPP
-#define ARTHUR_INCLUDE_COLUMN_GENERATOR_HPP
 #pragma once
+
 #include <string>
 #include <unordered_map>
 
 enum DataType : int;
 
-#define COLUMN_GENERATOR_WINDOW "Template Builder Window"
-class TemplateBuilder {
+class TemplateBuilder final {
+    using ColumnInfoT = struct ColumnInfoT {
+        DataType    _type;
+        std::string _value;
+    };
+    using ContainerT = std::unordered_map<std::string, ColumnInfoT>;
+
   public:
-    void paint(bool* show_);
+    explicit TemplateBuilder(bool& show_);
+
+    void Paint(bool* show_);
+
+    static constexpr char BeginColumnGenerator[] = "Template Builder Window";
+
+  protected:
+    [[nodiscard]] auto GetConfig() -> std::string;
+
+    void ParseConfig(std::string_view config_);
+
+    void DrawTable();
+
+    void AppendNewParameter();
+
+    void SetDefaultValue(DataType dataType_);
 
   private:
-    std::string GetConfig();
-    void        ParseConfig(std::string_view config_);
-    void        DrawTable();
-    void        AppendNewParameter();
-    void        SetDefaultValue(DataType dataType_);
+    bool& _show;
 
-  private:
     std::string _strategyName;
     std::string _parameterName;
     std::string _parameterValue;
     std::string _strategyLoad;
-    std::string _selectedRow{};
+    std::string _selectedRow;
     int         _parameterType = 0;
 
-    using ColumnInfoT = struct ColumnInfoT {
-        DataType    Type;
-        std::string Value;
-    };
-
-    using ColumnParameterList = std::unordered_map<std::string, ColumnInfoT>;
-    ColumnParameterList _parameterList;
+    ContainerT _parameterList;
 };
-
-#endif// ARTHUR_INCLUDE_COLUMN_GENERATOR_HPP
