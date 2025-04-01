@@ -23,14 +23,12 @@ extern ClientCodeListT ClientCodeList;
 #define ADDITIONAL_OPTION     "Additional Options"
 #define NEW_STRATEGY_CREATION "New Strategy"
 
-AddContractToMarketWatchSignalT Portfolio::AddContractToMarketWatchSignal;
-
 Portfolio::Portfolio(const std::string& workspaceName_, const std::string& strategyName_, boost::asio::io_context::strand& strand_)
     : PortfolioInterface(workspaceName_ + "[" + strategyName_ + "]", strategyName_, strand_) {
     _action = ExportImport_NONE;
 }
 
-void Portfolio::paint() {
+void Portfolio::Paint() {
     if (_toBeDeleted != -1 and _multipleSelectionCount > 0) {
         if (_multipleSelectionCount > 1) {
             RemoveSelection();
@@ -53,13 +51,13 @@ void Portfolio::paint() {
         DrawPortfolioWindow();
         ImGui::EndTabItem();
     }
-    if (not _open) {
-        _status = checkAnyActive();
+    if (Closed()) {
+        _status = CheckAnyActive();
         _open   = _status._close;
-        ImGui::OpenPopup(("Error Closing:- " + _name).data());
+        ImGui::OpenPopup(("Error Closing:- " + GetName()).data());
     }
 
-    if (ImGui::BeginPopupModal(("Error Closing:- " + _name).data(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+    if (ImGui::BeginPopupModal(("Error Closing:- " + GetName()).data(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
         ImGui::Text("Total Portfolio status:-");
         ImGui::LabelText("InActive", "[%ud]", _status._inactive);
         ImGui::LabelText("Active", "[%ud]", _status._active);
@@ -76,18 +74,14 @@ void Portfolio::paint() {
     _scannerAddQueue.consume_one([&](StrategyRowPtrT row_) { _strategyList.push_back(std::move(row_)); });
 }
 
-auto Portfolio::getStrategyName() const -> std::string {
-    return _strategyName;
-}
-
-auto Portfolio::closed() const -> bool {
-    return not _open;
+auto Portfolio::Closed() const -> bool {
+    return not IsOpen();
 }
 
 void Portfolio::DrawPortfolioWindow() {
-    ImGui::BeginDisabled(PortFolioNumber > MAX_PORTFOLIO_ALLOWED);
+    ImGui::BeginDisabled(GetPortfolio() > GetMaxPortfolio());
     if (ImGui::Button(ICON_MD_ADD_CIRCLE " New")) {
-        ImGui::OpenPopup((NEW_STRATEGY_CREATION + _strategyName).data());
+        ImGui::OpenPopup((NEW_STRATEGY_CREATION + GetStrategyName()).data());
     }
 
     ImGui::EndDisabled();
@@ -95,17 +89,17 @@ void Portfolio::DrawPortfolioWindow() {
 
     ImGui::SameLine();
     if (ImGui::Button(FORMAT("{} Subscribe {} ##Subcribe", ICON_MD_PLAYLIST_PLAY, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
-        _multipleSelectionCount > 1 ? subscribeSelected() : subscribeAll();
+        _multipleSelectionCount > 1 ? SubscribeSelected() : SubscribeAll();
     }
 
     ImGui::SameLine();
     if (ImGui::Button(FORMAT("{} Apply {} ##Apply", ICON_MD_PLAY_ARROW, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
-        _multipleSelectionCount > 1 ? applySelected() : applyAll();
+        _multipleSelectionCount > 1 ? ApplySelected() : ApplyAll();
     }
 
     ImGui::SameLine();
     if (ImGui::Button(FORMAT("{} Unsubscribe {} ##Unsubscribe", ICON_MD_STOP, _multipleSelectionCount > 1 ? "Selected" : "All").data())) {
-        _multipleSelectionCount > 1 ? unsubscribeSelected() : unsubscribeAll();
+        _multipleSelectionCount > 1 ? UnsubscribeSelected() : UnsubscribeAll();
     }
 
     ImGui::SameLine();
@@ -134,7 +128,7 @@ void Portfolio::DrawPortfolioWindow() {
     if (ImGui::BeginPopup(ADDITIONAL_OPTION)) {
         ImVec2 buttonSize = ImVec2(120, 0);
         if (ImGui::Button(ICON_MD_REFRESH " Refresh", buttonSize)) {
-            const std::string jsonData = ConfigLoader::Instance().getStrategyColumn(_strategyName);
+            const std::string jsonData = ConfigLoader::Instance().GetStrategyColumn(_strategyName);
             ParseConfig(jsonData);
         }
         ImGui::BeginDisabled(_exportActivated);
@@ -294,14 +288,14 @@ void Portfolio::DrawStrategyRow(StrategyRowPtrT& row_, int index_) {
     ImGui::PushStyleColor(ImGuiCol_Text, color);
     ImGui::BeginDisabled(row_->_status == StrategyStatus_PENDING);
     if (ImGui::Checkbox(FORMAT("{}##SubscribedCheckBok", StrategyStatusType[row_->_status]).data(), &row_->_subscribed)) {
-        doStrategyAction(row_, _strategyName, row_->_subscribed ? Lancelot::RequestType_SUBSCRIBE : Lancelot::RequestType_UNSUBSCRIBE);
+        DoStrategyAction(row_, _strategyName, row_->_subscribed ? Lancelot::RequestType_SUBSCRIBE : Lancelot::RequestType_UNSUBSCRIBE);
     }
     ImGui::EndDisabled();
     ImGui::PopStyleColor();
     ImGui::TableSetColumnIndex(2);
     ImGui::BeginDisabled(not row_->_subscribed or row_->_status == StrategyStatus_PENDING);
     if (ImGui::Button("Apply##ApplyButton", ImVec2(-FLT_MIN, 0.0f))) {
-        doStrategyAction(row_, _strategyName, Lancelot::RequestType_APPLY);
+        DoStrategyAction(row_, _strategyName, Lancelot::RequestType_APPLY);
     }
     ImGui::EndDisabled();
 
@@ -325,7 +319,7 @@ void Portfolio::DrawStrategyRow(StrategyRowPtrT& row_, int index_) {
                         MarketWatch::ToolTipDisplay(value.second._marketWatch);
                     }
                     if (addToMarketWatch) {
-                        AddContractToMarketWatchSignal(info._text);
+                        AddContractFunction(info._text);
                     }
                     break;
                 }
@@ -467,13 +461,9 @@ void Portfolio::AppendStrategy() {
 void Portfolio::ModifyGlobalParam() {
     for (GlobalParameterInfoT& info : _globalParamList) {
         if (info._update) {
-            updateAll(info);
+            UpdateAll(info);
         }
     }
-}
-
-auto Portfolio::getName() const -> std::string {
-    return _name;
 }
 
 void Portfolio::ResetSelection() {
@@ -498,7 +488,7 @@ void Portfolio::DrawNewStrategyPopUpWindow() {
         if (ImGui::Button(ICON_MD_DONE " Submit")) {
             AppendStrategy();
 
-            if (PortFolioNumber == MAX_PORTFOLIO_ALLOWED) {
+            if (PortFolioNumber == MaxPortfolioAllowed) {
                 ImGui::CloseCurrentPopup();
             }
         }
@@ -529,6 +519,7 @@ void Portfolio::DrawGlobalParamPopupWindow() {
         ImGui::EndPopup();
     }
 }
+
 void Portfolio::DrawFileManagerWindow() {
     if (ImGuiFileDialog::Instance()->Display("FileManager")) {
         if (ImGuiFileDialog::Instance()->IsOk()) {
@@ -542,9 +533,6 @@ void Portfolio::DrawFileManagerWindow() {
         }
         ImGuiFileDialog::Instance()->Close();
     }
-}
-void Portfolio::setCallback(const boost::signals2::slot<void(const std::string&), boost::function<void(const std::string&)>>& slot_) {
-    AddContractToMarketWatchSignal.connect(slot_);
 }
 
 void Portfolio::AddScannerPortfolio(const ParameterInfoListT& list_) {

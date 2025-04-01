@@ -4,22 +4,23 @@
 
 #include "../include/TemplateBuilder.hpp"
 
-#include <nlohmann/json.hpp>
-
 #include "../include/ConfigLoader.hpp"
 #include "../include/Configuration.hpp"
 #include "../include/Enums.hpp"
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
-
 #include "misc/cpp/imgui_stdlib.h"
+
+#include <nlohmann/json.hpp>
 
 extern StrategyNameListT StrategyNameList;
 extern std::string       StatusDisplay;
 
-void TemplateBuilder::paint(bool* show_) {
-    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-    if (not ImGui::BeginPopupModal(COLUMN_GENERATOR_WINDOW, show_)) {
+TemplateBuilder::TemplateBuilder(bool& show_) : _show(show_) {}
+
+void TemplateBuilder::Paint(bool* show_) {
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5F, 0.5F));
+    if (not ImGui::BeginPopupModal(BeginColumnGenerator, show_)) {
         return;
     }
     if (ImGui::IsKeyPressed(ImGuiKey_Escape)) {
@@ -43,7 +44,7 @@ void TemplateBuilder::paint(bool* show_) {
     ImGui::SameLine();
 
     if (ImGui::Button(ICON_MD_DOWNLOAD " Load", ImVec2(-FLT_MIN, 0.0f))) {
-        ParseConfig(ConfigLoader::Instance().getStrategyColumn(_strategyLoad));
+        ParseConfig(ConfigLoader::Instance().GetStrategyColumn(_strategyLoad));
         _strategyName.clear();
         _strategyName.clear();
     }
@@ -82,7 +83,7 @@ void TemplateBuilder::paint(bool* show_) {
     if (ImGui::Button(ICON_MD_SAVE " Save Config")) {
         std::string config = GetConfig();
         StatusDisplay      = FORMAT("Parameter updated : StrategyName ({}) -> Config : ({})", _strategyName, config);
-        ConfigLoader::Instance().saveStrategyColumn(_strategyName, config);
+        ConfigLoader::Instance().SaveStrategyColumn(_strategyName, config);
     }
     ImGui::EndDisabled();
 
@@ -95,13 +96,13 @@ void TemplateBuilder::paint(bool* show_) {
 
 std::string TemplateBuilder::GetConfig() {
     nlohmann::ordered_json parameter;
-    for (const ColumnParameterList::value_type& value_type : _parameterList) {
+    for (const ContainerT::value_type& value_type : _parameterList) {
         const std::string& name = value_type.first;
         const ColumnInfoT& info = value_type.second;
 
         nlohmann::ordered_json property;
-        property["Value"]    = info.Value;
-        property["DataType"] = info.Type;
+        property["Value"]    = info._value;
+        property["DataType"] = info._type;
         parameter[name]      = property;
     }
     nlohmann::ordered_json json;
@@ -116,7 +117,7 @@ void TemplateBuilder::ParseConfig(std::string_view config_) {
     _parameterList.clear();
     for (const auto& item : paramConfig.items()) {
         const auto& value = item.value();
-        ColumnInfoT param{ .Type = static_cast<DataType>(value["DataType"].get<int>()), .Value = value["Value"].get<std::string>() };
+        ColumnInfoT param{._type = static_cast<DataType>(value["DataType"].get<int>()), ._value = value["Value"].get<std::string>()};
         _parameterList.emplace(item.key(), param);
     }
 }
@@ -127,7 +128,7 @@ void TemplateBuilder::DrawTable() {
             ImGui::TableSetupColumn(columnName, TableColumnFlags | ImGuiTableColumnFlags_WidthStretch);
         }
         ImGui::TableHeadersRow();
-        for (ColumnParameterList::value_type& value_type : _parameterList) {
+        for (ContainerT::value_type& value_type : _parameterList) {
             const std::string& name = value_type.first;
             ColumnInfoT&       info = value_type.second;
 
@@ -136,19 +137,19 @@ void TemplateBuilder::DrawTable() {
             if (FirstCell(ColumnGeneratorColumnIndex_NAME, name.data(), _selectedRow, name)) {
                 _selectedRow    = name;
                 _parameterName  = name;
-                _parameterValue = info.Value;
-                _parameterType  = info.Type;
+                _parameterValue = info._value;
+                _parameterType  = info._type;
             }
 
-            NextCell(ColumnGeneratorColumnIndex_TYPE, "%s", ColumnGeneratorDataType[info.Type]);
-            NextCell(ColumnGeneratorColumnIndex_VALUE, "%s", info.Value.data());
+            NextCell(ColumnGeneratorColumnIndex_TYPE, "%s", ColumnGeneratorDataType[info._type]);
+            NextCell(ColumnGeneratorColumnIndex_VALUE, "%s", info._value.data());
         }
         ImGui::EndTable();
     }
 }
 
 void TemplateBuilder::AppendNewParameter() {
-    ColumnInfoT info{ .Type = static_cast<DataType>(_parameterType), .Value = _parameterValue };
+    ColumnInfoT info{._type = static_cast<DataType>(_parameterType), ._value = _parameterValue};
     _parameterList.insert_or_assign(_parameterName, info);
     StatusDisplay = FORMAT("Strategy ({}) :- Parameter Added [ Name : ({}), Value: ({}) ]", _strategyName, _parameterName, _parameterValue);
 

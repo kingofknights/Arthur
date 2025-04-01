@@ -167,7 +167,7 @@ auto main(int /*unused*/, char** /*unused*/) -> int {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        arthur.paint();
+        arthur.Paint();
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 
         // Rendering

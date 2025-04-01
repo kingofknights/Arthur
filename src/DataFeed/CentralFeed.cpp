@@ -1,6 +1,8 @@
 #include "CentralFeed.hpp"
+
 #include "../API/ContractInfo.hpp"
 #include "../include/Structure.hpp"
+
 #include <cstdint>
 
 constexpr static int TimestampLength = 50;
@@ -90,6 +92,7 @@ void CentralFeed::Process(char* buffer, size_t size_) {
     ref->_color._topAsk = TopAsk > ref->_ask[0]._price;
     ref->_color._ltp    = LTP > ref->_lastTradePrice;
     ref->_color._atp    = ATP > ref->_averageTradePrice;
-
+#if 0
     MarketEventQueue.push(ref);
+#endif
 }

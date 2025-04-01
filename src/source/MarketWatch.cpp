@@ -20,13 +20,19 @@
 #include <nlohmann/json.hpp>
 
 #include <fstream>
+#include <memory>
+#include <utility>
 
-extern AllContractT             AllContract;
-extern AddContractToDemoSignalT AddContractToDemoSignal;
+extern AllContractT AllContract;
 
 #define MARKET_WATCH_CONFIG_PATH "Config/MarketWatch.json"
 
-MarketWatch::MarketWatch(const OrderFormPtrT& manualOrder_) : _manualOrderPtr(manualOrder_), _ladderDataPtr(std::make_shared<MarketWatchDataT>()) {
+MarketWatch::MarketWatch(const OrderFormPtrT& manualOrder_, bool& showMarketWatch_, bool& showLadder_, AddContractFunctionT function_)
+    : _manualOrder{manualOrder_},
+      _showMarketWatch{showMarketWatch_},
+      _showMarketLadder{showLadder_},
+      _function{std::move(function_)},
+      _ladderDataPtr{std::make_shared<MarketWatchDataT>()} {
     Imports(MARKET_WATCH_CONFIG_PATH);
 }
 
@@ -34,12 +40,12 @@ MarketWatch::~MarketWatch() {
     Exports(MARKET_WATCH_CONFIG_PATH);
 }
 
-void MarketWatch::DrawMarketWatchTable(bool* show_) {
+void MarketWatch::DrawMarketWatchTable() noexcept {
     if (_toBeDeleted != -1) {
         Remove();
     }
 
-    if (ImGui::Begin("MarketWatch", show_)) {
+    if (ImGui::Begin("MarketWatch", &_showMarketWatch)) {
         ImGui::AlignTextToFramePadding();
         ImGui::Text("Stock");
         ImGui::SameLine();
@@ -116,7 +122,7 @@ void MarketWatch::DrawMarketWatchTable(bool* show_) {
     ImGui::End();
 }
 
-void MarketWatch::ToolTipDisplay(const MarketWatchDataPtrT& pointer_) {
+void MarketWatch::ToolTipDisplay(const MarketWatchDataPtrT& pointer_) noexcept {
     if (ImGui::BeginTooltip()) {
         MarketWatch::LadderView(pointer_);
         ImGui::EndTooltip();
@@ -132,7 +138,7 @@ void MarketWatch::ContractCell(int contract_, int index_, const char* data_, con
 
         if (ImGui::BeginPopupContextItem("Context Menu", ImGuiPopupFlags_MouseButtonRight)) {
             if (ImGui::Selectable(ICON_MD_ADD_BOX " Show option chain")) {
-                _optionChainContractSignal(data_);
+                _function(data_);
             }
 
             ImGui::EndPopup();
@@ -163,10 +169,10 @@ void MarketWatch::ContractCell(int contract_, int index_, const char* data_, con
                 ._client      = "Pro",
                 ._marketWatch = pointer_,
             };
-            _manualOrderPtr->Update(info);
+            _manualOrder->Update(info);
             ImGui::OpenPopup(NEW_ORDER_WINDOW);
         }
-        _manualOrderPtr->paint(NEW_ORDER_WINDOW);
+        _manualOrder->Paint(NEW_ORDER_WINDOW);
     }
     if (ImGui::IsItemHovered()) {
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
@@ -177,7 +183,7 @@ void MarketWatch::ContractCell(int contract_, int index_, const char* data_, con
     }
 }
 
-void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) {
+void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) noexcept {
     ImGui::LabelText("Contract", "%s", pointer_->_description.data());
     ImGui::Separator();
     if (ImGui::BeginTable("Market Watch Table ToolTip", MarketWatchToolTipColumnIndex_END)) {
@@ -223,10 +229,6 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) {
     ImGui::PopStyleColor(2);
 }
 
-void MarketWatch::Connect(OptionChainContractSlotT callback_) {
-    _optionChainContractSignal.connect(callback_);
-}
-
 void MarketWatch::AddContractToMarketWatch(const std::string& contract_) {
     auto token = Lancelot::ContractInfo::GetToken(contract_);
     if (not _subscribed.contains(token)) {
@@ -236,21 +238,20 @@ void MarketWatch::AddContractToMarketWatch(const std::string& contract_) {
         }
         _liveUpdates.push_back(ref);
         _subscribed.emplace(token);
-        AddContractToDemoSignal(token);
     }
 }
 
-void MarketWatch::Paint(bool* showMarketWatch_, bool* showLadder_) {
-    if (*showMarketWatch_) {
-        DrawMarketWatchTable(showMarketWatch_);
+void MarketWatch::Paint() {
+    if (_showMarketWatch) {
+        DrawMarketWatchTable();
     }
-    if (*showLadder_) {
-        DrawLadderWatchWindow(showLadder_);
+    if (_showMarketLadder) {
+        DrawLadderWatchWindow();
     }
 }
 
-void MarketWatch::DrawLadderWatchWindow(bool* show_) {
-    if (ImGui::Begin("MarketWatchLadder", show_)) {
+void MarketWatch::DrawLadderWatchWindow() noexcept {
+    if (ImGui::Begin("MarketWatchLadder", &_showMarketWatch)) {
         if (_ladderDataPtr) {
             MarketWatch::LadderView(_ladderDataPtr);
         }

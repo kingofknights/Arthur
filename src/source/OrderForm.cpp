@@ -1,23 +1,25 @@
 #include "../include/OrderForm.hpp"
 
 #include "../API/Common.hpp"
-#include "../API/ContractInfo.hpp"
 #include "../include/Colors.hpp"
-#include "../include/Enums.hpp"
 #include "../include/MarketWatch.hpp"
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
-#include "../include/Utils.hpp"
 
 #include <imgui_internal.h>
 
 #include <algorithm>
+#include <utility>
 
 extern ClientCodeListT ClientCodeList;
 
-OrderForm::OrderForm(boost::asio::io_context::strand& strand_) : _order{}, _color(COLOR_GRAY), _strand(strand_) {}
+OrderForm::OrderForm(ExecutorStrandT& strand_, FunctionT function_)
+    : _strand(strand_),
+      _function(std::move(function_)),
+      _order{},
+      _color(COLOR_GRAY) {}
 
-void OrderForm::paint(const char* name_) {
+void OrderForm::Paint(const char* name_) {
     ImGui::PushStyleColor(ImGuiCol_FrameBg, _color);
     ImGui::PushStyleColor(ImGuiCol_Border, _color);
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5F, 0.5F));
@@ -47,24 +49,25 @@ void OrderForm::Update(OrderFormInfoT& info_) {
     }
 }
 void OrderForm::SentToBroker() {
-    _strand.post([&]() { _publishOrderFunction(_order, _order._orderNumber == 0 ? Lancelot::RequestType_NEW : Lancelot::RequestType_MODIFY); });
+    _strand.post([&]() { _function(_order, _order._orderNumber == 0 ? Lancelot::RequestType_NEW : Lancelot::RequestType_MODIFY); });
 }
 
 void OrderForm::DrawInputItem() {
-    if (ImGui::InputDouble("Price", &_order._price, 0.050000000000f, 0.5000000000f, "%.2f")) {
-        _order._price = std::max<double>(_order._price, 0);
+    if (ImGui::InputFloat("Price", &_order._price, 0.050000000000F, 0.5000000000F, "%.2f")) {
+        _order._price = std::max(_order._price, 0.0F);
     }
+
     if (ImGui::InputInt("Quantity", &_order._quantity, _order._lotSize)) {
         _order._quantity = std::max(_order._quantity, _order._lotSize);
     }
     bool enable = _order._status != OrderStatus_NEW;
     ImGui::BeginDisabled(enable);
     if (ImGui::BeginCombo("Broker", FORMAT("[{}] {}", Lancelot::ToString(_exchange), _clientCode).data())) {
-        for (const auto& code_ : ClientCodeList) {
-            if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::ToString(code_._exchange), code_._clientCode).data())) {
-                _order._client = code_._clientCode;
-                _exchange      = code_._exchange;
-                _clientCode    = code_._clientCode;
+        for (const auto& code : ClientCodeList) {
+            if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::ToString(code._exchange), code._clientCode).data())) {
+                _order._client = code._clientCode;
+                _exchange      = code._exchange;
+                _clientCode    = code._clientCode;
             }
         }
         ImGui::EndCombo();
@@ -96,7 +99,4 @@ void OrderForm::DrawInputItem() {
         ImGui::CloseCurrentPopup();
     }
     ImGui::EndColumns();
-}
-void OrderForm::publishOrderCallback(PublishOrderFunctionT publishOrderFunction_) {
-    _publishOrderFunction = std::move(publishOrderFunction_);
 }

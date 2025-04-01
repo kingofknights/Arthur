@@ -4,25 +4,24 @@
 #include "../include/Colors.hpp"
 #include "../include/Configuration.hpp"
 #include "../include/Enums.hpp"
-#include "../include/Signal.hpp"
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
+
 #include <Greeks/Greeks.hpp>
+
 #include <ctime>
 
-extern AddContractToDemoSignalT AddContractToDemoSignal;
-
 namespace {
-auto FormatTimeToString(time_t rawtime_, std::string format_) -> std::string {
-    char   timestamp[50];
-    time_t secs = (rawtime_) + 315513000;
-    tm*    ptm  = localtime(&secs);
-    size_t len  = strftime(timestamp, 20, format_.data(), ptm);
-    return { timestamp, len };
-}
-}// namespace
+    auto FormatTimeToString(time_t rawtime_, std::string format_) -> std::string {
+        char   timestamp[50];
+        time_t secs = (rawtime_) + 315513000;
+        tm*    ptm  = localtime(&secs);
+        size_t len  = strftime(timestamp, 20, format_.data(), ptm);
+        return {timestamp, len};
+    }
+}  // namespace
 
 OptionChain::OptionChain() : _future(std::make_shared<MarketWatchDataT>()) {}
 
@@ -218,7 +217,6 @@ void OptionChain::SetOptionForFuture(const std::string& contract_) {
 
     _future = future;
 
-    AddContractToDemoSignal(future->_token);
     uint32_t futurePrice_ = future->_lastTradePrice * 100.0;
     _symbol               = Lancelot::ContractInfo::GetSymbol(token_);
     _expiry               = FormatTimeToString(expiry_, "%d-%m-%Y");
@@ -226,6 +224,7 @@ void OptionChain::SetOptionForFuture(const std::string& contract_) {
     LoadOptions(_symbol, expiry_, futurePrice_, '>', "asc");
     LoadOptions(_symbol, expiry_, futurePrice_, '<', "desc");
 }
+
 void OptionChain::LoadOptions(const std::string& symbol_, uint32_t expiry_, uint32_t futurePrice_, char comparator_, const std::string& order_) {
     auto query = FORMAT(GetOptionChain_, symbol_, symbol_, expiry_, comparator_, futurePrice_, order_);
     auto table = Lancelot::ContractInfo::GetResultWithIndex(query);
@@ -233,12 +232,10 @@ void OptionChain::LoadOptions(const std::string& symbol_, uint32_t expiry_, uint
     for (const auto& row : table) {
         auto             callToken = std::stoi(row[0]);
         auto             putToken  = std::stoi(row[1]);
-        OptionChainItemT call{ ._marketWatch = ContractInfo::GetLiveDataRef(callToken), ._contract = Lancelot::ContractInfo::GetResultSet(callToken) };
-        OptionChainItemT put{ ._marketWatch = ContractInfo::GetLiveDataRef(putToken), ._contract = Lancelot::ContractInfo::GetResultSet(putToken) };
-        OptionChainRowT  optionChainRow{ ._call = call, ._put = put };
+        OptionChainItemT call{._marketWatch = ContractInfo::GetLiveDataRef(callToken), ._contract = Lancelot::ContractInfo::GetResultSet(callToken)};
+        OptionChainItemT put{._marketWatch = ContractInfo::GetLiveDataRef(putToken), ._contract = Lancelot::ContractInfo::GetResultSet(putToken)};
+        OptionChainRowT  optionChainRow{._call = call, ._put = put};
 
         _optionChainContainer.emplace(std::stof(row[2]) / call._contract->_divisor, optionChainRow);
-        AddContractToDemoSignal(callToken);
-        AddContractToDemoSignal(putToken);
     }
 }

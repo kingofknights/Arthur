@@ -43,7 +43,7 @@ void OrderHistory::paint(bool* show_) {
 void OrderHistory::LoadOrderHistory(double orderNumber_) {
     _showOrderHistory = true;
     _container.clear();
-    _container = ConfigLoader::Instance().getOrderHistory(orderNumber_);
+    _container = ConfigLoader::Instance().GetOrderHistory(orderNumber_);
 }
 
 OrderHistory& OrderHistory::Instance() {

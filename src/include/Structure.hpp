@@ -196,7 +196,7 @@ using PortfolioStatusT = struct PortfolioStatusT {
 
 using OrderFormInfoT = struct OrderFormInfoT {
     uint32_t       _uniqueId;
-    double         _price;
+    float          _price;
     int            _quantity;
     int            _lotSize;
     long           _orderNumber;
@@ -293,17 +293,14 @@ using MarketWatchDatContainerT  = std::unordered_map<uint32_t, MarketWatchDataPt
 using GlobalStrategyListT       = std::unordered_map<uint32_t, WeakStrategyRowPtrT>;
 using GreekBookContainerT       = std::unordered_map<uint32_t, GreekBookColumnPtrT>;
 using SymbolWiseTradeContainerT = std::unordered_map<uint32_t, NetBookColumnPtrT>;
-using GlobalOrderInfoContainerT = std::unordered_map<int, OrderInfoPtrT>;
 
 using PFWiseTradeContainerT      = std::map<std::pair<uint32_t, uint32_t>, NetBookColumnPtrT>;
 using OptionChainContainerT      = std::map<float, OptionChainRowT>;
 using ScannerInfoFromDatabaseT   = std::map<int, std::string>;
 using ExcelContactItemContainerT = std::map<std::string, ExcelContactItemT>;
-using PendingBookContainerT      = std::map<std::string, OrderInfoPtrT>;
 
 using GlobalParamListT              = std::vector<GlobalParameterInfoT>;
 using AllContractT                  = std::vector<std::string>;
-using LiveContainerT                = std::deque<MarketWatchDataPtrT>;
 using StrategyNameListT             = AllContractT;
 using ClientCodeListT               = std::vector<ClientInfoT>;
 using StrategyListT                 = std::deque<StrategyRowPtrT>;
@@ -317,11 +314,9 @@ using BookOrderListT                = std::deque<OrderInfoPtrT>;
 using GlobalPortfolioScannerContainerT = std::unordered_map<int64_t, ScannerResultOutputT>;
 
 using GreeksListT = std::list<GreeksPtrT>;
-using SubscribedT = std::set<uint32_t>;
 
 template <typename Type, size_t Size = 30000>
 using QueueT                = boost::lockfree::spsc_queue<Type, boost::lockfree::capacity<Size>>;
-using PendingOrderUpdateT   = QueueT<std::pair<OrderInfoPtrT, bool>>;
 using PendingTradeUpdateT   = QueueT<OrderInfoPtrT>;
 using PendingTrackerUpdateT = QueueT<TradeTrackerItemT>;
 using MarketEventQueueT     = QueueT<MarketWatchDataPtrT>;

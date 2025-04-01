@@ -11,29 +11,36 @@
 #include "../include/TableColumnInfo.hpp"
 #include "../include/Utils.hpp"
 
-#include <imgui.h>
+static constexpr char CancelAllOrderWindow[] = "Cancel All Order Window";
+static constexpr char BeginOpenOrders[]      = "Open Orders";
+static constexpr char BeginOpenOrdersTable[] = "Open Orders Table";
+static constexpr char BeginCancelBookTable[] = "Cancel Book Table";
 
-#define CANCEL_ALL_ORDER_WINDOW "Cancel All Order Window"
+OpenOrders::OpenOrders(const OrderFormPtrT& manualOrder_, ExecutorStrandT& strand_, bool& show_, FunctionT function_)
+    : _manualOrder{manualOrder_},
+      _function{std::move(function_)},
+      _strand{strand_},
+      _show{show_} {}
 
-OpenOrders::OpenOrders(const OrderFormPtrT& manualOrder_, boost::asio::io_context::strand& strand_) : _manualOrderPtr(manualOrder_), _strand(strand_) {}
-
-void OpenOrders::paint(bool* show_) {
+void OpenOrders::Paint() noexcept {
     _pendingOrderUpdate.consume_one([this](const auto& pair_) { Update(pair_.first, pair_.second); });
-    if (*show_) {
-        DrawPendingBook(show_);
+    if (_show) {
+        DrawPendingBook(&_show);
     }
 }
 
 void OpenOrders::DrawPendingBook(bool* show_) {
-    if (ImGui::Begin("Open Orders", show_)) {
+    if (ImGui::Begin(BeginOpenOrders, show_)) {
         const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-        if (ImGui::BeginTable("Open Orders Table", BooksColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
+
+        if (ImGui::BeginTable(BeginOpenOrdersTable, BooksColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
             for (const auto& name : BookTableColumnName) {
                 ImGui::TableSetupColumn(name, TableColumnFlags);
             }
 
             ImGui::TableHeadersRow();
-            _clipper.Begin(_container.size());
+            _clipper.Begin(static_cast<int>(_container.size()));
+
             while (_clipper.Step()) {
                 auto begin = _container.rbegin();
                 std::ranges::advance(begin, _clipper.DisplayStart);
@@ -49,21 +56,23 @@ void OpenOrders::DrawPendingBook(bool* show_) {
 
                     if (_selectedRow == tradeInfo_->_uniqueId and ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
                         if (tradeInfo_->_portfolio % 10000 and ImGui::IsKeyPressed(ImGuiKey_F2)) {
-                            OrderFormInfoT info{._uniqueId    = tradeInfo_->_uniqueId,
-                                                ._price       = tradeInfo_->_price,
-                                                ._quantity    = (int)tradeInfo_->_quantity,
-                                                ._lotSize     = (int)Lancelot::ContractInfo::GetLotMultiple(tradeInfo_->_token),
-                                                ._orderNumber = tradeInfo_->_orderNumber,
-                                                ._type        = 0,
-                                                ._side        = tradeInfo_->_side,
-                                                ._status      = OrderStatus_REPLACED,
-                                                ._contract    = Lancelot::ContractInfo::GetDescription(tradeInfo_->_token),
-                                                ._client      = "PRO",
-                                                ._marketWatch = ContractInfo::GetLiveDataRef(tradeInfo_->_token)};
-                            _manualOrderPtr->Update(info);
+                            OrderFormInfoT info{
+                                ._uniqueId    = tradeInfo_->_uniqueId,
+                                ._price       = tradeInfo_->_price,
+                                ._quantity    = (int)tradeInfo_->_quantity,
+                                ._lotSize     = (int)Lancelot::ContractInfo::GetLotMultiple(tradeInfo_->_token),
+                                ._orderNumber = tradeInfo_->_orderNumber,
+                                ._type        = 0,
+                                ._side        = tradeInfo_->_side,
+                                ._status      = OrderStatus_REPLACED,
+                                ._contract    = Lancelot::ContractInfo::GetDescription(tradeInfo_->_token),
+                                ._client      = "PRO",
+                                ._marketWatch = ContractInfo::GetLiveDataRef(tradeInfo_->_token),
+                            };
+                            _manualOrder->Update(info);
                             ImGui::OpenPopup(MODIFY_ORDER_WINDOW);
                         }
-                        _manualOrderPtr->paint(MODIFY_ORDER_WINDOW);
+                        _manualOrder->Paint(MODIFY_ORDER_WINDOW);
 
                         if (ImGui::IsKeyPressed(ImGuiKey_F4)) {
                             OrderHistory::Instance().LoadOrderHistory(tradeInfo_->_orderNumber);
@@ -72,7 +81,9 @@ void OpenOrders::DrawPendingBook(bool* show_) {
                         OrderHistory::Instance().paint(nullptr);
 
                         if (ImGui::IsKeyPressed(ImGuiKey_Delete)) {
-                            _strand.post([&]() { _cancelPendingOrderFunction(tradeInfo_); });
+                            _strand.post([&]() {
+                                _function(tradeInfo_);
+                            });
                         }
                     }
                     ImGui::PopID();
@@ -82,13 +93,13 @@ void OpenOrders::DrawPendingBook(bool* show_) {
             ImGui::Separator();
             if (ImGui::Button("Cancel All")) {
                 _cancelOrder.clear();
-                for (const PendingBookContainerT::value_type& value : _container) {
+                for (const auto& value : _container) {
                     if (value.second->_portfolio % 10000 == 9999) {
                         _cancelOrder.push_back(value.second);
                     }
                 }
                 _closeCancelPopup = true;
-                ImGui::OpenPopup(CANCEL_ALL_ORDER_WINDOW);
+                ImGui::OpenPopup(CancelAllOrderWindow);
             }
             DrawManualOrderRequestedForCancel();
             ImGui::SameLine();
@@ -103,15 +114,15 @@ void OpenOrders::DrawPendingBook(bool* show_) {
 }
 
 void OpenOrders::DrawManualOrderRequestedForCancel() {
-    if (ImGui::BeginPopupModal(CANCEL_ALL_ORDER_WINDOW, &_closeCancelPopup)) {
+    if (ImGui::BeginPopupModal(CancelAllOrderWindow, &_closeCancelPopup)) {
         const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-        if (ImGui::BeginTable("Cancel Book Table", BooksColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
+        if (ImGui::BeginTable(BeginCancelBookTable, BooksColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
             for (const auto& name : BookTableColumnName) {
                 ImGui::TableSetupColumn(name, TableColumnFlags | ImGuiTableColumnFlags_WidthStretch);
             }
             ImGui::TableHeadersRow();
 
-            _clipper.Begin(_cancelOrder.size());
+            _clipper.Begin(static_cast<int>(_cancelOrder.size()));
             while (_clipper.Step()) {
                 auto begin = _cancelOrder.begin() + _clipper.DisplayStart;
                 auto end   = begin + (_clipper.DisplayEnd - _clipper.DisplayStart);
@@ -129,7 +140,7 @@ void OpenOrders::DrawManualOrderRequestedForCancel() {
         if (ImGui::Button(ICON_MD_DONE " Process")) {
             auto _ = std::async(std::launch::async, [&]() {
                 for (const auto& tradeInfo : _cancelOrder) {
-                    _strand.post([&]() { _cancelPendingOrderFunction(tradeInfo); });
+                    _strand.post([&]() { _function(tradeInfo); });
                 }
             });
             ImGui::CloseCurrentPopup();
@@ -164,8 +175,4 @@ void OpenOrders::Update(const OrderInfoPtrT& tradeInfo_, bool insert_) {
 }
 void OpenOrders::Insert(const OrderInfoPtrT& tradeInfo_, bool insert_) {
     _pendingOrderUpdate.push(std::make_pair(tradeInfo_, insert_));
-}
-
-void OpenOrders::cancelOrderFunctionCallback(CancelPendingOrderFunctionT cancelPendingOrderFunction_) {
-    _cancelPendingOrderFunction = std::move(cancelPendingOrderFunction_);
 }

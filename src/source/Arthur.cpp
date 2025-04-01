@@ -6,6 +6,9 @@
 
 #include "Enums.hpp"
 #include "Lancelot/Structure.hpp"
+#include "Logger.hpp"
+#include "include/Arthur_Fwd.hpp"
+#include "include/PortfolioInterface.hpp"
 
 #if _WIN32
 #include <Psapi.h>
@@ -45,93 +48,92 @@ class MemoryUsage {
     static auto GetRamUsage() -> double;
 };
 
-extern bool                 BackendConnected;
-extern int                  UserID;
-extern DemoOrderInfoSignalT DemoOrderInfoSignal;
-extern MarketEventQueueT    MarketEventQueue;
-extern AllContractT         AllContract;
+extern MarketEventQueueT MarketEventQueue;
+extern AllContractT      AllContract;
 
-#define DATABASE_PATH           "fo_ref_contract_master.csv"
 #define TRADING_APP_CONFIG_PATH "Config/Arthur.json"
 #define ORDER_ALL_BOOK          "Order All Book"
 #define REJECT_BOOK             "Reject Book"
 
-Arthur::Arthur(bool* closeMainWindow_) : _backendStrand(_backendComService), _backendWorker(_backendComService.get_executor()), _closeMainWindow(closeMainWindow_) {
-    std::string fontFile = "Ruda-Bold.ttf";
-    float       fontSize = 18.0F;
-    UserID               = 101;
-    _ipaddress           = "127.0.0.1";
-    _port                = "9898";
-
+Arthur::Arthur(bool* closeMainWindow_) : _strand(_executor), _backendWorker(_executor.get_executor()), _closeMainWindow(closeMainWindow_) {
     std::fstream file("setting.json");
     if (file.is_open()) {
         LOG(INFO, "unable to open setting.json", false);
 
-        nlohmann::json        json    = nlohmann::json::parse(file);
-        const nlohmann::json& font    = json["font"];
-        const nlohmann::json& backend = json["backend"];
+        nlohmann::json        json        = nlohmann::json::parse(file);
+        const nlohmann::json& font        = json["font"];
+        const nlohmann::json& backend     = json["backend"];
+        const nlohmann::json& marketwatch = json["marketwatch"];
 
+        std::string fontFile = "Ruda-Bold.ttf";
+        float       fontSize = 18.0F;
         font["file"].get_to(fontFile);
         font["size"].get_to(fontSize);
 
-        backend["ip"].get_to(_ipaddress);
-        backend["port"].get_to(_port);
-        backend["user"].get_to(UserID);
+        backend["address"].get_to(_backend._address);
+        backend["port"].get_to(_backend._port);
+        backend["user"].get_to(_userId);
+
+        std::string database;
+        marketwatch["address"].get_to(_marketWatch._address);
+        marketwatch["port"].get_to(_marketWatch._port);
+        marketwatch["contract"].get_to(database);
+
+        LOG(INFO, "Loading SqlLite3 Database : {}", database)
+        Lancelot::ContractInfo::Initialize(database, Utils::GetAllContractCallback);
+
+        Themes::AddIconFonts(fontFile, fontSize);
+    } else {
+        LOG(ERROR, "Config file not found : setting.json", false);
+        exit(1);
     }
 
-    Themes::AddIconFonts(fontFile, fontSize);
-    LOG(INFO, "Loading SqlLite3 Database : {}", DATABASE_PATH)
-    Lancelot::ContractInfo::Initialize(DATABASE_PATH, Utils::GetAllContractCallback);
     std::ranges::sort(AllContract, std::less<>());
-    Utils::GetClientList(UserID);
+    Utils::GetClientList(_userId);
     Utils::CreateSupportFolder();
     ConfigLoader::Instance();
 
-    _templateBuilderPtr   = std::make_unique<TemplateBuilder>();
-    _positionPtr          = std::make_unique<Position>(_backendComService);
-    _orderFormPtr         = std::make_shared<OrderForm>(_backendStrand);
-    _marketWatchPtr       = std::make_unique<MarketWatch>(_orderFormPtr);
-    _openOrdersPtr        = std::make_unique<OpenOrders>(_orderFormPtr, _backendStrand);
-    _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_backendStrand);
+    _templateBuilderPtr   = std::make_unique<TemplateBuilder>(_showTemplateBuilder);
+    _positionPtr          = std::make_unique<Position>(_executor);
+    _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_strand);
     _tradeHistoryPtr      = std::make_unique<TradeHistory>();
     _optionChainPtr       = std::make_unique<OptionChain>();
-    _messageBroker        = std::make_unique<MessageBroker>(_backendComService);
-    _multicastReceiverPtr = std::make_unique<MulticastReceiver>(_backendComService);
+    _multicastReceiverPtr = std::make_unique<MulticastReceiver>(_executor);
     _orderBookPtr         = std::make_unique<OrderBook>(ORDER_ALL_BOOK);
     _rejectBookPtr        = std::make_unique<OrderBook>(REJECT_BOOK);
 
-    imports(TRADING_APP_CONFIG_PATH);
+    _marketWatchPtr = std::make_unique<MarketWatch>(_orderFormPtr, _showMarketWatch, _showPriceLadder, [&](const std::string& contract_) {
+        _optionChainPtr->SetOptionForFuture(contract_);
+    });
+
+    _openOrdersPtr = std::make_unique<OpenOrders>(_orderFormPtr, _strand, _showOpenOrders, [this](const OrderInfoPtrT& info_) {
+        CancelOrderEvent(info_);
+    });
+
+    _messageBroker = std::make_unique<MessageBroker>(_executor, [&](const OrderInfoPtrT& orderInfo_) {
+        AddTrade(orderInfo_);
+    });
+
+    _orderFormPtr = std::make_unique<OrderForm>(_strand, [&](const OrderFormInfoT& info_, Lancelot::RequestType type_) {
+        ManualOrderRequestEvent(info_, type_);
+    });
+
+    Imports(TRADING_APP_CONFIG_PATH);
     SetTheme(static_cast<VisualTheme>(_theme));
     {
-        auto callback = [&](const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_) { strategyRequestEvent(row_, name_, type_); };
-        PortfolioInterface::setStrategyActionCallback(std::move(callback));
+        auto callback                      = [&](const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_) { StrategyRequestEvent(row_, name_, type_); };
+        PortfolioInterface::StrategyAction = std::move(callback);
     }
     {
-        auto callback = [&](const std::string& contract_) { _optionChainPtr->SetOptionForFuture(contract_); };
-        _marketWatchPtr->Connect(std::move(callback));
-    }
-    {
-        auto callback = [&](const std::string& contract_) { _marketWatchPtr->AddContractToMarketWatch(contract_); };
-        Portfolio::setCallback(std::move(callback));
-    }
-    {
-        auto callback = [&](const OrderFormInfoT& ManualOrderInfo_, Lancelot::RequestType type_) { manualOrderRequestEvent(ManualOrderInfo_, type_); };
-        _orderFormPtr->publishOrderCallback(std::move(callback));
-    }
-    {
-        auto callback = [&](const OrderInfoPtrT& orderInfo_) { cancelOrderEvent(orderInfo_); };
-        _openOrdersPtr->cancelOrderFunctionCallback(std::move(callback));
-    }
-    {
-        auto callback = [&](const OrderInfoPtrT& orderInfo_) { AddTrade(orderInfo_); };
-        _messageBroker->setCallback(std::move(callback));
+        auto callback                           = [&](const std::string& contract_) { _marketWatchPtr->AddContractToMarketWatch(contract_); };
+        PortfolioInterface::AddContractFunction = std::move(callback);
     }
 
-    startAllThreads();
+    StartAllThreads();
 }
 
 Arthur::~Arthur() {
-    exports(TRADING_APP_CONFIG_PATH);
+    Exports(TRADING_APP_CONFIG_PATH);
     LOG(INFO, "{}", __FUNCTION__)
     _backendWorker.reset();
     std::ranges::for_each(_threadGroup, [](std::unique_ptr<std::jthread>& thread_) {
@@ -144,7 +146,7 @@ Arthur::~Arthur() {
     try {
         LOG(INFO, "{}", "boost::asio::io_service : stopping")
         timer.start();
-        _backendComService.stop();
+        _executor.stop();
         LOG(INFO, "{} {}", "boost::asio::io_service : stopped", timer.get_elapsed_ns())
 
         LOG(INFO, "{}", "Column Generator : stopping")
@@ -198,7 +200,7 @@ Arthur::~Arthur() {
     }
 }
 
-void Arthur::paint() {
+void Arthur::Paint() {
     ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
     Menu();
@@ -207,8 +209,8 @@ void Arthur::paint() {
     }
 
     _positionPtr->Paint(&_showPosition);
-    _marketWatchPtr->Paint(&_showMarketWatch, &_showPriceLadder);
-    _openOrdersPtr->paint(&_showOpenOrders);
+    _marketWatchPtr->Paint();
+    _openOrdersPtr->Paint();
     _strategyWorkspacePtr->Paint(&_showStrategyWorkspace);
     _tradeHistoryPtr->paint(&_showTradeHistory);
     _optionChainPtr->paint(&_showOptionChain);
@@ -258,9 +260,11 @@ auto Arthur::Menu() -> void {
 
         if (ImGui::BeginMenu(ICON_MD_DESKTOP_WINDOWS " View")) {
             if (ImGui::Checkbox("Template Builder", &_showTemplateBuilder)) {
-                ImGui::OpenPopup(COLUMN_GENERATOR_WINDOW);
+                ImGui::OpenPopup(TemplateBuilder::BeginColumnGenerator);
             }
-            if (_showTemplateBuilder) _templateBuilderPtr->paint(&_showTemplateBuilder);
+            if (_showTemplateBuilder) {
+                _templateBuilderPtr->Paint(&_showTemplateBuilder);
+            }
 
             Utils::ToggleMenuItem("Market Watch", _showMarketWatch);
             Utils::ToggleMenuItem("Price Ladder", _showPriceLadder);
@@ -278,15 +282,8 @@ auto Arthur::Menu() -> void {
         }
 
         if (ImGui::BeginMenu(ICON_MD_CONSTRUCTION " Tools ")) {
-            if (strcmp(_password, "Password") == 0) {
-                if (ImGui::MenuItem(ICON_MD_DEVELOPER_MODE " Demo")) {
-                    _showDemoWindow = not _showDemoWindow;
-                    if (not _showDemoWindow) {
-                        std::memset(_password, '\0', 10);
-                    }
-                }
-            } else {
-                ImGui::InputText("Password", _password, 10, ImGuiInputTextFlags_Password);
+            if (ImGui::MenuItem(ICON_MD_DEVELOPER_MODE " Demo")) {
+                _showDemoWindow = not _showDemoWindow;
             }
             ImGui::EndMenu();
         }
@@ -312,17 +309,17 @@ auto Arthur::Menu() -> void {
         ImGui::SameLine();
         ImGui::Text(ICON_MD_MEMORY " RAM : %.2f", MemoryUsage::GetRamUsage());
         ImGui::SameLine();
-        ImGui::TextColored(UpDownColor(BackendConnected), "%s%s:%s", ICON_MD_LAN, _ipaddress.data(), _port.data());
+        ImGui::TextColored(UpDownColor(_messageBroker->IsConnected()), "%s%s:%hu", ICON_MD_LAN, _backend._address.data(), _backend._port);
         ImGui::SameLine();
 
         ImGui::EndMainMenuBar();
     }
 }
 
-auto Arthur::run(std::stop_token& stopToken_) -> void {
+auto Arthur::Run(std::stop_token& stopToken_) -> void {
     while (not stopToken_.stop_requested()) {
         boost::system::error_code errorCode;
-        _backendComService.run(errorCode);
+        _executor.run(errorCode);
         LOG(WARNING, "boost::asio::io_service {}", errorCode.message())
     }
     LOG(WARNING, "{} {}", __FUNCTION__, "Exiting")
@@ -368,7 +365,7 @@ void Arthur::SetTheme(VisualTheme theme_) {
     _theme = theme_;
 }
 
-auto Arthur::imports(std::string_view path_) -> void {
+auto Arthur::Imports(std::string_view path_) -> void {
     std::fstream file(path_.data(), std::ios::in);
     if (not file.is_open()) {
         return;
@@ -406,7 +403,7 @@ auto Arthur::imports(std::string_view path_) -> void {
     file.close();
 }
 
-auto Arthur::exports(std::string_view path_) -> void {
+auto Arthur::Exports(std::string_view path_) -> void {
     nlohmann::ordered_json root;
     root[Configuration[ConfigFile_DEMO]]               = _showDemoWindow;
     root[Configuration[ConfigFile_EXCEL_WINDOW]]       = _showExcelWindow;
@@ -442,32 +439,31 @@ auto Arthur::exports(std::string_view path_) -> void {
     LOG(INFO, "Saving {} [{}]", Configuration[ConfigFile_OPTION_CHAIN], _showOptionChain)
 }
 
-void Arthur::startAllThreads() {
+void Arthur::StartAllThreads() {
     {
-        auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { run(token_); });
+        auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { Run(token_); });
         _threadGroup.push_back(std::move(thread));
     }
 
-    {
-        auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { marketEventHandler(token_); });
+    if (false) {
+        auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { MarketEventHandler(token_); });
         _threadGroup.push_back(std::move(thread));
     }
-    _multicastReceiverPtr->bindMC("127.0.0.1", 1223);
+
+    _multicastReceiverPtr->bindMC(_marketWatch._address, _marketWatch._port);
     _multicastReceiverPtr->read();
 
-    {
-        _messageBroker->makeConnection(_ipaddress, _port);
-    }
+    _messageBroker->MakeConnection(_backend._address, _backend._port);
 }
 
-void Arthur::marketEventHandler(std::stop_token& stopToken_) {
+void Arthur::MarketEventHandler(std::stop_token& stopToken_) {
     while (not stopToken_.stop_requested()) {
         MarketEventQueue.consume_one([&](MarketWatchDataPtrT pointer_) { Scanner::GetInstance().Process(pointer_->_token); });
     }
     LOG(WARNING, "{} {}", __FUNCTION__, "Exiting")
 }
 
-double MemoryUsage::GetRamUsage() {
+auto MemoryUsage::GetRamUsage() -> double {
 #if _WIN32
     PROCESS_MEMORY_COUNTERS_EX pmc;
     GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(PROCESS_MEMORY_COUNTERS_EX));
@@ -477,7 +473,7 @@ double MemoryUsage::GetRamUsage() {
 #endif
 }
 
-void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lancelot::RequestType type_) {
+void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& info_, Lancelot::RequestType type_) {
     switch (type_) {
         case Lancelot::RequestType_LOGIN: {
             break;
@@ -489,19 +485,19 @@ void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lanc
                     ._length = sizeof(Lancelot::ManualOrder) - sizeof(Lancelot::Header),
                 },
                 ._user = {
-                    ._user      = static_cast<int16_t>(UserID),
+                    ._user      = _userId,
                     ._portfolio = 9999,
                 },
-                ._token         = ManualOrderInfo._marketWatch->_token,
-                ._price         = static_cast<uint32_t>(ManualOrderInfo._price * 100.0),
-                ._quantity      = static_cast<uint32_t>(ManualOrderInfo._quantity),
+                ._token         = info_._marketWatch->_token,
+                ._price         = static_cast<uint32_t>(info_._price * 100.0),
+                ._quantity      = static_cast<uint32_t>(info_._quantity),
                 ._triggerPrice  = 0,
-                ._side          = ManualOrderInfo._side,
+                ._side          = info_._side,
                 ._orderSequence = 0,
-                ._orderType     = static_cast<int16_t>(ManualOrderInfo._type),
+                ._orderType     = static_cast<int16_t>(info_._type),
                 ._nnf           = 0,
             };
-            _messageBroker->Write_Sync((char*)&order, sizeof(Lancelot::ManualOrder));
+            _messageBroker->WriteSync(&order, sizeof(Lancelot::ManualOrder));
             break;
         }
         case Lancelot::RequestType_MODIFY: {
@@ -511,16 +507,16 @@ void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lanc
                     ._length = sizeof(Lancelot::ModifyOrder) - sizeof(Lancelot::Header),
                 },
                 ._user = {
-                    ._user      = static_cast<int16_t>(UserID),
+                    ._user      = _userId,
                     ._portfolio = 9999,
                 },
-                ._token         = ManualOrderInfo._marketWatch->_token,
-                ._orderSequence = static_cast<int32_t>(ManualOrderInfo._uniqueId),
-                ._price         = static_cast<uint32_t>(ManualOrderInfo._price * 100.0),
-                ._quantity      = static_cast<uint32_t>(ManualOrderInfo._quantity),
+                ._token         = info_._marketWatch->_token,
+                ._orderSequence = static_cast<int32_t>(info_._uniqueId),
+                ._price         = static_cast<uint32_t>(info_._price * 100.0),
+                ._quantity      = static_cast<uint32_t>(info_._quantity),
                 ._triggerPrice  = 0,
             };
-            _messageBroker->Write_Sync((char*)&order, sizeof(Lancelot::ModifyOrder));
+            _messageBroker->WriteSync(&order, sizeof(Lancelot::ModifyOrder));
             break;
         }
         case Lancelot::RequestType_CANCEL: {
@@ -534,7 +530,7 @@ void Arthur::manualOrderRequestEvent(const OrderFormInfoT& ManualOrderInfo, Lanc
     }
 }
 
-void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_, Lancelot::RequestType type_) {
+void Arthur::StrategyRequestEvent(StrategyRowPtrT row_, const std::string& name_, Lancelot::RequestType type_) {
     auto buffer = Utils::strategySerialize(row_, name_, type_);
 
     Lancelot::StrategyHeader header{
@@ -543,26 +539,26 @@ void Arthur::strategyRequestEvent(StrategyRowPtrT row_, const std::string& name_
             ._length = static_cast<int16_t>(buffer.length() + sizeof(Lancelot::UserPortfolio)),
         },
         ._user = {
-            ._user      = static_cast<int16_t>(UserID),
+            ._user      = _userId,
             ._portfolio = static_cast<int16_t>(row_->_portfolio),
         }};
-    _messageBroker->Write_Sync((char*)&header, sizeof(header));
-    _messageBroker->Write_Sync(buffer.data(), buffer.length());
+    _messageBroker->WriteSync(&header, sizeof(header));
+    _messageBroker->WriteSync(buffer.data(), buffer.length());
 }
 
-void Arthur::cancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
+void Arthur::CancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
     Lancelot::CancelOrder order{
         ._header = {
             ._type   = Lancelot::RequestType_CANCEL,
             ._length = sizeof(Lancelot::CancelOrder) - sizeof(Lancelot::Header),
         },
         ._user = {
-            ._user      = static_cast<int16_t>(UserID),
+            ._user      = _userId,
             ._portfolio = 9999,
         },
         ._token         = orderInfo_->_token,
         ._orderSequence = static_cast<int16_t>(orderInfo_->_uniqueId),
 
     };
-    _messageBroker->Write_Sync((char*)&order, sizeof(Lancelot::CancelOrder));
+    _messageBroker->WriteSync(&order, sizeof(Lancelot::CancelOrder));
 }

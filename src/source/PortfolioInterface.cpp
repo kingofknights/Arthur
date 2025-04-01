@@ -7,22 +7,29 @@
 #include "../include/Enums.hpp"
 #include "../include/Structure.hpp"
 #include "../include/Utils.hpp"
+#include "include/Arthur_Fwd.hpp"
 
 #include <nlohmann/json.hpp>
 
 #include <boost/algorithm/string.hpp>
 
+#include <cstdint>
 #include <fstream>
 #include <future>
+#include <utility>
 
 extern std::string StatusDisplay;
 
-uint32_t        PortfolioInterface::PortFolioNumber = 0;
-StrategyActionT PortfolioInterface::StrategyAction;
+uint32_t                            PortfolioInterface::PortFolioNumber = 0;
+PortfolioInterface::StrategyActionT PortfolioInterface::StrategyAction;
+AddContractFunctionT                PortfolioInterface::AddContractFunction;
 
-PortfolioInterface::PortfolioInterface(const std::string& name_, std::string_view strategyName_, boost::asio::io_context::strand& strand_)
-    : PortfolioScanner(strategyName_.data()), _name(name_), _strategyName(strategyName_), _strand(strand_) {
-    const std::string jsonData = ConfigLoader::Instance().getStrategyColumn(_strategyName);
+PortfolioInterface::PortfolioInterface(std::string name_, const std::string& strategyName_, ExecutorStrandT& strand_)
+    : PortfolioScanner(strategyName_),
+      _name(std::move(name_)),
+      _strategyName(strategyName_),
+      _strand(strand_) {
+    const std::string jsonData = ConfigLoader::Instance().GetStrategyColumn(_strategyName);
     ParseConfig(jsonData);
     PortfolioInterface::Imports(FORMAT("Save/{}.json", _name));
     PortfolioScanner::Import(FORMAT("Save/{}_Scanner.json", _name));
@@ -35,7 +42,7 @@ PortfolioInterface::~PortfolioInterface() {
     }
 }
 
-ImVec4 PortfolioInterface::GetStatusColor(StrategyStatus status_, bool changed_) {
+auto PortfolioInterface::GetStatusColor(StrategyStatus status_, bool changed_) noexcept -> ImVec4 {
     switch (status_) {
         case StrategyStatus_PENDING:
         case StrategyStatus_WAITING:
@@ -54,63 +61,63 @@ ImVec4 PortfolioInterface::GetStatusColor(StrategyStatus status_, bool changed_)
     return COLOR_BLUE;
 }
 
-void PortfolioInterface::subscribeAll() {
+void PortfolioInterface::SubscribeAll() {
     auto _ = std::async(std::launch::async, [&]() {
         for (const StrategyListT::value_type& value_type : _strategyList) {
             if (value_type->_changed or value_type->_status == StrategyStatus_TERMINATED or value_type->_status == StrategyStatus_INACTIVE) {
                 value_type->_status = StrategyStatus_WAITING;
-                doStrategyAction(value_type, _strategyName, Lancelot::RequestType_SUBSCRIBE);
+                DoStrategyAction(value_type, _strategyName, Lancelot::RequestType_SUBSCRIBE);
             }
         }
     });
 }
 
-void PortfolioInterface::subscribeSelected() {
+void PortfolioInterface::SubscribeSelected() {
     auto _ = std::async(std::launch::async, [&]() {
         for (const StrategyListT::value_type& value_type : _strategyList) {
             if ((value_type->_changed or value_type->_status == StrategyStatus_TERMINATED or value_type->_status == StrategyStatus_INACTIVE) and value_type->_selected) {
                 value_type->_status = StrategyStatus_WAITING;
-                doStrategyAction(value_type, _strategyName, Lancelot::RequestType_SUBSCRIBE);
+                DoStrategyAction(value_type, _strategyName, Lancelot::RequestType_SUBSCRIBE);
             }
         }
     });
 }
 
-void PortfolioInterface::applySelected() {
+void PortfolioInterface::ApplySelected() {
     auto _ = std::async(std::launch::async, [&]() {
         for (const StrategyListT::value_type& value_type : _strategyList) {
             if ((value_type->_changed or value_type->_status == StrategyStatus_ACTIVE) and value_type->_subscribed and value_type->_selected) {
-                doStrategyAction(value_type, _strategyName, Lancelot::RequestType_APPLY);
+                DoStrategyAction(value_type, _strategyName, Lancelot::RequestType_APPLY);
             }
         }
     });
 }
 
-void PortfolioInterface::applyAll() {
+void PortfolioInterface::ApplyAll() {
     auto _ = std::async(std::launch::async, [&]() {
         for (const StrategyListT::value_type& value_type : _strategyList) {
             if ((value_type->_changed or value_type->_status == StrategyStatus_ACTIVE) and value_type->_subscribed) {
-                doStrategyAction(value_type, _strategyName, Lancelot::RequestType_APPLY);
+                DoStrategyAction(value_type, _strategyName, Lancelot::RequestType_APPLY);
             }
         }
     });
 }
 
-void PortfolioInterface::unsubscribeAll() {
+void PortfolioInterface::UnsubscribeAll() {
     auto _ = std::async(std::launch::async, [&]() {
         for (const StrategyListT::value_type& value_type : _strategyList) {
             if (value_type->_changed or value_type->_status == StrategyStatus_ACTIVE or value_type->_status == StrategyStatus_APPLIED) {
-                doStrategyAction(value_type, _strategyName, Lancelot::RequestType_UNSUBSCRIBE);
+                DoStrategyAction(value_type, _strategyName, Lancelot::RequestType_UNSUBSCRIBE);
             }
         }
     });
 }
 
-void PortfolioInterface::unsubscribeSelected() {
+void PortfolioInterface::UnsubscribeSelected() {
     auto _ = std::async(std::launch::async, [&]() {
         for (const StrategyListT::value_type& value_type : _strategyList) {
             if ((value_type->_changed or value_type->_status == StrategyStatus_ACTIVE or value_type->_status == StrategyStatus_APPLIED) and value_type->_selected) {
-                doStrategyAction(value_type, _strategyName, Lancelot::RequestType_UNSUBSCRIBE);
+                DoStrategyAction(value_type, _strategyName, Lancelot::RequestType_UNSUBSCRIBE);
             }
         }
     });
@@ -243,7 +250,7 @@ void PortfolioInterface::Imports(const std::string& path_) {
     file.close();
 }
 
-void PortfolioInterface::updateAll(GlobalParameterInfoT& info_) {
+void PortfolioInterface::UpdateAll(GlobalParameterInfoT& info_) {
     std::ranges::for_each(_strategyList, [&info_](const StrategyListT::value_type& value) {
         auto iterator = value->_parameterInfoList.find(info_._name);
         if (iterator != value->_parameterInfoList.end()) {
@@ -293,7 +300,7 @@ void PortfolioInterface::updateAll(GlobalParameterInfoT& info_) {
     });
 }
 
-PortfolioStatusT PortfolioInterface::checkAnyActive() {
+PortfolioStatusT PortfolioInterface::CheckAnyActive() {
     PortfolioStatusT status{false, 0, 0, 0, 0, 0};
 
     std::ranges::for_each(_strategyList, [&](const StrategyListT::value_type& valueType_) {
@@ -369,11 +376,25 @@ void PortfolioInterface::ParseConfig(std::string_view config_) {
     }
 }
 
-void PortfolioInterface::doStrategyAction(const StrategyRowPtrT& strategy_, const std::string& name_, Lancelot::RequestType type_) {
+void PortfolioInterface::DoStrategyAction(const StrategyRowPtrT& strategy_, const std::string& name_, Lancelot::RequestType type_) {
     strategy_->_status = StrategyStatus_PENDING;
     _strand.post([strategy_, type_, name_]() { StrategyAction(strategy_, name_, type_); });
 }
 
-void PortfolioInterface::setStrategyActionCallback(StrategyActionT StrategyAction_) {
-    StrategyAction = std::move(StrategyAction_);
+auto PortfolioInterface::GetStrategyName() const noexcept -> std::string {
+    return _strategyName;
+}
+
+auto PortfolioInterface::GetName() const noexcept -> std::string {
+    return _name;
+}
+
+auto PortfolioInterface::GetMaxPortfolio() noexcept -> uint32_t {
+    return MaxPortfolioAllowed;
+}
+auto PortfolioInterface::GetPortfolio() noexcept -> uint32_t {
+    return PortFolioNumber;
+}
+auto PortfolioInterface::IsOpen() const noexcept -> bool {
+    return _open;
 }
