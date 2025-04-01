@@ -1,0 +1,3 @@
+[submodule "repo/Greeks"]
+	path = repo/Greeks
+	url = https://github.com/kingofknights/Greeks.git

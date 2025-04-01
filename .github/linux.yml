@@ -1,0 +1,27 @@
+name: Linux Build and Deployment
+
+on:
+  push:
+    branches: ["workflow"]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubunutu-latest
+
+    steps:
+      - name: Update OS
+        run: |
+          sudo apt update -y 
+          sudo apt install libboost-all-dev
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -B build
+
+      - name: Build with CMake
+        run: cmake --build build --config ${{env.BUILD_TYPE}}

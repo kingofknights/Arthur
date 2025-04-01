@@ -1,0 +1,32 @@
+#pragma once
+
+#include "Arthur_Fwd.hpp"
+#include "Structure.hpp"
+
+#define NEW_ORDER_WINDOW    "Order Form Window"
+#define MODIFY_ORDER_WINDOW "Modify Order Window"
+
+class OrderForm final {
+    using FunctionT = std::function<void(OrderFormInfoT, Lancelot::RequestType)>;
+
+  public:
+    OrderForm(ExecutorStrandT& strand_, FunctionT function_);
+
+    void Paint(const char* name_);
+
+    void Update(OrderFormInfoT& info_);
+
+  protected:
+    void SentToBroker();
+
+    void DrawInputItem();
+
+  private:
+    ExecutorStrandT& _strand;
+    FunctionT        _function;
+
+    OrderFormInfoT     _order;
+    ImVec4             _color;
+    std::string        _clientCode;
+    Lancelot::Exchange _exchange;
+};
