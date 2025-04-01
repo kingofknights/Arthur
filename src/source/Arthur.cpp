@@ -445,7 +445,7 @@ void Arthur::StartAllThreads() {
         _threadGroup.push_back(std::move(thread));
     }
 
-    {
+    if (false) {
         auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { MarketEventHandler(token_); });
         _threadGroup.push_back(std::move(thread));
     }
