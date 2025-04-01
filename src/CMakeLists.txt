@@ -110,4 +110,6 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE ${PRECOMPILE_HEADERS})
 add_custom_command(
   TARGET ${PROJECT_NAME}
   POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FONT_FILE} $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FONT_FILE} $<TARGET_FILE_DIR:${PROJECT_NAME}>
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/setting.json
+          $<TARGET_FILE_DIR:${PROJECT_NAME}>)

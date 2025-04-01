@@ -2,6 +2,7 @@
 
 #include "Arthur_Fwd.hpp"
 
+#include <cstdint>
 #include <string_view>
 
 namespace Lancelot {
@@ -77,6 +78,8 @@ class Arthur {
         std::string _address;
         uint16_t    _port;
     };
+
+    int16_t _userId;
 
     Connection _backend;
     Connection _marketWatch;

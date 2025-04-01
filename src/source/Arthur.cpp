@@ -48,20 +48,14 @@ class MemoryUsage {
     static auto GetRamUsage() -> double;
 };
 
-extern int               UserID;
 extern MarketEventQueueT MarketEventQueue;
 extern AllContractT      AllContract;
 
-#define DATABASE_PATH           "fo_ref_contract_master.csv"
 #define TRADING_APP_CONFIG_PATH "Config/Arthur.json"
 #define ORDER_ALL_BOOK          "Order All Book"
 #define REJECT_BOOK             "Reject Book"
 
 Arthur::Arthur(bool* closeMainWindow_) : _strand(_executor), _backendWorker(_executor.get_executor()), _closeMainWindow(closeMainWindow_) {
-    std::string fontFile = "Ruda-Bold.ttf";
-    float       fontSize = 18.0F;
-    UserID               = 101;
-
     std::fstream file("setting.json");
     if (file.is_open()) {
         LOG(INFO, "unable to open setting.json", false);
@@ -71,25 +65,31 @@ Arthur::Arthur(bool* closeMainWindow_) : _strand(_executor), _backendWorker(_exe
         const nlohmann::json& backend     = json["backend"];
         const nlohmann::json& marketwatch = json["marketwatch"];
 
+        std::string fontFile = "Ruda-Bold.ttf";
+        float       fontSize = 18.0F;
         font["file"].get_to(fontFile);
         font["size"].get_to(fontSize);
 
-        backend["ip"].get_to(_backend._address);
+        backend["address"].get_to(_backend._address);
         backend["port"].get_to(_backend._port);
-        backend["user"].get_to(UserID);
+        backend["user"].get_to(_userId);
 
-        marketwatch["ip"].get_to(_marketWatch._address);
+        std::string database;
+        marketwatch["address"].get_to(_marketWatch._address);
         marketwatch["port"].get_to(_marketWatch._port);
+        marketwatch["contract"].get_to(database);
+
+        LOG(INFO, "Loading SqlLite3 Database : {}", database)
+        Lancelot::ContractInfo::Initialize(database, Utils::GetAllContractCallback);
+
+        Themes::AddIconFonts(fontFile, fontSize);
     } else {
         LOG(ERROR, "Config file not found : setting.json", false);
         exit(1);
     }
 
-    Themes::AddIconFonts(fontFile, fontSize);
-    LOG(INFO, "Loading SqlLite3 Database : {}", DATABASE_PATH)
-    Lancelot::ContractInfo::Initialize(DATABASE_PATH, Utils::GetAllContractCallback);
     std::ranges::sort(AllContract, std::less<>());
-    Utils::GetClientList(UserID);
+    Utils::GetClientList(_userId);
     Utils::CreateSupportFolder();
     ConfigLoader::Instance();
 
@@ -483,7 +483,7 @@ void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& info_, Lancelot::Requ
                     ._length = sizeof(Lancelot::ManualOrder) - sizeof(Lancelot::Header),
                 },
                 ._user = {
-                    ._user      = static_cast<int16_t>(UserID),
+                    ._user      = _userId,
                     ._portfolio = 9999,
                 },
                 ._token         = info_._marketWatch->_token,
@@ -495,7 +495,7 @@ void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& info_, Lancelot::Requ
                 ._orderType     = static_cast<int16_t>(info_._type),
                 ._nnf           = 0,
             };
-            _messageBroker->WriteSync((char*)&order, sizeof(Lancelot::ManualOrder));
+            _messageBroker->WriteSync(&order, sizeof(Lancelot::ManualOrder));
             break;
         }
         case Lancelot::RequestType_MODIFY: {
@@ -505,7 +505,7 @@ void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& info_, Lancelot::Requ
                     ._length = sizeof(Lancelot::ModifyOrder) - sizeof(Lancelot::Header),
                 },
                 ._user = {
-                    ._user      = static_cast<int16_t>(UserID),
+                    ._user      = _userId,
                     ._portfolio = 9999,
                 },
                 ._token         = info_._marketWatch->_token,
@@ -514,7 +514,7 @@ void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& info_, Lancelot::Requ
                 ._quantity      = static_cast<uint32_t>(info_._quantity),
                 ._triggerPrice  = 0,
             };
-            _messageBroker->WriteSync((char*)&order, sizeof(Lancelot::ModifyOrder));
+            _messageBroker->WriteSync(&order, sizeof(Lancelot::ModifyOrder));
             break;
         }
         case Lancelot::RequestType_CANCEL: {
@@ -537,10 +537,10 @@ void Arthur::StrategyRequestEvent(StrategyRowPtrT row_, const std::string& name_
             ._length = static_cast<int16_t>(buffer.length() + sizeof(Lancelot::UserPortfolio)),
         },
         ._user = {
-            ._user      = static_cast<int16_t>(UserID),
+            ._user      = _userId,
             ._portfolio = static_cast<int16_t>(row_->_portfolio),
         }};
-    _messageBroker->WriteSync((char*)&header, sizeof(header));
+    _messageBroker->WriteSync(&header, sizeof(header));
     _messageBroker->WriteSync(buffer.data(), buffer.length());
 }
 
@@ -551,12 +551,12 @@ void Arthur::CancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
             ._length = sizeof(Lancelot::CancelOrder) - sizeof(Lancelot::Header),
         },
         ._user = {
-            ._user      = static_cast<int16_t>(UserID),
+            ._user      = _userId,
             ._portfolio = 9999,
         },
         ._token         = orderInfo_->_token,
         ._orderSequence = static_cast<int16_t>(orderInfo_->_uniqueId),
 
     };
-    _messageBroker->WriteSync((char*)&order, sizeof(Lancelot::CancelOrder));
+    _messageBroker->WriteSync(&order, sizeof(Lancelot::CancelOrder));
 }

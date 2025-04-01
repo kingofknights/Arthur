@@ -6,7 +6,6 @@
 #include "../include/Structure.hpp"
 
 int         Id;
-int         UserID;
 std::string StatusDisplay;
 
 StrategyNameListT                StrategyNameList;

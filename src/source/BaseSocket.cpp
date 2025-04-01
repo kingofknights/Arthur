@@ -3,8 +3,6 @@
 #include "Lancelot/Logger.hpp"
 #include "Lancelot/Structure.hpp"
 
-extern int UserID;
-
 TBaseSocket::TBaseSocket(ExecutorT& executor_) : _strand(executor_), _socket(executor_), _timer(executor_), _buffer{}, _header(reinterpret_cast<Lancelot::Header*>(_buffer.data())) {
 }
 
