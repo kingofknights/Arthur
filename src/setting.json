@@ -11,6 +11,6 @@
   "marketwatch": {
     "contract": "ResultSet.db3",
     "address": "127.0.0.1",
-    "port": 1223
+    "port": 50047
   }
 }
