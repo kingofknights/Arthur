@@ -40,7 +40,7 @@ void OptionChain::DrawOptionChain(bool* show_) {
         ImGui::NextColumn();
         ImGui::TextColored(UpDownColor(_future->_color._ltp), "LTP : %.2f", _future->_lastTradePrice);
         ImGui::NextColumn();
-        ImGui::TextColored(UpDownColor(_future->_pchange), "Change : %.2f", _future->_pchange);
+        ImGui::TextColored(UpDownColor(_future->_pchange > 0), "Change : %.2f", _future->_pchange);
         ImGui::NextColumn();
         ImGui::Text("Bid Qty : %ud", _future->_bid[0]._quantity);
         ImGui::NextColumn();

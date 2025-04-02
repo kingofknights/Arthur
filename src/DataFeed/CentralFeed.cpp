@@ -55,17 +55,17 @@ void CentralFeed::Process(char* buffer, size_t size_) {
     if (not ref) {
         return;
     }
-    float TopBid = ref->_bid[0]._price;
-    float TopAsk = ref->_ask[0]._price;
-    float LTP    = ref->_lastTradePrice;
-    float ATP    = ref->_averageTradePrice;
+    const auto topBid = static_cast<uint32_t>(ref->_bid[0]._price * 100);
+    const auto topAsk = static_cast<uint32_t>(ref->_ask[0]._price * 100);
+    const auto ltp    = static_cast<uint32_t>(ref->_lastTradePrice * 100);
+    const auto atp    = static_cast<uint32_t>(ref->_averageTradePrice * 100);
 
-    for (int i = 0; i < 5; ++i) {
-        ref->_bid[i]._price    = (pointer->_bid[i]._price) / 100.0f;
+    for (size_t i = 0; i < 5; ++i) {
+        ref->_bid[i]._price    = static_cast<float>(pointer->_bid[i]._price) / 100.0F;
         ref->_bid[i]._quantity = (pointer->_bid[i]._quantity);
         ref->_bid[i]._order    = (pointer->_bid[i]._order);
 
-        ref->_ask[i]._price    = (pointer->_ask[i]._price) / 100.0f;
+        ref->_ask[i]._price    = static_cast<float>(pointer->_ask[i]._price) / 100.0F;
         ref->_ask[i]._quantity = (pointer->_ask[i]._quantity);
         ref->_ask[i]._order    = (pointer->_ask[i]._order);
     }
@@ -74,24 +74,32 @@ void CentralFeed::Process(char* buffer, size_t size_) {
     ref->_totalSellQuantity = (pointer->_totalSellQuantity);
     ref->_volumeTradedToday = (pointer->_volumeTradedToday);
 
-    ref->_open  = (pointer->_open) / 100.0f;
-    ref->_high  = (pointer->_high) / 100.0f;
-    ref->_low   = (pointer->_low) / 100.0f;
-    ref->_close = (pointer->_close) / 100.0f;
+    ref->_open  = static_cast<float>(pointer->_open) / 100.0F;
+    ref->_high  = static_cast<float>(pointer->_high) / 100.0F;
+    ref->_low   = static_cast<float>(pointer->_low) / 100.0F;
+    ref->_close = static_cast<float>(pointer->_close) / 100.0F;
 
-    ref->_averageTradePrice = (pointer->_averageTradePrice) / 100.0f;
-    ref->_lastTradePrice    = (pointer->_lastTradePrice) / 100.0f;
-    ref->_lastTradePrice    = (pointer->_lastTradeQuantity);
+    ref->_averageTradePrice = static_cast<float>(pointer->_averageTradePrice) / 100.0F;
+    ref->_lastTradePrice    = static_cast<float>(pointer->_lastTradePrice) / 100.0F;
+    ref->_lastTradeQuantity = (pointer->_lastTradeQuantity);
 
     std::memset(ref->_lastTradeTime.data(), 0, 30);
     std::memcpy(ref->_lastTradeTime.data(), pointer->_lastTradeTime, 30);
 
-    ref->_pchange = ((float)(ref->_close - ref->_lastTradePrice) / ref->_close) * 100;
+    ref->_pchange = static_cast<float>(pointer->_close - pointer->_lastTradePrice) / static_cast<float>(pointer->_close) * 100.0F;
 
-    ref->_color._topBid = TopBid > ref->_bid[0]._price;
-    ref->_color._topAsk = TopAsk > ref->_ask[0]._price;
-    ref->_color._ltp    = LTP > ref->_lastTradePrice;
-    ref->_color._atp    = ATP > ref->_averageTradePrice;
+    if (topBid != pointer->_bid[0]._price) {
+        ref->_color._topBid = topBid < (pointer->_bid[0]._price);
+    }
+    if (topAsk != pointer->_ask[0]._price) {
+        ref->_color._topAsk = topAsk < (pointer->_ask[0]._price);
+    }
+    if (ltp != pointer->_lastTradePrice) {
+        ref->_color._ltp = ltp < (pointer->_lastTradePrice);
+    }
+    if (atp != pointer->_averageTradePrice) {
+        ref->_color._atp = atp < (pointer->_averageTradePrice);
+    }
 #if 0
     MarketEventQueue.push(ref);
 #endif
