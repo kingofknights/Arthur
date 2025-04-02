@@ -36,17 +36,16 @@ constexpr int MarketWatchLadderCount = 5;
 constexpr int StrategyNameLength     = 50;
 
 using PricePointsT = struct PricePointsT {
-    double    _price;
+    float     _price;
     QuantityT _quantity;
     QuantityT _order;
 };
 
 using ColorBitT = struct ColorBitT {
-    uint8_t _topBid : 1;
-    uint8_t _topAsk : 1;
-    uint8_t _ltp    : 1;
-    uint8_t _atp    : 1;
-    uint8_t _dummy  : 4;
+    bool _topBid;
+    bool _topAsk;
+    bool _ltp;
+    bool _atp;
 };
 
 using MarketWatchDataT = struct MarketWatchDataT {
@@ -57,16 +56,16 @@ using MarketWatchDataT = struct MarketWatchDataT {
 
     uint32_t _token;
     uint32_t _lastTradeQuantity;
-    double   _averageTradePrice;
-    double   _lastTradePrice;
-    double   _lowDpr;
-    double   _highDpr;
+    float    _averageTradePrice;
+    float    _lastTradePrice;
+    float    _lowDpr;
+    float    _highDpr;
 
-    double _open;
-    double _high;
-    double _low;
-    double _close;
-    double _pchange;
+    float _open;
+    float _high;
+    float _low;
+    float _close;
+    float _pchange;
 
     QuantityT _totalBuyQuantity;
     QuantityT _totalSellQuantity;

@@ -13,7 +13,14 @@ inline constexpr char Createdb_[] =
     " OptionType TEXT,"
     " Name TEXT,"
     " Exchange TEXT,"
-    " Segment TEXT)";
+    " Segment TEXT,"
+    " Future INTEGER,"
+    " LotSize INTEGER,"
+    " TickSize INTEGER,"
+    " Divisor INTEGER,"
+    " Close INTEGER,"
+    " HighDPR INTEGER,"
+    " LowDPR INTEGER)";
 
 inline constexpr char IsFuture_[] =
     "SELECT "
@@ -169,8 +176,8 @@ inline constexpr char GetFuture_[] =
 
 inline constexpr char InsertResultSetRow_[] =
     "INSERT INTO ResultSet (Token, StrikePrice, InstType, Symbol, ExpiryDate, "
-    "Description, OptionType, Name, Exchange, Segment) "
-    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "Description, OptionType, Name, Exchange, Segment, Future, LotSize, TickSize, Divisor, Close, HighDPR, LowDPR) "
+    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 inline constexpr char GetClientCode_[]      = "SELECT Exchange, ClientCode FROM ManageClientCode WHERE  UserId = {}";
 inline constexpr char GetStrategyList_[]    = "SELECT Name FROM Strategy";

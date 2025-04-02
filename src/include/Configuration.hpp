@@ -1,6 +1,8 @@
-#pragma once
+// #pragma once
 
 #include "Colors.hpp"
+#include "Logger.hpp"
+#include "imgui.h"
 
 constexpr auto GetTableFlags() -> ImGuiTableFlags {
     ImGuiTableFlags flags = ImGuiTableFlags_RowBg;
@@ -61,32 +63,40 @@ inline constexpr ImGuiWindowFlags      MainWindowFlags           = ImGuiWindowFl
 inline constexpr ImGuiTableColumnFlags TableColumnFlags          = ImGuiTableColumnFlags_None;
 
 template <typename Type>
-void NextCell(int index_, const char* format_, Type type_, ImVec4 color_) {
+void NextCell(int index_, Type&& type_, ImVec4 color_) {
     if (ImGui::TableSetColumnIndex(index_)) {
-        ImGui::TextColored(color_, format_, type_);
+        ImGui::PushStyleColor(ImGuiCol_Text, color_);
+        const std::string data = FORMAT("{}", type_);
+        ImGui::TextUnformatted(&*data.begin(), &*data.end());
+        ImGui::PopStyleColor();
     }
 }
 
 template <typename Type>
-void FirstCellWithPadding(int index_, const char* format_, Type type_, ImVec4 color_) {
+void FirstCellWithPadding(int index_, Type&& type_, ImVec4 color_) {
     if (ImGui::TableSetColumnIndex(index_)) {
         ImGui::AlignTextToFramePadding();
-        ImGui::TextColored(color_, format_, type_);
+        ImGui::PushStyleColor(ImGuiCol_Text, color_);
+        const std::string data = FORMAT("{}", type_);
+        ImGui::TextUnformatted(&*data.begin(), &*data.end());
+        ImGui::PopStyleColor();
     }
 }
 
 template <typename Type>
-void NextCell(int index_, const char* format_, Type type_) {
+void NextCell(int index_, Type&& type_) {
     if (ImGui::TableSetColumnIndex(index_)) {
-        ImGui::Text(format_, type_);
+        const std::string data = FORMAT("{}", type_);
+        ImGui::TextUnformatted(&*data.begin(), &*data.end());
     }
 }
 
 template <typename Type>
-void FirstCellWithPadding(int index_, const char* format_, Type type_) {
+void FirstCellWithPadding(int index_, Type&& type_) {
     if (ImGui::TableSetColumnIndex(index_)) {
         ImGui::AlignTextToFramePadding();
-        ImGui::Text(format_, type_);
+        const std::string data = FORMAT("{}", type_);
+        ImGui::TextUnformatted(&*data.begin(), &*data.end());
     }
 }
 

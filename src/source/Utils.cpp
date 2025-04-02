@@ -193,18 +193,18 @@ void Utils::DrawTradeRow(const OrderInfoPtrT& tradeInfo_, int& first_, int secon
         }
     }
 
-    NextCell(BooksColumnIndex_CONTRACT, "%s", tradeInfo_->_contract.data());
-    NextCell(BooksColumnIndex_PRICE, "%.2f", tradeInfo_->_price);
-    NextCell(BooksColumnIndex_QUANTITY, "%d", tradeInfo_->_quantity);
-    NextCell(BooksColumnIndex_FILLPRICE, "%.2f", tradeInfo_->_fillPrice);
-    NextCell(BooksColumnIndex_FILLQUANTITY, "%d", tradeInfo_->_fillQuantity);
-    NextCell(BooksColumnIndex_REMAINING_QTY, "%d", tradeInfo_->_remaining);
-    NextCell(BooksColumnIndex_CLIENT, "%s", tradeInfo_->_client.data());
-    NextCell(BooksColumnIndex_STATUS, "%s", OrderStatusInfoName[tradeInfo_->_statusValue]);
-    NextCell(BooksColumnIndex_TIME, "%s", tradeInfo_->_time.data());
-    NextCell(BooksColumnIndex_GATEWAY, "%d", tradeInfo_->_uniqueId);
-    NextCell(BooksColumnIndex_ORDERNUMBER, "%ld", tradeInfo_->_orderNumber);
-    NextCell(BooksColumnIndex_MESSAGE, "%s", tradeInfo_->_message.data());
+    NextCell(BooksColumnIndex_CONTRACT, tradeInfo_->_contract.data());
+    NextCell(BooksColumnIndex_PRICE, tradeInfo_->_price);
+    NextCell(BooksColumnIndex_QUANTITY, tradeInfo_->_quantity);
+    NextCell(BooksColumnIndex_FILLPRICE, tradeInfo_->_fillPrice);
+    NextCell(BooksColumnIndex_FILLQUANTITY, tradeInfo_->_fillQuantity);
+    NextCell(BooksColumnIndex_REMAINING_QTY, tradeInfo_->_remaining);
+    NextCell(BooksColumnIndex_CLIENT, tradeInfo_->_client.data());
+    NextCell(BooksColumnIndex_STATUS, OrderStatusInfoName[tradeInfo_->_statusValue]);
+    NextCell(BooksColumnIndex_TIME, tradeInfo_->_time.data());
+    NextCell(BooksColumnIndex_GATEWAY, tradeInfo_->_uniqueId);
+    NextCell(BooksColumnIndex_ORDERNUMBER, tradeInfo_->_orderNumber);
+    NextCell(BooksColumnIndex_MESSAGE, tradeInfo_->_message.data());
     ImGui::PopStyleColor();
 }
 

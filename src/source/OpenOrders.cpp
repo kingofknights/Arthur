@@ -60,7 +60,7 @@ void OpenOrders::DrawPendingBook(bool* show_) {
                                 ._uniqueId    = tradeInfo_->_uniqueId,
                                 ._price       = tradeInfo_->_price,
                                 ._quantity    = (int)tradeInfo_->_quantity,
-                                ._lotSize     = (int)Lancelot::ContractInfo::GetLotMultiple(tradeInfo_->_token),
+                                ._lotSize     = (int)Lancelot::ContractInfo::GetLotSize(tradeInfo_->_token),
                                 ._orderNumber = tradeInfo_->_orderNumber,
                                 ._type        = 0,
                                 ._side        = tradeInfo_->_side,

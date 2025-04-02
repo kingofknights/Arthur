@@ -79,7 +79,7 @@ void PortfolioScanner::FirstColumn() {
         for (auto& column : _scannerFunctionListContainer) {
             ImGui::TableNextRow();
             ImGui::PushID(column._variable);
-            FirstCellWithPadding(ScannerFunctionColumnIndex_NAME, "%s", column._name.data());
+            FirstCellWithPadding(ScannerFunctionColumnIndex_NAME, column._name);
             ImGui::TableSetColumnIndex(ScannerFunctionColumnIndex_VARIABLE);
             ImGui::Checkbox(FORMAT("{}", column._variable).data(), &column._selected);
             ImGui::PopID();
@@ -155,7 +155,7 @@ void PortfolioScanner::ThirdColumn() {
                         _deleteScannerID = i;
                     }
                 }
-                NextCell(ScannerSavedColumnIndex_NAME, "%s", item._name.data());
+                NextCell(ScannerSavedColumnIndex_NAME, item._name.data());
                 ImGui::TableSetColumnIndex(ScannerSavedColumnIndex_OPERATIONS);
 
                 if (ImGui::Button(FORMAT("{} {}##Operations", item._applied ? ICON_MD_STOP : ICON_MD_PLAY_ARROW, item._applied ? "Stop" : "Apply").data(), ImVec2(-FLT_MIN, 0))) {

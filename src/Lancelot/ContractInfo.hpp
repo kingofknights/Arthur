@@ -31,7 +31,6 @@ namespace Lancelot {
 
         static auto GetToken(const std::string& name_) -> uint32_t;
         static auto GetExpiryDate(uint32_t token_) -> uint32_t;
-        static auto GetLotMultiple(uint32_t token_) -> uint32_t;
         static auto GetLotSize(uint32_t token_) -> uint32_t;
         static auto GetTickSize(uint32_t token_) -> uint32_t;
         static auto GetDivisor(uint32_t token_) -> uint32_t;
