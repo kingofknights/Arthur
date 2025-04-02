@@ -19,6 +19,7 @@
 #include <imgui_stdlib.h>
 #include <nlohmann/json.hpp>
 
+#include <cfloat>
 #include <fstream>
 #include <memory>
 #include <utility>
@@ -159,7 +160,7 @@ void MarketWatch::ContractCell(int contract_, int index_, const char* data_, con
             OrderFormInfoT info{
                 ._uniqueId    = 0,
                 ._price       = pointer_->_lastTradePrice,
-                ._quantity    = (int)Lancelot::ContractInfo::GetLotMultiple(pointer_->_token),
+                ._quantity    = (int)Lancelot::ContractInfo::GetLotSize(pointer_->_token),
                 ._lotSize     = info._quantity,
                 ._orderNumber = 0,
                 ._type        = 0,
@@ -223,7 +224,7 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) noexcept {
     ImGui::PushStyleColor(ImGuiCol_PlotHistogram, BuySellColor(Lancelot::Side_BUY));
     ImGui::PushStyleColor(ImGuiCol_FrameBg, BuySellColor(Lancelot::Side_SELL));
 
-    ImGui::ProgressBar(moment, ImVec2(0, 0), "Price Movement");
+    ImGui::ProgressBar(moment, ImVec2(-FLT_MIN, 0), "Price Movement");
     ImGui::ProgressBar(ratio, ImVec2(-FLT_MIN, 0), "Buy Sell Ratio");
 
     ImGui::PopStyleColor(2);

@@ -58,8 +58,6 @@ extern AllContractT      AllContract;
 Arthur::Arthur(bool* closeMainWindow_) : _strand(_executor), _backendWorker(_executor.get_executor()), _closeMainWindow(closeMainWindow_) {
     std::fstream file("setting.json");
     if (file.is_open()) {
-        LOG(INFO, "unable to open setting.json", false);
-
         nlohmann::json        json        = nlohmann::json::parse(file);
         const nlohmann::json& font        = json["font"];
         const nlohmann::json& backend     = json["backend"];

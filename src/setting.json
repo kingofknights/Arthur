@@ -9,7 +9,7 @@
     "port": 9898
   },
   "marketwatch": {
-    "contract": "/home/vikram.lodhi@corp.merillife.com/Projects/historical/fo_ref_contract_master.csv",
+    "contract": "ResultSet.db3",
     "address": "127.0.0.1",
     "port": 1223
   }
