@@ -159,7 +159,7 @@ void MarketWatch::ContractCell(int contract_, int index_, const char* data_, con
             OrderFormInfoT info{
                 ._uniqueId    = 0,
                 ._price       = pointer_->_lastTradePrice,
-                ._quantity    = (int)Lancelot::ContractInfo::GetLotMultiple(pointer_->_token),
+                ._quantity    = (int)Lancelot::ContractInfo::GetLotSize(pointer_->_token),
                 ._lotSize     = info._quantity,
                 ._orderNumber = 0,
                 ._type        = 0,
@@ -193,12 +193,12 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) noexcept {
         ImGui::TableHeadersRow();
         for (size_t i = 0; i < MarketWatchLadderCount; ++i) {
             ImGui::TableNextRow();
-            NextCell(MarketWatchToolTipColumnIndex_BUY_ORDER, "%d", pointer_->_bid[i]._order, BuySellColor(Lancelot::Side_BUY));
-            NextCell(MarketWatchToolTipColumnIndex_BUY_QUANTITY, "%d", pointer_->_bid[i]._quantity, BuySellColor(Lancelot::Side_BUY));
-            NextCell(MarketWatchToolTipColumnIndex_BUY_PRICE, "%.2f", pointer_->_bid[i]._price, BuySellColor(Lancelot::Side_BUY));
-            NextCell(MarketWatchToolTipColumnIndex_ASK_PRICE, "%.2f", pointer_->_ask[i]._price, BuySellColor(Lancelot::Side_SELL));
-            NextCell(MarketWatchToolTipColumnIndex_ASK_QUANTITY, "%d", pointer_->_ask[i]._quantity, BuySellColor(Lancelot::Side_SELL));
-            NextCell(MarketWatchToolTipColumnIndex_ASK_ORDER, "%d", pointer_->_ask[i]._order, BuySellColor(Lancelot::Side_SELL));
+            NextCell(MarketWatchToolTipColumnIndex_BUY_ORDER, pointer_->_bid[i]._order, BuySellColor(Lancelot::Side_BUY));
+            NextCell(MarketWatchToolTipColumnIndex_BUY_QUANTITY, pointer_->_bid[i]._quantity, BuySellColor(Lancelot::Side_BUY));
+            NextCell(MarketWatchToolTipColumnIndex_BUY_PRICE, pointer_->_bid[i]._price, BuySellColor(Lancelot::Side_BUY));
+            NextCell(MarketWatchToolTipColumnIndex_ASK_PRICE, pointer_->_ask[i]._price, BuySellColor(Lancelot::Side_SELL));
+            NextCell(MarketWatchToolTipColumnIndex_ASK_QUANTITY, pointer_->_ask[i]._quantity, BuySellColor(Lancelot::Side_SELL));
+            NextCell(MarketWatchToolTipColumnIndex_ASK_ORDER, pointer_->_ask[i]._order, BuySellColor(Lancelot::Side_SELL));
         }
         ImGui::EndTable();
     }
@@ -215,15 +215,15 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) noexcept {
     ImGui::EndColumns();
 
     auto  range  = (pointer_->_high - pointer_->_low);
-    float moment = float(pointer_->_lastTradePrice - pointer_->_low) / float(range == 0 ? 1 : range);
-
+    float moment = (pointer_->_lastTradePrice - pointer_->_low) / std::max(range, 1.0F);
+    LOG(INFO, "{}", range);
     uint64_t total = (pointer_->_totalBuyQuantity + pointer_->_totalSellQuantity);
     float    ratio = float(pointer_->_totalBuyQuantity) / float(total == 0 ? 1 : total);
 
     ImGui::PushStyleColor(ImGuiCol_PlotHistogram, BuySellColor(Lancelot::Side_BUY));
     ImGui::PushStyleColor(ImGuiCol_FrameBg, BuySellColor(Lancelot::Side_SELL));
 
-    ImGui::ProgressBar(moment, ImVec2(0, 0), "Price Movement");
+    ImGui::ProgressBar(moment, ImVec2(-FLT_MIN, 0), "Price Movement");
     ImGui::ProgressBar(ratio, ImVec2(-FLT_MIN, 0), "Buy Sell Ratio");
 
     ImGui::PopStyleColor(2);
@@ -292,22 +292,22 @@ void MarketWatch::Exports(const std::string& path_) {
 
 void MarketWatch::DrawColumn(const MarketWatchDataPtrT& data_, int index_) {
     ContractCell(index_, MarketWatchColumnIndex_CONTACT_NAME, data_->_description.data(), data_);
-    NextCell(MarketWatchColumnIndex_ATP, "%.2f", data_->_averageTradePrice, UpDownColor(data_->_color._atp));
-    NextCell(MarketWatchColumnIndex_LTP, "%.2f", data_->_lastTradePrice, UpDownColor(data_->_color._ltp));
-    NextCell(MarketWatchColumnIndex_LTQ, "%d", data_->_lastTradePrice);
-    NextCell(MarketWatchColumnIndex_LTT, "%s", data_->_lastTradeTime.data());
-    NextCell(MarketWatchColumnIndex_TOP_BID, "%.2f", data_->_bid[0]._price, UpDownColor(data_->_color._topBid));
-    NextCell(MarketWatchColumnIndex_TOP_ASK, "%.2f", data_->_ask[0]._price, UpDownColor(data_->_color._topAsk));
-    NextCell(MarketWatchColumnIndex_OPEN, "%.2f", data_->_open);
-    NextCell(MarketWatchColumnIndex_HIGH, "%.2f", data_->_high);
-    NextCell(MarketWatchColumnIndex_LOW, "%.2f", data_->_low);
-    NextCell(MarketWatchColumnIndex_CLOSE, "%.2f", data_->_close);
-    NextCell(MarketWatchColumnIndex_LOWDPR, "%.2f", data_->_lowDpr);
-    NextCell(MarketWatchColumnIndex_HIGHDPR, "%.2f", data_->_highDpr);
-    NextCell(MarketWatchColumnIndex_TOTAL_BUY_QUANTITY, "%llu", data_->_totalBuyQuantity);
-    NextCell(MarketWatchColumnIndex_TOTAL_SELL_QUANTITY, "%llu", data_->_totalSellQuantity);
-    NextCell(MarketWatchColumnIndex_VOLUME_TRADED_TODAY, "%llu", data_->_volumeTradedToday);
-    NextCell(MarketWatchColumnIndex_OPEN_INTEREST, "%llu", data_->_openInterest);
+    NextCell(MarketWatchColumnIndex_ATP, data_->_averageTradePrice, UpDownColor(data_->_color._atp));
+    NextCell(MarketWatchColumnIndex_LTP, data_->_lastTradePrice, UpDownColor(data_->_color._ltp));
+    NextCell(MarketWatchColumnIndex_LTQ, data_->_lastTradePrice);
+    NextCell(MarketWatchColumnIndex_LTT, data_->_lastTradeTime.data());
+    NextCell(MarketWatchColumnIndex_TOP_BID, data_->_bid[0]._price, UpDownColor(data_->_color._topBid));
+    NextCell(MarketWatchColumnIndex_TOP_ASK, data_->_ask[0]._price, UpDownColor(data_->_color._topAsk));
+    NextCell(MarketWatchColumnIndex_OPEN, data_->_open);
+    NextCell(MarketWatchColumnIndex_HIGH, data_->_high);
+    NextCell(MarketWatchColumnIndex_LOW, data_->_low);
+    NextCell(MarketWatchColumnIndex_CLOSE, data_->_close);
+    NextCell(MarketWatchColumnIndex_LOWDPR, data_->_lowDpr);
+    NextCell(MarketWatchColumnIndex_HIGHDPR, data_->_highDpr);
+    NextCell(MarketWatchColumnIndex_TOTAL_BUY_QUANTITY, data_->_totalBuyQuantity);
+    NextCell(MarketWatchColumnIndex_TOTAL_SELL_QUANTITY, data_->_totalSellQuantity);
+    NextCell(MarketWatchColumnIndex_VOLUME_TRADED_TODAY, data_->_volumeTradedToday);
+    NextCell(MarketWatchColumnIndex_OPEN_INTEREST, data_->_openInterest);
 }
 
 void MarketWatch::Remove() {

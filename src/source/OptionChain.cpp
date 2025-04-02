@@ -40,15 +40,15 @@ void OptionChain::DrawOptionChain(bool* show_) {
         ImGui::NextColumn();
         ImGui::TextColored(UpDownColor(_future->_color._ltp), "LTP : %.2f", _future->_lastTradePrice);
         ImGui::NextColumn();
-        ImGui::TextColored(UpDownColor(_future->_pchange), "Change : %.2f", _future->_pchange);
+        ImGui::TextColored(UpDownColor(_future->_pchange > 0), "Change : %.2f", _future->_pchange);
         ImGui::NextColumn();
-        ImGui::Text("Bid Qty : %ud", _future->_bid[0]._quantity);
+        ImGui::Text("Bid Qty : %u", _future->_bid[0]._quantity);
         ImGui::NextColumn();
         ImGui::TextColored(UpDownColor(_future->_color._topBid), "Bid Price : %.2f", _future->_bid[0]._price);
         ImGui::NextColumn();
         ImGui::TextColored(UpDownColor(_future->_color._topAsk), "Ask Price : %.2f", _future->_ask[0]._price);
         ImGui::NextColumn();
-        ImGui::Text("Ask Qty : %ud", _future->_ask[0]._quantity);
+        ImGui::Text("Ask Qty : %u", _future->_ask[0]._quantity);
         ImGui::EndColumns();
 
         if (ImGui::BeginTable("Option Chain Table", OptionChainColumnIndex_END, TableFlags)) {
@@ -84,115 +84,115 @@ void OptionChain::DrawOptionChain(bool* show_) {
                 ImU32 color     = ImGui::GetColorU32(COLOR_GRAY);
                 bool  needColor = valueType_.first < _future->_lastTradePrice;
 
-                NextCell(OptionChainColumnIndex_CALL_OI, "%d", Call._marketWatch->_openInterest);
+                NextCell(OptionChainColumnIndex_CALL_OI, Call._marketWatch->_openInterest);
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_VOLUME, "%d", Call._marketWatch->_volumeTradedToday);
+                NextCell(OptionChainColumnIndex_CALL_VOLUME, Call._marketWatch->_volumeTradedToday);
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_DELTA, "%.2f", call_Delta);
+                NextCell(OptionChainColumnIndex_CALL_DELTA, call_Delta);
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_GAMMA, "%.2f", call_Gamma);
+                NextCell(OptionChainColumnIndex_CALL_GAMMA, call_Gamma);
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_VEGA, "%.2f", call_Vega);
+                NextCell(OptionChainColumnIndex_CALL_VEGA, call_Vega);
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_THETA, "%.2f", call_Theta);
-                if (needColor) {
-                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
-                }
-
-                NextCell(OptionChainColumnIndex_CALL_IV, "%.2f", call_IV * 100.0F);
-                if (needColor) {
-                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
-                }
-                NextCell(OptionChainColumnIndex_CALL_LTP, "%.2f", Call._marketWatch->_lastTradePrice, UpDownColor(Call._marketWatch->_color._ltp));
-                if (needColor) {
-                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
-                }
-                NextCell(OptionChainColumnIndex_CALL_CHANGE, "%.2f", Call._marketWatch->_pchange);
-                if (needColor) {
-                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
-                }
-                NextCell(OptionChainColumnIndex_CALL_BID_QTY, "%d", Call._marketWatch->_bid[0]._quantity);
-                if (needColor) {
-                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
-                }
-                NextCell(OptionChainColumnIndex_CALL_BID_PRICE, "%.2f", Call._marketWatch->_bid[0]._price, UpDownColor(Call._marketWatch->_color._topBid));
-                if (needColor) {
-                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
-                }
-                NextCell(OptionChainColumnIndex_CALL_ASK_PRICE, "%.2f", Call._marketWatch->_ask[0]._price, UpDownColor(Call._marketWatch->_color._topAsk));
-                if (needColor) {
-                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
-                }
-                NextCell(OptionChainColumnIndex_CALL_ASK_QTY, "%d", Call._marketWatch->_ask[0]._quantity);
+                NextCell(OptionChainColumnIndex_CALL_THETA, call_Theta);
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
 
-                NextCell(OptionChainColumnIndex_STRIKE_PRICE, "%.2f", valueType_.first);
-
-                NextCell(OptionChainColumnIndex_PUT_BID_QTY, "%d", Put._marketWatch->_bid[0]._quantity);
-                if (not needColor) {
+                NextCell(OptionChainColumnIndex_CALL_IV, call_IV * 100.0F);
+                if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_BID_PRICE, "%.2f", Put._marketWatch->_bid[0]._price, UpDownColor(Put._marketWatch->_color._topBid));
-                if (not needColor) {
+                NextCell(OptionChainColumnIndex_CALL_LTP, Call._marketWatch->_lastTradePrice, UpDownColor(Call._marketWatch->_color._ltp));
+                if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_ASK_PRICE, "%.2f", Put._marketWatch->_ask[0]._price, UpDownColor(Put._marketWatch->_color._topAsk));
-                if (not needColor) {
+                NextCell(OptionChainColumnIndex_CALL_CHANGE, Call._marketWatch->_pchange);
+                if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_ASK_QTY, "%d", Put._marketWatch->_ask[0]._quantity);
-                if (not needColor) {
+                NextCell(OptionChainColumnIndex_CALL_BID_QTY, Call._marketWatch->_bid[0]._quantity);
+                if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_CHANGE, "%.2f", Put._marketWatch->_pchange);
-                if (not needColor) {
+                NextCell(OptionChainColumnIndex_CALL_BID_PRICE, Call._marketWatch->_bid[0]._price, UpDownColor(Call._marketWatch->_color._topBid));
+                if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_LTP, "%.2f", Put._marketWatch->_lastTradePrice, UpDownColor(Put._marketWatch->_color._ltp));
-                if (not needColor) {
+                NextCell(OptionChainColumnIndex_CALL_ASK_PRICE, Call._marketWatch->_ask[0]._price, UpDownColor(Call._marketWatch->_color._topAsk));
+                if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_IV, "%.2f", put_IV * 100.0f);
-                if (not needColor) {
-                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
-                }
-
-                NextCell(OptionChainColumnIndex_PUT_THETA, "%.2f", put_Theta);
-                if (not needColor) {
+                NextCell(OptionChainColumnIndex_CALL_ASK_QTY, Call._marketWatch->_ask[0]._quantity);
+                if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
 
-                NextCell(OptionChainColumnIndex_PUT_VEGA, "%.2f", put_Vega);
+                NextCell(OptionChainColumnIndex_STRIKE_PRICE, valueType_.first);
+
+                NextCell(OptionChainColumnIndex_PUT_BID_QTY, Put._marketWatch->_bid[0]._quantity);
+                if (not needColor) {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+                }
+                NextCell(OptionChainColumnIndex_PUT_BID_PRICE, Put._marketWatch->_bid[0]._price, UpDownColor(Put._marketWatch->_color._topBid));
+                if (not needColor) {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+                }
+                NextCell(OptionChainColumnIndex_PUT_ASK_PRICE, Put._marketWatch->_ask[0]._price, UpDownColor(Put._marketWatch->_color._topAsk));
+                if (not needColor) {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+                }
+                NextCell(OptionChainColumnIndex_PUT_ASK_QTY, Put._marketWatch->_ask[0]._quantity);
+                if (not needColor) {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+                }
+                NextCell(OptionChainColumnIndex_PUT_CHANGE, Put._marketWatch->_pchange);
+                if (not needColor) {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+                }
+                NextCell(OptionChainColumnIndex_PUT_LTP, Put._marketWatch->_lastTradePrice, UpDownColor(Put._marketWatch->_color._ltp));
+                if (not needColor) {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+                }
+                NextCell(OptionChainColumnIndex_PUT_IV, put_IV * 100.0f);
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
 
-                NextCell(OptionChainColumnIndex_PUT_GAMMA, "%.2f", put_Gamma);
-                if (not needColor) {
-                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
-                }
-                NextCell(OptionChainColumnIndex_PUT_DELTA, "%.2f", put_Delta);
+                NextCell(OptionChainColumnIndex_PUT_THETA, put_Theta);
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
 
-                NextCell(OptionChainColumnIndex_PUT_VOLUME, "%ld", Put._marketWatch->_volumeTradedToday);
+                NextCell(OptionChainColumnIndex_PUT_VEGA, put_Vega);
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_OI, "%d", Put._marketWatch->_openInterest);
+
+                NextCell(OptionChainColumnIndex_PUT_GAMMA, put_Gamma);
+                if (not needColor) {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+                }
+                NextCell(OptionChainColumnIndex_PUT_DELTA, put_Delta);
+                if (not needColor) {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+                }
+
+                NextCell(OptionChainColumnIndex_PUT_VOLUME, Put._marketWatch->_volumeTradedToday);
+                if (not needColor) {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+                }
+                NextCell(OptionChainColumnIndex_PUT_OI, Put._marketWatch->_openInterest);
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }

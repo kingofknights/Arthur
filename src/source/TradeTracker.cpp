@@ -31,9 +31,9 @@ void TradeTracker::DrawTracker(bool* show_) {
                 for (auto iterator = begin; iterator < end; ++iterator, ++i) {
                     ImGui::TableNextRow();
                     TradeTrackerItemT& TradeTrackerItem = *iterator;
-                    NextCell(TradeTrackerColumn_ID, "%d", i);
-                    NextCell(TradeTrackerColumn_NAME, "%s", TradeTrackerItem._strategy.data());
-                    NextCell(TradeTrackerColumn_DESCRIPTIONS, "%s", TradeTrackerItem._descriptions.data());
+                    NextCell(TradeTrackerColumn_ID, i);
+                    NextCell(TradeTrackerColumn_NAME, TradeTrackerItem._strategy.data());
+                    NextCell(TradeTrackerColumn_DESCRIPTIONS, TradeTrackerItem._descriptions.data());
                 }
             }
             ImGui::EndTable();

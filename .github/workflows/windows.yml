@@ -33,8 +33,7 @@ jobs:
         working-directory: ${{github.workspace}}/
         run: |
           cmake --build build --config ${{env.BUILD_TYPE}} --target install -j6
-          cd build
-          tree
+          cmake --build build --config ${{env.BUILD_TYPE}} --target install -j6
 
       - name: Release
         uses: softprops/action-gh-release@v2

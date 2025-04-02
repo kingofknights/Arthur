@@ -105,7 +105,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
 target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
 target_link_libraries(${PROJECT_NAME} PRIVATE SQLiteCpp)
 
-target_precompile_headers(${PROJECT_NAME} PRIVATE ${PRECOMPILE_HEADERS})
+target_precompile_headers(${PROJECT_NAME} PUBLIC ${PRECOMPILE_HEADERS})
 
 add_custom_command(
   TARGET ${PROJECT_NAME}
@@ -113,3 +113,8 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FONT_FILE} $<TARGET_FILE_DIR:${PROJECT_NAME}>
   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/setting.json
           $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+
+add_executable(buildResultSet ./buildResult.cpp)
+target_sources(buildResultSet PRIVATE ${LANCELOT_FILES})
+target_link_libraries(buildResultSet PRIVATE fmt::fmt)
+target_link_libraries(buildResultSet PRIVATE SQLiteCpp)

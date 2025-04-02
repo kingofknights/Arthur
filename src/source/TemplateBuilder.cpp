@@ -141,8 +141,8 @@ void TemplateBuilder::DrawTable() {
                 _parameterType  = info._type;
             }
 
-            NextCell(ColumnGeneratorColumnIndex_TYPE, "%s", ColumnGeneratorDataType[info._type]);
-            NextCell(ColumnGeneratorColumnIndex_VALUE, "%s", info._value.data());
+            NextCell(ColumnGeneratorColumnIndex_TYPE, ColumnGeneratorDataType[info._type]);
+            NextCell(ColumnGeneratorColumnIndex_VALUE, info._value.data());
         }
         ImGui::EndTable();
     }

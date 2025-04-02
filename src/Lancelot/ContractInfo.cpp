@@ -16,6 +16,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <string>
 #include <unordered_map>
 
 namespace Lancelot {
@@ -43,8 +44,8 @@ namespace Lancelot {
             auto* resultSetPtr = new ResultSetT;
 
             resultSetPtr->_token       = std::stoi(row.at("Token"));
+            resultSetPtr->_futureToken = std::stoi(row.at("Future"));
             resultSetPtr->_expiryDate  = std::stoi(row.at("ExpiryDate"));
-            resultSetPtr->_lotMultiple = std::stoi(row.at("LotMultiple"));
             resultSetPtr->_lotSize     = std::stoi(row.at("LotSize"));
             resultSetPtr->_tickSize    = std::stoi(row.at("TickSize"));
             resultSetPtr->_divisor     = std::stoi(row.at("Divisor"));
@@ -79,61 +80,9 @@ namespace Lancelot {
     }
 
     void ContractInfo::Initialize(const std::string& name_, const ResultSetLoadingCallbackT& callback_) {
-        std::fstream file(name_, std::ios::in);
-        if (not file.is_open()) {
-            LOG(INFO, "unable to open contract file {}", name_);
-            return;
-        }
-        // TableWithColumnIndexT table;
-
-        while (not file.eof()) {
-            std::string data;
-            std::getline(file, data);
-
-            if (data.empty() or std::isalpha(data[0]) != 0) {
-                continue;
-            }
-
-            RowWithColumnIndexT result;
-            boost::split(result, data, boost::is_any_of(" ,"));
-
-            auto* resultSetPtr = new ResultSetT;
-
-            resultSetPtr->_token       = boost::lexical_cast<uint32_t>(result[TOKEN]);
-            resultSetPtr->_futureToken = boost::lexical_cast<uint32_t>(result[FUTURE_TOKEN]);
-            resultSetPtr->_expiryDate  = boost::lexical_cast<uint32_t>(result[EXPIRY]);
-            resultSetPtr->_lotMultiple = boost::lexical_cast<uint32_t>(result[BLQ]);
-            resultSetPtr->_lotSize     = boost::lexical_cast<uint32_t>(result[LOT_SIZE]);
-            resultSetPtr->_tickSize    = boost::lexical_cast<uint32_t>(result[TICK_SIZE]);
-            resultSetPtr->_divisor     = 100;
-            resultSetPtr->_instType    = GetInstrumentType(result[INSTRUMENT_TYPE]);
-            resultSetPtr->_option      = GetOptionType(result[OPTION_TYPE]);
-            resultSetPtr->_exchange    = Exchange_NSE_FUTURE;
-            resultSetPtr->_strikePrice = boost::lexical_cast<float>(result[STRIKE]);
-            resultSetPtr->_symbol      = result[SYMBOL];
-            resultSetPtr->_segment     = "F&O";
-
-            resultSetPtr->_name = result[DESCRIPTION];
-
-            {
-                std::stringstream ss;
-                ss << (resultSetPtr->_strikePrice < 0 ? "FUT" : "OPT");
-                ss << ' ' << resultSetPtr->_symbol.data();
-                if (resultSetPtr->_strikePrice > 0) ss << ' ' << (resultSetPtr->_strikePrice) << ' ' << (resultSetPtr->_option == Lancelot::OptionType_CALL ? "CE" : "PE");
-                ss << ' ' << FORMAT("{:%d%b}", fmt::localtime(resultSetPtr->_expiryDate));
-                auto description           = boost::to_upper_copy(ss.str());
-                resultSetPtr->_description = description;
-            }
-
-            auto low  = boost::lexical_cast<float>(result[LOW_DPR]);
-            auto high = boost::lexical_cast<float>(result[HIGH_DPR]);
-            details::ResultSetContainer.emplace(resultSetPtr->_token, resultSetPtr);
-            details::NameToTokenContainer.emplace(resultSetPtr->_description, resultSetPtr->_token);
-            callback_(resultSetPtr, low, low, high);
-            // table.push_back(result);
-        }
-        details::contractFetcher = new ContractFetcher("ResultSet.db3");
-        // details::contractFetcher->Insert(table);
+        details::contractFetcher = new ContractFetcher(name_);
+        const auto table         = details::contractFetcher->GetResultWithColumnName(GetResultSet_);
+        LoadResultSetTable(table, callback_);
     }
 
     auto ContractInfo::GetResultSet(uint32_t token_) -> ResultSetPtrT {
@@ -150,7 +99,6 @@ namespace Lancelot {
 
     GET_RESULT_SET(uint32_t, ExpiryDate, _expiryDate)
     GET_RESULT_SET(uint32_t, Future, _futureToken)
-    GET_RESULT_SET(uint32_t, LotMultiple, _lotMultiple)
     GET_RESULT_SET(uint32_t, LotSize, _lotSize)
     GET_RESULT_SET(uint32_t, TickSize, _tickSize)
     GET_RESULT_SET(uint32_t, Divisor, _divisor)
