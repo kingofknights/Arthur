@@ -294,7 +294,6 @@ using GreekBookContainerT       = std::unordered_map<uint32_t, GreekBookColumnPt
 using SymbolWiseTradeContainerT = std::unordered_map<uint32_t, NetBookColumnPtrT>;
 
 using PFWiseTradeContainerT      = std::map<std::pair<uint32_t, uint32_t>, NetBookColumnPtrT>;
-using OptionChainContainerT      = std::map<float, OptionChainRowT>;
 using ScannerInfoFromDatabaseT   = std::map<int, std::string>;
 using ExcelContactItemContainerT = std::map<std::string, ExcelContactItemT>;
 

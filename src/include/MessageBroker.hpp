@@ -14,7 +14,7 @@ class MessageBroker final : public TBaseSocket {
     using ContainerT = std::unordered_map<int, OrderInfoPtrT>;
 
   public:
-    explicit MessageBroker(ExecutorT& executor_, FunctionT function_);
+    explicit MessageBroker(ExecutorT& executor_, int16_t user_, FunctionT function_);
 
   protected:
     void ConnectedStatus(bool status_) noexcept override;
@@ -30,4 +30,6 @@ class MessageBroker final : public TBaseSocket {
   private:
     FunctionT  _function;
     ContainerT _container;
+
+    int16_t _user;
 };

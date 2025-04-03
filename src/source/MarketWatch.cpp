@@ -214,11 +214,10 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) noexcept {
     ImGui::LabelText("ATP", "%.2f", pointer_->_averageTradePrice);
     ImGui::EndColumns();
 
-    auto  range  = (pointer_->_high - pointer_->_low);
-    float moment = (pointer_->_lastTradePrice - pointer_->_low) / std::max(range, 1.0F);
-    LOG(INFO, "{}", range);
-    uint64_t total = (pointer_->_totalBuyQuantity + pointer_->_totalSellQuantity);
-    float    ratio = float(pointer_->_totalBuyQuantity) / float(total == 0 ? 1 : total);
+    auto     range  = (pointer_->_highDpr - pointer_->_lowDpr);
+    float    moment = (pointer_->_lastTradePrice - pointer_->_lowDpr) / std::max(range, 1.0F);
+    uint64_t total  = (pointer_->_totalBuyQuantity + pointer_->_totalSellQuantity);
+    float    ratio  = float(pointer_->_totalBuyQuantity) / static_cast<float>(std::max(total, 1UL));
 
     ImGui::PushStyleColor(ImGuiCol_PlotHistogram, BuySellColor(Lancelot::Side_BUY));
     ImGui::PushStyleColor(ImGuiCol_FrameBg, BuySellColor(Lancelot::Side_SELL));

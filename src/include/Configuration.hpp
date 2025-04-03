@@ -63,7 +63,7 @@ inline constexpr ImGuiWindowFlags      MainWindowFlags           = ImGuiWindowFl
 inline constexpr ImGuiTableColumnFlags TableColumnFlags          = ImGuiTableColumnFlags_None;
 
 template <typename Type>
-void NextCell(int index_, Type&& type_, ImVec4 color_) {
+void NextCell(int index_, Type type_, ImVec4 color_) {
     if (ImGui::TableSetColumnIndex(index_)) {
         ImGui::PushStyleColor(ImGuiCol_Text, color_);
         const std::string data = FORMAT("{}", type_);
@@ -73,7 +73,7 @@ void NextCell(int index_, Type&& type_, ImVec4 color_) {
 }
 
 template <typename Type>
-void FirstCellWithPadding(int index_, Type&& type_, ImVec4 color_) {
+void FirstCellWithPadding(int index_, Type type_, ImVec4 color_) {
     if (ImGui::TableSetColumnIndex(index_)) {
         ImGui::AlignTextToFramePadding();
         ImGui::PushStyleColor(ImGuiCol_Text, color_);
@@ -84,7 +84,7 @@ void FirstCellWithPadding(int index_, Type&& type_, ImVec4 color_) {
 }
 
 template <typename Type>
-void NextCell(int index_, Type&& type_) {
+void NextCell(int index_, Type type_) {
     if (ImGui::TableSetColumnIndex(index_)) {
         const std::string data = FORMAT("{}", type_);
         ImGui::TextUnformatted(&*data.begin(), &*data.end());
@@ -92,7 +92,7 @@ void NextCell(int index_, Type&& type_) {
 }
 
 template <typename Type>
-void FirstCellWithPadding(int index_, Type&& type_) {
+void FirstCellWithPadding(int index_, Type type_) {
     if (ImGui::TableSetColumnIndex(index_)) {
         ImGui::AlignTextToFramePadding();
         const std::string data = FORMAT("{}", type_);

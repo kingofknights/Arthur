@@ -9,6 +9,7 @@
 #include "../include/Enums.hpp"
 #include "../include/Structure.hpp"
 #include "../include/Utils.hpp"
+#include "Enums.hpp"
 #include "Lancelot/Lancelot.hpp"
 #include "Structure.hpp"
 #include "include/Arthur_Fwd.hpp"
@@ -40,9 +41,10 @@ namespace {
         return OrderStatus_NEW_REJECT;
     }
 }  // namespace
-MessageBroker::MessageBroker(ExecutorT& executor_, FunctionT function_)
+MessageBroker::MessageBroker(ExecutorT& executor_, int16_t user_, FunctionT function_)
     : TBaseSocket(executor_),
-      _function(std::move(function_)) {}
+      _function(std::move(function_)),
+      _user(user_) {}
 
 void MessageBroker::Process(const char* buffer_, size_t size_) {
     const auto* request = reinterpret_cast<const Lancelot::Header*>(buffer_);
@@ -150,5 +152,18 @@ void MessageBroker::ProcessUpdates(const nlohmann::json& input_) {
     }
 }
 void MessageBroker::ConnectedStatus(bool status_) noexcept {
+    if (status_) {
+        Lancelot::StrategyHeader login{
+            ._header = {
+                ._type   = Lancelot::RequestType_LOGIN,
+                ._length = sizeof(login) - sizeof(Lancelot::Header),
+            },
+            ._user = {
+                ._user      = _user,
+                ._portfolio = 0,
+            },
+        };
+        WriteAsync(&login, sizeof(login));
+    }
     Utils::ResetPortfolio(status_ ? StrategyStatus_INACTIVE : StrategyStatus_DISCONNECTED);
 }

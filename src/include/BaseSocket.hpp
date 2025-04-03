@@ -45,4 +45,7 @@ class TBaseSocket {
     ErrorCodeT        _errorCode;
     BufferT           _buffer;
     Lancelot::Header* _header;
+
+    std::string _address;
+    uint16_t    _port;
 };

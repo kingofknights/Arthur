@@ -2,17 +2,22 @@
 
 #include "Structure.hpp"
 
-class OptionChain {
+class OptionChain final {
+    using OptionChainContainerT = std::map<double, OptionChainRowT>;
+
   public:
     OptionChain();
-    void paint(bool* show_);
+
+    void Paint(bool* show_);
+
     void SetOptionForFuture(const std::string& contract_);
 
-  private:
+  protected:
     void DrawOptionChain(bool* show_);
+
     void LoadOptions(const std::string& symbol_, uint32_t expiry_, uint32_t futurePrice_, char comparator_, const std::string& order_);
 
-  protected:
+  private:
     OptionChainContainerT _optionChainContainer;
     MarketWatchDataPtrT   _future;
     std::string           _symbol;

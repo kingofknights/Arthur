@@ -25,7 +25,7 @@ namespace {
 
 OptionChain::OptionChain() : _future(std::make_shared<MarketWatchDataT>()) {}
 
-void OptionChain::paint(bool* show_) {
+void OptionChain::Paint(bool* show_) {
     if (*show_) {
         DrawOptionChain(show_);
     }
@@ -57,38 +57,39 @@ void OptionChain::DrawOptionChain(bool* show_) {
             }
             ImGui::TableHeadersRow();
 
-            for (const OptionChainContainerT::value_type& valueType_ : _optionChainContainer) {
+            for (const auto& valueType : _optionChainContainer) {
                 ImGui::TableNextRow();
 
-                const OptionChainRowT&  optionChainRow = valueType_.second;
-                const OptionChainItemT& Call           = optionChainRow._call;
-                const OptionChainItemT& Put            = optionChainRow._put;
+                const OptionChainRowT&  optionChainRow = valueType.second;
+                const OptionChainItemT& call           = optionChainRow._call;
+                const OptionChainItemT& put            = optionChainRow._put;
 
-                float priceForCall = _future->_bid[0]._price ? _future->_bid[0]._price : _future->_lastTradePrice;
+                float priceForCall = _future->_bid[0]._price > 0 ? _future->_bid[0]._price : _future->_lastTradePrice;
                 // FIXME : remove abs when working with live contracts
-                float expiryGap  = std::abs(Greeks::GetExpiryGap(Put._contract->_expiryDate));
-                float rate       = 0.0f;
-                float call_IV    = Greeks::GetIV(priceForCall, valueType_.first, rate, expiryGap, Call._marketWatch->_lastTradePrice, true);
-                float call_Theta = Greeks::GetTheta(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
-                float call_Vega  = Greeks::GetVega(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
-                float call_Gamma = Greeks::GetGamma(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
-                float call_Delta = Greeks::GetDelta(priceForCall, valueType_.first, call_IV, rate, expiryGap, true);
+                double expiryGap  = std::abs(Greeks::GetExpiryGap(put._contract->_expiryDate));
+                double rate       = 0.0;
+                double call_IV    = Greeks::GetIV(priceForCall, valueType.first, rate, expiryGap, call._marketWatch->_lastTradePrice, true);
+                double call_Theta = Greeks::GetTheta(priceForCall, valueType.first, call_IV, rate, expiryGap, true);
+                double call_Vega  = Greeks::GetVega(priceForCall, valueType.first, call_IV, rate, expiryGap, true);
+                double call_Gamma = Greeks::GetGamma(priceForCall, valueType.first, call_IV, rate, expiryGap, true);
+                double call_Delta = Greeks::GetDelta(priceForCall, valueType.first, call_IV, rate, expiryGap, true);
 
-                float priceForPut = _future->_ask[0]._price ? _future->_ask[0]._price : _future->_lastTradePrice;
-                float put_IV      = Greeks::GetIV(priceForPut, valueType_.first, rate, expiryGap, Put._marketWatch->_lastTradePrice, false);
-                float put_Theta   = Greeks::GetTheta(priceForPut, valueType_.first, put_IV, rate, expiryGap, false);
-                float put_Vega    = Greeks::GetVega(priceForPut, valueType_.first, put_IV, rate, expiryGap, false);
-                float put_Gamma   = Greeks::GetGamma(priceForPut, valueType_.first, put_IV, rate, expiryGap, false);
-                float put_Delta   = Greeks::GetDelta(priceForPut, valueType_.first, put_IV, rate, expiryGap, false);
+                LOG(INFO, "{} {} {} {} {}", priceForCall, valueType.first, expiryGap, call._marketWatch->_lastTradePrice, call_IV * 100.0);
+                float  priceForPut = _future->_ask[0]._price > 0 ? _future->_ask[0]._price : _future->_lastTradePrice;
+                double put_IV      = Greeks::GetIV(priceForPut, valueType.first, rate, expiryGap, put._marketWatch->_lastTradePrice, false);
+                double put_Theta   = Greeks::GetTheta(priceForPut, valueType.first, put_IV, rate, expiryGap, false);
+                double put_Vega    = Greeks::GetVega(priceForPut, valueType.first, put_IV, rate, expiryGap, false);
+                double put_Gamma   = Greeks::GetGamma(priceForPut, valueType.first, put_IV, rate, expiryGap, false);
+                double put_Delta   = Greeks::GetDelta(priceForPut, valueType.first, put_IV, rate, expiryGap, false);
 
                 ImU32 color     = ImGui::GetColorU32(COLOR_GRAY);
-                bool  needColor = valueType_.first < _future->_lastTradePrice;
+                bool  needColor = valueType.first < _future->_lastTradePrice;
 
-                NextCell(OptionChainColumnIndex_CALL_OI, Call._marketWatch->_openInterest);
+                NextCell(OptionChainColumnIndex_CALL_OI, call._marketWatch->_openInterest);
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_VOLUME, Call._marketWatch->_volumeTradedToday);
+                NextCell(OptionChainColumnIndex_CALL_VOLUME, call._marketWatch->_volumeTradedToday);
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
@@ -109,62 +110,62 @@ void OptionChain::DrawOptionChain(bool* show_) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
 
-                NextCell(OptionChainColumnIndex_CALL_IV, call_IV * 100.0F);
+                NextCell(OptionChainColumnIndex_CALL_IV, (call_IV * 100.0));
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_LTP, Call._marketWatch->_lastTradePrice, UpDownColor(Call._marketWatch->_color._ltp));
+                NextCell(OptionChainColumnIndex_CALL_LTP, call._marketWatch->_lastTradePrice, UpDownColor(call._marketWatch->_color._ltp));
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_CHANGE, Call._marketWatch->_pchange);
+                NextCell(OptionChainColumnIndex_CALL_CHANGE, call._marketWatch->_pchange);
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_BID_QTY, Call._marketWatch->_bid[0]._quantity);
+                NextCell(OptionChainColumnIndex_CALL_BID_QTY, call._marketWatch->_bid[0]._quantity);
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_BID_PRICE, Call._marketWatch->_bid[0]._price, UpDownColor(Call._marketWatch->_color._topBid));
+                NextCell(OptionChainColumnIndex_CALL_BID_PRICE, call._marketWatch->_bid[0]._price, UpDownColor(call._marketWatch->_color._topBid));
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_ASK_PRICE, Call._marketWatch->_ask[0]._price, UpDownColor(Call._marketWatch->_color._topAsk));
+                NextCell(OptionChainColumnIndex_CALL_ASK_PRICE, call._marketWatch->_ask[0]._price, UpDownColor(call._marketWatch->_color._topAsk));
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_CALL_ASK_QTY, Call._marketWatch->_ask[0]._quantity);
+                NextCell(OptionChainColumnIndex_CALL_ASK_QTY, call._marketWatch->_ask[0]._quantity);
                 if (needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
 
-                NextCell(OptionChainColumnIndex_STRIKE_PRICE, valueType_.first);
+                NextCell(OptionChainColumnIndex_STRIKE_PRICE, valueType.first);
 
-                NextCell(OptionChainColumnIndex_PUT_BID_QTY, Put._marketWatch->_bid[0]._quantity);
+                NextCell(OptionChainColumnIndex_PUT_BID_QTY, put._marketWatch->_bid[0]._quantity);
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_BID_PRICE, Put._marketWatch->_bid[0]._price, UpDownColor(Put._marketWatch->_color._topBid));
+                NextCell(OptionChainColumnIndex_PUT_BID_PRICE, put._marketWatch->_bid[0]._price, UpDownColor(put._marketWatch->_color._topBid));
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_ASK_PRICE, Put._marketWatch->_ask[0]._price, UpDownColor(Put._marketWatch->_color._topAsk));
+                NextCell(OptionChainColumnIndex_PUT_ASK_PRICE, put._marketWatch->_ask[0]._price, UpDownColor(put._marketWatch->_color._topAsk));
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_ASK_QTY, Put._marketWatch->_ask[0]._quantity);
+                NextCell(OptionChainColumnIndex_PUT_ASK_QTY, put._marketWatch->_ask[0]._quantity);
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_CHANGE, Put._marketWatch->_pchange);
+                NextCell(OptionChainColumnIndex_PUT_CHANGE, put._marketWatch->_pchange);
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_LTP, Put._marketWatch->_lastTradePrice, UpDownColor(Put._marketWatch->_color._ltp));
+                NextCell(OptionChainColumnIndex_PUT_LTP, put._marketWatch->_lastTradePrice, UpDownColor(put._marketWatch->_color._ltp));
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_IV, put_IV * 100.0f);
+                NextCell(OptionChainColumnIndex_PUT_IV, (put_IV * 100.0));
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
@@ -188,11 +189,11 @@ void OptionChain::DrawOptionChain(bool* show_) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
 
-                NextCell(OptionChainColumnIndex_PUT_VOLUME, Put._marketWatch->_volumeTradedToday);
+                NextCell(OptionChainColumnIndex_PUT_VOLUME, put._marketWatch->_volumeTradedToday);
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
-                NextCell(OptionChainColumnIndex_PUT_OI, Put._marketWatch->_openInterest);
+                NextCell(OptionChainColumnIndex_PUT_OI, put._marketWatch->_openInterest);
                 if (not needColor) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
