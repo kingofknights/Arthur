@@ -14,6 +14,10 @@
 
 extern ClientCodeListT ClientCodeList;
 
+static auto RoundUp(int numToRound_, int multiple_) -> int {
+    return ((numToRound_ + multiple_ - 1) / multiple_) * multiple_;
+}
+
 OrderForm::OrderForm(ExecutorStrandT& strand_, FunctionT function_)
     : _strand(strand_),
       _function(std::move(function_)),
@@ -36,6 +40,7 @@ void OrderForm::Paint(const char* name_) {
 
 void OrderForm::Update(OrderFormInfoT& info_) {
     _order        = info_;
+    _order._price = RoundUp(int(info_._price * 100), 5) / 100.0;
     _color        = BuySellColor(_order._side);
     auto exchange = Lancelot::ContractInfo::GetExchange(Lancelot::ContractInfo::GetToken(info_._contract));
     if (exchange != _exchange) {
@@ -56,6 +61,7 @@ void OrderForm::SentToBroker() {
 void OrderForm::DrawInputItem() {
     if (ImGui::InputDouble("Price", &_order._price, 0.050000000000F, 0.5000000000F, "%.2f")) {
         _order._price = std::max(_order._price, 0.0);
+        LOG(INFO, "{}", _order._price * 100.0);
     }
 
     if (ImGui::InputInt("Quantity", &_order._quantity, _order._lotSize)) {
