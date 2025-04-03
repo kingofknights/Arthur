@@ -5,6 +5,7 @@
 #include "../include/MarketWatch.hpp"
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
+#include "imgui.h"
 
 #include <imgui_internal.h>
 
@@ -53,8 +54,8 @@ void OrderForm::SentToBroker() {
 }
 
 void OrderForm::DrawInputItem() {
-    if (ImGui::InputFloat("Price", &_order._price, 0.050000000000F, 0.5000000000F, "%.2f")) {
-        _order._price = std::max(_order._price, 0.0F);
+    if (ImGui::InputDouble("Price", &_order._price, 0.050000000000F, 0.5000000000F, "%.2f")) {
+        _order._price = std::max(_order._price, 0.0);
     }
 
     if (ImGui::InputInt("Quantity", &_order._quantity, _order._lotSize)) {

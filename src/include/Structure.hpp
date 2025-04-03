@@ -195,7 +195,7 @@ using PortfolioStatusT = struct PortfolioStatusT {
 
 using OrderFormInfoT = struct OrderFormInfoT {
     uint32_t       _uniqueId;
-    float          _price;
+    double         _price;
     int            _quantity;
     int            _lotSize;
     long           _orderNumber;
