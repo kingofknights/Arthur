@@ -250,7 +250,7 @@ void MarketWatch::Paint() {
 }
 
 void MarketWatch::DrawLadderWatchWindow() noexcept {
-    if (ImGui::Begin("MarketWatchLadder", &_showMarketWatch)) {
+    if (ImGui::Begin("MarketWatchLadder", &_showMarketLadder)) {
         if (_ladderDataPtr) {
             MarketWatch::LadderView(_ladderDataPtr);
         }

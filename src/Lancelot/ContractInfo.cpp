@@ -65,7 +65,7 @@ namespace Lancelot {
                 std::stringstream ss;
                 ss << (resultSetPtr->_strikePrice < 0 ? "FUT" : "OPT");
                 ss << ' ' << resultSetPtr->_symbol.data();
-                if (resultSetPtr->_strikePrice > 0) ss << ' ' << (resultSetPtr->_strikePrice) << ' ' << (resultSetPtr->_option == Lancelot::OptionType_CALL ? "CE" : "PE");
+                if (resultSetPtr->_strikePrice > 0) ss << ' ' << FORMAT("{:.2f}", resultSetPtr->_strikePrice / (resultSetPtr->_divisor * 1.0F)) << ' ' << (resultSetPtr->_option == Lancelot::OptionType_CALL ? "CE" : "PE");
                 ss << ' ' << FORMAT("{:%d%b}", fmt::localtime(resultSetPtr->_expiryDate));
                 auto description           = boost::to_upper_copy(ss.str());
                 resultSetPtr->_description = description;
