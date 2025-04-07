@@ -67,7 +67,7 @@ void NextCell(int index_, Type type_, ImVec4 color_) {
     if (ImGui::TableSetColumnIndex(index_)) {
         ImGui::PushStyleColor(ImGuiCol_Text, color_);
         const std::string data = FORMAT("{}", type_);
-        ImGui::TextUnformatted(&*data.begin(), &*data.end());
+        ImGui::TextUnformatted(data.data(), data.data() + data.size());
         ImGui::PopStyleColor();
     }
 }
@@ -78,7 +78,7 @@ void FirstCellWithPadding(int index_, Type type_, ImVec4 color_) {
         ImGui::AlignTextToFramePadding();
         ImGui::PushStyleColor(ImGuiCol_Text, color_);
         const std::string data = FORMAT("{}", type_);
-        ImGui::TextUnformatted(&*data.begin(), &*data.end());
+        ImGui::TextUnformatted(data.data(), data.data() + data.size());
         ImGui::PopStyleColor();
     }
 }
@@ -87,7 +87,7 @@ template <typename Type>
 void NextCell(int index_, Type type_) {
     if (ImGui::TableSetColumnIndex(index_)) {
         const std::string data = FORMAT("{}", type_);
-        ImGui::TextUnformatted(&*data.begin(), &*data.end());
+        ImGui::TextUnformatted(data.data(), data.data() + data.size());
     }
 }
 
@@ -96,7 +96,7 @@ void FirstCellWithPadding(int index_, Type type_) {
     if (ImGui::TableSetColumnIndex(index_)) {
         ImGui::AlignTextToFramePadding();
         const std::string data = FORMAT("{}", type_);
-        ImGui::TextUnformatted(&*data.begin(), &*data.end());
+        ImGui::TextUnformatted(data.data(), data.data() + data.size());
     }
 }
 
