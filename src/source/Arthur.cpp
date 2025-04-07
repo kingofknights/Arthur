@@ -108,7 +108,7 @@ Arthur::Arthur(bool* closeMainWindow_) : _strand(_executor), _backendWorker(_exe
         CancelOrderEvent(info_);
     });
 
-    _messageBroker = std::make_unique<MessageBroker>(_executor, [&](const OrderInfoPtrT& orderInfo_) {
+    _messageBroker = std::make_unique<MessageBroker>(_executor, _userId, [&](const OrderInfoPtrT& orderInfo_) {
         AddTrade(orderInfo_);
     });
 
@@ -211,7 +211,7 @@ void Arthur::Paint() {
     _openOrdersPtr->Paint();
     _strategyWorkspacePtr->Paint(&_showStrategyWorkspace);
     _tradeHistoryPtr->paint(&_showTradeHistory);
-    _optionChainPtr->paint(&_showOptionChain);
+    _optionChainPtr->Paint(&_showOptionChain);
     _orderBookPtr->paint(&_showOrderBook);
     _rejectBookPtr->paint(&_showRejectBook);
     Utils::StatusBar();

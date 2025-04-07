@@ -7,6 +7,8 @@ TBaseSocket::TBaseSocket(ExecutorT& executor_) : _strand(executor_), _socket(exe
 }
 
 void TBaseSocket::MakeConnection(const std::string& address_, uint16_t port_) {
+    _address = address_;
+    _port    = port_;
     boost::asio::ip::tcp::resolver        resolver(_socket.get_executor());
     boost::asio::ip::tcp::resolver::query query(address_, std::to_string(port_));
 
@@ -80,8 +82,7 @@ void TBaseSocket::ReadHandlerBody(const ErrorCodeT& errorCode_, size_t size_) {
 
         ConnectedStatus(_connected);
 
-        const auto endpoint = _socket.remote_endpoint();
-        MakeConnection(endpoint.address().to_string(), endpoint.port());
+        MakeConnection(_address, _port);
     }
 }
 

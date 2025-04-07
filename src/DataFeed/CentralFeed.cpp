@@ -86,7 +86,7 @@ void CentralFeed::Process(char* buffer, size_t size_) {
     std::memset(ref->_lastTradeTime.data(), 0, 30);
     std::memcpy(ref->_lastTradeTime.data(), pointer->_lastTradeTime, 30);
 
-    ref->_pchange = static_cast<float>(pointer->_close - pointer->_lastTradePrice) / static_cast<float>(pointer->_close) * 100.0F;
+    ref->_pchange = (static_cast<float>(pointer->_close - pointer->_lastTradePrice) / static_cast<float>(pointer->_close)) * 100.0F;
 
     if (topBid != pointer->_bid[0]._price) {
         ref->_color._topBid = topBid < (pointer->_bid[0]._price);

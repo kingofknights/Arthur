@@ -127,12 +127,12 @@ void OpenOrders::DrawManualOrderRequestedForCancel() {
                 auto begin = _cancelOrder.begin() + _clipper.DisplayStart;
                 auto end   = begin + (_clipper.DisplayEnd - _clipper.DisplayStart);
                 int  i     = _clipper.DisplayStart;
-                ImGui::PushID(i);
                 for (auto iterator = begin; iterator < end; ++iterator, ++i) {
+                    ImGui::PushID(i);
                     ImGui::TableNextRow();
                     Utils::DrawTradeRow(*iterator, _selectedRow, -2);
+                    ImGui::PopID();
                 }
-                ImGui::PopID();
             }
             ImGui::EndTable();
         }
