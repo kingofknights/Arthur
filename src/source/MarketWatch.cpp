@@ -162,7 +162,7 @@ void MarketWatch::ContractCell(int contract_, int index_, const char* data_, con
                 ._quantity    = (int)Lancelot::ContractInfo::GetLotSize(pointer_->_token),
                 ._lotSize     = info._quantity,
                 ._orderNumber = 0,
-                ._type        = 0,
+                ._type        = OrderType_LIMIT,
                 ._side        = side,
                 ._status      = OrderStatus_NEW,
                 ._contract    = Lancelot::ContractInfo::GetDescription(pointer_->_token),

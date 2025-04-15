@@ -8,7 +8,7 @@ inline constexpr const char* VisualThemeName[] = {
     "Arthur Light",
     "Arthur Dark",
     "Default Light",
-    "Default Dark"
+    "Default Dark",
 };
 
 inline constexpr const char* StrategyStatusType[] = {
@@ -34,7 +34,7 @@ inline constexpr const char* BookTableColumnName[] = {
     "Time",
     "GateWay",
     "OrderNumber",
-    "Message"
+    "Message",
 };
 
 inline constexpr const char* SymbolWiseTableColumnName[] = {
@@ -47,7 +47,7 @@ inline constexpr const char* SymbolWiseTableColumnName[] = {
     "NetInvest",
     "MTM",
     "LTP",
-    "PNL"
+    "PNL",
 };
 
 inline constexpr const char* PFWiseTableColumnName[] = {
@@ -61,7 +61,7 @@ inline constexpr const char* PFWiseTableColumnName[] = {
     "NetInvest",
     "MTM",
     "LTP",
-    "PNL"
+    "PNL",
 };
 
 inline constexpr const char* GreekBookColumnName[] = {
@@ -72,13 +72,12 @@ inline constexpr const char* GreekBookColumnName[] = {
     "Theta",
     "MTM",
     "MarketRate",
-    "Value"
-};
+    "Value"};
 
 inline constexpr const char* ColumnGeneratorTableName[] = {
     "NAME",
     "TYPE",
-    "VALUE"
+    "VALUE",
 };
 
 inline constexpr const char* ColumnGeneratorDataType[] = {
@@ -89,7 +88,7 @@ inline constexpr const char* ColumnGeneratorDataType[] = {
     "INT",
     "TEXT",
     "RADIO",
-    "UPDATES"
+    "UPDATES",
 };
 
 inline constexpr const char* MarketWatchTableColumnName[] = {
@@ -109,7 +108,7 @@ inline constexpr const char* MarketWatchTableColumnName[] = {
     "TotalBuyQuantity",
     "TotalSellQuantity",
     "VolumeTradedToday",
-    "OpenInterest"
+    "OpenInterest",
 };
 
 inline constexpr const char* MarketWatchTableToolTipColumnName[] = {
@@ -118,7 +117,7 @@ inline constexpr const char* MarketWatchTableToolTipColumnName[] = {
     "Price",
     "Price",
     "Quantity",
-    "Order"
+    "Order",
 };
 
 inline constexpr const char* OptionChainTableColumnName[] = {
@@ -148,7 +147,7 @@ inline constexpr const char* OptionChainTableColumnName[] = {
     "Gamma",
     "Delta",
     "Volume",
-    "OI"
+    "OI",
 };
 
 inline constexpr const char* ExcelTableColumnName_1[] = {
@@ -157,16 +156,18 @@ inline constexpr const char* ExcelTableColumnName_1[] = {
     "Open",
     "High",
     "Low",
-    "Close"
+    "Close",
 };
+
 inline constexpr const char* ExcelTableColumnName_2[] = {
     "LowDPR",
     "HighDPR",
     "TBQ",
     "TSQ",
     "VTT",
-    "OI"
+    "OI",
 };
+
 inline constexpr const char* Configuration[] = {
     "Demo",
     "ExcelWindow",
@@ -180,7 +181,7 @@ inline constexpr const char* Configuration[] = {
     "OrderAllBook",
     "RejectBook",
     "OptionChain",
-    "END"
+    "END",
 };
 
 inline constexpr const char* ScannerFunctionList[] = {
@@ -204,24 +205,24 @@ inline constexpr const char* ScannerFunctionList[] = {
     "ExpiryWeek",
     "IsCall",
     "IsPut",
-    "IsFuture"
+    "IsFuture",
 };
 
 inline constexpr const char* ScannerTableColumnName[] = {
     "Functions",
-    "Variables"
+    "Variables",
 };
 
 inline constexpr const char* TradeTrackerColumnName[] = {
     "ID",
     "Name",
-    "Descriptions"
+    "Descriptions",
 };
 
 inline constexpr const char* ScannerSavedTableColumnName[] = {
     "#",
     "Name",
-    "Operations"
+    "Operations",
 };
 
 inline constexpr const char* OrderStatusInfoName[] = {
@@ -237,8 +238,9 @@ inline constexpr const char* OrderStatusInfoName[] = {
 };
 
 inline constexpr const char* OrderTypeName[] = {
-    "IOC",
-    "Market",
+    "BEGIN",
     "Limit",
-    "Spread"
+    "Market",
+    "IOC",
+    "StopLoss",
 };

@@ -1,13 +1,9 @@
 #pragma once
 
-#include <array>
-#include <cstdint>
-#include <string>
-
 enum OrderType : int {
-    OrderType_LIMIT = 0,
+    OrderType_LIMIT = 1,
     OrderType_MARKET,
-    OrderType_IOC,
+    OrderType_IOC = 3,
     OrderType_SPREAD
 };
 

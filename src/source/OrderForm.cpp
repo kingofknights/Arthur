@@ -78,18 +78,20 @@ void OrderForm::DrawInputItem() {
     ImGui::BeginDisabled(enable);
     if (ImGui::BeginCombo("Broker", FORMAT("[{}] {}", Lancelot::ToString(_exchange), _clientCode).data())) {
         for (const auto& code : ClientCodeList) {
-            if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::ToString(code._exchange), code._clientCode).data())) {
-                _order._client = code._clientCode;
-                _exchange      = code._exchange;
-                _clientCode    = code._clientCode;
+            if (code._exchange == _exchange) {
+                if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::ToString(code._exchange), code._clientCode).data())) {
+                    _order._client = code._clientCode;
+                    _exchange      = code._exchange;
+                    _clientCode    = code._clientCode;
+                }
             }
         }
         ImGui::EndCombo();
     }
     if (ImGui::BeginCombo("Type", OrderTypeName[_order._type])) {
-        for (int i = 0; i < 4; i++) {
-            if (ImGui::Selectable(OrderTypeName[i])) {
-                _order._type = i;
+        for (int type : {OrderType_IOC, OrderType_LIMIT}) {
+            if (ImGui::Selectable(OrderTypeName[type])) {
+                _order._type = type;
             }
         }
         ImGui::EndCombo();

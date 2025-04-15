@@ -11,6 +11,8 @@
 #include "../include/TableColumnInfo.hpp"
 #include "../include/Utils.hpp"
 
+#include <iterator>
+
 static constexpr char CancelAllOrderWindow[] = "Cancel All Order Window";
 static constexpr char BeginOpenOrders[]      = "Open Orders";
 static constexpr char BeginOpenOrdersTable[] = "Open Orders Table";
@@ -62,7 +64,7 @@ void OpenOrders::DrawPendingBook(bool* show_) {
                                 ._quantity    = (int)tradeInfo_->_quantity,
                                 ._lotSize     = (int)Lancelot::ContractInfo::GetLotSize(tradeInfo_->_token),
                                 ._orderNumber = tradeInfo_->_orderNumber,
-                                ._type        = 0,
+                                ._type        = OrderType_LIMIT,
                                 ._side        = tradeInfo_->_side,
                                 ._status      = OrderStatus_REPLACED,
                                 ._contract    = Lancelot::ContractInfo::GetDescription(tradeInfo_->_token),
@@ -159,18 +161,24 @@ void OpenOrders::Update(const OrderInfoPtrT& tradeInfo_, bool insert_) {
     {
         auto iterator = _hashing.find(tradeInfo_->_uniqueId);
         if (iterator != _hashing.end()) {
-            if (_container.erase(iterator->second)) {
-                _buyCount -= tradeInfo_->_side == Lancelot::Side_BUY;
-                _sellCount -= tradeInfo_->_side == Lancelot::Side_SELL;
+            if (const auto position = _container.find(iterator->second); position != _container.end()) {
+                auto nextLocation = _container.erase(position);
+                if (nextLocation != _container.end()) {
+                    _selectedRow = static_cast<int>(nextLocation->second->_uniqueId);
+                } else if (not _container.empty()) {
+                    _selectedRow = static_cast<int>(_container.rbegin()->second->_uniqueId);
+                }
+                _buyCount -= static_cast<int>(tradeInfo_->_side == Lancelot::Side_BUY);
+                _sellCount -= static_cast<int>(tradeInfo_->_side == Lancelot::Side_SELL);
             }
         }
         _hashing[tradeInfo_->_uniqueId] = tradeInfo_->_time;
     }
 
     if (insert_) {
-        auto success = _container.emplace(tradeInfo_->_time, tradeInfo_).second;
-        _buyCount += tradeInfo_->_side == Lancelot::Side_BUY;
-        _sellCount += tradeInfo_->_side == Lancelot::Side_SELL;
+        _container.emplace(tradeInfo_->_time, tradeInfo_);
+        _buyCount += static_cast<int>(tradeInfo_->_side == Lancelot::Side_BUY);
+        _sellCount += static_cast<int>(tradeInfo_->_side == Lancelot::Side_SELL);
     }
 }
 void OpenOrders::Insert(const OrderInfoPtrT& tradeInfo_, bool insert_) {
