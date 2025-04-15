@@ -14,8 +14,10 @@
 
 extern ClientCodeListT ClientCodeList;
 
-static auto RoundUp(int numToRound_, int multiple_) -> int {
-    return ((numToRound_ + multiple_ - 1) / multiple_) * multiple_;
+auto OrderForm::RoundUp(int numToRound_, int multiple_) -> int {
+    int value = ((numToRound_ + multiple_ - 1) / multiple_) * multiple_;
+    LOG(INFO, "num = {}, multiple_ = {}, value = {}", numToRound_, multiple_, value);
+    return value;
 }
 
 OrderForm::OrderForm(ExecutorStrandT& strand_, FunctionT function_)
@@ -55,6 +57,7 @@ void OrderForm::Update(OrderFormInfoT& info_) {
     }
 }
 void OrderForm::SentToBroker() {
+    _order._price = RoundUp(int(_order._price * 100), 5) / 100.0;
     _strand.post([&]() { _function(_order, _order._orderNumber == 0 ? Lancelot::RequestType_NEW : Lancelot::RequestType_MODIFY); });
 }
 
