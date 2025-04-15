@@ -217,7 +217,7 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) noexcept {
     auto     range  = (pointer_->_highDpr - pointer_->_lowDpr);
     float    moment = (pointer_->_lastTradePrice - pointer_->_lowDpr) / std::max(range, 1.0F);
     uint64_t total  = (pointer_->_totalBuyQuantity + pointer_->_totalSellQuantity);
-    float    ratio  = float(pointer_->_totalBuyQuantity) / static_cast<float>(std::max(total, 1UL));
+    float    ratio  = float(pointer_->_totalBuyQuantity) / static_cast<float>(std::max<uint64_t>(total, 1UL));
 
     ImGui::PushStyleColor(ImGuiCol_PlotHistogram, BuySellColor(Lancelot::Side_BUY));
     ImGui::PushStyleColor(ImGuiCol_FrameBg, BuySellColor(Lancelot::Side_SELL));
@@ -250,7 +250,7 @@ void MarketWatch::Paint() {
 }
 
 void MarketWatch::DrawLadderWatchWindow() noexcept {
-    if (ImGui::Begin("MarketWatchLadder", &_showMarketWatch)) {
+    if (ImGui::Begin("MarketWatchLadder", &_showMarketLadder)) {
         if (_ladderDataPtr) {
             MarketWatch::LadderView(_ladderDataPtr);
         }

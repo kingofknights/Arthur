@@ -16,7 +16,21 @@
 
 #include <nlohmann/json.hpp>
 
+#include <boost/algorithm/algorithm.hpp>
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/date_time.hpp>
+
 namespace {
+    boost::posix_time::ptime as_ptime(uintmax_t ns) {
+        return {{1970, 1, 1}, boost::posix_time::microseconds(ns / 1000)};
+    }
+
+    auto TimeStampToHReadble(time_t rawtime_) -> std::string {
+        std::string time = boost::posix_time::to_iso_extended_string(as_ptime(rawtime_ + 1.98e+13));
+        boost::algorithm::replace_first(time, "T", " ");
+        return time;
+    }
+
     constexpr auto GetResponseStatus(int response_) noexcept -> OrderStatus {
         switch (response_) {
             case 10:
@@ -90,12 +104,12 @@ void MessageBroker::ProcessOrder(const char* buffer_) {
     info->_fillQuantity    = 0,
     info->_remaining       = response->_quantity,
     info->_orderNumber     = response->_exchangeOrderNumber,
-    info->_price           = response->_price,
+    info->_price           = response->_price / 100.0F,
     info->_fillPrice       = 0,
     info->_side            = static_cast<Lancelot::Side>(response->_side);
     info->_statusValue     = GetResponseStatus(response->_orderStatus);
     info->_contract        = Lancelot::ContractInfo::GetDescription(info->_token);
-    info->_time            = FORMAT("{}", response->_timestamp);
+    info->_time            = TimeStampToHReadble(response->_timestamp);
     info->_client          = FORMAT("{}", response->_user._user);
     info->_message         = FORMAT("{}", response->_errorCode);
     _function(info);

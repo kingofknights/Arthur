@@ -10,6 +10,8 @@ class OrderForm final {
     using FunctionT = std::function<void(OrderFormInfoT, Lancelot::RequestType)>;
 
   public:
+    static auto RoundUp(int numToRound_, int multiple_) -> int;
+
     OrderForm(ExecutorStrandT& strand_, FunctionT function_);
 
     void Paint(const char* name_);

@@ -2,7 +2,7 @@ name: Windows Build and Deployment
 
 on:
   push:
-    branches: ["main"]
+    branches: ["April"]
 
 env:
   BUILD_TYPE: Release
@@ -35,16 +35,15 @@ jobs:
           cmake --build build --config ${{env.BUILD_TYPE}} --target install -j6
           cmake --build build --config ${{env.BUILD_TYPE}} --target install -j6
 
+      - name: Compress the artifact
+        working-directory: ${{github.workspace}}/build/${{env.BUILD_TYPE}}
+        run: tar -czvf artifact.tar Arthur.exe Ruda-Bold.ttf MaterialIcons-Regular.ttf ResultSet.db3 setting.json
+
       - name: Release artifact
         uses: actions/upload-artifact@v4
         with:
-          path: ${{github.workspace}}/build/${{env.BUILD_TYPE}}
-          name: |
-            Arthur.exe 
-            Ruda-font.ttf 
-            MaterialIcons-Regular.ttf 
-            ResultSet.db3 
-            setting.json
+          path: ${{github.workspace}}/build/${{env.BUILD_TYPE}}/artifact.tar
+          name: Releases
 
       - name: Create GitHub Release
         if: false
