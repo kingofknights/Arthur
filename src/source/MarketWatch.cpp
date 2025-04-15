@@ -293,7 +293,7 @@ void MarketWatch::DrawColumn(const MarketWatchDataPtrT& data_, int index_) {
     ContractCell(index_, MarketWatchColumnIndex_CONTACT_NAME, data_->_description.data(), data_);
     NextCell(MarketWatchColumnIndex_ATP, data_->_averageTradePrice, UpDownColor(data_->_color._atp));
     NextCell(MarketWatchColumnIndex_LTP, data_->_lastTradePrice, UpDownColor(data_->_color._ltp));
-    NextCell(MarketWatchColumnIndex_LTQ, data_->_lastTradePrice);
+    NextCell(MarketWatchColumnIndex_LTQ, data_->_lastTradeQuantity);
     NextCell(MarketWatchColumnIndex_LTT, data_->_lastTradeTime.data());
     NextCell(MarketWatchColumnIndex_TOP_BID, data_->_bid[0]._price, UpDownColor(data_->_color._topBid));
     NextCell(MarketWatchColumnIndex_TOP_ASK, data_->_ask[0]._price, UpDownColor(data_->_color._topAsk));

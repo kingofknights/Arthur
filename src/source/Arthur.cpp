@@ -487,7 +487,7 @@ void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& info_, Lancelot::Requ
                     ._portfolio = 9999,
                 },
                 ._token         = info_._marketWatch->_token,
-                ._price         = static_cast<uint32_t>(OrderForm::RoundUp(static_cast<int>(info_._price * 100), 5)),
+                ._price         = static_cast<uint32_t>(info_._price),
                 ._quantity      = static_cast<uint32_t>(info_._quantity),
                 ._triggerPrice  = 0,
                 ._side          = info_._side,
@@ -510,7 +510,7 @@ void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& info_, Lancelot::Requ
                 },
                 ._token         = info_._marketWatch->_token,
                 ._orderSequence = static_cast<int32_t>(info_._uniqueId),
-                ._price         = static_cast<uint32_t>(OrderForm::RoundUp(static_cast<int>(info_._price * 100), 5)),
+                ._price         = static_cast<uint32_t>(info_._price),
                 ._quantity      = static_cast<uint32_t>(info_._quantity),
                 ._triggerPrice  = 0,
             };

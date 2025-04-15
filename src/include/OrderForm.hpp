@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Arthur_Fwd.hpp"
-#include "Structure.hpp"
+#include "include/Structure.hpp"
 
 #define NEW_ORDER_WINDOW    "Order Form Window"
 #define MODIFY_ORDER_WINDOW "Modify Order Window"
@@ -26,6 +26,11 @@ class OrderForm final {
   private:
     ExecutorStrandT& _strand;
     FunctionT        _function;
+
+    double _price     = 0;
+    double _precision = 1;
+
+    Lancelot::ResultSetPtrT _resultSet;
 
     OrderFormInfoT     _order;
     ImVec4             _color;

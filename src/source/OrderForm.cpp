@@ -5,6 +5,7 @@
 #include "../include/MarketWatch.hpp"
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
+#include "ContractInfo.hpp"
 #include "imgui.h"
 
 #include <imgui_internal.h>
@@ -41,10 +42,14 @@ void OrderForm::Paint(const char* name_) {
 }
 
 void OrderForm::Update(OrderFormInfoT& info_) {
-    _order        = info_;
-    _order._price = RoundUp(int(info_._price * 100), 5) / 100.0;
-    _color        = BuySellColor(_order._side);
-    auto exchange = Lancelot::ContractInfo::GetExchange(Lancelot::ContractInfo::GetToken(info_._contract));
+    _resultSet = Lancelot::ContractInfo::GetResultSet(info_._marketWatch->_token);
+    _order     = info_;
+    _price     = RoundUp(int(info_._price * 100), 5) / 100.0;
+    _color     = BuySellColor(_order._side);
+    _precision = static_cast<double>(_resultSet->_tickSize) / static_cast<double>(_resultSet->_divisor);
+
+    auto exchange = _resultSet->_exchange;
+
     if (exchange != _exchange) {
         _exchange = exchange;
         for (const auto& item : ClientCodeList) {
@@ -57,14 +62,13 @@ void OrderForm::Update(OrderFormInfoT& info_) {
     }
 }
 void OrderForm::SentToBroker() {
-    _order._price = RoundUp(int(_order._price * 100), 5) / 100.0;
+    _order._price = static_cast<PriceT>(RoundUp(int(_price * _resultSet->_divisor), static_cast<int>(_resultSet->_tickSize)));
     _strand.post([&]() { _function(_order, _order._orderNumber == 0 ? Lancelot::RequestType_NEW : Lancelot::RequestType_MODIFY); });
 }
 
 void OrderForm::DrawInputItem() {
-    if (ImGui::InputDouble("Price", &_order._price, 0.050000000000F, 0.5000000000F, "%.2f")) {
-        _order._price = std::max(_order._price, 0.0);
-        LOG(INFO, "{}", _order._price * 100.0);
+    if (ImGui::InputDouble("Price", &_price, _precision, _precision, "%.2f")) {
+        _price = std::max(_price, 0.0);
     }
 
     if (ImGui::InputInt("Quantity", &_order._quantity, _order._lotSize)) {

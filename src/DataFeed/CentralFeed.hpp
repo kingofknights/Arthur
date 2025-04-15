@@ -3,7 +3,6 @@
 #include <cstddef>
 
 class CentralFeed {
-
   public:
-    void Process(char* buffer, size_t size_);
+    static void Process(const char* buffer_, size_t size_);
 };

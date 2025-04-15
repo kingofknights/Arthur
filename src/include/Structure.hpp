@@ -1,28 +1,17 @@
-//
-// Created by VIKLOD on 22-01-2023.
-//
-
 #pragma once
 
-// #define DISABLE_LOGGING
+#include "IconsMaterialDesign.h"
 #include "Lancelot.hpp"
-
-#include <IconsMaterialDesign.h>
-#include <imgui.h>
+#include "imgui.h"
 
 #include <boost/lockfree/spsc_queue.hpp>
 
-#include <array>
-#include <cstdint>
 #include <deque>
 #include <list>
 #include <map>
 #include <memory>
-#include <set>
-#include <string>
-#include <unordered_map>
-#include <vector>
 
+static_assert(true);
 #pragma pack(push, 1)
 
 enum DataType : int;
@@ -30,13 +19,22 @@ enum OrderStatus : int;
 enum StrategyStatus : int;
 enum OrderType : int;
 
-using QuantityT = uint32_t;
+namespace Lancelot {
+    enum Side : uint8_t;
+    enum Exchange : uint8_t;
+    struct ResultSetT;
+    using ResultSetPtrT = const ResultSetT*;
+}  // namespace Lancelot
+
+using TokenT    = int32_t;
+using QuantityT = int32_t;
+using PriceT    = float;
 
 constexpr int MarketWatchLadderCount = 5;
 constexpr int StrategyNameLength     = 50;
 
 using PricePointsT = struct PricePointsT {
-    float     _price;
+    PriceT    _price;
     QuantityT _quantity;
     QuantityT _order;
 };
@@ -54,18 +52,19 @@ using MarketWatchDataT = struct MarketWatchDataT {
     std::array<char, StrategyNameLength>             _lastTradeTime;
     std::array<char, StrategyNameLength>             _description;
 
-    uint32_t _token;
-    uint32_t _lastTradeQuantity;
-    float    _averageTradePrice;
-    float    _lastTradePrice;
-    float    _lowDpr;
-    float    _highDpr;
+    TokenT    _token;
+    QuantityT _lastTradeQuantity;
 
-    float _open;
-    float _high;
-    float _low;
-    float _close;
-    float _pchange;
+    PriceT _averageTradePrice;
+    PriceT _lastTradePrice;
+    PriceT _lowDpr;
+    PriceT _highDpr;
+
+    PriceT _open;
+    PriceT _high;
+    PriceT _low;
+    PriceT _close;
+    PriceT _pchange;
 
     QuantityT _totalBuyQuantity;
     QuantityT _totalSellQuantity;
@@ -119,8 +118,8 @@ using OrderInfoT = struct OrderInfoT {
 };
 
 using BookInfoT = struct BookInfoT {
-    float   _price;
-    float   _average;
+    PriceT  _price;
+    PriceT  _average;
     int32_t _quantity;
 };
 using NetBookColumnT = struct NetBookColumnT {
@@ -195,9 +194,9 @@ using PortfolioStatusT = struct PortfolioStatusT {
 
 using OrderFormInfoT = struct OrderFormInfoT {
     uint32_t       _uniqueId;
-    double         _price;
-    int            _quantity;
-    int            _lotSize;
+    PriceT         _price;
+    QuantityT      _quantity;
+    QuantityT      _lotSize;
     long           _orderNumber;
     int            _type;
     Lancelot::Side _side;

@@ -3,6 +3,7 @@
 #include "Colors.hpp"
 #include "Logger.hpp"
 #include "imgui.h"
+#include "include/Structure.hpp"
 
 constexpr auto GetTableFlags() -> ImGuiTableFlags {
     ImGuiTableFlags flags = ImGuiTableFlags_RowBg;
@@ -72,6 +73,16 @@ void NextCell(int index_, Type type_, ImVec4 color_) {
     }
 }
 
+template <>
+inline void NextCell(int index_, PriceT type_, ImVec4 color_) {
+    if (ImGui::TableSetColumnIndex(index_)) {
+        ImGui::PushStyleColor(ImGuiCol_Text, color_);
+        const std::string data = FORMAT("{:.2f}", type_);
+        ImGui::TextUnformatted(data.data(), data.data() + data.size());
+        ImGui::PopStyleColor();
+    }
+}
+
 template <typename Type>
 void FirstCellWithPadding(int index_, Type type_, ImVec4 color_) {
     if (ImGui::TableSetColumnIndex(index_)) {
@@ -87,6 +98,13 @@ template <typename Type>
 void NextCell(int index_, Type type_) {
     if (ImGui::TableSetColumnIndex(index_)) {
         const std::string data = FORMAT("{}", type_);
+        ImGui::TextUnformatted(data.data(), data.data() + data.size());
+    }
+}
+template <>
+inline void NextCell(int index_, PriceT type_) {
+    if (ImGui::TableSetColumnIndex(index_)) {
+        const std::string data = FORMAT("{:.2f}", type_);
         ImGui::TextUnformatted(data.data(), data.data() + data.size());
     }
 }
