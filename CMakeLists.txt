@@ -19,6 +19,7 @@ set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 
 add_subdirectory(repo)
 
+include(./cmake/PrecompiledHeader.cmake)
 include(./cmake/Glfw3.cmake)
 include(./cmake/Nlohmann-json.cmake)
 include(./cmake/Fmt.cmake)
