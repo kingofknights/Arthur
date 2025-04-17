@@ -9,8 +9,6 @@ constexpr static int TimestampLength = 50;
 
 using PriceCeT = uint32_t;
 
-extern MarketEventQueueT MarketEventQueue;
-
 #pragma pack(push, 1)
 struct PricePointsCET {
     PriceCeT  _price{};
@@ -98,6 +96,8 @@ void CentralFeed::Process(const char* buffer_, size_t /*size_*/) {
         previous->_color._atp = atp < (current->_averageTradePrice);
     }
 #if 0
-    MarketEventQueue.push(ref);
+    _marketEventQueue.push(previous);
 #endif
+}
+CentralFeed::CentralFeed(MarketEventQueueT& queue_) : _marketEventQueue(queue_) {
 }

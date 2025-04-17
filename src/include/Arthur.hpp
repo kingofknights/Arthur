@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Arthur_Fwd.hpp"
+#include "include/Structure.hpp"
 
 #include <cstdint>
 #include <string_view>
@@ -20,7 +21,7 @@ class Arthur {
     void AddTrade(const OrderInfoPtrT& tradeInfo_);
 
   protected:
-    static void MarketEventHandler(std::stop_token& token_);
+    void MarketEventHandler(std::stop_token& token_);
 
     void SetTheme(VisualTheme theme_);
 
@@ -81,6 +82,7 @@ class Arthur {
 
     int16_t _userId;
 
-    Connection _backend;
-    Connection _marketWatch;
+    Connection        _backend;
+    Connection        _marketWatch;
+    MarketEventQueueT _marketEventQueue;
 };

@@ -48,8 +48,7 @@ class MemoryUsage {
     static auto GetRamUsage() -> double;
 };
 
-extern MarketEventQueueT MarketEventQueue;
-extern AllContractT      AllContract;
+extern AllContractT AllContract;
 
 #define TRADING_APP_CONFIG_PATH "Config/Arthur.json"
 #define ORDER_ALL_BOOK          "Order All Book"
@@ -96,7 +95,7 @@ Arthur::Arthur(bool* closeMainWindow_) : _strand(_executor), _backendWorker(_exe
     _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_strand);
     _tradeHistoryPtr      = std::make_unique<TradeHistory>();
     _optionChainPtr       = std::make_unique<OptionChain>();
-    _multicastReceiverPtr = std::make_unique<MulticastReceiver>(_executor);
+    _multicastReceiverPtr = std::make_unique<MulticastReceiver>(_executor, _marketEventQueue);
     _orderBookPtr         = std::make_unique<OrderBook>(ORDER_ALL_BOOK);
     _rejectBookPtr        = std::make_unique<OrderBook>(REJECT_BOOK);
 
@@ -448,15 +447,15 @@ void Arthur::StartAllThreads() {
         _threadGroup.push_back(std::move(thread));
     }
 
-    _multicastReceiverPtr->bindMC(_marketWatch._address, _marketWatch._port);
-    _multicastReceiverPtr->read();
+    _multicastReceiverPtr->BindMc(_marketWatch._address, _marketWatch._port);
+    _multicastReceiverPtr->Read();
 
     _messageBroker->MakeConnection(_backend._address, _backend._port);
 }
 
 void Arthur::MarketEventHandler(std::stop_token& stopToken_) {
     while (not stopToken_.stop_requested()) {
-        MarketEventQueue.consume_one([&](MarketWatchDataPtrT pointer_) { Scanner::GetInstance().Process(pointer_->_token); });
+        _marketEventQueue.consume_all([&](MarketWatchDataPtrT pointer_) { Scanner::GetInstance().Process(pointer_->_token); });
     }
     LOG(WARNING, "{} {}", __FUNCTION__, "Exiting")
 }
@@ -529,7 +528,7 @@ void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& info_, Lancelot::Requ
 }
 
 void Arthur::StrategyRequestEvent(StrategyRowPtrT row_, const std::string& name_, Lancelot::RequestType type_) {
-    auto buffer = Utils::strategySerialize(row_, name_, type_);
+    auto buffer = Utils::StrategySerialize(row_, name_, type_);
 
     Lancelot::StrategyHeader header{
         ._header = {

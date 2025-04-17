@@ -4,31 +4,45 @@
 
 #pragma once
 
-#include <optional>
-
 #include "Structure.hpp"
+
+#include <optional>
 
 enum StrategyStatus : int;
 
 class Utils {
   public:
-    static std::optional<WeakStrategyRowPtrT> GetStrategyRow(uint32_t pf_);
+    static auto GetStrategyRow(uint32_t pf_) -> std::optional<WeakStrategyRowPtrT>;
 
-    static std::string FormatTimeToString(uint64_t time_);
-    static void        StatusBar();
-    static void        RemovePortfolio();
-    static void        CreateSupportFolder();
-    static void        GetClientList(int userId_);
-    static void        GetAllContractCallback(const Lancelot::ResultSetPtrT result_, float ltp_, float low_, float high_);
-    static void        ResetPortfolio(StrategyStatus status_);
-    static bool        ToggleMenuItem(std::string_view window_, bool& open_);
-    static void        DrawTradeRow(const OrderInfoPtrT& tradeInfo_, int& first_, int second_);
-    static void        AppendPortfolio(uint32_t pf_, WeakStrategyRowPtrT ptr_);
-    static void        ContractFilter(ImGuiTextFilter& filter_, std::string& index_);
-    static double      ScannerAPI(double pf_, double name_, double params_, double token_);
-    static std::string manualSerialize(const OrderFormInfoT& manualOrderInfo_);
-    static std::string cancelOrderSerialize(const OrderInfoPtrT& orderInfo_);
-    static std::string strategySerialize(const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_);
+    static auto FormatTimeToString(uint64_t time_) -> std::string;
+
+    static void StatusBar();
+
+    static void RemovePortfolio();
+
+    static void CreateSupportFolder();
+
+    static void GetClientList(int userId_);
+
+    static void GetAllContractCallback(Lancelot::ResultSetPtrT result_, float ltp_, float low_, float high_);
+
+    static void ResetPortfolio(StrategyStatus status_);
+
+    static auto ToggleMenuItem(std::string_view window_, bool& open_) -> bool;
+
+    static void DrawTradeRow(const OrderInfoPtrT& tradeInfo_, int& first_, int second_);
+
+    static void AppendPortfolio(uint32_t pf_, WeakStrategyRowPtrT ptr_);
+
+    static void ContractFilter(ImGuiTextFilter& filter_, std::string& index_);
+
+    static auto ScannerAPI(double pf_, double name_, double params_, double token_) -> double;
+
+    static auto ManualSerialize(const OrderFormInfoT& manualOrderInfo_) -> std::string;
+
+    static auto CancelOrderSerialize(const OrderInfoPtrT& orderInfo_) -> std::string;
+
+    static auto StrategySerialize(const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_) -> std::string;
 
   private:
     static GlobalStrategyListT GlobalStrategyList;
