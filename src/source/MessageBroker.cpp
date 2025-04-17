@@ -126,7 +126,7 @@ void MessageBroker::ProcessTrade(const char* buffer_) {
     info->_token           = response->_token,
     info->_quantity        = response->_quantity,
     info->_fillQuantity    = response->_fillQuantity,
-    info->_remaining       = response->_quantity,
+    info->_remaining       = response->_remainingQuantity,
     info->_orderNumber     = response->_exchangeOrderNumber,
     info->_price           = response->_price / 100.0F,
     info->_fillPrice       = response->_fillPrice / 100.0F,
