@@ -1,14 +1,14 @@
 //
 // Created by VIKLOD on 24-04-2023.
 //
-#include "../include/PortfolioScanner.hpp"
+#include "PortfolioScanner.hpp"
 
-#include "../Knight/Scanner.hpp"
-#include "../include/Configuration.hpp"
-#include "../include/Enums.hpp"
-#include "../include/Portfolio.hpp"
-#include "../include/Structure.hpp"
-#include "../include/TableColumnInfo.hpp"
+#include "Configuration.hpp"
+#include "Enums.hpp"
+#include "Knight/Scanner.hpp"
+#include "Portfolio.hpp"
+#include "Structure.hpp"
+#include "TableColumnInfo.hpp"
 
 #include <imgui.h>
 #include <imgui_internal.h>

@@ -1,11 +1,11 @@
-#include "../include/OptionChain.hpp"
+#include "OptionChain.hpp"
 
-#include "../API/ContractInfo.hpp"
-#include "../include/Colors.hpp"
-#include "../include/Configuration.hpp"
-#include "../include/Enums.hpp"
-#include "../include/Structure.hpp"
-#include "../include/TableColumnInfo.hpp"
+#include "API/ContractInfo.hpp"
+#include "Colors.hpp"
+#include "Configuration.hpp"
+#include "Enums.hpp"
+#include "Structure.hpp"
+#include "TableColumnInfo.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
 

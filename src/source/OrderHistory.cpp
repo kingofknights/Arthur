@@ -1,12 +1,12 @@
-#include "../include/OrderHistory.hpp"
+#include "OrderHistory.hpp"
 
-#include "../include/Colors.hpp"
-#include "../include/ConfigLoader.hpp"
-#include "../include/Configuration.hpp"
-#include "../include/Enums.hpp"
-#include "../include/Structure.hpp"
-#include "../include/TableColumnInfo.hpp"
-#include "../include/Utils.hpp"
+#include "Colors.hpp"
+#include "ConfigLoader.hpp"
+#include "Configuration.hpp"
+#include "Enums.hpp"
+#include "Structure.hpp"
+#include "TableColumnInfo.hpp"
+#include "Utils.hpp"
 
 void OrderHistory::DrawOrderHistory() {
     if (ImGui::BeginPopupModal(ORDER_HISTORY_POPUP_WINDOW, &_showOrderHistory, ImGuiWindowFlags_AlwaysAutoResize)) {

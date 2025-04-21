@@ -1,8 +1,8 @@
-#include "../include/StrategyWorkspace.hpp"
+#include "StrategyWorkspace.hpp"
 
-#include "../include/Configuration.hpp"
-#include "../include/Portfolio.hpp"
-#include "../include/Structure.hpp"
+#include "Configuration.hpp"
+#include "Portfolio.hpp"
+#include "Structure.hpp"
 
 #include <imgui_stdlib.h>
 #include <nlohmann/json.hpp>

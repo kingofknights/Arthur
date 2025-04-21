@@ -2,7 +2,7 @@
 // Created by VIKLOD on 22-04-2023.
 //
 
-#include "../include/SplashScreen.hpp"
+#include "SplashScreen.hpp"
 
 #include "Lancelot/Logger.hpp"
 

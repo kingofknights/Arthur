@@ -1,6 +1,6 @@
-#include "../include/ConfigLoader.hpp"
+#include "ConfigLoader.hpp"
 
-#include "../include/Structure.hpp"
+#include "Structure.hpp"
 
 #include <filesystem>
 #include <fstream>

@@ -2,13 +2,13 @@
 // Created by VIKLOD on 25-01-2023.
 //
 
-#include "../include/TemplateBuilder.hpp"
+#include "TemplateBuilder.hpp"
 
-#include "../include/ConfigLoader.hpp"
-#include "../include/Configuration.hpp"
-#include "../include/Enums.hpp"
-#include "../include/Structure.hpp"
-#include "../include/TableColumnInfo.hpp"
+#include "ConfigLoader.hpp"
+#include "Configuration.hpp"
+#include "Enums.hpp"
+#include "Structure.hpp"
+#include "TableColumnInfo.hpp"
 #include "misc/cpp/imgui_stdlib.h"
 
 #include <nlohmann/json.hpp>

@@ -2,17 +2,15 @@
 // Created by VIKLOD on 11-03-2023.
 //
 
-#include "../include/MessageBroker.hpp"
+#include "MessageBroker.hpp"
 
-#include "../API/Common.hpp"
-#include "../API/ContractInfo.hpp"
-#include "../include/Enums.hpp"
-#include "../include/Structure.hpp"
-#include "../include/Utils.hpp"
+#include "API/Common.hpp"
+#include "API/ContractInfo.hpp"
+#include "Arthur_Fwd.hpp"
 #include "Enums.hpp"
 #include "Lancelot/Lancelot.hpp"
 #include "Structure.hpp"
-#include "include/Arthur_Fwd.hpp"
+#include "Utils.hpp"
 
 #include <nlohmann/json.hpp>
 

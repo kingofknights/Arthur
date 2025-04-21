@@ -1,7 +1,7 @@
-#include "../include/Themes.hpp"
+#include "Themes.hpp"
 
-#include "../include/Colors.hpp"
-#include "../include/Structure.hpp"
+#include "Colors.hpp"
+#include "Structure.hpp"
 
 namespace Themes {
     static const ImWchar icons_ranges[] = {ICON_MIN_MD, ICON_MAX_16_MD, 0};

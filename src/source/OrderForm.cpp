@@ -1,11 +1,11 @@
-#include "../include/OrderForm.hpp"
+#include "OrderForm.hpp"
 
-#include "../API/Common.hpp"
-#include "../include/Colors.hpp"
-#include "../include/MarketWatch.hpp"
-#include "../include/Structure.hpp"
-#include "../include/TableColumnInfo.hpp"
+#include "API/Common.hpp"
+#include "Colors.hpp"
 #include "ContractInfo.hpp"
+#include "MarketWatch.hpp"
+#include "Structure.hpp"
+#include "TableColumnInfo.hpp"
 #include "imgui.h"
 
 #include <imgui_internal.h>

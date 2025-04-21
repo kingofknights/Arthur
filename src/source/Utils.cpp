@@ -2,15 +2,15 @@
 // Created by VIKLOD on 07-03-2023.
 //
 
-#include "../include/Utils.hpp"
+#include "Utils.hpp"
 
-#include "../API/BaseScanner.hpp"
-#include "../API/Common.hpp"
-#include "../API/ContractInfo.hpp"
-#include "../include/Configuration.hpp"
-#include "../include/Enums.hpp"
-#include "../include/Structure.hpp"
-#include "../include/TableColumnInfo.hpp"
+#include "API/BaseScanner.hpp"
+#include "API/Common.hpp"
+#include "API/ContractInfo.hpp"
+#include "Configuration.hpp"
+#include "Enums.hpp"
+#include "Structure.hpp"
+#include "TableColumnInfo.hpp"
 #include "imgui_internal.h"
 
 #include <nlohmann/json.hpp>
