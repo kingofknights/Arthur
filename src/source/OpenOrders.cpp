@@ -57,7 +57,7 @@ void OpenOrders::DrawPendingBook(bool* show_) {
                     Utils::DrawTradeRow(tradeInfo_, _selectedRow, tradeInfo_->_uniqueId);
 
                     if (_selectedRow == tradeInfo_->_uniqueId and ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
-                        if (tradeInfo_->_portfolio % 10000 and ImGui::IsKeyPressed(ImGuiKey_F2)) {
+                        if (tradeInfo_->_portfolio == 0 and ImGui::IsKeyPressed(ImGuiKey_F2)) {
                             OrderFormInfoT info{
                                 ._uniqueId    = tradeInfo_->_uniqueId,
                                 ._price       = tradeInfo_->_price,
@@ -82,7 +82,7 @@ void OpenOrders::DrawPendingBook(bool* show_) {
                         }
                         OrderHistory::Instance().paint(nullptr);
 
-                        if (ImGui::IsKeyPressed(ImGuiKey_Delete)) {
+                        if (tradeInfo_->_portfolio == 0 and ImGui::IsKeyPressed(ImGuiKey_Delete)) {
                             _strand.post([&]() {
                                 _function(tradeInfo_);
                             });
@@ -96,7 +96,7 @@ void OpenOrders::DrawPendingBook(bool* show_) {
             if (ImGui::Button("Cancel All")) {
                 _cancelOrder.clear();
                 for (const auto& value : _container) {
-                    if (value.second->_portfolio % 10000 == 9999) {
+                    if (value.second->_portfolio == 0) {
                         _cancelOrder.push_back(value.second);
                     }
                 }

@@ -13,7 +13,7 @@ enum VisualTheme : int;
 
 class Arthur {
   public:
-    explicit Arthur(bool* closeMainWindow_);
+    explicit Arthur(bool* closeMainWindow_, UserDetails details_);
 
     ~Arthur();
     void Paint();
@@ -80,7 +80,7 @@ class Arthur {
         uint16_t    _port;
     };
 
-    int16_t _userId;
+    UserDetails _userId;
 
     Connection        _backend;
     Connection        _marketWatch;

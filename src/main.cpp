@@ -179,7 +179,7 @@ auto main(int /*unused*/, char** /*unused*/) -> int {
         glfwSwapBuffers(window);
     }
     if (login.IsLoggedIn()) {
-        Arthur arthur(&done);
+        Arthur arthur(&done, login.GetUserDetails());
         // Main loop
 #ifdef __EMSCRIPTEN__
         // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
