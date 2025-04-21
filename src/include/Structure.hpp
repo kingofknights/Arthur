@@ -29,6 +29,7 @@ namespace Lancelot {
 using TokenT    = int32_t;
 using QuantityT = int32_t;
 using PriceT    = float;
+using UserIdT   = int;
 
 constexpr int MarketWatchLadderCount = 5;
 constexpr int StrategyNameLength     = 50;
@@ -269,6 +270,16 @@ using ScannerResultOutputT = struct ScannerResultOutputT {
     PortfolioPtrT      _portfolio;
     ParameterInfoListT _parameterInfoList;
 };
+
+struct UserDetails {
+    std::string _firstName;
+    std::string _lastName;
+    std::string _personId;
+    std::string _userHash;
+    UserIdT     _userId;
+    bool        _valid = false;
+};
+
 #pragma pack(pop)
 
 struct Singleton {

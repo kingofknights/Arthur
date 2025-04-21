@@ -1,13 +1,12 @@
-//
-// Created by VIKLOD on 22-04-2023.
-//
 #pragma once
-typedef unsigned int GLuint;
+
+using GLuint = unsigned int;
 
 class SplashScreen {
   public:
     SplashScreen();
-    void paint();
+
+    void Paint();
 
   protected:
     void DrawSplashScreen();

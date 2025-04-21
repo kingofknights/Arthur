@@ -12,5 +12,11 @@
     "contract": "ResultSet.db3",
     "address": "10.10.8.82",
     "port": 50047
+  },
+  "postgres": {
+    "host": "192.168.151.77",
+    "user": "postgres",
+    "password": "server",
+    "name": "mts_dev"
   }
 }

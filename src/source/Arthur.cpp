@@ -8,6 +8,7 @@
 #include "Lancelot/Structure.hpp"
 #include "Logger.hpp"
 #include "include/Arthur_Fwd.hpp"
+#include "include/Login.hpp"
 #include "include/PortfolioInterface.hpp"
 
 #if _WIN32
@@ -58,14 +59,8 @@ Arthur::Arthur(bool* closeMainWindow_) : _strand(_executor), _backendWorker(_exe
     std::fstream file("setting.json");
     if (file.is_open()) {
         nlohmann::json        json        = nlohmann::json::parse(file);
-        const nlohmann::json& font        = json["font"];
         const nlohmann::json& backend     = json["backend"];
         const nlohmann::json& marketwatch = json["marketwatch"];
-
-        std::string fontFile = "Ruda-Bold.ttf";
-        float       fontSize = 18.0F;
-        font["file"].get_to(fontFile);
-        font["size"].get_to(fontSize);
 
         backend["address"].get_to(_backend._address);
         backend["port"].get_to(_backend._port);
@@ -79,7 +74,6 @@ Arthur::Arthur(bool* closeMainWindow_) : _strand(_executor), _backendWorker(_exe
         LOG(INFO, "Loading SqlLite3 Database : {}", database)
         Lancelot::ContractInfo::Initialize(database, Utils::GetAllContractCallback);
 
-        Themes::AddIconFonts(fontFile, fontSize);
     } else {
         LOG(ERROR, "Config file not found : setting.json", false);
         exit(1);
