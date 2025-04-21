@@ -4,10 +4,6 @@
 
 #include "../include/Utils.hpp"
 
-#include <filesystem>
-#include <future>
-#include <nlohmann/json.hpp>
-
 #include "../API/BaseScanner.hpp"
 #include "../API/Common.hpp"
 #include "../API/ContractInfo.hpp"
@@ -15,18 +11,25 @@
 #include "../include/Enums.hpp"
 #include "../include/Structure.hpp"
 #include "../include/TableColumnInfo.hpp"
-
 #include "imgui_internal.h"
+
+#include <nlohmann/json.hpp>
+
+#include <filesystem>
+#include <future>
 
 extern std::string              StatusDisplay;
 extern AllContractT             AllContract;
 extern ClientCodeListT          ClientCodeList;
 extern MarketWatchDatContainerT MarketWatchDatContainer;
-extern int                      Id;
+
+namespace {
+    int MessageId = 0;
+}
 
 GlobalStrategyListT Utils::GlobalStrategyList;
 
-std::string Utils::FormatTimeToString(uint64_t time_) {
+auto Utils::FormatTimeToString(uint64_t time_) -> std::string {
     char         timestamp[50] = "";
     time_t       secs          = (time_ / 10000000000) + 315513000;
     tm*          ptm           = localtime(&secs);
@@ -35,9 +38,10 @@ std::string Utils::FormatTimeToString(uint64_t time_) {
     sprintf(timestamp + len, ".%09u", ms);
     return timestamp;
 }
-std::string Utils::manualSerialize(const OrderFormInfoT& manualOrderInfo_) {
+
+auto Utils::ManualSerialize(const OrderFormInfoT& manualOrderInfo_) -> std::string {
     nlohmann::json json;
-    json[JSON_ID] = ++Id;
+    json[JSON_ID] = ++MessageId;
 
     nlohmann::json params;
     if (manualOrderInfo_._orderNumber == 0) {
@@ -56,9 +60,9 @@ std::string Utils::manualSerialize(const OrderFormInfoT& manualOrderInfo_) {
     return json.dump();
 }
 
-std::string Utils::cancelOrderSerialize(const OrderInfoPtrT& orderInfo_) {
+auto Utils::CancelOrderSerialize(const OrderInfoPtrT& orderInfo_) -> std::string {
     nlohmann::json json;
-    json[JSON_ID] = ++Id;
+    json[JSON_ID] = ++MessageId;
 
     nlohmann::json params;
     params[JSON_UNIQUE_ID] = orderInfo_->_uniqueId;
@@ -68,10 +72,9 @@ std::string Utils::cancelOrderSerialize(const OrderInfoPtrT& orderInfo_) {
     return json.dump();
 }
 
-std::string Utils::strategySerialize(const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_) {
-
+auto Utils::StrategySerialize(const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_) -> std::string {
     nlohmann::json json;
-    json[JSON_ID] = ++Id;
+    json[JSON_ID] = ++MessageId;
 
     nlohmann::json params;
     params[JSON_PF_NUMBER]     = row_->_portfolio;
@@ -115,7 +118,7 @@ std::string Utils::strategySerialize(const StrategyRowPtrT& row_, const std::str
     return json.dump();
 }
 
-bool Utils::ToggleMenuItem(std::string_view window_, bool& open_) {
+auto Utils::ToggleMenuItem(std::string_view window_, bool& open_) -> bool {
     const auto info = FORMAT("{} {}", (open_ ? ICON_MD_VISIBILITY : ICON_MD_VISIBILITY_OFF), window_);
     if (ImGui::MenuItem(info.data())) {
         open_ = not open_;
@@ -159,7 +162,7 @@ void Utils::RemovePortfolio() {
     });
 }
 
-std::optional<WeakStrategyRowPtrT> Utils::GetStrategyRow(uint32_t pf_) {
+auto Utils::GetStrategyRow(uint32_t pf_) -> std::optional<WeakStrategyRowPtrT> {
     auto iterator = GlobalStrategyList.find(pf_);
     if (iterator != GlobalStrategyList.end()) {
         return iterator->second;
@@ -230,7 +233,7 @@ void Utils::GetClientList(int userId_) {
     ClientCodeList.clear();
 
     for (const auto& item : table) {
-        ClientInfoT clientInfo{ ._exchange = Lancelot::ContractInfo::GetExchange(item[ClientIndex_EXCHANGE]), ._clientCode = item[ClientIndex_CLIENTCODE] };
+        ClientInfoT clientInfo{._exchange = Lancelot::ContractInfo::GetExchange(item[ClientIndex_EXCHANGE]), ._clientCode = item[ClientIndex_CLIENTCODE]};
         ClientCodeList.push_back(clientInfo);
         LOG(INFO, "Client Code for User [{}] is [{} {}]", userId_, Lancelot::ToString(clientInfo._exchange), clientInfo._clientCode);
     }
@@ -254,7 +257,7 @@ void Utils::GetAllContractCallback(const Lancelot::ResultSetPtrT result_, float 
     AllContract.push_back(result_->_description);
 }
 
-double Utils::ScannerAPI(double pf_, double name_, double params_, double token_) {
+double Utils::ScannerAPI(double pf_, double /*name_*/, double params_, double token_) {
     BaseScanner::UpdateUser(pf_, FORMAT("Token1={}#Token2={}#Token3={}#Lot={}", token_, token_, token_, token_));
     return 0;
 }

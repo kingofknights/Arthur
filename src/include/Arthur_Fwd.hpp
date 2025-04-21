@@ -36,6 +36,7 @@ class TradeHistory;
 class MessageBroker;
 class OptionChain;
 class OrderBook;
+class Login;
 
 struct OrderInfoT;
 struct OrderFormInfoT;
@@ -56,6 +57,7 @@ using TradeHistoryPtrT      = std::unique_ptr<TradeHistory>;
 using MessageBrokerPtrT     = std::unique_ptr<MessageBroker>;
 using OptionChainPtrT       = std::unique_ptr<OptionChain>;
 using OrderBookPtrT         = std::unique_ptr<OrderBook>;
+using LoginPtrT             = std::unique_ptr<Login>;
 
 using MarketWatchDataPtrT = std::shared_ptr<MarketWatchDataT>;
 

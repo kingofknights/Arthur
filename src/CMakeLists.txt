@@ -7,6 +7,7 @@ add_subdirectory(Knight)
 # add_subdirectory(Excel) add_subdirectory(Audio)
 
 set(HEADER_FILES
+    ./database/Postgres.hpp
     ./include/BaseSocket.hpp
     ./include/Colors.hpp
     ./include/ConfigLoader.hpp
@@ -25,6 +26,7 @@ set(HEADER_FILES
     ./include/Structure.hpp
     ./include/TradeHistory.hpp
     ./include/Multicast.hpp
+    ./include/Login.hpp
     ./include/Utils.hpp
     ./include/MessageBroker.hpp
     ./include/OptionChain.hpp
@@ -37,6 +39,7 @@ set(HEADER_FILES
     ./include/Themes.hpp)
 
 set(SOURCE_FILES
+    ./database/Postgres.cpp
     ./source/TemplateBuilder.cpp
     ./source/OrderForm.cpp
     ./source/OrderHistory.cpp
@@ -49,6 +52,7 @@ set(SOURCE_FILES
     ./source/StrategyWorkspace.cpp
     ./source/Arthur.cpp
     ./source/External.cpp
+    ./source/Login.cpp
     ./source/Multicast.cpp
     ./source/BaseSocket.cpp
     ./source/Utils.cpp
@@ -82,6 +86,7 @@ add_dependencies(${PROJECT_NAME} glfw)
 add_dependencies(${PROJECT_NAME} nlohmann_json)
 add_dependencies(${PROJECT_NAME} fmt)
 add_dependencies(${PROJECT_NAME} SQLiteCpp)
+add_dependencies(${PROJECT_NAME} pqxx)
 
 target_sources(${PROJECT_NAME} PRIVATE ${HEADER_FILES})
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})
@@ -104,6 +109,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ImguiFD)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
 target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
 target_link_libraries(${PROJECT_NAME} PRIVATE SQLiteCpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE pqxx)
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC ${PRECOMPILE_HEADERS})
 

@@ -21,8 +21,8 @@
 
 namespace Lancelot {
 
-    using ResultSetContainerT   = std::unordered_map<uint32_t, ResultSetPtrT>;
-    using NameToTokenContainerT = std::unordered_map<std::string, uint32_t>;
+    using ResultSetContainerT   = std::unordered_map<int32_t, ResultSetPtrT>;
+    using NameToTokenContainerT = std::unordered_map<std::string, int32_t>;
 
     namespace details {
         static ResultSetContainerT   ResultSetContainer;
@@ -31,7 +31,7 @@ namespace Lancelot {
     }  // namespace details
 
 #define GET_RESULT_SET(TYPE, FUNCTION, FIELD)                     \
-    auto ContractInfo::Get##FUNCTION(uint32_t token_)->TYPE {     \
+    auto ContractInfo::Get##FUNCTION(int32_t token_)->TYPE {      \
         auto iterator = details::ResultSetContainer.find(token_); \
         if (iterator != details::ResultSetContainer.end()) {      \
             return iterator->second->FIELD;                       \
@@ -85,23 +85,23 @@ namespace Lancelot {
         LoadResultSetTable(table, callback_);
     }
 
-    auto ContractInfo::GetResultSet(uint32_t token_) -> ResultSetPtrT {
+    auto ContractInfo::GetResultSet(int32_t token_) -> ResultSetPtrT {
         auto iterator = details::ResultSetContainer.find(token_);
         if (iterator != details::ResultSetContainer.end()) return iterator->second;
         return nullptr;
     }
 
-    auto ContractInfo::GetToken(const std::string& name_) -> uint32_t {
+    auto ContractInfo::GetToken(const std::string& name_) -> int32_t {
         auto iterator = details::NameToTokenContainer.find(name_);
         if (iterator != details::NameToTokenContainer.cend()) return iterator->second;
         return 0;
     }
 
-    GET_RESULT_SET(uint32_t, ExpiryDate, _expiryDate)
-    GET_RESULT_SET(uint32_t, Future, _futureToken)
-    GET_RESULT_SET(uint32_t, LotSize, _lotSize)
-    GET_RESULT_SET(uint32_t, TickSize, _tickSize)
-    GET_RESULT_SET(uint32_t, Divisor, _divisor)
+    GET_RESULT_SET(int32_t, ExpiryDate, _expiryDate)
+    GET_RESULT_SET(int32_t, Future, _futureToken)
+    GET_RESULT_SET(int32_t, LotSize, _lotSize)
+    GET_RESULT_SET(int32_t, TickSize, _tickSize)
+    GET_RESULT_SET(int32_t, Divisor, _divisor)
     GET_RESULT_SET(float, StrikePrice, _strikePrice)
     GET_RESULT_SET(Instrument, InstType, _instType)
     GET_RESULT_SET(OptionType, Option, _option)
@@ -113,7 +113,7 @@ namespace Lancelot {
 
 #undef GET_RESULT_SET
 
-    auto ContractInfo::GetOppositeToken(uint32_t token_) -> uint32_t {
+    auto ContractInfo::GetOppositeToken(int32_t token_) -> int32_t {
         std::string       name    = GetDescription(token_);
         bool              isCall  = IsCall(token_);
         const std::string callPut = isCall ? "CE" : "PE";
@@ -126,15 +126,15 @@ namespace Lancelot {
         return 0;
     }
 
-    auto ContractInfo::IsOption(uint32_t token_) -> bool { return GetInstType(token_) == Instrument_OPTION; }
+    auto ContractInfo::IsOption(int32_t token_) -> bool { return GetInstType(token_) == Instrument_OPTION; }
 
-    auto ContractInfo::IsEquity(uint32_t token_) -> bool { return GetInstType(token_) == Instrument_EQUITY; }
+    auto ContractInfo::IsEquity(int32_t token_) -> bool { return GetInstType(token_) == Instrument_EQUITY; }
 
-    auto ContractInfo::IsCall(uint32_t token_) -> bool { return GetOption(token_) == OptionType_CALL; }
+    auto ContractInfo::IsCall(int32_t token_) -> bool { return GetOption(token_) == OptionType_CALL; }
 
-    auto ContractInfo::IsPut(uint32_t token_) -> bool { return GetOption(token_) == OptionType_PUT; }
+    auto ContractInfo::IsPut(int32_t token_) -> bool { return GetOption(token_) == OptionType_PUT; }
 
-    auto ContractInfo::IsFuture(uint32_t token_) -> bool { return GetInstType(token_) == Instrument_FUTURE; }
+    auto ContractInfo::IsFuture(int32_t token_) -> bool { return GetInstType(token_) == Instrument_FUTURE; }
 
     void ContractInfo::ExecuteQuery(const std::string& query_) { details::contractFetcher->ExecuteQuery(query_); }
 

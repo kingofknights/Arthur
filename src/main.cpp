@@ -7,6 +7,7 @@
 // - Documentation        https://dearimgui.com/docs (same as your local docs/ folder).
 // - Introduction, links and more at the top of imgui.cpp
 
+#include "include/Login.hpp"
 #if _WIN32
 #include <windows.h>
 #endif
@@ -82,7 +83,9 @@ auto main(int /*unused*/, char** /*unused*/) -> int {
 #endif
 
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Arthur", nullptr, nullptr);
+    GLFWmonitor*       monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode    = glfwGetVideoMode(monitor);
+    GLFWwindow*        window  = glfwCreateWindow(mode->width, mode->height, "Arthur", monitor, nullptr);
     if (window == nullptr) {
         return 1;
     }
@@ -139,23 +142,8 @@ auto main(int /*unused*/, char** /*unused*/) -> int {
     bool   done       = false;
     int    displayW   = 0;
     int    displayH   = 0;
-
-    Arthur arthur(&done);
-    // Main loop
-#ifdef __EMSCRIPTEN__
-    // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
-    // You may manually call LoadIniSettingsFromMemory() to load settings from your own storage.
-    io.IniFilename = nullptr;
-    EMSCRIPTEN_MAINLOOP_BEGIN
-#else
-    while (glfwWindowShouldClose(window) == 0)
-#endif
-    {
-        // Poll and handle events (inputs, window resize, etc.)
-        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
-        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
-        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+    Login  login;
+    while (glfwWindowShouldClose(window) == 0) {
         glfwPollEvents();
         if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0) {
             ImGui_ImplGlfw_Sleep(10);
@@ -166,11 +154,11 @@ auto main(int /*unused*/, char** /*unused*/) -> int {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+        login.Paint();
 
-        arthur.Paint();
-        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-
-        // Rendering
+        if (login.IsLoggedIn()) {
+            break;
+        }
         ImGui::Render();
         glfwGetFramebufferSize(window, &displayW, &displayH);
         glViewport(0, 0, displayW, displayH);
@@ -190,10 +178,61 @@ auto main(int /*unused*/, char** /*unused*/) -> int {
 
         glfwSwapBuffers(window);
     }
+    if (login.IsLoggedIn()) {
+        Arthur arthur(&done, login.GetUserDetails());
+        // Main loop
 #ifdef __EMSCRIPTEN__
-    EMSCRIPTEN_MAINLOOP_END;
+        // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
+        // You may manually call LoadIniSettingsFromMemory() to load settings from your own storage.
+        io.IniFilename = nullptr;
+        EMSCRIPTEN_MAINLOOP_BEGIN
+#else
+        while (glfwWindowShouldClose(window) == 0 and not done)
 #endif
+        {
+            // Poll and handle events (inputs, window resize, etc.)
+            // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
+            // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
+            // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
+            // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+            glfwPollEvents();
+            if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0) {
+                ImGui_ImplGlfw_Sleep(10);
+                continue;
+            }
 
+            // Start the Dear ImGui frame
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+
+            arthur.Paint();
+            // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+
+            // Rendering
+            ImGui::Render();
+            glfwGetFramebufferSize(window, &displayW, &displayH);
+            glViewport(0, 0, displayW, displayH);
+            glClearColor(clearColor.x * clearColor.w, clearColor.y * clearColor.w, clearColor.z * clearColor.w, clearColor.w);
+            glClear(GL_COLOR_BUFFER_BIT);
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+            // Update and Render additional Platform Windows
+            // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
+            //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
+            if (imo.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+                GLFWwindow* backupCurrentContext = glfwGetCurrentContext();
+                ImGui::UpdatePlatformWindows();
+                ImGui::RenderPlatformWindowsDefault();
+                glfwMakeContextCurrent(backupCurrentContext);
+            }
+
+            glfwSwapBuffers(window);
+        }
+#ifdef __EMSCRIPTEN__
+        EMSCRIPTEN_MAINLOOP_END;
+#endif
+    }
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

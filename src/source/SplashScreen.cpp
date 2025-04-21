@@ -4,6 +4,8 @@
 
 #include "../include/SplashScreen.hpp"
 
+#include "Lancelot/Logger.hpp"
+
 #include <imgui.h>
 //
 /*
@@ -16,10 +18,11 @@
 auto LoadTextureFromFile(const char* file_, GLuint* out_, int* width_, int* height_) -> bool;
 
 SplashScreen::SplashScreen() {
-    LoadTextureFromFile("SplashScreen.png", &_image, &_width, &_height);
+    bool loaded = LoadTextureFromFile("SplashScreen.png", &_image, &_width, &_height);
+    LOG(INFO, "SplashScreen: loaded {}", loaded);
 }
 
-void SplashScreen::paint() { DrawSplashScreen(); }
+void SplashScreen::Paint() { DrawSplashScreen(); }
 
 void SplashScreen::DrawSplashScreen() {
     if (ImGui::Begin("Splash Screen", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize)) {

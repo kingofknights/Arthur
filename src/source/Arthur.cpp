@@ -5,10 +5,14 @@
 #include "../include/Arthur.hpp"
 
 #include "Enums.hpp"
+#include "IconsMaterialDesign.h"
 #include "Lancelot/Structure.hpp"
 #include "Logger.hpp"
+#include "imgui.h"
 #include "include/Arthur_Fwd.hpp"
+#include "include/Login.hpp"
 #include "include/PortfolioInterface.hpp"
+#include "include/Structure.hpp"
 
 #if _WIN32
 #include <Psapi.h>
@@ -42,35 +46,32 @@
 
 #include <algorithm>
 #include <thread>
+#include <utility>
 
 class MemoryUsage {
   public:
     static auto GetRamUsage() -> double;
 };
 
-extern MarketEventQueueT MarketEventQueue;
-extern AllContractT      AllContract;
+extern AllContractT AllContract;
 
 #define TRADING_APP_CONFIG_PATH "Config/Arthur.json"
 #define ORDER_ALL_BOOK          "Order All Book"
 #define REJECT_BOOK             "Reject Book"
 
-Arthur::Arthur(bool* closeMainWindow_) : _strand(_executor), _backendWorker(_executor.get_executor()), _closeMainWindow(closeMainWindow_) {
+Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
+    : _strand(_executor),
+      _backendWorker(_executor.get_executor()),
+      _closeMainWindow(closeMainWindow_),
+      _userId(std::move(details_)) {
     std::fstream file("setting.json");
     if (file.is_open()) {
         nlohmann::json        json        = nlohmann::json::parse(file);
-        const nlohmann::json& font        = json["font"];
         const nlohmann::json& backend     = json["backend"];
         const nlohmann::json& marketwatch = json["marketwatch"];
 
-        std::string fontFile = "Ruda-Bold.ttf";
-        float       fontSize = 18.0F;
-        font["file"].get_to(fontFile);
-        font["size"].get_to(fontSize);
-
         backend["address"].get_to(_backend._address);
         backend["port"].get_to(_backend._port);
-        backend["user"].get_to(_userId);
 
         std::string database;
         marketwatch["address"].get_to(_marketWatch._address);
@@ -80,14 +81,12 @@ Arthur::Arthur(bool* closeMainWindow_) : _strand(_executor), _backendWorker(_exe
         LOG(INFO, "Loading SqlLite3 Database : {}", database)
         Lancelot::ContractInfo::Initialize(database, Utils::GetAllContractCallback);
 
-        Themes::AddIconFonts(fontFile, fontSize);
     } else {
         LOG(ERROR, "Config file not found : setting.json", false);
         exit(1);
     }
 
     std::ranges::sort(AllContract, std::less<>());
-    Utils::GetClientList(_userId);
     Utils::CreateSupportFolder();
     ConfigLoader::Instance();
 
@@ -96,7 +95,7 @@ Arthur::Arthur(bool* closeMainWindow_) : _strand(_executor), _backendWorker(_exe
     _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_strand);
     _tradeHistoryPtr      = std::make_unique<TradeHistory>();
     _optionChainPtr       = std::make_unique<OptionChain>();
-    _multicastReceiverPtr = std::make_unique<MulticastReceiver>(_executor);
+    _multicastReceiverPtr = std::make_unique<MulticastReceiver>(_executor, _marketEventQueue);
     _orderBookPtr         = std::make_unique<OrderBook>(ORDER_ALL_BOOK);
     _rejectBookPtr        = std::make_unique<OrderBook>(REJECT_BOOK);
 
@@ -108,7 +107,7 @@ Arthur::Arthur(bool* closeMainWindow_) : _strand(_executor), _backendWorker(_exe
         CancelOrderEvent(info_);
     });
 
-    _messageBroker = std::make_unique<MessageBroker>(_executor, _userId, [&](const OrderInfoPtrT& orderInfo_) {
+    _messageBroker = std::make_unique<MessageBroker>(_executor, _userId._userId, [&](const OrderInfoPtrT& orderInfo_) {
         AddTrade(orderInfo_);
     });
 
@@ -267,6 +266,7 @@ auto Arthur::Menu() -> void {
             Utils::ToggleMenuItem("Market Watch", _showMarketWatch);
             Utils::ToggleMenuItem("Price Ladder", _showPriceLadder);
             Utils::ToggleMenuItem("Strategy Workspace", _showStrategyWorkspace);
+            Utils::ToggleMenuItem("Option Chain", _showOptionChain);
 
             if (ImGui::BeginMenu(ICON_MD_LIBRARY_BOOKS " Book")) {
                 Utils::ToggleMenuItem("Trade History", _showTradeHistory);
@@ -297,18 +297,14 @@ auto Arthur::Menu() -> void {
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu(ICON_MD_PAID " Paid")) {
-            Utils::ToggleMenuItem("Option Chain", _showOptionChain);
+        if (ImGui::BeginMenu(ICON_MD_INFO " Info")) {
             // Utils::ToggleMenuItem("Excel Automation", _showExcelWindow);
+            ImGui::Text(ICON_MD_PERSON " %s %s", _userId._firstName.data(), _userId._lastName.data());
+            // ImGui::Text(ICON_MD_AUTOFPS_SELECT " FPS : %.0f", ImGui::GetIO().Framerate);
+            // ImGui::Text(ICON_MD_MEMORY " RAM : %.2f", MemoryUsage::GetRamUsage());
+            ImGui::TextColored(UpDownColor(_messageBroker->IsConnected()), "%s%s:%hu", ICON_MD_LAN, _backend._address.data(), _backend._port);
             ImGui::EndMenu();
         }
-
-        ImGui::Text(ICON_MD_AUTOFPS_SELECT " FPS : %.0f", ImGui::GetIO().Framerate);
-        ImGui::SameLine();
-        ImGui::Text(ICON_MD_MEMORY " RAM : %.2f", MemoryUsage::GetRamUsage());
-        ImGui::SameLine();
-        ImGui::TextColored(UpDownColor(_messageBroker->IsConnected()), "%s%s:%hu", ICON_MD_LAN, _backend._address.data(), _backend._port);
-        ImGui::SameLine();
 
         ImGui::EndMainMenuBar();
     }
@@ -448,15 +444,15 @@ void Arthur::StartAllThreads() {
         _threadGroup.push_back(std::move(thread));
     }
 
-    _multicastReceiverPtr->bindMC(_marketWatch._address, _marketWatch._port);
-    _multicastReceiverPtr->read();
+    _multicastReceiverPtr->BindMc(_marketWatch._address, _marketWatch._port);
+    _multicastReceiverPtr->Read();
 
     _messageBroker->MakeConnection(_backend._address, _backend._port);
 }
 
 void Arthur::MarketEventHandler(std::stop_token& stopToken_) {
     while (not stopToken_.stop_requested()) {
-        MarketEventQueue.consume_one([&](MarketWatchDataPtrT pointer_) { Scanner::GetInstance().Process(pointer_->_token); });
+        _marketEventQueue.consume_all([&](MarketWatchDataPtrT pointer_) { Scanner::GetInstance().Process(pointer_->_token); });
     }
     LOG(WARNING, "{} {}", __FUNCTION__, "Exiting")
 }
@@ -483,11 +479,11 @@ void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& info_, Lancelot::Requ
                     ._length = sizeof(Lancelot::ManualOrder) - sizeof(Lancelot::Header),
                 },
                 ._user = {
-                    ._user      = _userId,
-                    ._portfolio = 9999,
+                    ._user      = static_cast<int16_t>(_userId._userId),
+                    ._portfolio = 0,
                 },
-                ._token         = info_._marketWatch->_token,
-                ._price         = static_cast<uint32_t>(OrderForm::RoundUp(static_cast<int>(info_._price * 100), 5)),
+                ._token         = static_cast<uint32_t>(info_._marketWatch->_token),
+                ._price         = static_cast<uint32_t>(info_._price),
                 ._quantity      = static_cast<uint32_t>(info_._quantity),
                 ._triggerPrice  = 0,
                 ._side          = info_._side,
@@ -505,12 +501,12 @@ void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& info_, Lancelot::Requ
                     ._length = sizeof(Lancelot::ModifyOrder) - sizeof(Lancelot::Header),
                 },
                 ._user = {
-                    ._user      = _userId,
-                    ._portfolio = 9999,
+                    ._user      = static_cast<int16_t>(_userId._userId),
+                    ._portfolio = 0,
                 },
-                ._token         = info_._marketWatch->_token,
+                ._token         = static_cast<uint32_t>(info_._marketWatch->_token),
                 ._orderSequence = static_cast<int32_t>(info_._uniqueId),
-                ._price         = static_cast<uint32_t>(OrderForm::RoundUp(static_cast<int>(info_._price * 100), 5)),
+                ._price         = static_cast<uint32_t>(info_._price),
                 ._quantity      = static_cast<uint32_t>(info_._quantity),
                 ._triggerPrice  = 0,
             };
@@ -529,7 +525,7 @@ void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& info_, Lancelot::Requ
 }
 
 void Arthur::StrategyRequestEvent(StrategyRowPtrT row_, const std::string& name_, Lancelot::RequestType type_) {
-    auto buffer = Utils::strategySerialize(row_, name_, type_);
+    auto buffer = Utils::StrategySerialize(row_, name_, type_);
 
     Lancelot::StrategyHeader header{
         ._header = {
@@ -537,7 +533,7 @@ void Arthur::StrategyRequestEvent(StrategyRowPtrT row_, const std::string& name_
             ._length = static_cast<int16_t>(buffer.length() + sizeof(Lancelot::UserPortfolio)),
         },
         ._user = {
-            ._user      = _userId,
+            ._user      = static_cast<int16_t>(_userId._userId),
             ._portfolio = static_cast<int16_t>(row_->_portfolio),
         }};
     _messageBroker->WriteSync(&header, sizeof(header));
@@ -551,8 +547,8 @@ void Arthur::CancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
             ._length = sizeof(Lancelot::CancelOrder) - sizeof(Lancelot::Header),
         },
         ._user = {
-            ._user      = _userId,
-            ._portfolio = 9999,
+            ._user      = static_cast<int16_t>(_userId._userId),
+            ._portfolio = 0,
         },
         ._token         = orderInfo_->_token,
         ._orderSequence = static_cast<int16_t>(orderInfo_->_uniqueId),

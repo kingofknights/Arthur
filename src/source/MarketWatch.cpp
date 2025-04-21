@@ -162,7 +162,7 @@ void MarketWatch::ContractCell(int contract_, int index_, const char* data_, con
                 ._quantity    = (int)Lancelot::ContractInfo::GetLotSize(pointer_->_token),
                 ._lotSize     = info._quantity,
                 ._orderNumber = 0,
-                ._type        = 0,
+                ._type        = OrderType_LIMIT,
                 ._side        = side,
                 ._status      = OrderStatus_NEW,
                 ._contract    = Lancelot::ContractInfo::GetDescription(pointer_->_token),
@@ -293,7 +293,7 @@ void MarketWatch::DrawColumn(const MarketWatchDataPtrT& data_, int index_) {
     ContractCell(index_, MarketWatchColumnIndex_CONTACT_NAME, data_->_description.data(), data_);
     NextCell(MarketWatchColumnIndex_ATP, data_->_averageTradePrice, UpDownColor(data_->_color._atp));
     NextCell(MarketWatchColumnIndex_LTP, data_->_lastTradePrice, UpDownColor(data_->_color._ltp));
-    NextCell(MarketWatchColumnIndex_LTQ, data_->_lastTradePrice);
+    NextCell(MarketWatchColumnIndex_LTQ, data_->_lastTradeQuantity);
     NextCell(MarketWatchColumnIndex_LTT, data_->_lastTradeTime.data());
     NextCell(MarketWatchColumnIndex_TOP_BID, data_->_bid[0]._price, UpDownColor(data_->_color._topBid));
     NextCell(MarketWatchColumnIndex_TOP_ASK, data_->_ask[0]._price, UpDownColor(data_->_color._topAsk));

@@ -23,6 +23,8 @@ class MessageBroker final : public TBaseSocket {
 
     void ProcessOrder(const char* buffer_);
 
+    void ProcessTrade(const char* buffer_);
+
     static void ProcessStrategy(uint32_t pf_, Lancelot::ResponseType type_);
 
     static void ProcessUpdates(const nlohmann::json& input_);

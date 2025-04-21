@@ -7,38 +7,32 @@
 
 constexpr static int TimestampLength = 50;
 
-using TokenT    = uint32_t;
-using PriceT    = uint32_t;
-using QuantityT = uint32_t;
-
-extern MarketEventQueueT MarketEventQueue;
+using PriceCeT = uint32_t;
 
 #pragma pack(push, 1)
+struct PricePointsCET {
+    PriceCeT  _price{};
+    QuantityT _quantity{};
+    QuantityT _order{};
+};
+
 struct MarketWatchDataCentralT {
-    struct PricePointsT {
-        PriceT    _price{};
-        QuantityT _quantity{};
-        uint32_t  _order{};
-    };
-    PricePointsT _bid[MarketWatchLadderCount]{};
-    PricePointsT _ask[MarketWatchLadderCount]{};
+    PricePointsCET _bid[MarketWatchLadderCount]{};
+    PricePointsCET _ask[MarketWatchLadderCount]{};
 
     TokenT    _token{};
     QuantityT _lastTradeQuantity{};
-    PriceT    _averageTradePrice{};
-    PriceT    _lastTradePrice{};
-
-    PriceT _lowDPR{};
-    PriceT _highDPR{};
-
-    PriceT _lowLPP{};
-    PriceT _highLPP{};
-
-    PriceT _open{};
-    PriceT _high{};
-    PriceT _low{};
-    PriceT _close{};
-    float  _percentageChange{};
+    PriceCeT  _averageTradePrice{};
+    PriceCeT  _lastTradePrice{};
+    PriceCeT  _lowDPR{};
+    PriceCeT  _highDPR{};
+    PriceCeT  _lowLPP{};
+    PriceCeT  _highLPP{};
+    PriceCeT  _open{};
+    PriceCeT  _high{};
+    PriceCeT  _low{};
+    PriceCeT  _close{};
+    float     _percentageChange{};
 
     QuantityT _totalBuyQuantity{};
     QuantityT _totalSellQuantity{};
@@ -49,58 +43,61 @@ struct MarketWatchDataCentralT {
 };
 
 #pragma pack(pop)
-void CentralFeed::Process(char* buffer, size_t size_) {
-    const auto* pointer = reinterpret_cast<MarketWatchDataCentralT*>(buffer);
-    const auto  ref     = ContractInfo::GetLiveDataRef(pointer->_token);
-    if (not ref) {
+
+void CentralFeed::Process(const char* buffer_, size_t /*size_*/) {
+    const auto* current  = reinterpret_cast<const MarketWatchDataCentralT*>(buffer_);
+    const auto  previous = ContractInfo::GetLiveDataRef(current->_token);
+
+    if (not previous) {
         return;
     }
-    const auto topBid = static_cast<uint32_t>(ref->_bid[0]._price * 100);
-    const auto topAsk = static_cast<uint32_t>(ref->_ask[0]._price * 100);
-    const auto ltp    = static_cast<uint32_t>(ref->_lastTradePrice * 100);
-    const auto atp    = static_cast<uint32_t>(ref->_averageTradePrice * 100);
+    const auto topBid = static_cast<PriceCeT>(previous->_bid[0]._price * 100);
+    const auto topAsk = static_cast<PriceCeT>(previous->_ask[0]._price * 100);
+    const auto ltp    = static_cast<PriceCeT>(previous->_lastTradePrice * 100);
+    const auto atp    = static_cast<PriceCeT>(previous->_averageTradePrice * 100);
 
     for (size_t i = 0; i < 5; ++i) {
-        ref->_bid[i]._price    = static_cast<float>(pointer->_bid[i]._price) / 100.0F;
-        ref->_bid[i]._quantity = (pointer->_bid[i]._quantity);
-        ref->_bid[i]._order    = (pointer->_bid[i]._order);
+        previous->_bid[i]._price    = static_cast<PriceT>(current->_bid[i]._price) / 100.0F;
+        previous->_bid[i]._quantity = (current->_bid[i]._quantity);
+        previous->_bid[i]._order    = (current->_bid[i]._order);
 
-        ref->_ask[i]._price    = static_cast<float>(pointer->_ask[i]._price) / 100.0F;
-        ref->_ask[i]._quantity = (pointer->_ask[i]._quantity);
-        ref->_ask[i]._order    = (pointer->_ask[i]._order);
+        previous->_ask[i]._price    = static_cast<PriceT>(current->_ask[i]._price) / 100.0F;
+        previous->_ask[i]._quantity = (current->_ask[i]._quantity);
+        previous->_ask[i]._order    = (current->_ask[i]._order);
     }
 
-    ref->_totalBuyQuantity  = (pointer->_totalBuyQuantity);
-    ref->_totalSellQuantity = (pointer->_totalSellQuantity);
-    ref->_volumeTradedToday = (pointer->_volumeTradedToday);
+    previous->_lastTradeQuantity = (current->_lastTradeQuantity);
+    previous->_totalBuyQuantity  = (current->_totalBuyQuantity);
+    previous->_totalSellQuantity = (current->_totalSellQuantity);
+    previous->_volumeTradedToday = (current->_volumeTradedToday);
 
-    ref->_open  = static_cast<float>(pointer->_open) / 100.0F;
-    ref->_high  = static_cast<float>(pointer->_high) / 100.0F;
-    ref->_low   = static_cast<float>(pointer->_low) / 100.0F;
-    ref->_close = static_cast<float>(pointer->_close) / 100.0F;
+    previous->_open              = static_cast<PriceT>(current->_open) / 100.0F;
+    previous->_high              = static_cast<PriceT>(current->_high) / 100.0F;
+    previous->_low               = static_cast<PriceT>(current->_low) / 100.0F;
+    previous->_close             = static_cast<PriceT>(current->_close) / 100.0F;
+    previous->_averageTradePrice = static_cast<PriceT>(current->_averageTradePrice) / 100.0F;
+    previous->_lastTradePrice    = static_cast<PriceT>(current->_lastTradePrice) / 100.0F;
 
-    ref->_averageTradePrice = static_cast<float>(pointer->_averageTradePrice) / 100.0F;
-    ref->_lastTradePrice    = static_cast<float>(pointer->_lastTradePrice) / 100.0F;
-    ref->_lastTradeQuantity = (pointer->_lastTradeQuantity);
+    memset(previous->_lastTradeTime.data(), 0, 30);
+    memcpy(previous->_lastTradeTime.data(), current->_lastTradeTime, 30);
 
-    std::memset(ref->_lastTradeTime.data(), 0, 30);
-    std::memcpy(ref->_lastTradeTime.data(), pointer->_lastTradeTime, 30);
+    previous->_pchange = (static_cast<PriceT>(current->_close - current->_lastTradePrice) / static_cast<PriceT>(current->_close)) * 100.0F;
 
-    ref->_pchange = (static_cast<float>(pointer->_close - pointer->_lastTradePrice) / static_cast<float>(pointer->_close)) * 100.0F;
-
-    if (topBid != pointer->_bid[0]._price) {
-        ref->_color._topBid = topBid < (pointer->_bid[0]._price);
+    if (topBid != current->_bid[0]._price) {
+        previous->_color._topBid = topBid < (current->_bid[0]._price);
     }
-    if (topAsk != pointer->_ask[0]._price) {
-        ref->_color._topAsk = topAsk < (pointer->_ask[0]._price);
+    if (topAsk != current->_ask[0]._price) {
+        previous->_color._topAsk = topAsk < (current->_ask[0]._price);
     }
-    if (ltp != pointer->_lastTradePrice) {
-        ref->_color._ltp = ltp < (pointer->_lastTradePrice);
+    if (ltp != current->_lastTradePrice) {
+        previous->_color._ltp = ltp < (current->_lastTradePrice);
     }
-    if (atp != pointer->_averageTradePrice) {
-        ref->_color._atp = atp < (pointer->_averageTradePrice);
+    if (atp != current->_averageTradePrice) {
+        previous->_color._atp = atp < (current->_averageTradePrice);
     }
 #if 0
-    MarketEventQueue.push(ref);
+    _marketEventQueue.push(previous);
 #endif
+}
+CentralFeed::CentralFeed(MarketEventQueueT& queue_) : _marketEventQueue(queue_) {
 }

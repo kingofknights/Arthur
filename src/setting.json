@@ -1,16 +1,22 @@
 {
   "font": {
     "file": "Ruda-Bold.ttf",
-    "size": 18
+    "size": 25
   },
   "backend": {
     "user": 101,
-    "address": "127.0.0.1",
+    "address": "192.168.151.68",
     "port": 9898
   },
   "marketwatch": {
     "contract": "ResultSet.db3",
-    "address": "127.0.0.1",
+    "address": "10.10.8.82",
     "port": 50047
+  },
+  "postgres": {
+    "host": "192.168.151.77",
+    "user": "postgres",
+    "password": "server",
+    "name": "mts_dev"
   }
 }

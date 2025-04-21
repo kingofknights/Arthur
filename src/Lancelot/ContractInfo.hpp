@@ -27,31 +27,31 @@ namespace Lancelot {
     class ContractInfo {
       public:
         static void Initialize(const std::string& name_, const ResultSetLoadingCallbackT& callback_);
-        static auto GetResultSet(uint32_t token_) -> ResultSetPtrT;
+        static auto GetResultSet(int32_t token_) -> ResultSetPtrT;
 
-        static auto GetToken(const std::string& name_) -> uint32_t;
-        static auto GetExpiryDate(uint32_t token_) -> uint32_t;
-        static auto GetLotSize(uint32_t token_) -> uint32_t;
-        static auto GetTickSize(uint32_t token_) -> uint32_t;
-        static auto GetDivisor(uint32_t token_) -> uint32_t;
-        static auto GetFuture(uint32_t token_) -> uint32_t;
-        static auto GetOppositeToken(uint32_t token_) -> uint32_t;
-        static auto GetStrikePrice(uint32_t token_) -> float;
+        static auto GetToken(const std::string& name_) -> int32_t;
+        static auto GetExpiryDate(int32_t token_) -> int32_t;
+        static auto GetLotSize(int32_t token_) -> int32_t;
+        static auto GetTickSize(int32_t token_) -> int32_t;
+        static auto GetDivisor(int32_t token_) -> int32_t;
+        static auto GetFuture(int32_t token_) -> int32_t;
+        static auto GetOppositeToken(int32_t token_) -> int32_t;
+        static auto GetStrikePrice(int32_t token_) -> float;
 
-        static auto GetInstType(uint32_t token_) -> Instrument;
-        static auto GetOption(uint32_t token_) -> OptionType;
-        static auto GetExchange(uint32_t token_) -> Exchange;
+        static auto GetInstType(int32_t token_) -> Instrument;
+        static auto GetOption(int32_t token_) -> OptionType;
+        static auto GetExchange(int32_t token_) -> Exchange;
 
-        static auto GetSymbol(uint32_t token_) -> std::string;
-        static auto GetSegment(uint32_t token_) -> std::string;
-        static auto GetName(uint32_t token_) -> std::string;
-        static auto GetDescription(uint32_t token_) -> std::string;
+        static auto GetSymbol(int32_t token_) -> std::string;
+        static auto GetSegment(int32_t token_) -> std::string;
+        static auto GetName(int32_t token_) -> std::string;
+        static auto GetDescription(int32_t token_) -> std::string;
 
-        static auto IsOption(uint32_t token_) -> bool;
-        static auto IsEquity(uint32_t token_) -> bool;
-        static auto IsCall(uint32_t token_) -> bool;
-        static auto IsPut(uint32_t token_) -> bool;
-        static auto IsFuture(uint32_t token_) -> bool;
+        static auto IsOption(int32_t token_) -> bool;
+        static auto IsEquity(int32_t token_) -> bool;
+        static auto IsCall(int32_t token_) -> bool;
+        static auto IsPut(int32_t token_) -> bool;
+        static auto IsFuture(int32_t token_) -> bool;
 
         static void ExecuteQuery(const std::string& query_);
         static auto GetResultWithIndex(const std::string& query_) -> TableWithColumnIndexT;

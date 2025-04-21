@@ -33,7 +33,7 @@ class OpenOrders {
     PendingOrderUpdateT    _pendingOrderUpdate;
     BookOrderListT         _cancelOrder;
 
-    std::unordered_map<int, std::string> _hashing;
+    std::unordered_map<uint32_t, std::string> _hashing;
 
     int  _buyCount         = 0;
     int  _sellCount        = 0;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Arthur_Fwd.hpp"
+#include "include/Structure.hpp"
 
 #include <cstdint>
 #include <string_view>
@@ -12,7 +13,7 @@ enum VisualTheme : int;
 
 class Arthur {
   public:
-    explicit Arthur(bool* closeMainWindow_);
+    explicit Arthur(bool* closeMainWindow_, UserDetails details_);
 
     ~Arthur();
     void Paint();
@@ -20,7 +21,7 @@ class Arthur {
     void AddTrade(const OrderInfoPtrT& tradeInfo_);
 
   protected:
-    static void MarketEventHandler(std::stop_token& token_);
+    void MarketEventHandler(std::stop_token& token_);
 
     void SetTheme(VisualTheme theme_);
 
@@ -79,8 +80,9 @@ class Arthur {
         uint16_t    _port;
     };
 
-    int16_t _userId;
+    UserDetails _userId;
 
-    Connection _backend;
-    Connection _marketWatch;
+    Connection        _backend;
+    Connection        _marketWatch;
+    MarketEventQueueT _marketEventQueue;
 };

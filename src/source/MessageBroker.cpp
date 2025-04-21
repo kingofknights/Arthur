@@ -68,6 +68,10 @@ void MessageBroker::Process(const char* buffer_, size_t size_) {
             ProcessOrder(buffer_);
             break;
         }
+        case 1050: {
+            ProcessTrade(buffer_);
+            break;
+        }
         case Lancelot::ResponseType_FILLED: {
             break;
         }
@@ -112,6 +116,26 @@ void MessageBroker::ProcessOrder(const char* buffer_) {
     info->_time            = TimeStampToHReadble(response->_timestamp);
     info->_client          = FORMAT("{}", response->_user._user);
     info->_message         = FORMAT("{}", response->_errorCode);
+    _function(info);
+}
+void MessageBroker::ProcessTrade(const char* buffer_) {
+    const auto*   response = reinterpret_cast<const Lancelot::TradeConfirmation*>(buffer_);
+    OrderInfoPtrT info     = std::make_shared<OrderInfoT>();
+    info->_portfolio       = response->_portfolio,
+    info->_uniqueId        = response->_clientOrderNumber,
+    info->_token           = response->_token,
+    info->_quantity        = response->_quantity,
+    info->_fillQuantity    = response->_fillQuantity,
+    info->_remaining       = response->_remainingQuantity,
+    info->_orderNumber     = response->_exchangeOrderNumber,
+    info->_price           = response->_price / 100.0F,
+    info->_fillPrice       = response->_fillPrice / 100.0F,
+    info->_side            = static_cast<Lancelot::Side>(response->_side);
+    info->_statusValue     = response->_remainingQuantity == 0 ? OrderStatus_FILLED : OrderStatus_PARTIAL_FILLED;
+    info->_contract        = Lancelot::ContractInfo::GetDescription(info->_token);
+    info->_time            = TimeStampToHReadble(response->_timestamp);
+    info->_client          = FORMAT("{}", response->_userId);
+    info->_message         = "";
     _function(info);
 }
 
