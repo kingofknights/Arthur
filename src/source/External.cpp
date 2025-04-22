@@ -2,8 +2,8 @@
 // Created by VIKLOD on 25-02-2023.
 //
 
-#include "../API/BaseScanner.hpp"
-#include "../include/Structure.hpp"
+#include "API/BaseScanner.hpp"
+#include "Structure.hpp"
 
 std::string StatusDisplay;
 

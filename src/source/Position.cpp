@@ -1,17 +1,18 @@
-#include "../include/Position.hpp"
+#include "Position.hpp"
+
+#include "API/Common.hpp"
+#include "API/ContractInfo.hpp"
+#include "Configuration.hpp"
+#include "Structure.hpp"
+#include "TableColumnInfo.hpp"
+#include "plf_nanotimer.h"
 
 #include <Greeks/Greeks.hpp>
+
 #include <iterator>
 #include <numeric>
 
-#include "../API/Common.hpp"
-#include "../API/ContractInfo.hpp"
-#include "../include/Configuration.hpp"
-#include "../include/Structure.hpp"
-#include "../include/TableColumnInfo.hpp"
-#include "../include/plf_nanotimer.h"
-
-template<typename Type>
+template <typename Type>
 void UpdateTradeInfoNetbook(Type& data, const OrderInfoPtrT& tradeInfo_) {
     if (tradeInfo_->_side == Lancelot::Side_BUY) {
         data->_totalBuyPrice += tradeInfo_->_price * tradeInfo_->_quantity;
@@ -24,7 +25,7 @@ void UpdateTradeInfoNetbook(Type& data, const OrderInfoPtrT& tradeInfo_) {
     }
 }
 
-template<typename Container, typename Sequencial, typename Key>
+template <typename Container, typename Sequencial, typename Key>
 void UpdateNetBook(Container& container_, Sequencial& sequencial_, Key key_, const OrderInfoPtrT& tradeInfo_) {
     auto iterator = container_.find(key_);
     if (iterator != container_.end()) {

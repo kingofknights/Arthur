@@ -1,12 +1,12 @@
-#include "../include/PortfolioInterface.hpp"
+#include "PortfolioInterface.hpp"
 
-#include "../API/Common.hpp"
-#include "../API/ContractInfo.hpp"
-#include "../include/Colors.hpp"
-#include "../include/ConfigLoader.hpp"
-#include "../include/Enums.hpp"
-#include "../include/Structure.hpp"
-#include "../include/Utils.hpp"
+#include "API/Common.hpp"
+#include "API/ContractInfo.hpp"
+#include "Colors.hpp"
+#include "ConfigLoader.hpp"
+#include "Enums.hpp"
+#include "Structure.hpp"
+#include "Utils.hpp"
 #include "include/Arthur_Fwd.hpp"
 
 #include <nlohmann/json.hpp>

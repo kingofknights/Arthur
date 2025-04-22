@@ -2,15 +2,15 @@
 // Created by VIKLOD on 07-03-2023.
 //
 
-#include "../include/Utils.hpp"
+#include "Utils.hpp"
 
-#include "../API/BaseScanner.hpp"
-#include "../API/Common.hpp"
-#include "../API/ContractInfo.hpp"
-#include "../include/Configuration.hpp"
-#include "../include/Enums.hpp"
-#include "../include/Structure.hpp"
-#include "../include/TableColumnInfo.hpp"
+#include "API/BaseScanner.hpp"
+#include "API/Common.hpp"
+#include "API/ContractInfo.hpp"
+#include "Configuration.hpp"
+#include "Enums.hpp"
+#include "Structure.hpp"
+#include "TableColumnInfo.hpp"
 #include "imgui_internal.h"
 
 #include <nlohmann/json.hpp>
@@ -260,4 +260,56 @@ void Utils::GetAllContractCallback(const Lancelot::ResultSetPtrT result_, float 
 double Utils::ScannerAPI(double pf_, double /*name_*/, double params_, double token_) {
     BaseScanner::UpdateUser(pf_, FORMAT("Token1={}#Token2={}#Token3={}#Lot={}", token_, token_, token_, token_));
     return 0;
+}
+
+auto Utils::GetPhoenixNewOrder(const OrderFormInfoT& info_, int16_t user_) noexcept -> Lancelot::ManualOrder {
+    return Lancelot::ManualOrder{
+        ._header = {
+            ._type   = Lancelot::RequestType_NEW,
+            ._length = sizeof(Lancelot::ManualOrder) - sizeof(Lancelot::Header),
+        },
+        ._user = {
+            ._user      = user_,
+            ._portfolio = 0,
+        },
+        ._token         = static_cast<uint32_t>(info_._marketWatch->_token),
+        ._price         = static_cast<uint32_t>(info_._price),
+        ._quantity      = static_cast<uint32_t>(info_._quantity),
+        ._triggerPrice  = 0,
+        ._side          = info_._side,
+        ._orderSequence = 0,
+        ._orderType     = static_cast<int16_t>(info_._type),
+        ._nnf           = 0,
+    };
+}
+auto Utils::GetPhoenixModifyOrder(const OrderFormInfoT& info_, int16_t user_) noexcept -> Lancelot::ModifyOrder {
+    return Lancelot::ModifyOrder{
+        ._header = {
+            ._type   = Lancelot::RequestType_MODIFY,
+            ._length = sizeof(Lancelot::ModifyOrder) - sizeof(Lancelot::Header),
+        },
+        ._user = {
+            ._user      = user_,
+            ._portfolio = 0,
+        },
+        ._token         = static_cast<uint32_t>(info_._marketWatch->_token),
+        ._orderSequence = static_cast<int32_t>(info_._uniqueId),
+        ._price         = static_cast<uint32_t>(info_._price),
+        ._quantity      = static_cast<uint32_t>(info_._quantity),
+        ._triggerPrice  = 0,
+    };
+}
+auto Utils::GetPhoenixCancelOrder(const OrderInfoPtrT& info_, int16_t user_) noexcept -> Lancelot::CancelOrder {
+    return Lancelot::CancelOrder{
+        ._header = {
+            ._type   = Lancelot::RequestType_CANCEL,
+            ._length = sizeof(Lancelot::CancelOrder) - sizeof(Lancelot::Header),
+        },
+        ._user = {
+            ._user      = user_,
+            ._portfolio = 0,
+        },
+        ._token         = info_->_token,
+        ._orderSequence = static_cast<int16_t>(info_->_uniqueId),
+    };
 }

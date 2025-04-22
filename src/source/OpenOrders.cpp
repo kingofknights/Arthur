@@ -1,15 +1,15 @@
-#include "../include/OpenOrders.hpp"
+#include "OpenOrders.hpp"
 
-#include "../API/Common.hpp"
-#include "../API/ContractInfo.hpp"
-#include "../include/Colors.hpp"
-#include "../include/Configuration.hpp"
-#include "../include/Enums.hpp"
-#include "../include/OrderForm.hpp"
-#include "../include/OrderHistory.hpp"
-#include "../include/Structure.hpp"
-#include "../include/TableColumnInfo.hpp"
-#include "../include/Utils.hpp"
+#include "API/Common.hpp"
+#include "API/ContractInfo.hpp"
+#include "Colors.hpp"
+#include "Configuration.hpp"
+#include "Enums.hpp"
+#include "OrderForm.hpp"
+#include "OrderHistory.hpp"
+#include "Structure.hpp"
+#include "TableColumnInfo.hpp"
+#include "Utils.hpp"
 
 #include <iterator>
 

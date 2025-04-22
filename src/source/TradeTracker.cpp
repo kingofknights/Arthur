@@ -1,12 +1,8 @@
-//
-// Created by VIKLOD on 30-04-2023.
-//
+#include "TradeTracker.hpp"
 
-#include "../include/TradeTracker.hpp"
-
-#include "../include/Configuration.hpp"
-#include "../include/Enums.hpp"
-#include "../include/TableColumnInfo.hpp"
+#include "Configuration.hpp"
+#include "Enums.hpp"
+#include "TableColumnInfo.hpp"
 
 void TradeTracker::paint(bool* show_) {
     _pendingTrackerUpdate.consume_one([this](TradeTrackerItemT tradeTrackerItem_) { _trackerContainer.push_back(std::move(tradeTrackerItem_)); });
@@ -19,21 +15,21 @@ void TradeTracker::DrawTracker(bool* show_) {
     if (ImGui::Begin("Tracker", show_)) {
         const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
         if (ImGui::BeginTable("Tracker", TradeTrackerColumn_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
-            for (const auto name : TradeTrackerColumnName) {
+            for (const auto* const name : TradeTrackerColumnName) {
                 ImGui::TableSetupColumn(name, TableColumnFlags);
             }
             ImGui::TableHeadersRow();
-            _clipper.Begin(_trackerContainer.size());
+            _clipper.Begin(static_cast<int>(_trackerContainer.size()));
             while (_clipper.Step()) {
                 auto begin = _trackerContainer.begin() + _clipper.DisplayStart;
                 auto end   = begin + (_clipper.DisplayEnd - _clipper.DisplayStart);
-                int  i     = _clipper.DisplayStart;
-                for (auto iterator = begin; iterator < end; ++iterator, ++i) {
+                int  index = _clipper.DisplayStart;
+                for (auto iterator = begin; iterator < end; ++iterator, ++index) {
                     ImGui::TableNextRow();
-                    TradeTrackerItemT& TradeTrackerItem = *iterator;
-                    NextCell(TradeTrackerColumn_ID, i);
-                    NextCell(TradeTrackerColumn_NAME, TradeTrackerItem._strategy.data());
-                    NextCell(TradeTrackerColumn_DESCRIPTIONS, TradeTrackerItem._descriptions.data());
+                    TradeTrackerItemT& tradeTrackerItem = *iterator;
+                    NextCell(TradeTrackerColumn_ID, index);
+                    NextCell(TradeTrackerColumn_NAME, tradeTrackerItem._strategy.data());
+                    NextCell(TradeTrackerColumn_DESCRIPTIONS, tradeTrackerItem._descriptions.data());
                 }
             }
             ImGui::EndTable();

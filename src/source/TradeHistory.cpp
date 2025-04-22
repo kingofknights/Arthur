@@ -1,12 +1,12 @@
-#include "../include/TradeHistory.hpp"
+#include "TradeHistory.hpp"
 
-#include "../API/Common.hpp"
-#include "../include/Colors.hpp"
-#include "../include/Configuration.hpp"
-#include "../include/Enums.hpp"
-#include "../include/OrderHistory.hpp"
-#include "../include/TableColumnInfo.hpp"
-#include "../include/Utils.hpp"
+#include "API/Common.hpp"
+#include "Colors.hpp"
+#include "Configuration.hpp"
+#include "Enums.hpp"
+#include "OrderHistory.hpp"
+#include "TableColumnInfo.hpp"
+#include "Utils.hpp"
 
 void TradeHistory::paint(bool* show_) {
     _pendingTradeUpdate.consume_one([this](const OrderInfoPtrT& orderInfo_) {

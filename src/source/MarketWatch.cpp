@@ -2,17 +2,17 @@
 // Created by VIKLOD on 22-01-2023.
 //
 
-#include "../include/MarketWatch.hpp"
+#include "MarketWatch.hpp"
 
-#include "../API/Common.hpp"
-#include "../API/ContractInfo.hpp"
-#include "../include/Colors.hpp"
-#include "../include/Configuration.hpp"
-#include "../include/Enums.hpp"
-#include "../include/OrderForm.hpp"
-#include "../include/Structure.hpp"
-#include "../include/TableColumnInfo.hpp"
-#include "../include/Utils.hpp"
+#include "API/Common.hpp"
+#include "API/ContractInfo.hpp"
+#include "Colors.hpp"
+#include "Configuration.hpp"
+#include "Enums.hpp"
+#include "OrderForm.hpp"
+#include "Structure.hpp"
+#include "TableColumnInfo.hpp"
+#include "Utils.hpp"
 
 #include <imgui.h>
 #include <imgui_internal.h>

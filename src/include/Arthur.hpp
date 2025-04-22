@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Arthur_Fwd.hpp"
-#include "include/Structure.hpp"
+#include "Structure.hpp"
 
 #include <cstdint>
 #include <string_view>

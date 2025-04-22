@@ -2,7 +2,7 @@
 // Created by VIKLOD on 26-02-2023.
 //
 
-#include "../include/Multicast.hpp"
+#include "Multicast.hpp"
 
 #include "DataFeed/CentralFeed.hpp"
 

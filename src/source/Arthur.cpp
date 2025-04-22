@@ -2,45 +2,42 @@
 // Created by VIKLOD on 21-01-2023.
 //
 
-#include "../include/Arthur.hpp"
-
-#include "Enums.hpp"
-#include "IconsMaterialDesign.h"
-#include "Lancelot/Structure.hpp"
-#include "Logger.hpp"
-#include "imgui.h"
-#include "include/Arthur_Fwd.hpp"
-#include "include/Login.hpp"
-#include "include/PortfolioInterface.hpp"
-#include "include/Structure.hpp"
+#include "Arthur.hpp"
 
 #if _WIN32
 #include <Psapi.h>
 #endif
 
-#include "../API/Common.hpp"
-#include "../API/ContractInfo.hpp"
-#include "../API/TokenInfo.hpp"
-#include "../Knight/Scanner.hpp"
-#include "../include/Colors.hpp"
-#include "../include/ConfigLoader.hpp"
-#include "../include/Enums.hpp"
-#include "../include/MarketWatch.hpp"
-#include "../include/MessageBroker.hpp"
-#include "../include/Multicast.hpp"
-#include "../include/OpenOrders.hpp"
-#include "../include/OptionChain.hpp"
-#include "../include/OrderBook.hpp"
-#include "../include/OrderForm.hpp"
-#include "../include/Portfolio.hpp"
-#include "../include/Position.hpp"
-#include "../include/StrategyWorkspace.hpp"
-#include "../include/TableColumnInfo.hpp"
-#include "../include/TemplateBuilder.hpp"
-#include "../include/Themes.hpp"
-#include "../include/TradeHistory.hpp"
-#include "../include/Utils.hpp"
-#include "../include/plf_nanotimer.h"
+#include "API/Common.hpp"
+#include "API/ContractInfo.hpp"
+#include "API/TokenInfo.hpp"
+#include "Arthur_Fwd.hpp"
+#include "Colors.hpp"
+#include "ConfigLoader.hpp"
+#include "Enums.hpp"
+#include "IconsMaterialDesign.h"
+#include "Knight/Scanner.hpp"
+#include "Lancelot/Structure.hpp"
+#include "Logger.hpp"
+#include "MarketWatch.hpp"
+#include "MessageBroker.hpp"
+#include "Multicast.hpp"
+#include "OpenOrders.hpp"
+#include "OptionChain.hpp"
+#include "OrderBook.hpp"
+#include "OrderForm.hpp"
+#include "Portfolio.hpp"
+#include "PortfolioInterface.hpp"
+#include "Position.hpp"
+#include "StrategyWorkspace.hpp"
+#include "Structure.hpp"
+#include "TableColumnInfo.hpp"
+#include "TemplateBuilder.hpp"
+#include "Themes.hpp"
+#include "TradeHistory.hpp"
+#include "Utils.hpp"
+#include "imgui.h"
+#include "plf_nanotimer.h"
 
 #include <nlohmann/json.hpp>
 
@@ -473,49 +470,16 @@ void Arthur::ManualOrderRequestEvent(const OrderFormInfoT& info_, Lancelot::Requ
             break;
         }
         case Lancelot::RequestType_NEW: {
-            Lancelot::ManualOrder order{
-                ._header = {
-                    ._type   = type_,
-                    ._length = sizeof(Lancelot::ManualOrder) - sizeof(Lancelot::Header),
-                },
-                ._user = {
-                    ._user      = static_cast<int16_t>(_userId._userId),
-                    ._portfolio = 0,
-                },
-                ._token         = static_cast<uint32_t>(info_._marketWatch->_token),
-                ._price         = static_cast<uint32_t>(info_._price),
-                ._quantity      = static_cast<uint32_t>(info_._quantity),
-                ._triggerPrice  = 0,
-                ._side          = info_._side,
-                ._orderSequence = 0,
-                ._orderType     = static_cast<int16_t>(info_._type),
-                ._nnf           = 0,
-            };
+            auto order = Utils::GetPhoenixNewOrder(info_, static_cast<int16_t>(_userId._userId));
             _messageBroker->WriteSync(&order, sizeof(Lancelot::ManualOrder));
             break;
         }
         case Lancelot::RequestType_MODIFY: {
-            Lancelot::ModifyOrder order{
-                ._header = {
-                    ._type   = type_,
-                    ._length = sizeof(Lancelot::ModifyOrder) - sizeof(Lancelot::Header),
-                },
-                ._user = {
-                    ._user      = static_cast<int16_t>(_userId._userId),
-                    ._portfolio = 0,
-                },
-                ._token         = static_cast<uint32_t>(info_._marketWatch->_token),
-                ._orderSequence = static_cast<int32_t>(info_._uniqueId),
-                ._price         = static_cast<uint32_t>(info_._price),
-                ._quantity      = static_cast<uint32_t>(info_._quantity),
-                ._triggerPrice  = 0,
-            };
+            auto order = Utils::GetPhoenixModifyOrder(info_, static_cast<int16_t>(_userId._userId));
             _messageBroker->WriteSync(&order, sizeof(Lancelot::ModifyOrder));
             break;
         }
-        case Lancelot::RequestType_CANCEL: {
-            break;
-        }
+        case Lancelot::RequestType_CANCEL:
         case Lancelot::RequestType_APPLY:
         case Lancelot::RequestType_SUBSCRIBE:
         case Lancelot::RequestType_UNSUBSCRIBE:
@@ -541,18 +505,6 @@ void Arthur::StrategyRequestEvent(StrategyRowPtrT row_, const std::string& name_
 }
 
 void Arthur::CancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
-    Lancelot::CancelOrder order{
-        ._header = {
-            ._type   = Lancelot::RequestType_CANCEL,
-            ._length = sizeof(Lancelot::CancelOrder) - sizeof(Lancelot::Header),
-        },
-        ._user = {
-            ._user      = static_cast<int16_t>(_userId._userId),
-            ._portfolio = 0,
-        },
-        ._token         = orderInfo_->_token,
-        ._orderSequence = static_cast<int16_t>(orderInfo_->_uniqueId),
-
-    };
+    auto order = Utils::GetPhoenixCancelOrder(orderInfo_, static_cast<int16_t>(_userId._userId));
     _messageBroker->WriteSync(&order, sizeof(Lancelot::CancelOrder));
 }
