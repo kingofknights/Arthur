@@ -37,7 +37,7 @@ jobs:
 
       - name: Compress the artifact
         working-directory: ${{github.workspace}}/build/${{env.BUILD_TYPE}}
-        run: tar -czvf artifact.tar Arthur.exe Ruda-Bold.ttf MaterialIcons-Regular.ttf ResultSet.db3 setting.json
+        run: tar -czvf artifact.tar Arthur.exe Ruda-Bold.ttf MaterialIcons-Regular.ttf setting.json
 
       - name: Release artifact
         uses: actions/upload-artifact@v4

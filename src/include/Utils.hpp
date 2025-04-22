@@ -44,6 +44,12 @@ class Utils {
 
     static auto StrategySerialize(const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_) -> std::string;
 
+    static auto GetPhoenixNewOrder(const OrderFormInfoT& info_, int16_t user_) noexcept -> Lancelot::ManualOrder;
+
+    static auto GetPhoenixModifyOrder(const OrderFormInfoT& info_, int16_t user_) noexcept -> Lancelot::ModifyOrder;
+
+    static auto GetPhoenixCancelOrder(const OrderInfoPtrT& info_, int16_t user_) noexcept -> Lancelot::CancelOrder;
+
   private:
     static GlobalStrategyListT GlobalStrategyList;
 };
