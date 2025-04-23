@@ -36,9 +36,7 @@ Login::Login() {
         LOG(ERROR, "Config file not found : setting.json", false);
         exit(1);
     }
-    _user     = "tws_sim3@minix.co.in";
-    _password = "123qwe";
-    _error    = "Enter user details";
+    _error = "Enter user details";
 }
 void Login::Paint() {
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5F, 0.5F));
