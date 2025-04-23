@@ -5,10 +5,11 @@
 #define ORDER_HISTORY_POPUP_WINDOW "Order History Window"
 class OrderHistory : public Singleton {
   public:
-    static OrderHistory& Instance();
+    static auto Instance() -> OrderHistory&;
 
-    void paint(bool* show_);
-    void LoadOrderHistory(double orderNumber_);
+    void Paint(bool* show_);
+
+    void LoadOrderHistory(uint64_t orderNumber_);
 
   protected:
     void DrawOrderHistory();

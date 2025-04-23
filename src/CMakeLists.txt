@@ -87,7 +87,6 @@ add_dependencies(${PROJECT_NAME} glfw)
 add_dependencies(${PROJECT_NAME} nlohmann_json)
 add_dependencies(${PROJECT_NAME} fmt)
 add_dependencies(${PROJECT_NAME} SQLiteCpp)
-add_dependencies(${PROJECT_NAME} pqxx)
 
 target_sources(${PROJECT_NAME} PRIVATE ${HEADER_FILES})
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})
@@ -110,7 +109,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ImguiFD)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
 target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
 target_link_libraries(${PROJECT_NAME} PRIVATE SQLiteCpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE pqxx)
+target_link_libraries(${PROJECT_NAME} PRIVATE libpqxx::pqxx)
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC ${PRECOMPILE_HEADERS})
 

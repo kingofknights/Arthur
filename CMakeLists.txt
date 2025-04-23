@@ -24,11 +24,12 @@ include(./cmake/Glfw3.cmake)
 include(./cmake/Nlohmann-json.cmake)
 include(./cmake/Fmt.cmake)
 include(./cmake/SqliteCpp.cmake)
-include(./cmake/Postgres.cmake)
+# include(./cmake/Postgres.cmake)
 
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Boost REQUIRED filesystem)
+find_package(libpqxx REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})

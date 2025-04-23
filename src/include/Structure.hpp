@@ -6,6 +6,7 @@
 
 #include <boost/lockfree/spsc_queue.hpp>
 
+#include <array>
 #include <deque>
 #include <list>
 #include <map>
@@ -105,7 +106,7 @@ using OrderInfoT = struct OrderInfoT {
     uint32_t _quantity;
     uint32_t _fillQuantity;
     uint32_t _remaining;
-    long     _orderNumber;
+    uint64_t _orderNumber;
     float    _price;
     float    _fillPrice;
 
@@ -198,7 +199,7 @@ using OrderFormInfoT = struct OrderFormInfoT {
     PriceT         _price;
     QuantityT      _quantity;
     QuantityT      _lotSize;
-    long           _orderNumber;
+    uint64_t       _orderNumber;
     int            _type;
     Lancelot::Side _side;
     OrderStatus    _status;

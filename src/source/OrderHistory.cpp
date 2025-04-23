@@ -17,7 +17,7 @@ void OrderHistory::DrawOrderHistory() {
             ImGui::TableHeadersRow();
 
             ImGuiListClipper clipper;
-            clipper.Begin(_container.size());
+            clipper.Begin(static_cast<int>(_container.size()));
             while (clipper.Step()) {
                 auto begin = _container.begin() + clipper.DisplayStart;
                 auto end   = begin + (clipper.DisplayEnd - clipper.DisplayStart);
@@ -34,19 +34,19 @@ void OrderHistory::DrawOrderHistory() {
     }
 }
 
-void OrderHistory::paint(bool* show_) {
+void OrderHistory::Paint(bool* show_) {
     if (_showOrderHistory) {
         DrawOrderHistory();
     }
 }
 
-void OrderHistory::LoadOrderHistory(double orderNumber_) {
+void OrderHistory::LoadOrderHistory(uint64_t orderNumber_) {
     _showOrderHistory = true;
     _container.clear();
-    _container = ConfigLoader::Instance().GetOrderHistory(orderNumber_);
+    _container = ConfigLoader::GetOrderHistory(orderNumber_);
 }
 
-OrderHistory& OrderHistory::Instance() {
+auto OrderHistory::Instance() -> OrderHistory& {
     static OrderHistory orderHistory;
     return orderHistory;
 }

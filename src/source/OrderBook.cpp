@@ -44,7 +44,7 @@ void OrderBook::DrawOrderBookTable(bool* show_) {
                             OrderHistory::Instance().LoadOrderHistory(tradeInfo_->_orderNumber);
                             ImGui::OpenPopup(ORDER_HISTORY_POPUP_WINDOW);
                         }
-                        OrderHistory::Instance().paint(nullptr);
+                        OrderHistory::Instance().Paint(nullptr);
                     }
                     ImGui::PopID();
                 }
