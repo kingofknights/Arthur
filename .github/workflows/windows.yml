@@ -7,7 +7,7 @@ on:
 env:
   BUILD_TYPE: Release
   BOOST_PRE_DOWNLOAD_LINK: "https://boost.teeks99.com/bin/1.78.0/boost_1_78_0-msvc-14.3-64.exe"
-  TOOLCHAIN_FILE: ${{github.VCPKG_INSTALLATION_ROOT}}/scripts/buildsystems/vcpkg.cmake
+  TOOLCHAIN_FILE: C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 
 jobs:
   build:
@@ -17,7 +17,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          lfs: "false"
           submodules: "true"
 
       - name: Download boost
@@ -26,24 +25,20 @@ jobs:
       - name: Install Boost
         run: Start-Process -FilePath "boost_installer.exe" -ArgumentList "/VERYSILENT" -Wait
 
-      - name: Install Bison
-        run: winget install --id=GnuWin32.Bison -e
-
-      - name: Install Flex
-        run: winget install --id=GnuWin32.Flex -e
+      - name: Install Bison + Flex
+        run: choco install winflexbison3
 
       - name: Configure Arthur
         working-directory: ${{github.workspace}}/
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=${{env.TOOLCHAIN_FILE}}
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=${{env.TOOLCHAIN_FILE}} -DVCPKG_TARGET_TRIPLET=x64-windows-static
 
       - name: Build Arthur
         working-directory: ${{github.workspace}}/
-        run: |
-          cmake --build build --config ${{env.BUILD_TYPE}} --target install -j6
+        run: cmake --build build --config ${{env.BUILD_TYPE}} --target install -j6
 
       - name: Compress the artifact
         working-directory: ${{github.workspace}}/build/${{env.BUILD_TYPE}}
-        run: tar -czvf artifact.tar Arthur.exe Ruda-Bold.ttf MaterialIcons-Regular.ttf buildResultSet setting.json
+        run: tar -czvf artifact.tar Arthur.exe Ruda-Bold.ttf MaterialIcons-Regular.ttf buildResultSet.exe setting.json
 
       - name: Release artifact
         uses: actions/upload-artifact@v4
