@@ -83,12 +83,11 @@ auto main(int /*unused*/, char** /*unused*/) -> int {
 #endif
 
     // Create window with graphics context
-    GLFWmonitor*       monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode    = glfwGetVideoMode(monitor);
-    GLFWwindow*        window  = glfwCreateWindow(mode->width, mode->height, "Arthur", monitor, nullptr);
+    GLFWwindow* window = glfwCreateWindow(480, 640, "Arthur", nullptr, nullptr);
     if (window == nullptr) {
         return 1;
     }
+    glfwMaximizeWindow(window);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);  // Enable vsync
 
