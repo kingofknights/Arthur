@@ -109,8 +109,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ImguiFD)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
 target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
 target_link_libraries(${PROJECT_NAME} PRIVATE SQLiteCpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE libpqxx::pqxx)
-# target_link_libraries(${PROJECT_NAME} PRIVATE pqxx)
+# target_link_libraries(${PROJECT_NAME} PRIVATE libpqxx::pqxx)
+target_link_libraries(${PROJECT_NAME} PRIVATE pqxx)
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC ${PRECOMPILE_HEADERS})
 

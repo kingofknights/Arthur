@@ -1,8 +1,10 @@
 name: Windows Build and Deployment
 
 on:
+  pull_request:
+    branches: [ "main" ]
   push:
-    branches: ["April"]
+    branches: [ "April" ]
 
 env:
   BUILD_TYPE: Release
@@ -26,19 +28,21 @@ jobs:
         run: Start-Process -FilePath "boost_installer.exe" -ArgumentList "/VERYSILENT" -Wait
 
       - name: Install Bison + Flex
+        if: false
         run: choco install winflexbison3
 
       - name: Configure Arthur
         working-directory: ${{github.workspace}}/
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=${{env.TOOLCHAIN_FILE}} -DVCPKG_TARGET_TRIPLET=x64-windows-static
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: Build Arthur
         working-directory: ${{github.workspace}}/
-        run: cmake --build build --config ${{env.BUILD_TYPE}} --target install -j6
+        run: cmake --build build --config ${{env.BUILD_TYPE}} --target install
 
       - name: Compress the artifact
         working-directory: ${{github.workspace}}/build/${{env.BUILD_TYPE}}
-        run: tar -czvf artifact.tar Arthur.exe Ruda-Bold.ttf MaterialIcons-Regular.ttf buildResultSet.exe setting.json
+        run: tar -czvf artifact.tar *.exe *.ttf setting.json
+        continue-on-error: true
 
       - name: Release artifact
         uses: actions/upload-artifact@v4
@@ -47,21 +51,20 @@ jobs:
           name: Releases
 
       - name: Create GitHub Release
-        if: false
+        if: ${{github.event_name}} == 'pull_request'
         uses: marvinpinto/action-automatic-releases@latest
         id: create_release
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
-          prerelease: true
-          title: "Development Build"
+          title: ${{github.event.pull_request.title}}
+        continue-on-error: false
 
       - name: Upload Binary
-        if: false
+        if: ${{github.event_name}} == "pull_request"
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{github.workspace}}/build/${{env.BUILD_TYPE}}/
-          asset_name: |
-            Arthur.exe
+          asset_name: artifact.tar
           asset_content_type: application/zip
