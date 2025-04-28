@@ -13,10 +13,10 @@ include_directories(${imgui_SOURCE_DIR}/misc/cpp)
 set(BACKEND ${imgui_SOURCE_DIR}/backends)
 
 set(IMGUI_BACKEND
-    ${BACKEND}/imgui_impl_opengl3.h
-    ${BACKEND}/imgui_impl_opengl3.cpp
-    ${BACKEND}/imgui_impl_glfw.h
-    ${BACKEND}/imgui_impl_glfw.cpp)
+    ${BACKEND}/imgui_impl_sdl3.h
+    ${BACKEND}/imgui_impl_sdl3.cpp
+    ${BACKEND}/imgui_impl_sdlrenderer3.h
+    ${BACKEND}/imgui_impl_sdlrenderer3.cpp)
 
 add_library(
   Imgui STATIC
@@ -35,5 +35,4 @@ add_library(
   ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
   ${IMGUI_BACKEND})
 
-target_include_directories(Imgui PRIVATE ${imgui_SOURCE_DIR}/examples/libs/glfw/include)
 set_target_properties(Imgui PROPERTIES C_CPPCHECK "" CXX_CPPCHECK "")

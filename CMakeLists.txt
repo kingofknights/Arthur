@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.5)
 
 project(
   Arthur
@@ -24,7 +24,6 @@ include(./cmake/PrecompiledHeader.cmake)
 find_package(nlohmann_json REQUIRED)
 find_package(fmt REQUIRED)
 find_package(SQLiteCpp REQUIRED)
-find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Boost REQUIRED filesystem)
 find_package(libpqxx REQUIRED)

@@ -5,7 +5,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Lancelot)
 add_subdirectory(DataFeed)
 add_subdirectory(API)
 add_subdirectory(Knight)
-# add_subdirectory(Excel) add_subdirectory(Audio)
+#[[
+add_subdirectory(Excel)
+add_subdirectory(Audio)
+]]
 
 set(HEADER_FILES
     ./database/Postgres.hpp
@@ -32,7 +35,7 @@ set(HEADER_FILES
     ./include/MessageBroker.hpp
     ./include/OptionChain.hpp
     ./include/Position.hpp
-    ./include/SplashScreen.hpp
+    # ./include/SplashScreen.hpp
     ./include/PortfolioScanner.hpp
     ./include/TradeTracker.hpp
     ./include/plf_nanotimer.h
@@ -60,7 +63,7 @@ set(SOURCE_FILES
     ./source/MessageBroker.cpp
     ./source/OptionChain.cpp
     ./source/Position.cpp
-    ./source/SplashScreen.cpp
+    # ./source/SplashScreen.cpp
     ./source/PortfolioScanner.cpp
     ./source/TradeTracker.cpp
     ./source/OrderBook.cpp
