@@ -1,12 +1,13 @@
 name: Windows Build and Deployment
 
 on:
-  push:
-    branches: ["April"]
+  pull_request:
+    branches: ["main"]
 
 env:
   BUILD_TYPE: Release
   BOOST_PRE_DOWNLOAD_LINK: "https://boost.teeks99.com/bin/1.78.0/boost_1_78_0-msvc-14.3-64.exe"
+  TOOLCHAIN_FILE: C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 
 jobs:
   build:
@@ -16,7 +17,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          lfs: "false"
           submodules: "true"
 
       - name: Download boost
@@ -27,17 +27,16 @@ jobs:
 
       - name: Configure Arthur
         working-directory: ${{github.workspace}}/
-        run: cmake -B build -DFMT_UNICODE=0 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: Build Arthur
         working-directory: ${{github.workspace}}/
-        run: |
-          cmake --build build --config ${{env.BUILD_TYPE}} --target install -j6
-          cmake --build build --config ${{env.BUILD_TYPE}} --target install -j6
+        run: cmake --build build --config ${{env.BUILD_TYPE}} --target install
 
       - name: Compress the artifact
         working-directory: ${{github.workspace}}/build/${{env.BUILD_TYPE}}
-        run: tar -czvf artifact.tar Arthur.exe Ruda-Bold.ttf MaterialIcons-Regular.ttf setting.json
+        run: tar -czvf artifact.tar *.exe *.ttf setting.json
+        continue-on-error: true
 
       - name: Release artifact
         uses: actions/upload-artifact@v4
@@ -52,8 +51,8 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
-          prerelease: true
-          title: "Development Build"
+          title: ${{github.event.pull_request.title}}
+        continue-on-error: false
 
       - name: Upload Binary
         if: false
@@ -61,6 +60,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{github.workspace}}/build/${{env.BUILD_TYPE}}/
-          asset_name: |
-            Arthur.exe
+          asset_name: artifact.tar
           asset_content_type: application/zip

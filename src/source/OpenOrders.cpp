@@ -80,7 +80,7 @@ void OpenOrders::DrawPendingBook(bool* show_) {
                             OrderHistory::Instance().LoadOrderHistory(tradeInfo_->_orderNumber);
                             ImGui::OpenPopup(ORDER_HISTORY_POPUP_WINDOW);
                         }
-                        OrderHistory::Instance().paint(nullptr);
+                        OrderHistory::Instance().Paint(nullptr);
 
                         if (tradeInfo_->_portfolio == 0 and ImGui::IsKeyPressed(ImGuiKey_Delete)) {
                             _strand.post([&]() {

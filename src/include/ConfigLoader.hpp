@@ -11,7 +11,7 @@ class ConfigLoader : public Singleton {
 
     void GetStrategyList();
 
-    static auto GetOrderHistory(double orderNumber_) -> BookOrderListT;
+    static auto GetOrderHistory(uint64_t orderNumber_) -> BookOrderListT;
 
   private:
     ConfigLoader();

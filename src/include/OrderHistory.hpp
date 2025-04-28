@@ -2,13 +2,16 @@
 
 #include "Structure.hpp"
 
+#include <cstdint>
+
 #define ORDER_HISTORY_POPUP_WINDOW "Order History Window"
 class OrderHistory : public Singleton {
   public:
-    static OrderHistory& Instance();
+    static auto Instance() -> OrderHistory&;
 
-    void paint(bool* show_);
-    void LoadOrderHistory(double orderNumber_);
+    void Paint(bool* show_);
+
+    void LoadOrderHistory(uint64_t orderNumber_);
 
   protected:
     void DrawOrderHistory();
@@ -16,6 +19,6 @@ class OrderHistory : public Singleton {
   private:
     BookOrderListT _container;
     bool           _showOrderHistory = true;
-    double         _orderNumber      = 0;
+    uint64_t       _orderNumber      = 0;
     int            _index            = 0;
 };

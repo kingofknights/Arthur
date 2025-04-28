@@ -79,6 +79,6 @@ void ConfigLoader::GetStrategyList() {
 #endif
 }
 
-auto ConfigLoader::GetOrderHistory(double orderNumber_) -> BookOrderListT {
+auto ConfigLoader::GetOrderHistory(uint64_t orderNumber_) -> BookOrderListT {
     return {};
 }

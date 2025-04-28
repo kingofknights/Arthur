@@ -98,7 +98,7 @@ void OrderForm::DrawInputItem() {
     }
 
     ImGui::EndDisabled();
-    ImGui::LabelText("OrderNumber", "%ld", _order._orderNumber);
+    ImGui::LabelText("OrderNumber", "%lu", _order._orderNumber);
 
     if (ImGui::IsKeyPressed(ImGuiKey_Escape)) {
         ImGui::CloseCurrentPopup();
