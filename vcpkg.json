@@ -11,5 +11,12 @@
     "sqlitecpp",
     "sdl3",
     "libpqxx"
+  ],
+  "builtin-baseline": "f9b6c6917b23c1ccf16c1a9f015ebabf8f615045",
+  "overrides": [
+    {
+      "name": "boost",
+      "version": "1.78.0"
+    }
   ]
 }
