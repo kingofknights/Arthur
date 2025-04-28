@@ -35,4 +35,6 @@ add_library(
   ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
   ${IMGUI_BACKEND})
 
+target_link_libraries(Imgui PRIVATE SDL3::SDL3)
+
 set_target_properties(Imgui PROPERTIES C_CPPCHECK "" CXX_CPPCHECK "")
