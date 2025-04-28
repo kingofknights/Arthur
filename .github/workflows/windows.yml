@@ -28,7 +28,7 @@ jobs:
 
       - name: Configure Arthur
         working-directory: ${{github.workspace}}/
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=${{env.TOOLCHAIN_FILE}} -DCMAKE_GENERATOR=Ninja
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=${{env.TOOLCHAIN_FILE}} -DCMAKE_GENERATOR=Ninja -DCMAKE_MAKE_PROGRAM=ninja
 
       - name: Build Arthur
         working-directory: ${{github.workspace}}/
