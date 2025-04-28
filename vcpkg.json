@@ -12,11 +12,11 @@
     "sdl3",
     "libpqxx"
   ],
-  "builtin-baseline": "f9b6c6917b23c1ccf16c1a9f015ebabf8f615045",
   "overrides": [
     {
       "name": "boost",
       "version": "1.78.0"
     }
-  ]
+  ],
+  "builtin-baseline": "96d5fb3de135b86d7222c53f2352ca92827a156b"
 }
