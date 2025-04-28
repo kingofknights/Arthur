@@ -20,23 +20,15 @@ set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 add_subdirectory(repo)
 
 include(./cmake/PrecompiledHeader.cmake)
-include(./cmake/Glfw3.cmake)
-include(./cmake/Nlohmann-json.cmake)
-include(./cmake/Fmt.cmake)
-include(./cmake/SqliteCpp.cmake)
-include(./cmake/Postgres.cmake)
 
+find_package(nlohmann_json REQUIRED)
+find_package(fmt REQUIRED)
+find_package(SQLiteCpp REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Boost REQUIRED filesystem)
-# find_package(libpqxx REQUIRED)
-
-include_directories(${Boost_INCLUDE_DIRS})
-link_directories(${Boost_LIBRARY_DIRS})
-
-message(STATUS "Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}")
-message(STATUS "Boost_LIBRARY_DIRS ${Boost_LIBRARY_DIRS}")
-message(STATUS "OPENGL_INCLUDE_DIR ${OPENGL_INCLUDE_DIR}")
+find_package(libpqxx REQUIRED)
+find_package(SDL3 REQUIRED)
 
 include_directories(third_party/IconFontCppHeaders)
 include_directories(third_party/stb)

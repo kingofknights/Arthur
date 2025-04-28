@@ -1,3 +1,11 @@
 {
-  "dependencies": []
+  "dependencies": [
+    "fmt",
+    "libpq",
+    "libpqxx",
+    "boost",
+    "nlohmann-json",
+    "sqlitecpp",
+    "sdl3"
+  ]
 }

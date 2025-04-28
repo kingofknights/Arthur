@@ -78,15 +78,10 @@ set(LANCELOT_FILES
     ./Lancelot/ContractInfo.cpp
     ./Lancelot/Enums.cpp)
 
-add_executable(${PROJECT_NAME} main.cpp ${APP_ICON_RESOURCE_WINDOWS})
+add_executable(${PROJECT_NAME} main_sdl3.cpp ${APP_ICON_RESOURCE_WINDOWS})
 
 add_dependencies(${PROJECT_NAME} Imgui)
 add_dependencies(${PROJECT_NAME} ImguiFD)
-
-add_dependencies(${PROJECT_NAME} glfw)
-add_dependencies(${PROJECT_NAME} nlohmann_json)
-add_dependencies(${PROJECT_NAME} fmt)
-add_dependencies(${PROJECT_NAME} SQLiteCpp)
 
 target_sources(${PROJECT_NAME} PRIVATE ${HEADER_FILES})
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})
@@ -97,20 +92,16 @@ target_link_libraries(${PROJECT_NAME} PRIVATE DataFeed)
 target_link_libraries(${PROJECT_NAME} PRIVATE Knight)
 target_link_libraries(${PROJECT_NAME} PRIVATE Greeks)
 
-target_compile_definitions(${PROJECT_NAME} PUBLIC IMGUI_IMPL_OPENGL_ES3)
 target_include_directories(${PROJECT_NAME} PUBLIC ${imgui_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC ${imgui_SOURCE_DIR}/backends)
-target_include_directories(${PROJECT_NAME} PUBLIC ${OPENGL_INCLUDE_DIR})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
 target_link_libraries(${PROJECT_NAME} PRIVATE Imgui)
 target_link_libraries(${PROJECT_NAME} PRIVATE ImguiFD)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
 target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
+target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(${PROJECT_NAME} PRIVATE SQLiteCpp)
-# target_link_libraries(${PROJECT_NAME} PRIVATE libpqxx::pqxx)
-target_link_libraries(${PROJECT_NAME} PRIVATE pqxx)
+target_link_libraries(${PROJECT_NAME} PRIVATE libpqxx::pqxx)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC ${PRECOMPILE_HEADERS})
 

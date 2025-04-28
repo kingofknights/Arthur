@@ -1,0 +1,29 @@
+name: Windows Build and Deployment
+
+on:
+  push:
+    branches: ["April"]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          submodules: "true"
+
+      - uses: lukka/get-cmake@latest
+
+      - name: Setup Package Manager
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgJsonGlob: "vcpkg.json"
+
+      - name: "Run CMake"
+        uses: "lukka/run-cmake@v10"
+        with:
+          configurePreset: "release"
+          buildPreset: "release"
+          buildPresetAdditionalArgs: "['--config Release']"
