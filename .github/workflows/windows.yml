@@ -3,7 +3,8 @@ name: Windows Build and Deployment
 on:
   pull_request:
     branches: ["main"]
-
+  push:
+    branches: ["workflow"]
 env:
   BUILD_TYPE: Release
   BOOST_PRE_DOWNLOAD_LINK: "https://boost.teeks99.com/bin/1.78.0/boost_1_78_0-msvc-14.3-64.exe"
@@ -27,7 +28,7 @@ jobs:
 
       - name: Configure Arthur
         working-directory: ${{github.workspace}}/
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=${{env.TOOLCHAIN_FILE}} -DCMAKE_GENERATOR=Ninja
 
       - name: Build Arthur
         working-directory: ${{github.workspace}}/
@@ -43,22 +44,3 @@ jobs:
         with:
           path: ${{github.workspace}}/build/${{env.BUILD_TYPE}}/artifact.tar
           name: Releases
-
-      - name: Create GitHub Release
-        if: false
-        uses: marvinpinto/action-automatic-releases@latest
-        id: create_release
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          title: ${{github.event.pull_request.title}}
-        continue-on-error: false
-
-      - name: Upload Binary
-        if: false
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{github.workspace}}/build/${{env.BUILD_TYPE}}/
-          asset_name: artifact.tar
-          asset_content_type: application/zip
