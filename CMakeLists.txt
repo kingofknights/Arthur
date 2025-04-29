@@ -25,7 +25,7 @@ find_package(nlohmann_json REQUIRED)
 find_package(fmt REQUIRED)
 find_package(SQLiteCpp REQUIRED)
 find_package(Threads REQUIRED)
-find_package(Boost REQUIRED filesystem)
+find_package(Boost REQUIRED)
 find_package(libpqxx REQUIRED)
 find_package(SDL3 REQUIRED)
 

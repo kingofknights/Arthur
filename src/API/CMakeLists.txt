@@ -9,12 +9,7 @@ set(HEADER_FILES
 
 add_library(API ${HEADER_FILES})
 
-target_link_libraries(
-  API
-  PUBLIC nlohmann_json::nlohmann_json
-         fmt::fmt
-         Boost::headers
-         Boost::filesystem)
+target_link_libraries(API PUBLIC nlohmann_json::nlohmann_json fmt::fmt Boost::headers)
 
 target_precompile_headers(API PUBLIC ${PRECOMPILE_HEADERS})
 install(

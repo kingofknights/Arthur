@@ -8,7 +8,7 @@ on:
 env:
   BUILD_TYPE: Release
   BOOST_PRE_DOWNLOAD_LINK: "https://boost.teeks99.com/bin/1.78.0/boost_1_78_0-msvc-14.3-64.exe"
-  TOOLCHAIN_FILE: C:\vcpkg\scripts\buildsystems\vcpkg.cmake
+  TOOLCHAIN_FILE: C:/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 jobs:
   build:
@@ -21,9 +21,11 @@ jobs:
           submodules: "true"
 
       - name: Download boost
+        if: false
         run: Invoke-WebRequest -Uri ${{env.BOOST_PRE_DOWNLOAD_LINK}} -OutFile  "boost_installer.exe"
 
       - name: Install Boost
+        if: false
         run: Start-Process -FilePath "boost_installer.exe" -ArgumentList "/VERYSILENT" -Wait
 
       - name: Configure Arthur

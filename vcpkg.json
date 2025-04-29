@@ -6,6 +6,7 @@
     "fmt",
     "sqlitecpp",
     "sdl3",
-    "libpqxx"
+    "libpqxx",
+    "boost"
   ]
 }
