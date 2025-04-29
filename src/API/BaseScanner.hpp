@@ -27,7 +27,7 @@ class BaseScanner : public std::enable_shared_from_this<BaseScanner> {
 using BaseScannerPtrT = std::shared_ptr<BaseScanner>;
 
 using ScannerPointerT = struct ScannerPointerT {
-    BaseScannerPtrT            BaseScannerPtr;
-    boost::dll::shared_library Library;
+    BaseScannerPtrT BaseScannerPtr;
+    // boost::dll::shared_library Library;
 };
 using ScannerContainerT = std::map<uint64_t, ScannerPointerT>;

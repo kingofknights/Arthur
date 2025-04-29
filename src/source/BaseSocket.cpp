@@ -3,7 +3,7 @@
 #include "Lancelot/Logger.hpp"
 #include "Lancelot/Structure.hpp"
 
-TBaseSocket::TBaseSocket(ExecutorT& executor_) : _strand(executor_), _socket(executor_), _timer(executor_), _buffer{}, _header(reinterpret_cast<Lancelot::Header*>(_buffer.data())) {
+TBaseSocket::TBaseSocket(ExecutorT& executor_) : _socket(executor_), _timer(executor_), _buffer{}, _header(reinterpret_cast<Lancelot::Header*>(_buffer.data())) {
 }
 
 void TBaseSocket::MakeConnection(const std::string& address_, uint16_t port_) {

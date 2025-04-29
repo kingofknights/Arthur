@@ -2,6 +2,7 @@
 
 #include "API/Common.hpp"
 #include "API/ContractInfo.hpp"
+#include "Arthur_Fwd.hpp"
 #include "ConfigLoader.hpp"
 #include "Configuration.hpp"
 #include "Enums.hpp"
@@ -23,7 +24,7 @@ extern ClientCodeListT ClientCodeList;
 #define ADDITIONAL_OPTION     "Additional Options"
 #define NEW_STRATEGY_CREATION "New Strategy"
 
-Portfolio::Portfolio(const std::string& workspaceName_, const std::string& strategyName_, boost::asio::io_context::strand& strand_)
+Portfolio::Portfolio(const std::string& workspaceName_, const std::string& strategyName_, ExecutorT& strand_)
     : PortfolioInterface(workspaceName_ + "[" + strategyName_ + "]", strategyName_, strand_) {
     _action = ExportImport_NONE;
 }

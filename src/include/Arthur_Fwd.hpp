@@ -67,7 +67,7 @@ using ThreadGroupT = std::vector<ThreadPtrT>;
 using TimerT          = boost::asio::deadline_timer;
 using ExecutorT       = boost::asio::io_context;
 using ExecutorTypeT   = ExecutorT::executor_type;
-using ExecutorStrandT = ExecutorT::strand;
+using ExecutorStrandT = ExecutorT;
 using ErrorCodeT      = boost::system::error_code;
 using WorkerT         = boost::asio::executor_work_guard<ExecutorTypeT>;
 

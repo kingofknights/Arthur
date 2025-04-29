@@ -57,8 +57,7 @@ extern AllContractT AllContract;
 #define REJECT_BOOK             "Reject Book"
 
 Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
-    : _strand(_executor),
-      _backendWorker(_executor.get_executor()),
+    : _backendWorker(_executor.get_executor()),
       _closeMainWindow(closeMainWindow_),
       _userId(std::move(details_)) {
     std::fstream file("setting.json");
@@ -89,7 +88,7 @@ Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
 
     _templateBuilderPtr   = std::make_unique<TemplateBuilder>(_showTemplateBuilder);
     _positionPtr          = std::make_unique<Position>(_executor);
-    _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_strand);
+    _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_executor);
     _tradeHistoryPtr      = std::make_unique<TradeHistory>();
     _optionChainPtr       = std::make_unique<OptionChain>();
     _multicastReceiverPtr = std::make_unique<MulticastReceiver>(_executor, _marketEventQueue);
@@ -100,7 +99,7 @@ Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
         _optionChainPtr->SetOptionForFuture(contract_);
     });
 
-    _openOrdersPtr = std::make_unique<OpenOrders>(_orderFormPtr, _strand, _showOpenOrders, [this](const OrderInfoPtrT& info_) {
+    _openOrdersPtr = std::make_unique<OpenOrders>(_orderFormPtr, _executor, _showOpenOrders, [this](const OrderInfoPtrT& info_) {
         CancelOrderEvent(info_);
     });
 
@@ -108,7 +107,7 @@ Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
         AddTrade(orderInfo_);
     });
 
-    _orderFormPtr = std::make_unique<OrderForm>(_strand, [&](const OrderFormInfoT& info_, Lancelot::RequestType type_) {
+    _orderFormPtr = std::make_unique<OrderForm>(_executor, [&](const OrderFormInfoT& info_, Lancelot::RequestType type_) {
         ManualOrderRequestEvent(info_, type_);
     });
 

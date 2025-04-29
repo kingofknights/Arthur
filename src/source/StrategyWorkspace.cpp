@@ -15,7 +15,7 @@ extern StrategyNameListT StrategyNameList;
 #define CREATE_NEW_WORKSPACE_WINDOW_NAME "Add New Workspace"
 #define STRATEGY_CANVAS_NAME             "Workspace Canvas"
 
-StrategyWorkspace::StrategyWorkspace(boost::asio::io_context::strand& strand_) : _strand(strand_) {
+StrategyWorkspace::StrategyWorkspace(ExecutorT& strand_) : _strand(strand_) {
     Imports(STRATEGY_CONFIG_FILE_NAME);
 }
 
