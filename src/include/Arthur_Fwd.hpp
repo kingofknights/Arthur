@@ -37,6 +37,7 @@ class MessageBroker;
 class OptionChain;
 class OrderBook;
 class Login;
+class CentralFeed;
 
 struct OrderInfoT;
 struct OrderFormInfoT;
@@ -50,7 +51,7 @@ using ExcelWindowPtrT       = std::unique_ptr<ExcelWindow>;
 using PositionPtrT          = std::unique_ptr<Position>;
 using MarketWatchPtrT       = std::unique_ptr<MarketWatch>;
 using OrderFormPtrT         = std::unique_ptr<OrderForm>;
-using MulticastReceiverPtrT = std::unique_ptr<MulticastReceiver>;
+using MulticastReceiverPtrT = std::unique_ptr<CentralFeed>;
 using OpenOrdersPtrT        = std::unique_ptr<OpenOrders>;
 using StrategyWorkspacePtrT = std::unique_ptr<StrategyWorkspace>;
 using TradeHistoryPtrT      = std::unique_ptr<TradeHistory>;

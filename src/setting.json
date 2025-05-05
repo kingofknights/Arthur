@@ -10,6 +10,7 @@
   },
   "marketwatch": {
     "contract": "ResultSet.db3",
+    "interface": "127.0.0.1",
     "address": "10.10.8.82",
     "port": 50047
   },

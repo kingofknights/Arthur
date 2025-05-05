@@ -70,6 +70,7 @@ Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
         backend["port"].get_to(_backend._port);
 
         std::string database;
+        marketwatch["interface"].get_to(_marketWatch._interface);
         marketwatch["address"].get_to(_marketWatch._address);
         marketwatch["port"].get_to(_marketWatch._port);
         marketwatch["contract"].get_to(database);
@@ -91,7 +92,7 @@ Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
     _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_executor);
     _tradeHistoryPtr      = std::make_unique<TradeHistory>();
     _optionChainPtr       = std::make_unique<OptionChain>();
-    _multicastReceiverPtr = std::make_unique<MulticastReceiver>(_executor, _marketEventQueue);
+    _multicastReceiverPtr = std::make_unique<CentralFeed>(_marketEventQueue);
     _orderBookPtr         = std::make_unique<OrderBook>(ORDER_ALL_BOOK);
     _rejectBookPtr        = std::make_unique<OrderBook>(REJECT_BOOK);
 
@@ -440,8 +441,11 @@ void Arthur::StartAllThreads() {
         _threadGroup.push_back(std::move(thread));
     }
 
-    _multicastReceiverPtr->BindMc(_marketWatch._address, _marketWatch._port);
-    _multicastReceiverPtr->Read();
+    {
+        int  i      = _multicastReceiverPtr->Construct(0, _marketWatch._interface, _marketWatch._address, _marketWatch._port);
+        auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { _multicastReceiverPtr->BindSocket(token_); });
+        _threadGroup.push_back(std::move(thread));
+    }
 
     _messageBroker->MakeConnection(_backend._address, _backend._port);
 }

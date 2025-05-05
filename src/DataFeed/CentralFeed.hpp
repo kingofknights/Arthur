@@ -1,15 +1,20 @@
 #pragma once
 
+#include "EpollSocket.hpp"
+#include "Structure.hpp"
 #include "include/Structure.hpp"
 
-#include <cstddef>
-
-class CentralFeed {
+class CentralFeed : public EpollSocket {
   public:
     explicit CentralFeed(MarketEventQueueT& queue_);
 
-    void Process(const char* buffer_, size_t size_);
+    ~CentralFeed() override = default;
+
+    void Process(int size_) override;
 
   private:
-    MarketEventQueueT& _marketEventQueue;
+    MarketEventQueueT&             _marketEventQueue;
+    struct MarketWatchDataUpdateT* _marketData;
+    struct IndexDataUpdate*        _index;
+    Lancelot::Header*              _header;
 };

@@ -75,6 +75,7 @@ class Arthur {
     bool*        _closeMainWindow;
 
     struct Connection {
+        std::string _interface;
         std::string _address;
         uint16_t    _port;
     };

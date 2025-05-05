@@ -11,77 +11,82 @@ add_subdirectory(Audio)
 ]]
 
 set(HEADER_FILES
+    # cmake-format: sortable
     ./database/Postgres.hpp
+    ./include/Arthur.hpp
     ./include/BaseSocket.hpp
     ./include/Colors.hpp
     ./include/ConfigLoader.hpp
-    ./include/Enums.hpp
-    ./include/MarketWatch.hpp
-    ./include/OpenOrders.hpp
-    ./include/PortfolioInterface.hpp
-    ./include/StrategyWorkspace.hpp
-    ./include/TableColumnInfo.hpp
-    ./include/Arthur.hpp
-    ./include/TemplateBuilder.hpp
     ./include/Configuration.hpp
+    ./include/Enums.hpp
+    ./include/EpollSocket.hpp
+    ./include/Login.hpp
+    ./include/MarketWatch.hpp
+    ./include/MessageBroker.hpp
+    ./include/OpenOrders.hpp
+    ./include/OptionChain.hpp
+    ./include/OrderBook.hpp
     ./include/OrderForm.hpp
     ./include/OrderHistory.hpp
+    ./include/plf_nanotimer.h
     ./include/Portfolio.hpp
-    ./include/Structure.hpp
-    ./include/TradeHistory.hpp
-    ./include/Multicast.hpp
-    ./include/Login.hpp
-    ./include/Utils.hpp
-    ./include/MessageBroker.hpp
-    ./include/OptionChain.hpp
+    ./include/PortfolioInterface.hpp
+    ./include/PortfolioScanner.hpp
     ./include/Position.hpp
     # ./include/SplashScreen.hpp
-    ./include/PortfolioScanner.hpp
+    ./include/StrategyWorkspace.hpp
+    ./include/Structure.hpp
+    ./include/TableColumnInfo.hpp
+    ./include/TemplateBuilder.hpp
+    ./include/Themes.hpp
+    ./include/TradeHistory.hpp
+    # ./include/Multicast.hpp
     ./include/TradeTracker.hpp
-    ./include/plf_nanotimer.h
-    ./include/OrderBook.hpp
-    ./include/Themes.hpp)
+    ./include/Utils.hpp)
 
 set(SOURCE_FILES
+    # cmake-format: sortable
     ./database/Postgres.cpp
-    ./source/TemplateBuilder.cpp
+    ./source/Arthur.cpp
+    ./source/BaseSocket.cpp
+    ./source/ConfigLoader.cpp
+    ./source/EpollSocket.cpp
+    ./source/External.cpp
+    ./source/Login.cpp
+    # ./source/Multicast.cpp
+    ./source/MarketWatch.cpp
+    ./source/MessageBroker.cpp
+    ./source/OpenOrders.cpp
+    ./source/OptionChain.cpp
+    ./source/OrderBook.cpp
     ./source/OrderForm.cpp
     ./source/OrderHistory.cpp
     ./source/Portfolio.cpp
-    ./source/TradeHistory.cpp
-    ./source/ConfigLoader.cpp
-    ./source/MarketWatch.cpp
-    ./source/OpenOrders.cpp
     ./source/PortfolioInterface.cpp
-    ./source/StrategyWorkspace.cpp
-    ./source/Arthur.cpp
-    ./source/External.cpp
-    ./source/Login.cpp
-    ./source/Multicast.cpp
-    ./source/BaseSocket.cpp
-    ./source/Utils.cpp
-    ./source/MessageBroker.cpp
-    ./source/OptionChain.cpp
+    ./source/PortfolioScanner.cpp
     ./source/Position.cpp
     # ./source/SplashScreen.cpp
-    ./source/PortfolioScanner.cpp
+    ./source/StrategyWorkspace.cpp
+    ./source/TemplateBuilder.cpp
+    ./source/Themes.cpp
+    ./source/TradeHistory.cpp
     ./source/TradeTracker.cpp
-    ./source/OrderBook.cpp
-    ./source/Themes.cpp)
+    ./source/Utils.cpp)
 
 set(LANCELOT_FILES
-    ./Lancelot/Logger.hpp
-    ./Lancelot/StoreProcedures.hpp
+    # cmake-format: sortable
+    ./Lancelot/ContractFetcher.cpp
     ./Lancelot/ContractFetcher.hpp
+    ./Lancelot/ContractInfo.cpp
     ./Lancelot/ContractInfo.hpp
-    ./Lancelot/Structure.hpp
+    ./Lancelot/Enums.cpp
     ./Lancelot/Enums.hpp
     ./Lancelot/Lancelot.hpp
-    ./Lancelot/ContractFetcher.cpp
-    ./Lancelot/ContractInfo.cpp
-    ./Lancelot/Enums.cpp)
+    ./Lancelot/Logger.hpp
+    ./Lancelot/StoreProcedures.hpp
+    ./Lancelot/Structure.hpp)
 
-add_executable(${PROJECT_NAME} main_sdl3.cpp ${APP_ICON_RESOURCE_WINDOWS})
+add_executable(${PROJECT_NAME} ${APP_ICON_RESOURCE_WINDOWS} main_sdl3.cpp)
 
 add_dependencies(${PROJECT_NAME} Imgui)
 add_dependencies(${PROJECT_NAME} ImguiFD)
