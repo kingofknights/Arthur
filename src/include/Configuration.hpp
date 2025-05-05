@@ -108,6 +108,13 @@ inline void NextCell(int index_, PriceT type_) {
         ImGui::TextUnformatted(data.data(), data.data() + data.size());
     }
 }
+template <>
+inline void NextCell(int index_, double type_) {
+    if (ImGui::TableSetColumnIndex(index_)) {
+        const std::string data = FORMAT("{:>.4}", type_);
+        ImGui::TextUnformatted(data.data(), data.data() + data.size());
+    }
+}
 
 template <typename Type>
 void FirstCellWithPadding(int index_, Type type_) {

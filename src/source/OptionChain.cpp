@@ -74,7 +74,6 @@ void OptionChain::DrawOptionChain(bool* show_) {
                 double call_Gamma = Greeks::GetGamma(priceForCall, valueType.first, call_IV, rate, expiryGap, true);
                 double call_Delta = Greeks::GetDelta(priceForCall, valueType.first, call_IV, rate, expiryGap, true);
 
-                LOG(INFO, "{} {} {} {} {}", priceForCall, valueType.first, expiryGap, call._marketWatch->_lastTradePrice, call_IV * 100.0);
                 float  priceForPut = _future->_ask[0]._price > 0 ? _future->_ask[0]._price : _future->_lastTradePrice;
                 double put_IV      = Greeks::GetIV(priceForPut, valueType.first, rate, expiryGap, put._marketWatch->_lastTradePrice, false);
                 double put_Theta   = Greeks::GetTheta(priceForPut, valueType.first, put_IV, rate, expiryGap, false);
