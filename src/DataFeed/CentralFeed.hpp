@@ -1,16 +1,15 @@
 #pragma once
 
-#include "EpollSocket.hpp"
 #include "Structure.hpp"
-#include "include/Structure.hpp"
 
-class CentralFeed : public EpollSocket {
+class CentralFeed {
   public:
     explicit CentralFeed(MarketEventQueueT& queue_);
 
-    ~CentralFeed() override = default;
+    void Process(int size_);
 
-    void Process(int size_) override;
+  protected:
+    char _buffer[512];
 
   private:
     MarketEventQueueT&             _marketEventQueue;

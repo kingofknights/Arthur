@@ -19,10 +19,10 @@ set(HEADER_FILES
     ./include/ConfigLoader.hpp
     ./include/Configuration.hpp
     ./include/Enums.hpp
-    ./include/EpollSocket.hpp
     ./include/Login.hpp
     ./include/MarketWatch.hpp
     ./include/MessageBroker.hpp
+    ./include/Multicast.hpp
     ./include/OpenOrders.hpp
     ./include/OptionChain.hpp
     ./include/OrderBook.hpp
@@ -40,7 +40,6 @@ set(HEADER_FILES
     ./include/TemplateBuilder.hpp
     ./include/Themes.hpp
     ./include/TradeHistory.hpp
-    # ./include/Multicast.hpp
     ./include/TradeTracker.hpp
     ./include/Utils.hpp)
 
@@ -50,12 +49,11 @@ set(SOURCE_FILES
     ./source/Arthur.cpp
     ./source/BaseSocket.cpp
     ./source/ConfigLoader.cpp
-    ./source/EpollSocket.cpp
     ./source/External.cpp
     ./source/Login.cpp
-    # ./source/Multicast.cpp
     ./source/MarketWatch.cpp
     ./source/MessageBroker.cpp
+    ./source/Multicast.cpp
     ./source/OpenOrders.cpp
     ./source/OptionChain.cpp
     ./source/OrderBook.cpp

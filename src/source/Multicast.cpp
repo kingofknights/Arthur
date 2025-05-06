@@ -18,24 +18,19 @@ MulticastReceiver::MulticastReceiver(boost::asio::io_service& ioService_, Market
 
 void MulticastReceiver::ReceiverFrom(const boost::system::error_code& errorCode_, size_t size_) {
     if (!errorCode_) {
-        ProcessData(_buffer, size_);
+        Process(size_);
         Read();
     }
 }
 
-void MulticastReceiver::BindMc(const std::string& address_, int port_) {
-    _endpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port_);
-    _socket.open(boost::asio::ip::udp::v4());
+void MulticastReceiver::BindMc(const std::string& address_, int port_, const std::string& multicast_) {
+    _endpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string(address_), port_);
+    _socket.open(_endpoint.protocol());
     _socket.set_option(boost::asio::socket_base::reuse_address(true));
-#ifndef WIN32
-    _socket.set_option(boost::asio::detail::socket_option::boolean<SOL_SOCKET, SO_REUSEPORT>(true));
-#endif
-
     _socket.bind(_endpoint);
+    _socket.set_option(boost::asio::ip::multicast::join_group(boost::asio::ip::address::from_string(multicast_)));
 }
 
 void MulticastReceiver::Read() {
-    _socket.async_receive_from(boost::asio::buffer(_buffer, MAX_LENGTH), _endpoint, [this](const boost::system::error_code& errorCode_, size_t size_) { ReceiverFrom(errorCode_, size_); });
+    _socket.async_receive_from(boost::asio::buffer(_buffer, 512), _endpoint, [this](const boost::system::error_code& errorCode_, size_t size_) { ReceiverFrom(errorCode_, size_); });
 }
-
-void MulticastReceiver::ProcessData(char* data_, size_t size_) { Process(data_, size_); }

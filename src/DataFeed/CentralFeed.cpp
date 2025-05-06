@@ -127,10 +127,10 @@ void CentralFeed::Process(int size_) {
         }
         case 5: {
             std::string name = std::string(_index->_data._name);
-            if (name == "BankNifty") {
+            if (name == "Nifty Bank") {
                 BankNifty._value  = _index->_data._value;
                 BankNifty._change = _index->_data._percentageChange;
-            } else if (name == "Nifty") {
+            } else if (name == "Nifty 50") {
                 Nifty._value  = _index->_data._value;
                 Nifty._change = _index->_data._percentageChange;
             } else if (name == "India Vix") {
@@ -141,8 +141,9 @@ void CentralFeed::Process(int size_) {
         }
     }
 }
-CentralFeed::CentralFeed(MarketEventQueueT& queue_) : _marketEventQueue(queue_),
-                                                      _marketData(reinterpret_cast<MarketWatchDataUpdateT*>(GetBuffer())),
-                                                      _index(reinterpret_cast<IndexDataUpdate*>(GetBuffer())),
-                                                      _header(reinterpret_cast<Lancelot::Header*>(GetBuffer())) {
+CentralFeed::CentralFeed(MarketEventQueueT& queue_)
+    : _marketEventQueue(queue_),
+      _marketData(reinterpret_cast<MarketWatchDataUpdateT*>(_buffer)),
+      _index(reinterpret_cast<IndexDataUpdate*>(_buffer)),
+      _header(reinterpret_cast<Lancelot::Header*>(_buffer)) {
 }
