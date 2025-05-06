@@ -1,48 +1,111 @@
 name: Windows Build and Deployment
 
 on:
-  pull_request:
-    branches: ["main"]
   push:
-    branches: ["workflow"]
-env:
-  BUILD_TYPE: Release
-  BOOST_PRE_DOWNLOAD_LINK: "https://boost.teeks99.com/bin/1.78.0/boost_1_78_0-msvc-14.3-64.exe"
-  TOOLCHAIN_FILE: C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+    branches: ["boost"]
 
 jobs:
-  build:
+  job0:
     runs-on: windows-latest
-
     steps:
-      - name: Checkout Code
+      - name: clone fmt
+        uses: actions/checkout@v4
+        with:
+          repository: "fmtlib/fmt"
+          ref: "11.2.0"
+
+      - name: build fmt
+        uses: threeal/cmake-action@v2.1.0
+        with:
+          generator: Ninja
+          cxx-compiler: gcc
+          options: |
+            FMT_TEST=OFF
+
+      - name: install fmt
+        run: cmake --install build
+
+      - name: clone json
+        uses: actions/checkout@v4
+        with:
+          repository: "nlohmann/json"
+          ref: "v3.12.0"
+
+      - name: build json
+        uses: threeal/cmake-action@v2.1.0
+        with:
+          generator: Ninja
+          cxx-compiler: gcc
+          options: |
+            JSON_BuildTests=OFF
+
+      - name: install json
+        run: cmake --install build
+
+      - uses: actions/checkout@v4
+        with:
+          repository: "jtv/libpqxx"
+          ref: "7.10.0"
+
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          generator: Ninja
+          cxx-compiler: gcc
+          options: |
+            BUILD_TEST=OFF
+
+      - name: install
+        run: cmake --install build
+
+      - uses: actions/checkout@v4
+        with:
+          repository: "libsdl-org/SDL"
+          ref: "release-3.2.0"
+
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          generator: Ninja
+          cxx-compiler: gcc
+          options: |
+            SDL_TESTS=OFF
+            SDL_EXAMPLES=OFF
+
+      - name: install
+        run: cmake --install build
+
+      - uses: actions/checkout@v4
+        with:
+          repository: "SRombauts/SQLiteCpp"
+          ref: "3.3.2"
+
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          generator: Ninja
+          cxx-compiler: gcc
+          options: |
+            SQLITECPP_RUN_CPPLINT=OFF
+            SQLITECPP_BUILD_TESTS=OFF
+
+      - name: install
+        run: cmake --install build
+
+      - uses: MarkusJx/install-boost@v2
+        id: boost
+        with:
+          platform: "windows"
+          toolset: mingw
+          boost_version: 1.74.0
+          boost_install_dir: "C:/boost"
+
+      - name: clone user repo
         uses: actions/checkout@v4
         with:
           submodules: "true"
 
-      - name: Download boost
-        if: false
-        run: Invoke-WebRequest -Uri ${{env.BOOST_PRE_DOWNLOAD_LINK}} -OutFile  "boost_installer.exe"
-
-      - name: Install Boost
-        if: false
-        run: Start-Process -FilePath "boost_installer.exe" -ArgumentList "/VERYSILENT" -Wait
-
-      - name: Configure Arthur
-        working-directory: ${{github.workspace}}/
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=${{env.TOOLCHAIN_FILE}} -DCMAKE_GENERATOR=Ninja -DCMAKE_MAKE_PROGRAM=ninja
-
-      - name: Build Arthur
-        working-directory: ${{github.workspace}}/
-        run: cmake --build build --config ${{env.BUILD_TYPE}} --target install
-
-      - name: Compress the artifact
-        working-directory: ${{github.workspace}}/build/${{env.BUILD_TYPE}}
-        run: tar -czvf artifact.tar *.exe *.ttf setting.json
-        continue-on-error: true
-
-      - name: Release artifact
-        uses: actions/upload-artifact@v4
+      - uses: threeal/cmake-action@v2.1.0
         with:
-          path: ${{github.workspace}}/build/${{env.BUILD_TYPE}}/artifact.tar
-          name: Releases
+          generator: Ninja
+          cxx-compiler: gcc
+          options: |
+            Boost_INCLUDE_DIR=${{steps.boost.outputs.BOOST_ROOT}}/include
+            Boost_LIBRARY_DIRS=${{steps.boost.outputs.BOOST_ROOT}}/lib
