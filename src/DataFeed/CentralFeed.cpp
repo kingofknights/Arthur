@@ -2,7 +2,6 @@
 
 #include "../API/ContractInfo.hpp"
 #include "../include/Structure.hpp"
-#include "Enums.hpp"
 #include "Structure.hpp"
 
 constexpr static int TimestampLength = 50;
