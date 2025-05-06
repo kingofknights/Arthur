@@ -2,7 +2,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Lancelot)
 
-add_subdirectory(DataFeed)
 add_subdirectory(API)
 add_subdirectory(Knight)
 #[[
@@ -13,6 +12,7 @@ add_subdirectory(Audio)
 set(HEADER_FILES
     # cmake-format: sortable
     ./database/Postgres.hpp
+    ./DataFeed/CentralFeed.hpp
     ./include/Arthur.hpp
     ./include/BaseSocket.hpp
     ./include/Colors.hpp
@@ -46,6 +46,7 @@ set(HEADER_FILES
 set(SOURCE_FILES
     # cmake-format: sortable
     ./database/Postgres.cpp
+    ./DataFeed/CentralFeed.cpp
     ./source/Arthur.cpp
     ./source/BaseSocket.cpp
     ./source/ConfigLoader.cpp
@@ -94,7 +95,6 @@ target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})
 target_sources(${PROJECT_NAME} PRIVATE ${LANCELOT_FILES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE API)
-target_link_libraries(${PROJECT_NAME} PRIVATE DataFeed)
 target_link_libraries(${PROJECT_NAME} PRIVATE Knight)
 target_link_libraries(${PROJECT_NAME} PRIVATE Greeks)
 
