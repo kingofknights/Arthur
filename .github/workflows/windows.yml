@@ -16,8 +16,8 @@ jobs:
 
       - uses: threeal/cmake-action@v2.1.0
         with:
-          generator: Ninja
-          cxx-compiler: gcc
+          # generator: Ninja
+          # cxx-compiler: gcc
           options: |
             FMT_TEST=OFF
 
@@ -31,8 +31,8 @@ jobs:
 
       - uses: threeal/cmake-action@v2.1.0
         with:
-          generator: Ninja
-          cxx-compiler: gcc
+          # generator: Ninja
+          # cxx-compiler: gcc
           options: |
             JSON_BuildTests=OFF
 
@@ -46,8 +46,8 @@ jobs:
 
       - uses: threeal/cmake-action@v2.1.0
         with:
-          generator: Ninja
-          cxx-compiler: gcc
+          # generator: Ninja
+          # cxx-compiler: gcc
           options: |
             BUILD_TEST=OFF
 
@@ -61,8 +61,8 @@ jobs:
 
       - uses: threeal/cmake-action@v2.1.0
         with:
-          generator: Ninja
-          cxx-compiler: gcc
+          # generator: Ninja
+          # cxx-compiler: gcc
           options: |
             SDL_TESTS=OFF
             SDL_EXAMPLES=OFF
@@ -77,8 +77,8 @@ jobs:
 
       - uses: threeal/cmake-action@v2.1.0
         with:
-          generator: Ninja
-          cxx-compiler: gcc
+          # generator: Ninja
+          # cxx-compiler: gcc
           options: |
             SQLITECPP_RUN_CPPLINT=OFF
             SQLITECPP_BUILD_TESTS=OFF
@@ -89,8 +89,7 @@ jobs:
       - uses: MarkusJx/install-boost@v2
         id: boost
         with:
-          platform: "windows"
-          toolset: mingw
+          toolset: msvc
           boost_version: 1.74.0
           boost_install_dir: "C:/boost"
 
@@ -100,8 +99,8 @@ jobs:
 
       - uses: threeal/cmake-action@v2.1.0
         with:
-          generator: Ninja
-          cxx-compiler: gcc
+          # generator: Ninja
+          # cxx-compiler: gcc
           options: |
             Boost_INCLUDE_DIR=${{steps.boost.outputs.BOOST_ROOT}}/include
             Boost_LIBRARY_DIRS=${{steps.boost.outputs.BOOST_ROOT}}/lib

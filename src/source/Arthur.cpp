@@ -442,6 +442,7 @@ void Arthur::StartAllThreads() {
     }
 
     _multicastReceiverPtr->BindMc(_marketWatch._interface, _marketWatch._port, _marketWatch._address);
+    _multicastReceiverPtr->Read();
     _messageBroker->MakeConnection(_backend._address, _backend._port);
 }
 
