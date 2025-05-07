@@ -17,15 +17,15 @@ struct PricePointsCET {
     QuantityT _order{};
 };
 struct IndexDataT {
-    PriceT _value;
-    PriceT _open;
-    PriceT _high;
-    PriceT _low;
-    PriceT _close;
-    PriceT _yearlyHigh;
-    PriceT _yearlyLow;
-    float  _percentageChange;
-    char   _name[21];
+    PriceCeT _value;
+    PriceCeT _open;
+    PriceCeT _high;
+    PriceCeT _low;
+    PriceCeT _close;
+    PriceCeT _yearlyHigh;
+    PriceCeT _yearlyLow;
+    float    _percentageChange;
+    char     _name[21];
 };
 struct MarketWatchDataCentralT {
     PricePointsCET _bid[MarketWatchLadderCount]{};
@@ -130,7 +130,7 @@ void CentralFeed::Process(int size_) {
         case 5: {
             std::string name = std::string(_index->_data._name, 21);
             boost::algorithm::trim(name);
-            LOG(INFO, "{} -", name);
+            LOG(INFO, "{} - value {}  change {} ", name, _index->_data._value, _index->_data._percentageChange);
             if (name == "Nifty Bank") {
                 BankNifty._value  = _index->_data._value;
                 BankNifty._change = _index->_data._percentageChange;

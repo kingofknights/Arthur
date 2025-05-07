@@ -4,6 +4,8 @@
 
 #include "Arthur.hpp"
 
+#include "imgui_internal.h"
+
 #if _WIN32
 #include <Psapi.h>
 #endif
@@ -51,6 +53,9 @@ class MemoryUsage {
 };
 
 extern AllContractT AllContract;
+extern SpotInfoT    BankNifty;
+extern SpotInfoT    Nifty;
+extern SpotInfoT    VIX;
 
 #define TRADING_APP_CONFIG_PATH "Config/Arthur.json"
 #define ORDER_ALL_BOOK          "Order All Book"
@@ -303,6 +308,28 @@ auto Arthur::Menu() -> void {
             ImGui::EndMenu();
         }
 
+        if (ImGui::BeginMenu(ICON_MD_MONEY "Index", false)) {
+            ImGui::Columns(3);
+            ImGui::Text("Nifty Bank");
+            ImGui::SameLine();
+            ImGui::TextColored(UpDownColor(BankNifty._change >= 0), "[ %.2f, %.2f]", BankNifty._value, BankNifty._change);
+
+            ImGui::NextColumn();
+
+            ImGui::Text("Nifty 50");
+            ImGui::SameLine();
+            ImGui::TextColored(UpDownColor(Nifty._change >= 0), "[ %.2f, %.2f]", Nifty._value, Nifty._change);
+
+            ImGui::NextColumn();
+
+            ImGui::Text("India Vix");
+            ImGui::SameLine();
+            ImGui::TextColored(UpDownColor(VIX._change >= 0), "[ %.2f, %.2f]", VIX._value, VIX._change);
+
+            ImGui::EndColumns();
+
+            ImGui::EndMenu();
+        }
         ImGui::EndMainMenuBar();
     }
 }
