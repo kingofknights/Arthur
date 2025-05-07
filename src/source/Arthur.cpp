@@ -308,27 +308,21 @@ auto Arthur::Menu() -> void {
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu(ICON_MD_MONEY "Index", false)) {
-            ImGui::Columns(3);
+        ImGui::Dummy(ImVec2(1, 0));
+        {
             ImGui::Text("Nifty Bank");
             ImGui::SameLine();
             ImGui::TextColored(UpDownColor(BankNifty._change >= 0), "[ %.2f, %.2f]", BankNifty._value, BankNifty._change);
-
-            ImGui::NextColumn();
+            ImGui::SameLine();
 
             ImGui::Text("Nifty 50");
             ImGui::SameLine();
             ImGui::TextColored(UpDownColor(Nifty._change >= 0), "[ %.2f, %.2f]", Nifty._value, Nifty._change);
-
-            ImGui::NextColumn();
+            ImGui::SameLine();
 
             ImGui::Text("India Vix");
             ImGui::SameLine();
             ImGui::TextColored(UpDownColor(VIX._change >= 0), "[ %.2f, %.2f]", VIX._value, VIX._change);
-
-            ImGui::EndColumns();
-
-            ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
     }

@@ -132,13 +132,13 @@ void CentralFeed::Process(int size_) {
             boost::algorithm::trim(name);
             LOG(INFO, "{} - value {}  change {} ", name, _index->_data._value, _index->_data._percentageChange);
             if (name == "Nifty Bank") {
-                BankNifty._value  = _index->_data._value;
+                BankNifty._value  = _index->_data._value / 100.0F;
                 BankNifty._change = _index->_data._percentageChange;
             } else if (name == "Nifty 50") {
-                Nifty._value  = _index->_data._value;
+                Nifty._value  = _index->_data._value / 100.0F;
                 Nifty._change = _index->_data._percentageChange;
             } else if (name == "India VIX") {
-                VIX._value  = _index->_data._value;
+                VIX._value  = _index->_data._value / 100.F;
                 VIX._change = _index->_data._percentageChange;
             }
             break;
