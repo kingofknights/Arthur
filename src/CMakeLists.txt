@@ -112,7 +112,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC ${PRECOMPILE_HEADERS})
 
-if(WIN32)
+if(WIN32 AND MSVC)
   set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
   set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup")
 endif()
