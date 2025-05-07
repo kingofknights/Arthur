@@ -276,12 +276,3 @@ Note : Price should be decimal format 100.50 not 10050
 	}
 }
 ```
-
-## Features to be implemented
-
-1. Pending Book Cancel All
-2. Square off button in Symbol wise window
-3. [RSS Feed](https://github.com/libcpr/cpr)
-4. [Twitter API](https://github.com/a-n-t-h-o-n-y/Twitter-API-C-Library)
-5. Custom Readable data format
-

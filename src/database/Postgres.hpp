@@ -10,12 +10,6 @@ class Postgres;
 using PostgresPtrT = std::unique_ptr<Postgres>;
 
 class Postgres final {
-    class ErrorHandler final : public pqxx::errorhandler {
-      public:
-        explicit ErrorHandler(pqxx::connection_base& connection_);
-
-        auto operator()(char const message_[]) noexcept -> bool override;
-    };
 
   public:
     using ConnectionParamT = struct {
@@ -35,5 +29,4 @@ class Postgres final {
 
   private:
     pqxx::connection _connection;
-    ErrorHandler     _error;
 };

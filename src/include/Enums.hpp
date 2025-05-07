@@ -32,8 +32,8 @@ enum MarketWatchColumnIndex {
     MarketWatchColumnIndex_HIGH,
     MarketWatchColumnIndex_LOW,
     MarketWatchColumnIndex_CLOSE,
-    MarketWatchColumnIndex_LOWDPR,
-    MarketWatchColumnIndex_HIGHDPR,
+    MarketWatchColumnIndex_LOW_DPR,
+    MarketWatchColumnIndex_HIGH_DPR,
     MarketWatchColumnIndex_TOTAL_BUY_QUANTITY,
     MarketWatchColumnIndex_TOTAL_SELL_QUANTITY,
     MarketWatchColumnIndex_VOLUME_TRADED_TODAY,
@@ -67,14 +67,14 @@ enum BooksColumnIndex {
     BooksColumnIndex_CONTRACT,
     BooksColumnIndex_PRICE,
     BooksColumnIndex_QUANTITY,
-    BooksColumnIndex_FILLPRICE,
-    BooksColumnIndex_FILLQUANTITY,
+    BooksColumnIndex_FILL_PRICE,
+    BooksColumnIndex_FILL_QUANTITY,
     BooksColumnIndex_REMAINING_QTY,
     BooksColumnIndex_CLIENT,
     BooksColumnIndex_STATUS,
     BooksColumnIndex_TIME,
     BooksColumnIndex_GATEWAY,
-    BooksColumnIndex_ORDERNUMBER,
+    BooksColumnIndex_ORDER_NUMBER,
     BooksColumnIndex_MESSAGE,
     BooksColumnIndex_END
 };
@@ -222,13 +222,13 @@ enum TradeTrackerColumn {
 
 enum ClientIndex {
     ClientIndex_EXCHANGE = 0,
-    ClientIndex_CLIENTCODE
+    ClientIndex_CLIENT_CODE
 };
 
 enum Spot {
-    Spot_BANKNIFTY = 0,
+    Spot_NIFTY_BANK = 0,
     Spot_NIFTY,
-    Spot_VIX
+    Spot_INDIA_VIX
 };
 
 enum NetBookCalculation {

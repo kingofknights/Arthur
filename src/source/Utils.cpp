@@ -199,14 +199,14 @@ void Utils::DrawTradeRow(const OrderInfoPtrT& tradeInfo_, int& first_, int secon
     NextCell(BooksColumnIndex_CONTRACT, tradeInfo_->_contract.data());
     NextCell(BooksColumnIndex_PRICE, tradeInfo_->_price);
     NextCell(BooksColumnIndex_QUANTITY, tradeInfo_->_quantity);
-    NextCell(BooksColumnIndex_FILLPRICE, tradeInfo_->_fillPrice);
-    NextCell(BooksColumnIndex_FILLQUANTITY, tradeInfo_->_fillQuantity);
+    NextCell(BooksColumnIndex_FILL_PRICE, tradeInfo_->_fillPrice);
+    NextCell(BooksColumnIndex_FILL_QUANTITY, tradeInfo_->_fillQuantity);
     NextCell(BooksColumnIndex_REMAINING_QTY, tradeInfo_->_remaining);
     NextCell(BooksColumnIndex_CLIENT, tradeInfo_->_client.data());
     NextCell(BooksColumnIndex_STATUS, OrderStatusInfoName[tradeInfo_->_statusValue]);
     NextCell(BooksColumnIndex_TIME, tradeInfo_->_time.data());
     NextCell(BooksColumnIndex_GATEWAY, tradeInfo_->_uniqueId);
-    NextCell(BooksColumnIndex_ORDERNUMBER, tradeInfo_->_orderNumber);
+    NextCell(BooksColumnIndex_ORDER_NUMBER, tradeInfo_->_orderNumber);
     NextCell(BooksColumnIndex_MESSAGE, tradeInfo_->_message.data());
     ImGui::PopStyleColor();
 }
@@ -233,7 +233,7 @@ void Utils::GetClientList(int userId_) {
     ClientCodeList.clear();
 
     for (const auto& item : table) {
-        ClientInfoT clientInfo{._exchange = Lancelot::ContractInfo::GetExchange(item[ClientIndex_EXCHANGE]), ._clientCode = item[ClientIndex_CLIENTCODE]};
+        ClientInfoT clientInfo{._exchange = Lancelot::ContractInfo::GetExchange(item[ClientIndex_EXCHANGE]), ._clientCode = item[ClientIndex_CLIENT_CODE]};
         ClientCodeList.push_back(clientInfo);
         LOG(INFO, "Client Code for User [{}] is [{} {}]", userId_, Lancelot::ToString(clientInfo._exchange), clientInfo._clientCode);
     }

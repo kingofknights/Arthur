@@ -18,7 +18,7 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_video.h>
-#include <stdio.h>
+#include <cstdio>
 
 #ifdef __EMSCRIPTEN__
 #include "../libs/emscripten/emscripten_mainloop_stub.h"
@@ -34,8 +34,8 @@ int main(int, char**) {
     }
 
     // Create window with SDL_Renderer graphics context
-    Uint32      window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
-    SDL_Window* window       = SDL_CreateWindow("Arthur", 1280, 720, window_flags);
+    Uint32 window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
+    SDL_Window* window = SDL_CreateWindow("Arthur", 1280, 720, window_flags);
     if (window == nullptr) {
         printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
         return -1;
@@ -55,9 +55,8 @@ int main(int, char**) {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Enable Docking
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -85,12 +84,11 @@ int main(int, char**) {
     // IM_ASSERT(font != nullptr);
 
     // Our state
-    bool   show_demo_window    = true;
-    bool   show_another_window = false;
-    ImVec4 clear_color         = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Main loop
-    bool  done = false;
+    bool done = false;
     Login login;
 #ifdef __EMSCRIPTEN__
     // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.

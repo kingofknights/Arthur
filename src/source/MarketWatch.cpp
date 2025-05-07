@@ -301,8 +301,8 @@ void MarketWatch::DrawColumn(const MarketWatchDataPtrT& data_, int index_) {
     NextCell(MarketWatchColumnIndex_HIGH, data_->_high);
     NextCell(MarketWatchColumnIndex_LOW, data_->_low);
     NextCell(MarketWatchColumnIndex_CLOSE, data_->_close);
-    NextCell(MarketWatchColumnIndex_LOWDPR, data_->_lowDpr);
-    NextCell(MarketWatchColumnIndex_HIGHDPR, data_->_highDpr);
+    NextCell(MarketWatchColumnIndex_LOW_DPR, data_->_lowDpr);
+    NextCell(MarketWatchColumnIndex_HIGH_DPR, data_->_highDpr);
     NextCell(MarketWatchColumnIndex_TOTAL_BUY_QUANTITY, data_->_totalBuyQuantity);
     NextCell(MarketWatchColumnIndex_TOTAL_SELL_QUANTITY, data_->_totalSellQuantity);
     NextCell(MarketWatchColumnIndex_VOLUME_TRADED_TODAY, data_->_volumeTradedToday);
