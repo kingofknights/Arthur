@@ -11,6 +11,7 @@
 #include <thread>
 #include <vector>
 
+#define TURNOFF_SCANNER
 namespace Lancelot {
     enum Exchange : uint8_t;
     enum Instrument : uint8_t;

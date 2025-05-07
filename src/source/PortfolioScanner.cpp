@@ -5,7 +5,7 @@
 
 #include "Configuration.hpp"
 #include "Enums.hpp"
-#include "Knight/Scanner.hpp"
+// #include "Knight/Scanner.hpp"
 #include "Portfolio.hpp"
 #include "Structure.hpp"
 #include "TableColumnInfo.hpp"
@@ -30,6 +30,8 @@ PortfolioScanner::PortfolioScanner(std::string strategyName_) : _strategyName(st
 }
 
 void PortfolioScanner::Paint(bool* show_) {
+#ifdef TURNOFF_SCANNER
+#else
     if (not*show_) {
         return;
     }
@@ -38,6 +40,7 @@ void PortfolioScanner::Paint(bool* show_) {
     } else {
         StatusDisplay = "Strategy not found";
     }
+#endif
 }
 void PortfolioScanner::LoadParameter() {
     {
@@ -167,11 +170,16 @@ void PortfolioScanner::ThirdColumn() {
                             };
                             GlobalPortfolioScannerContainer.insert_or_assign(item._uniqueID, scannerResultOutput);
                         }
-
+#ifdef TURNOFF_SCANNER
+#else
                         item._applied = Scanner::GetInstance().EvaluateExp(item._uniqueID, item._expandedEquation, false);
+#endif
                     } else {
+#ifdef TURNOFF_SCANNER
+#else
                         Scanner::GetInstance().ScannerUnsubscribe(item._uniqueID);
                         item._applied = false;
+#endif
                     }
                 }
 

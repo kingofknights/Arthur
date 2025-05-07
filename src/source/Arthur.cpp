@@ -456,11 +456,11 @@ void Arthur::StartAllThreads() {
         auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { Run(token_); });
         _threadGroup.push_back(std::move(thread));
     }
-
-    if (false) {
-        auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { MarketEventHandler(token_); });
-        _threadGroup.push_back(std::move(thread));
-    }
+#ifdef TURNOFF_SCANNER
+#else
+    auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { MarketEventHandler(token_); });
+    _threadGroup.push_back(std::move(thread));
+#endif
 
     _multicastReceiverPtr->BindMc(_marketWatch._interface, _marketWatch._port, _marketWatch._address);
     _multicastReceiverPtr->Read();
@@ -468,9 +468,12 @@ void Arthur::StartAllThreads() {
 }
 
 void Arthur::MarketEventHandler(std::stop_token& stopToken_) {
+#ifdef TURNOFF_SCANNER
+#else
     while (not stopToken_.stop_requested()) {
         _marketEventQueue.consume_all([&](MarketWatchDataPtrT pointer_) { Scanner::GetInstance().Process(pointer_->_token); });
     }
+#endif
     LOG(WARNING, "{} {}", __FUNCTION__, "Exiting")
 }
 

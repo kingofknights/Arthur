@@ -3,8 +3,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Lancelot)
 
 add_subdirectory(API)
-add_subdirectory(Knight)
 #[[
+add_subdirectory(Knight)
 add_subdirectory(Excel)
 add_subdirectory(Audio)
 ]]
@@ -95,7 +95,7 @@ target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})
 target_sources(${PROJECT_NAME} PRIVATE ${LANCELOT_FILES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE API)
-target_link_libraries(${PROJECT_NAME} PRIVATE Knight)
+# target_link_libraries(${PROJECT_NAME} PRIVATE Knight)
 target_link_libraries(${PROJECT_NAME} PRIVATE Greeks)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${imgui_SOURCE_DIR})
@@ -108,8 +108,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(${PROJECT_NAME} PRIVATE SQLiteCpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE libpqxx::pqxx)
 target_link_libraries(${PROJECT_NAME} PRIVATE Boost::headers)
-target_link_libraries(${PROJECT_NAME} PRIVATE Boost::system)
-target_link_libraries(${PROJECT_NAME} PRIVATE Boost::filesystem)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC ${PRECOMPILE_HEADERS})

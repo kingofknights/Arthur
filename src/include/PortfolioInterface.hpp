@@ -6,7 +6,8 @@
 
 #include <cstdint>
 
-class PortfolioInterface : public PortfolioScanner {
+class PortfolioInterface
+    : public PortfolioScanner {
     using StrategyActionT = std::function<void(StrategyRowPtrT, std::string, Lancelot::RequestType)>;
 
     friend class Arthur;
