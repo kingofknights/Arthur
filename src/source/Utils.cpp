@@ -11,6 +11,7 @@
 #include "Enums.hpp"
 #include "Structure.hpp"
 #include "TableColumnInfo.hpp"
+#include "imgui.h"
 #include "imgui_internal.h"
 
 #include <nlohmann/json.hpp>
@@ -22,6 +23,9 @@ extern std::string              StatusDisplay;
 extern AllContractT             AllContract;
 extern ClientCodeListT          ClientCodeList;
 extern MarketWatchDatContainerT MarketWatchDatContainer;
+extern SpotInfoT                BankNifty;
+extern SpotInfoT                Nifty;
+extern SpotInfoT                VIX;
 
 namespace {
     int MessageId = 0;
@@ -133,26 +137,22 @@ void Utils::CreateSupportFolder() {
 }
 
 void Utils::StatusBar() {
-    float height = ImGui::GetFrameHeight();
 #if 0
+    float height = ImGui::GetFrameHeight();
     if (ImGui::BeginViewportSideBar("TopSecondMenu##SecondaryMenuBar", nullptr, ImGuiDir_Up, height, MenuBarFlags)) {
         if (ImGui::BeginMenuBar()) {
             ImGui::EndMenuBar();
         }
     }
     ImGui::End();
-#endif
 
     if (ImGui::BeginViewportSideBar("StatusBar##MainStatusBar", nullptr, ImGuiDir_Down, height, MenuBarFlags)) {
         if (ImGui::BeginMenuBar()) {
-            if (not StatusDisplay.empty()) {
-                ImGui::Text("%s", StatusDisplay.data());
-            }
-
             ImGui::EndMenuBar();
         }
     }
     ImGui::End();
+#endif
 }
 
 void Utils::RemovePortfolio() {

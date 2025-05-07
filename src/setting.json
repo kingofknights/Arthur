@@ -5,14 +5,14 @@
   },
   "backend": {
     "user": 101,
-    "address": "192.168.151.68",
-    "port": 9898
+    "address": "192.168.151.77",
+    "port": 2071
   },
   "marketwatch": {
     "contract": "ResultSet.db3",
-    "interface": "10.10.8.175",
+    "interface": "0.0.0.0",
     "address": "229.1.1.9",
-    "port": 1235
+    "port": 2224
   },
   "postgres": {
     "host": "192.168.151.77",

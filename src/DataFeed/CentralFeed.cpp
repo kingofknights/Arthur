@@ -4,6 +4,8 @@
 #include "../include/Structure.hpp"
 #include "Structure.hpp"
 
+#include <boost/algorithm/string/trim.hpp>
+
 constexpr static int TimestampLength = 50;
 
 using PriceCeT = uint32_t;
@@ -101,6 +103,7 @@ void CentralFeed::Process(int size_) {
             previous->_close             = static_cast<PriceT>(current._close) / 100.0F;
             previous->_averageTradePrice = static_cast<PriceT>(current._averageTradePrice) / 100.0F;
             previous->_lastTradePrice    = static_cast<PriceT>(current._lastTradePrice) / 100.0F;
+            previous->_openInterest      = current._openInterest;
 
             memset(previous->_lastTradeTime.data(), 0, 30);
             memcpy(previous->_lastTradeTime.data(), current._lastTradeTime, 30);
@@ -125,14 +128,16 @@ void CentralFeed::Process(int size_) {
             break;
         }
         case 5: {
-            std::string name = std::string(_index->_data._name);
+            std::string name = std::string(_index->_data._name, 21);
+            boost::algorithm::trim(name);
+            LOG(INFO, "{} -", name);
             if (name == "Nifty Bank") {
                 BankNifty._value  = _index->_data._value;
                 BankNifty._change = _index->_data._percentageChange;
             } else if (name == "Nifty 50") {
                 Nifty._value  = _index->_data._value;
                 Nifty._change = _index->_data._percentageChange;
-            } else if (name == "India Vix") {
+            } else if (name == "India VIX") {
                 VIX._value  = _index->_data._value;
                 VIX._change = _index->_data._percentageChange;
             }

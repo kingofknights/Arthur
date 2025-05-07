@@ -34,6 +34,7 @@ class OrderForm final {
 
     OrderFormInfoT     _order;
     ImVec4             _color;
+    ImVec4             _textColor;
     std::string        _clientCode;
     Lancelot::Exchange _exchange;
 };
