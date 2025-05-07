@@ -2,7 +2,7 @@ name: Windows Build and Deployment
 
 on:
   push:
-    branches: ["may"]
+    branches: ["refactoring"]
 
 env:
   CMAKE_BUILD_TYPE: Release
