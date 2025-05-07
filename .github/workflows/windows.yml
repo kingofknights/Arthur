@@ -4,6 +4,12 @@ on:
   push:
     branches: ["workflow"]
 
+env:
+  CMAKE_BUILD_TYPE: Release
+  CMAKE_INSTALL_PREFIX: "C:/local"
+  CMAKE_GENERATOR: Ninja
+  CMAKE_CXX_COMPILER: gcc
+
 jobs:
   build:
     name: "Build Arthur"
@@ -16,11 +22,8 @@ jobs:
 
       - uses: threeal/cmake-action@v2.1.0
         with:
-          # generator: Ninja
-          # cxx-compiler: gcc
           options: |
             FMT_TEST=OFF
-            CMAKE_BUILD_TYPE=MinSizeRel
 
       - name: install fmt
         run: cmake --install build
@@ -32,11 +35,8 @@ jobs:
 
       - uses: threeal/cmake-action@v2.1.0
         with:
-          # generator: Ninja
-          # cxx-compiler: gcc
           options: |
             JSON_BuildTests=OFF
-            CMAKE_BUILD_TYPE=MinSizeRel
 
       - name: install json
         run: cmake --install build
@@ -48,11 +48,8 @@ jobs:
 
       - uses: threeal/cmake-action@v2.1.0
         with:
-          # generator: Ninja
-          # cxx-compiler: gcc
           options: |
             BUILD_TEST=OFF
-            CMAKE_BUILD_TYPE=MinSizeRel
 
       - name: install
         run: cmake --install build
@@ -64,12 +61,9 @@ jobs:
 
       - uses: threeal/cmake-action@v2.1.0
         with:
-          # generator: Ninja
-          # cxx-compiler: gcc
           options: |
             SDL_TESTS=OFF
             SDL_EXAMPLES=OFF
-            CMAKE_BUILD_TYPE=MinSizeRel
 
       - name: install
         run: cmake --install build
@@ -81,12 +75,9 @@ jobs:
 
       - uses: threeal/cmake-action@v2.1.0
         with:
-          # generator: Ninja
-          # cxx-compiler: gcc
           options: |
             SQLITECPP_RUN_CPPLINT=OFF
             SQLITECPP_BUILD_TESTS=OFF
-            CMAKE_BUILD_TYPE=MinSizeRel
 
       - name: install
         run: cmake --install build
@@ -94,7 +85,7 @@ jobs:
       - uses: MarkusJx/install-boost@v2
         id: boost
         with:
-          toolset: msvc
+          toolset: mingw
           boost_version: 1.74.0
           boost_install_dir: "C:/boost"
 
@@ -104,12 +95,9 @@ jobs:
 
       - uses: threeal/cmake-action@v2.1.0
         with:
-          # generator: Ninja
-          # cxx-compiler: gcc
           options: |
             Boost_INCLUDE_DIR=${{steps.boost.outputs.BOOST_ROOT}}/include
             Boost_LIBRARY_DIRS=${{steps.boost.outputs.BOOST_ROOT}}/lib
-            CMAKE_BUILD_TYPE=MinSizeRel
 
       - name: Compress the artifact
         working-directory: ${{github.workspace}}/build/${{env.BUILD_TYPE}}
