@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Arthur_Fwd.hpp"
 #include "Structure.hpp"
 
 #include <boost/asio.hpp>
@@ -11,7 +12,7 @@ using PortfolioContainerT = std::unordered_map<std::string, PortfolioPtrT>;
 
 class StrategyWorkspace final {
   public:
-    explicit StrategyWorkspace(boost::asio::io_context::strand& strand_);
+    explicit StrategyWorkspace(ExecutorT& strand_);
 
     void Paint(bool* show_);
 
@@ -25,7 +26,7 @@ class StrategyWorkspace final {
     void Imports(const std::string& path_);
 
   private:
-    boost::asio::io_context::strand& _strand;
+    ExecutorT& _strand;
 
     PortfolioContainerT _portfolioContainer;
 

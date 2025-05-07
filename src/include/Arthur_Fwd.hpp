@@ -11,6 +11,7 @@
 #include <thread>
 #include <vector>
 
+#define TURNOFF_SCANNER
 namespace Lancelot {
     enum Exchange : uint8_t;
     enum Instrument : uint8_t;
@@ -37,6 +38,7 @@ class MessageBroker;
 class OptionChain;
 class OrderBook;
 class Login;
+class CentralFeed;
 
 struct OrderInfoT;
 struct OrderFormInfoT;
@@ -67,7 +69,7 @@ using ThreadGroupT = std::vector<ThreadPtrT>;
 using TimerT          = boost::asio::deadline_timer;
 using ExecutorT       = boost::asio::io_context;
 using ExecutorTypeT   = ExecutorT::executor_type;
-using ExecutorStrandT = ExecutorT::strand;
+using ExecutorStrandT = ExecutorT;
 using ErrorCodeT      = boost::system::error_code;
 using WorkerT         = boost::asio::executor_work_guard<ExecutorTypeT>;
 

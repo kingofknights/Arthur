@@ -69,13 +69,13 @@ class Arthur {
     bool _showRejectBook        = false;
     int  _theme                 = 0;
 
-    ExecutorT       _executor;
-    ExecutorStrandT _strand;
-    WorkerT         _backendWorker;
-    ThreadGroupT    _threadGroup;
-    bool*           _closeMainWindow;
+    ExecutorT    _executor;
+    WorkerT      _backendWorker;
+    ThreadGroupT _threadGroup;
+    bool*        _closeMainWindow;
 
     struct Connection {
+        std::string _interface;
         std::string _address;
         uint16_t    _port;
     };

@@ -1,15 +1,19 @@
 #pragma once
 
-#include "include/Structure.hpp"
-
-#include <cstddef>
+#include "Structure.hpp"
 
 class CentralFeed {
   public:
     explicit CentralFeed(MarketEventQueueT& queue_);
 
-    void Process(const char* buffer_, size_t size_);
+    void Process(int size_);
+
+  protected:
+    char _buffer[512];
 
   private:
-    MarketEventQueueT& _marketEventQueue;
+    MarketEventQueueT&             _marketEventQueue;
+    struct MarketWatchDataUpdateT* _marketData;
+    struct IndexDataUpdate*        _index;
+    Lancelot::Header*              _header;
 };

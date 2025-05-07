@@ -9,7 +9,7 @@ enum ExportImport : int;
 
 class Portfolio final : public PortfolioInterface {
   public:
-    Portfolio(const std::string& workspaceName_, const std::string& strategyName_, boost::asio::io_context::strand& strand_);
+    Portfolio(const std::string& workspaceName_, const std::string& strategyName_, ExecutorT& strand_);
 
     void Paint();
 

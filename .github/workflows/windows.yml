@@ -1,37 +1,103 @@
 name: Windows Build and Deployment
 
 on:
-  pull_request:
-    branches: ["main"]
+  push:
+    branches: ["workflow"]
 
 env:
-  BUILD_TYPE: Release
-  BOOST_PRE_DOWNLOAD_LINK: "https://boost.teeks99.com/bin/1.78.0/boost_1_78_0-msvc-14.3-64.exe"
-  TOOLCHAIN_FILE: C:\vcpkg\scripts\buildsystems\vcpkg.cmake
+  CMAKE_BUILD_TYPE: Release
+  CMAKE_INSTALL_PREFIX: "C:/local"
+  CMAKE_GENERATOR: Ninja
+  CMAKE_CXX_COMPILER: gcc
 
 jobs:
   build:
+    name: "Build Arthur"
     runs-on: windows-latest
-
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: "fmtlib/fmt"
+          ref: "11.1.1"
+
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          options: |
+            FMT_TEST=OFF
+
+      - name: install fmt
+        run: cmake --install build
+
+      - uses: actions/checkout@v4
+        with:
+          repository: "nlohmann/json"
+          ref: "v3.12.0"
+
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          options: |
+            JSON_BuildTests=OFF
+
+      - name: install json
+        run: cmake --install build
+
+      - uses: actions/checkout@v4
+        with:
+          repository: "jtv/libpqxx"
+          ref: "7.10.0"
+
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          options: |
+            BUILD_TEST=OFF
+
+      - name: install
+        run: cmake --install build
+
+      - uses: actions/checkout@v4
+        with:
+          repository: "libsdl-org/SDL"
+          ref: "release-3.2.0"
+
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          options: |
+            SDL_TESTS=OFF
+            SDL_EXAMPLES=OFF
+
+      - name: install
+        run: cmake --install build
+
+      - uses: actions/checkout@v4
+        with:
+          repository: "SRombauts/SQLiteCpp"
+          ref: "3.3.2"
+
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          options: |
+            SQLITECPP_RUN_CPPLINT=OFF
+            SQLITECPP_BUILD_TESTS=OFF
+
+      - name: install
+        run: cmake --install build
+
+      - uses: MarkusJx/install-boost@v2
+        id: boost
+        with:
+          toolset: mingw
+          boost_version: 1.74.0
+          boost_install_dir: "C:/boost"
+
+      - uses: actions/checkout@v4
         with:
           submodules: "true"
 
-      - name: Download boost
-        run: Invoke-WebRequest -Uri ${{env.BOOST_PRE_DOWNLOAD_LINK}} -OutFile  "boost_installer.exe"
-
-      - name: Install Boost
-        run: Start-Process -FilePath "boost_installer.exe" -ArgumentList "/VERYSILENT" -Wait
-
-      - name: Configure Arthur
-        working-directory: ${{github.workspace}}/
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-
-      - name: Build Arthur
-        working-directory: ${{github.workspace}}/
-        run: cmake --build build --config ${{env.BUILD_TYPE}} --target install
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          options: |
+            Boost_INCLUDE_DIR=${{steps.boost.outputs.BOOST_ROOT}}/include
+            Boost_LIBRARY_DIRS=${{steps.boost.outputs.BOOST_ROOT}}/lib
 
       - name: Compress the artifact
         working-directory: ${{github.workspace}}/build/${{env.BUILD_TYPE}}
@@ -43,22 +109,3 @@ jobs:
         with:
           path: ${{github.workspace}}/build/${{env.BUILD_TYPE}}/artifact.tar
           name: Releases
-
-      - name: Create GitHub Release
-        if: false
-        uses: marvinpinto/action-automatic-releases@latest
-        id: create_release
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          title: ${{github.event.pull_request.title}}
-        continue-on-error: false
-
-      - name: Upload Binary
-        if: false
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{github.workspace}}/build/${{env.BUILD_TYPE}}/
-          asset_name: artifact.tar
-          asset_content_type: application/zip

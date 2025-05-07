@@ -39,7 +39,6 @@ class TBaseSocket {
 
     bool _connected = false;
 
-    ExecutorStrandT   _strand;
     SocketT           _socket;
     TimerT            _timer;
     ErrorCodeT        _errorCode;

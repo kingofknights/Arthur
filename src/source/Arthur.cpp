@@ -4,6 +4,8 @@
 
 #include "Arthur.hpp"
 
+#include "imgui_internal.h"
+
 #if _WIN32
 #include <Psapi.h>
 #endif
@@ -51,14 +53,16 @@ class MemoryUsage {
 };
 
 extern AllContractT AllContract;
+extern SpotInfoT    BankNifty;
+extern SpotInfoT    Nifty;
+extern SpotInfoT    VIX;
 
 #define TRADING_APP_CONFIG_PATH "Config/Arthur.json"
 #define ORDER_ALL_BOOK          "Order All Book"
 #define REJECT_BOOK             "Reject Book"
 
 Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
-    : _strand(_executor),
-      _backendWorker(_executor.get_executor()),
+    : _backendWorker(_executor.get_executor()),
       _closeMainWindow(closeMainWindow_),
       _userId(std::move(details_)) {
     std::fstream file("setting.json");
@@ -71,6 +75,7 @@ Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
         backend["port"].get_to(_backend._port);
 
         std::string database;
+        marketwatch["interface"].get_to(_marketWatch._interface);
         marketwatch["address"].get_to(_marketWatch._address);
         marketwatch["port"].get_to(_marketWatch._port);
         marketwatch["contract"].get_to(database);
@@ -89,7 +94,7 @@ Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
 
     _templateBuilderPtr   = std::make_unique<TemplateBuilder>(_showTemplateBuilder);
     _positionPtr          = std::make_unique<Position>(_executor);
-    _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_strand);
+    _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_executor);
     _tradeHistoryPtr      = std::make_unique<TradeHistory>();
     _optionChainPtr       = std::make_unique<OptionChain>();
     _multicastReceiverPtr = std::make_unique<MulticastReceiver>(_executor, _marketEventQueue);
@@ -100,7 +105,7 @@ Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
         _optionChainPtr->SetOptionForFuture(contract_);
     });
 
-    _openOrdersPtr = std::make_unique<OpenOrders>(_orderFormPtr, _strand, _showOpenOrders, [this](const OrderInfoPtrT& info_) {
+    _openOrdersPtr = std::make_unique<OpenOrders>(_orderFormPtr, _executor, _showOpenOrders, [this](const OrderInfoPtrT& info_) {
         CancelOrderEvent(info_);
     });
 
@@ -108,7 +113,7 @@ Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
         AddTrade(orderInfo_);
     });
 
-    _orderFormPtr = std::make_unique<OrderForm>(_strand, [&](const OrderFormInfoT& info_, Lancelot::RequestType type_) {
+    _orderFormPtr = std::make_unique<OrderForm>(_executor, [&](const OrderFormInfoT& info_, Lancelot::RequestType type_) {
         ManualOrderRequestEvent(info_, type_);
     });
 
@@ -303,6 +308,22 @@ auto Arthur::Menu() -> void {
             ImGui::EndMenu();
         }
 
+        ImGui::Dummy(ImVec2(1, 0));
+        {
+            ImGui::Text("Nifty Bank");
+            ImGui::SameLine();
+            ImGui::TextColored(UpDownColor(BankNifty._change >= 0), "[ %.2f, %.2f]", BankNifty._value, BankNifty._change);
+            ImGui::SameLine();
+
+            ImGui::Text("Nifty 50");
+            ImGui::SameLine();
+            ImGui::TextColored(UpDownColor(Nifty._change >= 0), "[ %.2f, %.2f]", Nifty._value, Nifty._change);
+            ImGui::SameLine();
+
+            ImGui::Text("India Vix");
+            ImGui::SameLine();
+            ImGui::TextColored(UpDownColor(VIX._change >= 0), "[ %.2f, %.2f]", VIX._value, VIX._change);
+        }
         ImGui::EndMainMenuBar();
     }
 }
@@ -435,22 +456,24 @@ void Arthur::StartAllThreads() {
         auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { Run(token_); });
         _threadGroup.push_back(std::move(thread));
     }
+#ifdef TURNOFF_SCANNER
+#else
+    auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { MarketEventHandler(token_); });
+    _threadGroup.push_back(std::move(thread));
+#endif
 
-    if (false) {
-        auto thread = std::make_unique<std::jthread>([&](std::stop_token token_) { MarketEventHandler(token_); });
-        _threadGroup.push_back(std::move(thread));
-    }
-
-    _multicastReceiverPtr->BindMc(_marketWatch._address, _marketWatch._port);
+    _multicastReceiverPtr->BindMc(_marketWatch._interface, _marketWatch._port, _marketWatch._address);
     _multicastReceiverPtr->Read();
-
     _messageBroker->MakeConnection(_backend._address, _backend._port);
 }
 
 void Arthur::MarketEventHandler(std::stop_token& stopToken_) {
+#ifdef TURNOFF_SCANNER
+#else
     while (not stopToken_.stop_requested()) {
         _marketEventQueue.consume_all([&](MarketWatchDataPtrT pointer_) { Scanner::GetInstance().Process(pointer_->_token); });
     }
+#endif
     LOG(WARNING, "{} {}", __FUNCTION__, "Exiting")
 }
 

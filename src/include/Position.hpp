@@ -2,10 +2,10 @@
 #define ARTHUR_INCLUDE_GREEK_BOOK_HPP
 #pragma once
 
-#include <boost/asio.hpp>
-
 #include "Enums.hpp"
 #include "Structure.hpp"
+
+#include <boost/asio.hpp>
 
 class Position {
   public:
@@ -24,6 +24,7 @@ class Position {
     void UpdateGreekValue();
     void TimerEvent();
     auto CalculateSymbolWisePNL(const NetBookColumnPtrT& column_) -> double;
+    void DrawExportSymbolWisePostion();
 
   private:
     PendingTradeUpdateT          _pendingTradeUpdate;
@@ -42,4 +43,4 @@ class Position {
     boost::asio::deadline_timer _timer;
 };
 
-#endif// ARTHUR_INCLUDE_GREEK_BOOK_HPP
+#endif  // ARTHUR_INCLUDE_GREEK_BOOK_HPP

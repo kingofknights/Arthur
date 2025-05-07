@@ -3,14 +3,18 @@
 #include "API/Common.hpp"
 #include "API/ContractInfo.hpp"
 #include "Configuration.hpp"
+#include "IconsMaterialDesign.h"
+#include "Logger.hpp"
 #include "Structure.hpp"
 #include "TableColumnInfo.hpp"
 #include "plf_nanotimer.h"
 
 #include <Greeks/Greeks.hpp>
+#include <ImGuiFileDialog.h>
 
 #include <iterator>
 #include <numeric>
+#include <sstream>
 
 template <typename Type>
 void UpdateTradeInfoNetbook(Type& data, const OrderInfoPtrT& tradeInfo_) {
@@ -194,7 +198,7 @@ void Position::DrawSymbolWiseNetBook() {
             auto end   = begin + (_clipper.DisplayEnd - _clipper.DisplayStart);
             for (auto iterator = begin; iterator < end; ++iterator) {
                 ImGui::TableNextRow();
-                auto column = iterator->second;
+                auto& column = iterator->second;
                 NextCell(SymbolWiseNetBookColumnIndex_CONTRACT, column->_marketWatch->_description.data());
                 NextCell(SymbolWiseNetBookColumnIndex_AVGBID, column->_averageBuyPrice);
                 NextCell(SymbolWiseNetBookColumnIndex_BUYQTY, column->_buyQuantity);
@@ -207,12 +211,38 @@ void Position::DrawSymbolWiseNetBook() {
                 NextCell(SymbolWiseNetBookColumnIndex_PNL, column->_pnl, UpDownColor(column->_pnl));
             }
         }
+        if (ImGui::BeginPopupContextItem("Context Menu", ImGuiPopupFlags_MouseButtonRight)) {
+            if (ImGui::Selectable(ICON_MD_DOWNLOAD " Export")) {
+                ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".csv");
+                DrawExportSymbolWisePostion();
+            }
+
+            ImGui::EndPopup();
+        }
 
         ImGui::EndTable();
     }
 
     ImGui::Separator();
-    ImGui::TextColored(UpDownColor(_netPNL), "| Net PNL : %.2f |", _netPNL);
+    ImGui::TextColored(UpDownColor(_netPNL >= 0), "| Net PNL : %.2f |", _netPNL);
+}
+
+void Position::DrawExportSymbolWisePostion() {
+    if (ImGuiFileDialog::Instance()->Display("FileManager")) {
+        if (ImGuiFileDialog::Instance()->IsOk()) {
+            std::string  filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+            std::fstream file(filePathName, std::ios::out);
+            if (file.is_open()) {
+                for (const auto& row : _symbolWiseTradeContainerVec) {
+                    const auto& column = row.second;
+                    file << FORMAT("{},{},{},{},{},{},{},{},{},{}", column->_marketWatch->_description, column->_averageBuyPrice, column->_buyQuantity, column->_sellQuantity,
+                                   column->_averageSellPrice, column->_totalQuantity, column->_netInvestment, column->_mtm, column->_marketWatch->_lastTradePrice, column->_pnl);
+                }
+            }
+            file.close();
+        }
+        ImGuiFileDialog::Instance()->Close();
+    }
 }
 
 void Position::DrawPFWiseNetBook() {
@@ -231,7 +261,7 @@ void Position::DrawPFWiseNetBook() {
             auto end   = begin + (_clipper.DisplayEnd - _clipper.DisplayStart);
             for (auto iterator = begin; iterator < end; ++iterator) {
                 ImGui::TableNextRow();
-                auto column = iterator->second;
+                auto& column = iterator->second;
 
                 NextCell(PFWiseNetBookColumnIndex_PF, column->_portfolio);
                 NextCell(PFWiseNetBookColumnIndex_CONTRACT, column->_marketWatch->_description.data());

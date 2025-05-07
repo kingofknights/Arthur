@@ -3,6 +3,7 @@
 #include "API/Common.hpp"
 #include "Colors.hpp"
 #include "ContractInfo.hpp"
+#include "Enums.hpp"
 #include "MarketWatch.hpp"
 #include "Structure.hpp"
 #include "TableColumnInfo.hpp"
@@ -46,6 +47,7 @@ void OrderForm::Update(OrderFormInfoT& info_) {
     _order     = info_;
     _price     = RoundUp(int(info_._price * 100), 5) / 100.0;
     _color     = BuySellColor(_order._side);
+    _textColor = _order._side == Lancelot::Side_BUY ? COLOR_BLACK : COLOR_WHITE;
     _precision = static_cast<double>(_resultSet->_tickSize) / static_cast<double>(_resultSet->_divisor);
 
     auto exchange = _resultSet->_exchange;
@@ -67,16 +69,26 @@ void OrderForm::SentToBroker() {
 }
 
 void OrderForm::DrawInputItem() {
-    if (ImGui::InputDouble("Price", &_price, _precision, _precision, "%.2f")) {
+    ImGui::PushStyleColor(ImGuiCol_Text, _textColor);
+    if (ImGui::InputDouble("##Price", &_price, _precision, _precision, "%.2f")) {
         _price = std::max(_price, 0.0);
     }
+    ImGui::PopStyleColor();
+    ImGui::SameLine();
+    ImGui::Text("Price");
 
-    if (ImGui::InputInt("Quantity", &_order._quantity, _order._lotSize)) {
+    ImGui::PushStyleColor(ImGuiCol_Text, _textColor);
+    if (ImGui::InputInt("##Quantity", &_order._quantity, _order._lotSize)) {
         _order._quantity = std::max(_order._quantity, _order._lotSize);
     }
+    ImGui::PopStyleColor();
+    ImGui::SameLine();
+    ImGui::Text("Quantity");
+
     bool enable = _order._status != OrderStatus_NEW;
     ImGui::BeginDisabled(enable);
-    if (ImGui::BeginCombo("Broker", FORMAT("[{}] {}", Lancelot::ToString(_exchange), _clientCode).data())) {
+    ImGui::PushStyleColor(ImGuiCol_Text, _textColor);
+    if (ImGui::BeginCombo("##Broker", FORMAT("[{}] {}", Lancelot::ToString(_exchange), _clientCode).data())) {
         for (const auto& code : ClientCodeList) {
             if (code._exchange == _exchange) {
                 if (ImGui::Selectable(FORMAT("[{}] {}", Lancelot::ToString(code._exchange), code._clientCode).data())) {
@@ -88,7 +100,12 @@ void OrderForm::DrawInputItem() {
         }
         ImGui::EndCombo();
     }
-    if (ImGui::BeginCombo("Type", OrderTypeName[_order._type])) {
+    ImGui::PopStyleColor();
+    ImGui::SameLine();
+    ImGui::Text("Broker");
+
+    ImGui::PushStyleColor(ImGuiCol_Text, _textColor);
+    if (ImGui::BeginCombo("##Type", OrderTypeName[_order._type])) {
         for (int type : {OrderType_IOC, OrderType_LIMIT}) {
             if (ImGui::Selectable(OrderTypeName[type])) {
                 _order._type = type;
@@ -96,6 +113,9 @@ void OrderForm::DrawInputItem() {
         }
         ImGui::EndCombo();
     }
+    ImGui::PopStyleColor();
+    ImGui::SameLine();
+    ImGui::Text("Type");
 
     ImGui::EndDisabled();
     ImGui::LabelText("OrderNumber", "%lu", _order._orderNumber);

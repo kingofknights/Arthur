@@ -2,21 +2,11 @@
   "name": "arthur",
   "version": "1.0.0",
   "dependencies": [
-    {
-      "name": "boost",
-      "version>=": "1.78.0"
-    },
     "nlohmann-json",
     "fmt",
     "sqlitecpp",
     "sdl3",
-    "libpqxx"
-  ],
-  "overrides": [
-    {
-      "name": "boost",
-      "version": "1.78.0"
-    }
-  ],
-  "builtin-baseline": "96d5fb3de135b86d7222c53f2352ca92827a156b"
+    "libpqxx",
+    "boost"
+  ]
 }
