@@ -4,9 +4,8 @@
     "size": 25
   },
   "backend": {
-    "user": 101,
-    "address": "192.168.151.77",
-    "port": 2071
+    "address": "192.168.151.68",
+    "port": 9898
   },
   "marketwatch": {
     "contract": "ResultSet.db3",
