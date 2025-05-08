@@ -101,7 +101,7 @@ jobs:
 
       - name: Compress the artifact
         working-directory: ${{github.workspace}}/build/${{env.BUILD_TYPE}}
-        run: tar -czvf artifact.tar *.exe *.ttf setting.json
+        run: tar -czvf artifact.tar *.exe *.ttf *.dll setting.json
         continue-on-error: true
 
       - name: Release artifact

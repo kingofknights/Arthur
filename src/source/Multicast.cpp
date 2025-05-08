@@ -12,20 +12,8 @@
 #include <boost/asio/ip/udp.hpp>
 #include <boost/asio/socket_base.hpp>
 
-#if _WIN32
-#include <Winsock2.h>
-#include <Ws2tcpip.h>
-#pragma comment(lib, WS2_32)
-#endif
-
 MulticastReceiver::MulticastReceiver(boost::asio::io_service& ioService_, MarketEventQueueT& queue_)
     : CentralFeed(queue_), _socket(ioService_) {
-#if _WIN32
-    WSADATA wsaData;
-    if (WSAStartup(0x0101, &wsaData)) {
-        perror("WSAStartup");
-    }
-#endif
 }
 
 void MulticastReceiver::ReceiverFrom(const boost::system::error_code& errorCode_, size_t size_) {

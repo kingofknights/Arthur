@@ -8,6 +8,9 @@
 
 #if _WIN32
 #include <Psapi.h>
+#include <Winsock2.h>
+#include <Ws2tcpip.h>
+#pragma comment(lib, WS2_32)
 #endif
 
 #include "API/Common.hpp"
@@ -86,6 +89,13 @@ Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
         LOG(ERROR, "Config file not found : setting.json", false);
         exit(1);
     }
+#if _WIN32
+    WSADATA wsaData;
+    if (WSAStartup(0x0101, &wsaData)) {
+        LOG(ERROR, "Windows Sock2 unable to set up", false);
+        perror("WSAStartup");
+    }
+#endif
 
     std::ranges::sort(AllContract, std::less<>());
     Utils::CreateSupportFolder();
