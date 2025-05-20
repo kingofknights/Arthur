@@ -9,7 +9,7 @@
 #include "Utils.hpp"
 
 void TradeHistory::paint(bool* show_) {
-    _pendingTradeUpdate.consume_one([this](const OrderInfoPtrT& orderInfo_) {
+    _pendingTradeUpdate.consume_all([this](const OrderInfoPtrT& orderInfo_) {
         _container.push_back(orderInfo_);
         _totalBuy += orderInfo_->_side == Lancelot::Side_BUY;
         _totalSell += orderInfo_->_side == Lancelot::Side_SELL;

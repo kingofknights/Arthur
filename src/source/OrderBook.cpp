@@ -13,7 +13,7 @@
 OrderBook::OrderBook(const std::string& name_) : _name(name_), _tableName(name_) { _tableName.append(" Table"); }
 
 void OrderBook::paint(bool* show_) {
-    _pendingTradeUpdate.consume_one([this](OrderInfoPtrT orderInfo_) { _container.push_back(std::move(orderInfo_)); });
+    _pendingTradeUpdate.consume_all([this](OrderInfoPtrT orderInfo_) { _container.push_back(std::move(orderInfo_)); });
     if (*show_) {
         DrawOrderBookTable(show_);
     }

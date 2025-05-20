@@ -5,7 +5,7 @@
 #include "TableColumnInfo.hpp"
 
 void TradeTracker::paint(bool* show_) {
-    _pendingTrackerUpdate.consume_one([this](TradeTrackerItemT tradeTrackerItem_) { _trackerContainer.push_back(std::move(tradeTrackerItem_)); });
+    _pendingTrackerUpdate.consume_all([this](TradeTrackerItemT tradeTrackerItem_) { _trackerContainer.push_back(std::move(tradeTrackerItem_)); });
 
     if (*show_) {
         DrawTracker(show_);

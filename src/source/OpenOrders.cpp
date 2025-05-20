@@ -25,7 +25,7 @@ OpenOrders::OpenOrders(const OrderFormPtrT& manualOrder_, ExecutorStrandT& stran
       _show{show_} {}
 
 void OpenOrders::Paint() noexcept {
-    _pendingOrderUpdate.consume_one([this](const auto& pair_) { Update(pair_.first, pair_.second); });
+    _pendingOrderUpdate.consume_all([this](const auto& pair_) { Update(pair_.first, pair_.second); });
     if (_show) {
         DrawPendingBook(&_show);
     }
