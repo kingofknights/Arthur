@@ -13,6 +13,7 @@
 #include "Utils.hpp"
 
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 #include <boost/algorithm/algorithm.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -83,7 +84,9 @@ void MessageBroker::Process(const char* buffer_, size_t size_) {
             break;
         }
         case Lancelot::ResponseType_UPDATES: {
-            ProcessUpdates({});
+            const auto*    response = reinterpret_cast<const Lancelot::StrategyHeader*>(buffer_);
+            nlohmann::json json     = nlohmann::json::parse(buffer_ + sizeof(Lancelot::StrategyHeader), buffer_ + sizeof(Lancelot::StrategyHeader) + size_);
+            ProcessUpdates(response->_user._portfolio, json);
             break;
         }
         case Lancelot::ResponseType_EXCHANGE_DISCONNECT: {
@@ -171,13 +174,11 @@ void MessageBroker::ProcessStrategy(uint32_t pf_, Lancelot::ResponseType type_) 
     }
 }
 
-void MessageBroker::ProcessUpdates(const nlohmann::json& input_) {
-    int  pf  = input_.at(JSON_PF_NUMBER).get<int>();
-    auto ptr = Utils::GetStrategyRow(pf);
+void MessageBroker::ProcessUpdates(uint32_t pf_, const nlohmann::json& input_) {
+    auto ptr = Utils::GetStrategyRow(pf_);
     if (ptr.has_value() and not ptr->expired()) {
-        const auto& strategy  = ptr->lock();
-        const auto& arguments = input_.at(JSON_ARGUMENTS);
-        for (const auto& argument : arguments.items()) {
+        const auto& strategy = ptr->lock();
+        for (const auto& argument : input_.items()) {
             auto iterator = strategy->_parameterInfoList.find(argument.key());
             if (iterator != strategy->_parameterInfoList.end()) {
                 if (iterator->second._type == DataType_UPDATES) {

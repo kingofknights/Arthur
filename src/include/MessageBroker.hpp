@@ -27,7 +27,7 @@ class MessageBroker final : public TBaseSocket {
 
     static void ProcessStrategy(uint32_t pf_, Lancelot::ResponseType type_);
 
-    static void ProcessUpdates(const nlohmann::json& input_);
+    static void ProcessUpdates(uint32_t pf_, const nlohmann::json& input_);
 
   private:
     FunctionT  _function;
