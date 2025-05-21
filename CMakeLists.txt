@@ -5,6 +5,7 @@ project(
   VERSION 1.0
   LANGUAGES C CXX)
 
+include(InstallRequiredSystemLibraries)
 include(cmake/StandardProjectSettings.cmake)
 include(cmake/PreventInSourceBuilds.cmake)
 

@@ -271,7 +271,7 @@ void Portfolio::DrawStrategyRow(StrategyRowPtrT& row_, int index_) {
         row_->_selected ^= 1;
         _multipleSelectionCount += row_->_selected ? 1 : -1;
     }
-    if (row_->_selected) {
+    if (row_->_selected and (row_->_status == StrategyStatus_TERMINATED or row_->_status == StrategyStatus_INACTIVE)) {
         if (ImGui::IsKeyPressed(ImGuiKey_Delete)) {
             _toBeDeleted = index_;
         }
