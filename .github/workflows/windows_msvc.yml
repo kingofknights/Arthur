@@ -1,0 +1,109 @@
+name: Windows Build and Deployment
+
+on:
+  push:
+    branches: ["refactoring"]
+
+env:
+  CMAKE_BUILD_TYPE: Release
+  CMAKE_INSTALL_PREFIX: "C:/local"
+
+jobs:
+  build:
+    name: "Build Arthur MSVC"
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: "fmtlib/fmt"
+          ref: "11.1.1"
+
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          options: |
+            FMT_TEST=OFF
+
+      - name: install fmt
+        run: cmake --install build
+
+      - uses: actions/checkout@v4
+        with:
+          repository: "nlohmann/json"
+          ref: "v3.12.0"
+
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          options: |
+            JSON_BuildTests=OFF
+
+      - name: install json
+        run: cmake --install build
+
+      - uses: actions/checkout@v4
+        with:
+          repository: "jtv/libpqxx"
+          ref: "7.10.0"
+
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          options: |
+            BUILD_TEST=OFF
+
+      - name: install
+        run: cmake --install build
+
+      - uses: actions/checkout@v4
+        with:
+          repository: "libsdl-org/SDL"
+          ref: "release-3.2.0"
+
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          options: |
+            SDL_TESTS=OFF
+            SDL_EXAMPLES=OFF
+
+      - name: install
+        run: cmake --install build
+
+      - uses: actions/checkout@v4
+        with:
+          repository: "SRombauts/SQLiteCpp"
+          ref: "3.3.2"
+
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          options: |
+            SQLITECPP_RUN_CPPLINT=OFF
+            SQLITECPP_BUILD_TESTS=OFF
+
+      - name: install
+        run: cmake --install build
+
+      - uses: MarkusJx/install-boost@v2
+        id: boost
+        with:
+          toolset: msvc
+          boost_version: 1.74.0
+          boost_install_dir: "C:/boost"
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: "true"
+
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          options: |
+            Boost_INCLUDE_DIR=${{steps.boost.outputs.BOOST_ROOT}}/include
+            Boost_LIBRARY_DIRS=${{steps.boost.outputs.BOOST_ROOT}}/lib
+
+      - name: Compress the artifact
+        working-directory: ${{github.workspace}}/build/${{env.BUILD_TYPE}}
+        run: tar -czvf artifact.tar *.exe *.ttf *.dll setting.json
+        continue-on-error: true
+
+      - name: Release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{github.workspace}}/build/${{env.BUILD_TYPE}}/artifact.tar
+          name: Releases

@@ -12,7 +12,7 @@ env:
 
 jobs:
   build:
-    name: "Build Arthur"
+    name: "Build Arthur mingw"
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
