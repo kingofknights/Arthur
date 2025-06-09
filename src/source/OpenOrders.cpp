@@ -10,7 +10,9 @@
 #include "Structure.hpp"
 #include "TableColumnInfo.hpp"
 #include "Utils.hpp"
+#include "imgui.h"
 
+#include <cfloat>
 #include <iterator>
 
 static constexpr char CancelAllOrderWindow[] = "Cancel All Order Window";
@@ -41,10 +43,11 @@ void OpenOrders::DrawPendingBook(bool* show_) {
             }
 
             ImGui::TableHeadersRow();
-            _clipper.Begin(static_cast<int>(_container.size()));
+            const auto& container = _filter.IsActive() ? _filterContainer : _container;
+            _clipper.Begin(static_cast<int>(container.size()));
 
             while (_clipper.Step()) {
-                auto begin = _container.rbegin();
+                auto begin = container.rbegin();
                 std::ranges::advance(begin, _clipper.DisplayStart);
 
                 auto end = begin;
@@ -110,6 +113,15 @@ void OpenOrders::DrawPendingBook(bool* show_) {
             ImGui::TextColored(BuySellColor(Lancelot::Side_BUY), "| Buy : [%d] |", _buyCount);
             ImGui::SameLine();
             ImGui::TextColored(BuySellColor(Lancelot::Side_SELL), "| Sell : [%d] |", _sellCount);
+            ImGui::SameLine();
+            if (_filter.Draw("Filter", -FLT_MIN)) {
+                _filterContainer.clear();
+                for (const auto& item : _container) {
+                    if (_filter.PassFilter(item.second->_contract.data())) {
+                        _filterContainer.emplace(item.first, item.second);
+                    }
+                }
+            }
         }
     }
     ImGui::End();

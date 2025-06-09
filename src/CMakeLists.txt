@@ -123,7 +123,6 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FONT_FILE} $<TARGET_FILE_DIR:${PROJECT_NAME}>
   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/setting.json
           $<TARGET_FILE_DIR:${PROJECT_NAME}>
-  COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
   COMMAND_EXPAND_LISTS)
 
 add_executable(buildResultSet ./buildResult.cpp)
