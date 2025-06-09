@@ -7,6 +7,7 @@
 #include "OrderHistory.hpp"
 #include "TableColumnInfo.hpp"
 #include "Utils.hpp"
+#include "imgui.h"
 
 void TradeHistory::paint(bool* show_) {
     _pendingTradeUpdate.consume_all([this](const OrderInfoPtrT& orderInfo_) {
@@ -34,10 +35,10 @@ void TradeHistory::DrawTradeBookTable(bool* show_) {
                 ImGui::TableSetupColumn(name, TableColumnFlags);
             }
             ImGui::TableHeadersRow();
-
-            _clipper.Begin(_container.size());
+            const auto& container = _filter.IsActive() ? _filterContainer : _container;
+            _clipper.Begin(container.size());
             while (_clipper.Step()) {
-                auto begin = _container.rbegin() + _clipper.DisplayStart;
+                auto begin = container.rbegin() + _clipper.DisplayStart;
                 auto end   = begin + (_clipper.DisplayEnd - _clipper.DisplayStart);
                 int  i     = _clipper.DisplayStart;
                 for (auto iterator = begin; iterator < end; ++iterator, ++i) {
@@ -61,15 +62,24 @@ void TradeHistory::DrawTradeBookTable(bool* show_) {
         ImGui::Separator();
         ImGui::Text("| Total : [%zu] |", _container.size());
         ImGui::SameLine();
-        ImGui::TextColored(UpDownColor(1), "| Buy : [%d] |", _totalBuy);
+        ImGui::TextColored(UpDownColor(true), "| Buy : [%d] |", _totalBuy);
         ImGui::SameLine();
-        ImGui::TextColored(UpDownColor(1), "| Buy Value : [%.2f] |", _buyValue);
+        ImGui::TextColored(UpDownColor(true), "| Buy Value : [%.2f] |", _buyValue);
         ImGui::SameLine();
-        ImGui::TextColored(UpDownColor(-1), "| Sell : [%d] |", _totalSell);
+        ImGui::TextColored(UpDownColor(false), "| Sell : [%d] |", _totalSell);
         ImGui::SameLine();
-        ImGui::TextColored(UpDownColor(-1), "| Sell Value : [%.2f] |", _sellValue);
+        ImGui::TextColored(UpDownColor(false), "| Sell Value : [%.2f] |", _sellValue);
         ImGui::SameLine();
-        ImGui::TextColored(UpDownColor(_netValue), "| Net Value : [%.2f] |", _netValue);
+        ImGui::TextColored(UpDownColor(_netValue > 0), "| Net Value : [%.2f] |", _netValue);
+        ImGui::SameLine();
+        if (_filter.Draw()) {
+            _filterContainer.clear();
+            for (const auto& item : _container) {
+                if (_filter.PassFilter(item->_contract.data())) {
+                    _filterContainer.push_back(item);
+                }
+            }
+        }
     }
     ImGui::End();
 }

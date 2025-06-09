@@ -21,4 +21,6 @@ class TradeHistory {
     PendingTradeUpdateT _pendingTradeUpdate;
     ImGuiListClipper    _clipper;
     BookOrderListT      _container;
+    BookOrderListT      _filterContainer;
+    ImGuiTextFilter     _filter;
 };
