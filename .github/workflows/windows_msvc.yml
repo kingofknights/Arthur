@@ -24,7 +24,7 @@ jobs:
             FMT_TEST=OFF
 
       - name: install fmt
-        run: cmake --install build
+        run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
 
       - uses: actions/checkout@v4
         with:
@@ -37,7 +37,7 @@ jobs:
             JSON_BuildTests=OFF
 
       - name: install json
-        run: cmake --install build
+        run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
 
       - uses: actions/checkout@v4
         with:
@@ -50,7 +50,7 @@ jobs:
             BUILD_TEST=OFF
 
       - name: install
-        run: cmake --install build
+        run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
 
       - uses: actions/checkout@v4
         with:
@@ -64,7 +64,7 @@ jobs:
             SDL_EXAMPLES=OFF
 
       - name: install
-        run: cmake --install build
+        run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
 
       - uses: actions/checkout@v4
         with:
@@ -78,7 +78,7 @@ jobs:
             SQLITECPP_BUILD_TESTS=OFF
 
       - name: install
-        run: cmake --install build
+        run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
 
       - uses: MarkusJx/install-boost@v2
         id: boost
