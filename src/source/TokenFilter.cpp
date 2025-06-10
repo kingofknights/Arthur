@@ -22,12 +22,18 @@ void TokenFilter::Paint() {
             for (const auto& item : _exchange) {
                 if (ImGui::Selectable(Lancelot::ToString(item).data())) {
                     _exchangeData = Lancelot::ToString(item);
+
                     std::set<Lancelot::Instrument> instrument;
                     for (const auto& result : _container) {
                         if (item == result.second->_exchange) {
                             _localContainer.push_back(result.second);
+                            instrument.insert(result.second->_instType);
                         }
                     }
+                    for (const auto& inst : instrument) {
+                        _instrument.push_back(inst);
+                    }
+
                     break;
                 }
             }

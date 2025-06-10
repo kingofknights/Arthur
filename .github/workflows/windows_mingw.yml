@@ -64,9 +64,11 @@ jobs:
           options: |
             SDL_TESTS=OFF
             SDL_EXAMPLES=OFF
+            SDL_STATIC=ON 
+            SDL_SHARED=OFF
 
       - name: install
-        run: cmake --install build
+        run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
 
       - uses: actions/checkout@v4
         with:
@@ -101,7 +103,9 @@ jobs:
 
       - name: Compress the artifact
         working-directory: ${{github.workspace}}/build/${{env.BUILD_TYPE}}
-        run: tar -czvf artifact.tar *.exe *.ttf *.dll setting.json
+        run: |
+          dir 
+          tar -czvf artifact.tar *.exe *.ttf *.dll setting.json
         continue-on-error: true
 
       - name: Release artifact
