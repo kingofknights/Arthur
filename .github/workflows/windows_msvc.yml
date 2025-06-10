@@ -7,8 +7,6 @@ on:
 env:
   CMAKE_BUILD_TYPE: Release
   CMAKE_INSTALL_PREFIX: "C:/local"
-  CMAKE_GENERATOR: Ninja
-  CMAKE_CXX_COMPILER: cl.exe
 
 jobs:
   build:
@@ -64,6 +62,8 @@ jobs:
           options: |
             SDL_TESTS=OFF
             SDL_EXAMPLES=OFF
+            SDL_STATIC=ON 
+            SDL_SHARED=OFF
 
       - name: install
         run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
