@@ -117,6 +117,11 @@ if(WIN32 AND MSVC)
   set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup")
 endif()
 
+install(TARGETS ${PROJECT_NAME}
+    RUNTIME
+    DESTINATION $<TARGET_FILE_DIR:${PROJECT_NAME}>
+)
+
 add_custom_command(
   TARGET ${PROJECT_NAME}
   POST_BUILD

@@ -50,7 +50,7 @@ jobs:
             BUILD_TEST=OFF
 
       - name: install
-        run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
+        run: cmake --install build
 
       - uses: actions/checkout@v4
         with:
@@ -66,7 +66,7 @@ jobs:
             SDL_SHARED=OFF
 
       - name: install
-        run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
+        run: cmake --install build
 
       - uses: actions/checkout@v4
         with:
@@ -80,7 +80,7 @@ jobs:
             SQLITECPP_BUILD_TESTS=OFF
 
       - name: install
-        run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
+        run: cmake --install build
 
       - uses: MarkusJx/install-boost@v2
         id: boost
@@ -101,7 +101,7 @@ jobs:
             Boost_LIBRARY_DIRS=${{steps.boost.outputs.BOOST_ROOT}}/lib
 
       - name: install
-        run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
+        run: cmake --install build
 
       - name: Compress the artifact
         working-directory: ${{github.workspace}}/build/${{env.BUILD_TYPE}}
