@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: "fmtlib/fmt"
-          ref: "9.1.0"
+          ref: "11.1.1"
 
       - uses: threeal/cmake-action@v2.1.0
         with:
@@ -37,7 +37,7 @@ jobs:
             FMT_TEST=OFF
 
       - name: install fmt
-        run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
+        run: cmake --install build --config Debug
 
       - uses: actions/checkout@v4
         with:
