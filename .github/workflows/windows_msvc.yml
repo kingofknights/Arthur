@@ -86,6 +86,7 @@ jobs:
         id: boost
         with:
           toolset: msvc
+          platform: 2019
           boost_version: 1.74.0
           boost_install_dir: "C:/boost"
 

@@ -64,9 +64,11 @@ jobs:
           options: |
             SDL_TESTS=OFF
             SDL_EXAMPLES=OFF
+            SDL_STATIC=ON 
+            SDL_SHARED=OFF
 
       - name: install
-        run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
+        run: cmake --install build
 
       - uses: actions/checkout@v4
         with:
