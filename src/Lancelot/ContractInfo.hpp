@@ -23,11 +23,13 @@ namespace Lancelot {
     using TableWithColumnNameT      = std::vector<RowWithColumnNameT>;
     using TableWithColumnIndexT     = std::vector<RowWithColumnIndexT>;
     using ResultSetLoadingCallbackT = std::function<void(ResultSetPtrT, float, float, float)>;
+    using ResultSetContainerT       = std::unordered_map<int32_t, ResultSetPtrT>;
 
     class ContractInfo {
       public:
         static void Initialize(const std::string& name_, const ResultSetLoadingCallbackT& callback_);
         static auto GetResultSet(int32_t token_) -> ResultSetPtrT;
+        static auto GetCompeleteContract() noexcept -> ResultSetContainerT&;
 
         static auto GetToken(const std::string& name_) -> int32_t;
         static auto GetExpiryDate(int32_t token_) -> int32_t;

@@ -1,4 +1,4 @@
-name: Windows Build and Deployment
+name: MSVC Build
 
 on:
   push:
@@ -15,19 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: "fmtlib/fmt"
-          ref: "11.1.1"
-
-      - uses: threeal/cmake-action@v2.1.0
-        with:
-          options: |
-            FMT_TEST=OFF
-
-      - name: install fmt
-        run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
-
-      - uses: actions/checkout@v4
-        with:
           repository: "nlohmann/json"
           ref: "v3.12.0"
 
@@ -37,6 +24,19 @@ jobs:
             JSON_BuildTests=OFF
 
       - name: install json
+        run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
+
+      - uses: actions/checkout@v4
+        with:
+          repository: "fmtlib/fmt"
+          ref: "11.1.1"
+
+      - uses: threeal/cmake-action@v2.1.0
+        with:
+          options: |
+            FMT_TEST=OFF
+
+      - name: install fmt
         run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
 
       - uses: actions/checkout@v4

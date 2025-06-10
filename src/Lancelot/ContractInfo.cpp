@@ -21,7 +21,6 @@
 
 namespace Lancelot {
 
-    using ResultSetContainerT   = std::unordered_map<int32_t, ResultSetPtrT>;
     using NameToTokenContainerT = std::unordered_map<std::string, int32_t>;
 
     namespace details {
@@ -163,4 +162,7 @@ namespace Lancelot {
         return Exchange_END;
     }
 
+    auto ContractInfo::GetCompeleteContract() noexcept -> ResultSetContainerT& {
+        return details::ResultSetContainer;
+    }
 }  // namespace Lancelot

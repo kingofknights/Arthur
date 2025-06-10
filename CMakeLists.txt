@@ -9,6 +9,7 @@ include(InstallRequiredSystemLibraries)
 include(cmake/StandardProjectSettings.cmake)
 include(cmake/PreventInSourceBuilds.cmake)
 
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -ldl")
 set(Boost_NO_WARN_NEW_VERSIONS OFF)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -42,8 +43,8 @@ include_directories(repo/Greeks)
 set(FONT_FILE
     ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Font/Ruda-Bold.ttf
     ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Font/MaterialIcons-Regular.ttf
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Resources/collide.wav ${CMAKE_CURRENT_SOURCE_DIR}/Resources/ResultSet.db3
 )
+# ${CMAKE_CURRENT_SOURCE_DIR}/Resources/collide.wav ${CMAKE_CURRENT_SOURCE_DIR}/Resources/ResultSet.db3
 
 set(APP_ICON_RESOURCE_WINDOWS ${CMAKE_CURRENT_SOURCE_DIR}/Resources/app.rc)
 
