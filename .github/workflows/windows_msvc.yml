@@ -85,8 +85,8 @@ jobs:
       - uses: MarkusJx/install-boost@v2
         id: boost
         with:
-          toolset: msvc
-          platform: 2019
+          platform: "windows"
+          platform_version: "2019"
           boost_version: 1.74.0
           boost_install_dir: "C:/boost"
 
@@ -99,6 +99,9 @@ jobs:
           options: |
             Boost_INCLUDE_DIR=${{steps.boost.outputs.BOOST_ROOT}}/include
             Boost_LIBRARY_DIRS=${{steps.boost.outputs.BOOST_ROOT}}/lib
+
+      - name: install
+        run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
 
       - name: Compress the artifact
         working-directory: ${{github.workspace}}/build/${{env.BUILD_TYPE}}
