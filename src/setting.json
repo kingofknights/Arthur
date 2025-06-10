@@ -14,9 +14,9 @@
     "port": 2224
   },
   "postgres": {
-    "host": "192.168.151.77",
+    "host": "10.10.114.44",
     "user": "postgres",
     "password": "server",
-    "name": "mts_dev"
+    "name": "mts_test"
   }
 }

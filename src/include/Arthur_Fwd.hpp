@@ -39,6 +39,7 @@ class OptionChain;
 class OrderBook;
 class Login;
 class CentralFeed;
+class TokenFilter;
 
 struct OrderInfoT;
 struct OrderFormInfoT;
@@ -60,6 +61,7 @@ using MessageBrokerPtrT     = std::unique_ptr<MessageBroker>;
 using OptionChainPtrT       = std::unique_ptr<OptionChain>;
 using OrderBookPtrT         = std::unique_ptr<OrderBook>;
 using LoginPtrT             = std::unique_ptr<Login>;
+using TokenFilterPtrT       = std::unique_ptr<TokenFilter>;
 
 using MarketWatchDataPtrT = std::shared_ptr<MarketWatchDataT>;
 

@@ -4,7 +4,10 @@
 
 #include "Arthur.hpp"
 
+#include "TokenFilter.hpp"
 #include "imgui_internal.h"
+
+#include <memory>
 
 #if _WIN32
 #include <Psapi.h>
@@ -101,16 +104,17 @@ Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
     Utils::CreateSupportFolder();
     ConfigLoader::Instance();
 
+    _tokenFilterPtr       = std::make_unique<TokenFilter>();
     _templateBuilderPtr   = std::make_unique<TemplateBuilder>(_showTemplateBuilder);
     _positionPtr          = std::make_unique<Position>(_executor);
-    _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_executor);
+    _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_tokenFilterPtr, _executor);
     _tradeHistoryPtr      = std::make_unique<TradeHistory>();
     _optionChainPtr       = std::make_unique<OptionChain>();
     _multicastReceiverPtr = std::make_unique<MulticastReceiver>(_executor, _marketEventQueue);
     _orderBookPtr         = std::make_unique<OrderBook>(ORDER_ALL_BOOK);
     _rejectBookPtr        = std::make_unique<OrderBook>(REJECT_BOOK);
 
-    _marketWatchPtr = std::make_unique<MarketWatch>(_orderFormPtr, _showMarketWatch, _showPriceLadder, [&](const std::string& contract_) {
+    _marketWatchPtr = std::make_unique<MarketWatch>(_orderFormPtr, _tokenFilterPtr, _showMarketWatch, _showPriceLadder, [&](const std::string& contract_) {
         _optionChainPtr->SetOptionForFuture(contract_);
     });
 
@@ -150,57 +154,19 @@ Arthur::~Arthur() {
         thread_->request_stop();
         LOG(INFO, "{} Thread Requested Stop", id)
     });
-    plf::nanotimer timer;
     try {
-        LOG(INFO, "{}", "boost::asio::io_service : stopping")
-        timer.start();
         _executor.stop();
-        LOG(INFO, "{} {}", "boost::asio::io_service : stopped", timer.get_elapsed_ns())
-
-        LOG(INFO, "{}", "Column Generator : stopping")
-        timer.start();
+        _multicastReceiverPtr.reset();
         _templateBuilderPtr.reset();
-        LOG(INFO, "{} {}", "Column Generator : stopped", timer.get_elapsed_ns())
-        LOG(INFO, "{}", "Option Chain : stopping")
-        timer.start();
         _optionChainPtr.reset();
-        LOG(INFO, "{} {}", "Option Chain : stopped", timer.get_elapsed_ns())
-        LOG(INFO, "{}", "Pending Book : stopping")
-        timer.start();
         _openOrdersPtr.reset();
-        LOG(INFO, "{} {}", "Pending Book : stopped", timer.get_elapsed_ns())
-        LOG(INFO, "{}", "Trade Book : stopping")
-        timer.start();
         _tradeHistoryPtr.reset();
-        LOG(INFO, "{} {}", "Trade Book : stopped", timer.get_elapsed_ns())
-        LOG(INFO, "{}", "Greeks Book : stopping")
-        timer.start();
         _positionPtr.reset();
-        LOG(INFO, "{} {}", "Greeks Book : stopped", timer.get_elapsed_ns())
-        LOG(INFO, "{}", "Market Watch : stopping")
-        timer.start();
         _marketWatchPtr.reset();
-        LOG(INFO, "{} {}", "Market Watch : stopped", timer.get_elapsed_ns())
-        LOG(INFO, "{}", "Strategy Workspace : stopping")
-        timer.start();
         _strategyWorkspacePtr.reset();
-        LOG(INFO, "{} {}", "Strategy Workspace : stopped", timer.get_elapsed_ns())
-
-        LOG(INFO, "{}", "Excel Automation : stopping")
-        LOG(INFO, "{}", "Excel Automation : stopped")
-
-        LOG(INFO, "{}", "Manual Order : stopping")
-        timer.start();
         _orderFormPtr.reset();
-        LOG(INFO, "{} {}", "Manual Order : stopped", timer.get_elapsed_ns())
-
         _orderBookPtr.reset();
         _rejectBookPtr.reset();
-
-        LOG(INFO, "{}", "Multicast Receiver : stopping")
-        timer.start();
-        _multicastReceiverPtr.reset();
-        LOG(INFO, "{} {}", "Multicast Receiver : stopped", timer.get_elapsed_ns())
     } catch (std::exception& exception_) {
         LOG(ERROR, "{} {}", "exception thrown", exception_.what())
     } catch (...) {

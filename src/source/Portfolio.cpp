@@ -10,6 +10,7 @@
 #include "MarketWatch.hpp"
 #include "Structure.hpp"
 #include "TableColumnInfo.hpp"
+#include "TokenFilter.hpp"
 #include "Utils.hpp"
 #include "misc/cpp/imgui_stdlib.h"
 
@@ -24,8 +25,8 @@ extern ClientCodeListT ClientCodeList;
 #define ADDITIONAL_OPTION     "Additional Options"
 #define NEW_STRATEGY_CREATION "New Strategy"
 
-Portfolio::Portfolio(const std::string& workspaceName_, const std::string& strategyName_, ExecutorT& strand_)
-    : PortfolioInterface(workspaceName_ + "[" + strategyName_ + "]", strategyName_, strand_) {
+Portfolio::Portfolio(const TokenFilterPtrT& tokenFilter_, const std::string& workspaceName_, const std::string& strategyName_, ExecutorT& strand_)
+    : PortfolioInterface(workspaceName_ + "[" + strategyName_ + "]", strategyName_, strand_), _tokenFilter(tokenFilter_) {
     _action = ExportImport_NONE;
 }
 
@@ -203,25 +204,15 @@ void Portfolio::DrawNewPortfolioCreation() {
             }
             case DataType_CONTRACT: {
                 if (value.second._searchEnable) {
+                    _tokenFilter->Paint(value.second._searchEnable, info._text);
+                    if (not info._text.empty()) {
+                        std::memcpy(value.second._filter.InputBuf, info._text.data(), info._text.length());
+                    }
+                } else {
                     value.second._filter.Draw(name.data());
                     if (value.second._filter.IsActive()) {
                         ImGui::SameLine();
                         Utils::ContractFilter(value.second._filter, info._text);
-                    }
-                } else {
-                    if (ImGui::BeginCombo(name.data(), info._text.data())) {
-                        _contractClipper.Begin(static_cast<int>(AllContract.size()));
-                        while (_contractClipper.Step()) {
-                            auto begin = AllContract.begin() + _contractClipper.DisplayStart;
-                            auto end   = begin + (_contractClipper.DisplayEnd - _contractClipper.DisplayStart);
-                            for (auto iterator = begin; iterator < end; ++iterator) {
-                                if (ImGui::Selectable(iterator->data())) {
-                                    info._text = *iterator;
-                                }
-                            }
-                        }
-
-                        ImGui::EndCombo();
                     }
                 }
                 ImGui::SameLine();

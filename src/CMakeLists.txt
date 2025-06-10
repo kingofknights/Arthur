@@ -33,8 +33,8 @@ set(HEADER_FILES
     ./include/PortfolioInterface.hpp
     ./include/PortfolioScanner.hpp
     ./include/Position.hpp
-    # ./include/SplashScreen.hpp
     ./include/StrategyWorkspace.hpp
+    ./include/TokenFilter.hpp
     ./include/Structure.hpp
     ./include/TableColumnInfo.hpp
     ./include/TemplateBuilder.hpp
@@ -64,8 +64,8 @@ set(SOURCE_FILES
     ./source/PortfolioInterface.cpp
     ./source/PortfolioScanner.cpp
     ./source/Position.cpp
-    # ./source/SplashScreen.cpp
     ./source/StrategyWorkspace.cpp
+    ./source/TokenFilter.cpp
     ./source/TemplateBuilder.cpp
     ./source/Themes.cpp
     ./source/TradeHistory.cpp
@@ -108,7 +108,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(${PROJECT_NAME} PRIVATE SQLiteCpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE libpqxx::pqxx)
 target_link_libraries(${PROJECT_NAME} PRIVATE Boost::headers)
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3-static)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC ${PRECOMPILE_HEADERS})
 

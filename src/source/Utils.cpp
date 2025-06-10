@@ -216,7 +216,7 @@ void Utils::ContractFilter(ImGuiTextFilter& filter_, std::string& index_) {
 #pragma omp for
     if (ImGui::BeginListBox("##Filter Contract")) {
         for (const auto& contractName : AllContract) {
-            if (std::toupper(filter_.InputBuf[0]) == contractName[0] and filter_.PassFilter(contractName.data())) {
+            if (filter_.PassFilter(contractName.data())) {
                 if (ImGui::Selectable(contractName.data())) {
                     index_ = contractName;
                     // filter_.Clear();

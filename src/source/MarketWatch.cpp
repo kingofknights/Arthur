@@ -6,12 +6,14 @@
 
 #include "API/Common.hpp"
 #include "API/ContractInfo.hpp"
+#include "Arthur_Fwd.hpp"
 #include "Colors.hpp"
 #include "Configuration.hpp"
 #include "Enums.hpp"
 #include "OrderForm.hpp"
 #include "Structure.hpp"
 #include "TableColumnInfo.hpp"
+#include "TokenFilter.hpp"
 #include "Utils.hpp"
 
 #include <imgui.h>
@@ -27,8 +29,9 @@ extern AllContractT AllContract;
 
 #define MARKET_WATCH_CONFIG_PATH "Config/MarketWatch.json"
 
-MarketWatch::MarketWatch(const OrderFormPtrT& manualOrder_, bool& showMarketWatch_, bool& showLadder_, AddContractFunctionT function_)
+MarketWatch::MarketWatch(const OrderFormPtrT& manualOrder_, const TokenFilterPtrT& tokenFilter_, bool& showMarketWatch_, bool& showLadder_, AddContractFunctionT function_)
     : _manualOrder{manualOrder_},
+      _tokenFilter(tokenFilter_),
       _showMarketWatch{showMarketWatch_},
       _showMarketLadder{showLadder_},
       _function{std::move(function_)},
@@ -51,22 +54,13 @@ void MarketWatch::DrawMarketWatchTable() noexcept {
         ImGui::SameLine();
         ImGui::SetNextItemWidth(ImGui::GetWindowWidth() / 4);
         if (_searchOrDrop) {
+            _tokenFilter->Paint(_searchOrDrop, _currentContract);
+            if (not _currentContract.empty()) {
+                std::memcpy(_filter.InputBuf, _currentContract.data(), _currentContract.length());
+            }
+        } else {
             _filter.Draw("##searchbar");
             DrawSearchBox();
-        } else {
-            if (ImGui::BeginCombo("##AllContracts", _currentContract.data())) {
-                _clipper.Begin(static_cast<int>(AllContract.size()));
-                while (_clipper.Step()) {
-                    auto begin = AllContract.begin() + _clipper.DisplayStart;
-                    auto end   = begin + (_clipper.DisplayEnd - _clipper.DisplayStart);
-                    for (auto iterator = begin; iterator < end; ++iterator) {
-                        if (ImGui::Selectable(iterator->data())) {
-                            _currentContract = *iterator;
-                        }
-                    }
-                }
-                ImGui::EndCombo();
-            }
         }
         ImGui::SameLine();
         ImGui::Checkbox("Filter", &_searchOrDrop);
@@ -75,6 +69,7 @@ void MarketWatch::DrawMarketWatchTable() noexcept {
         if (ImGui::Button(ICON_MD_ADD_BOX " Add Stock")) {
             AddContractToMarketWatch(_currentContract);
             _filter.Clear();
+            _currentContract.clear();
         }
         ImGui::EndDisabled();
         ImGui::SameLine();
