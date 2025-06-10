@@ -64,8 +64,6 @@ jobs:
           options: |
             SDL_TESTS=OFF
             SDL_EXAMPLES=OFF
-            SDL_STATIC=ON 
-            SDL_SHARED=ON
 
       - name: install
         run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
