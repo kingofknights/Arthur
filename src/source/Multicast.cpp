@@ -35,7 +35,7 @@ void MulticastReceiver::BindMc(const std::string& address_, int port_, const std
     _socket.bind(_endpoint);
     LOG(INFO, "Multicast : reuse_address {}", error.message());
     error = _socket.set_option(boost::asio::ip::multicast::join_group(boost::asio::ip::address::from_string(multicast_)), error);
-    LOG(INFO, "Multicast : reuse_address {}", error.message());
+    LOG(INFO, "Multicast : join_group {}", error.message());
 }
 
 void MulticastReceiver::Read() {

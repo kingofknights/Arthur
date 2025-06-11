@@ -85,7 +85,7 @@ void MessageBroker::Process(const char* buffer_, size_t size_) {
         }
         case Lancelot::ResponseType_UPDATES: {
             const auto*    response = reinterpret_cast<const Lancelot::StrategyHeader*>(buffer_);
-            nlohmann::json json     = nlohmann::json::parse(buffer_ + sizeof(Lancelot::StrategyHeader), buffer_ + sizeof(Lancelot::StrategyHeader) + size_);
+            nlohmann::json json     = nlohmann::json::parse(buffer_ + sizeof(Lancelot::StrategyHeader), buffer_ + size_);
             ProcessUpdates(response->_user._portfolio, json);
             break;
         }
