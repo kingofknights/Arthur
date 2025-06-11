@@ -202,11 +202,13 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) noexcept {
     ImGui::LabelText("Open", "%.2f", pointer_->_open);
     ImGui::LabelText("Low", "%.2f", pointer_->_low);
     ImGui::LabelText("LTP", "%.2f", pointer_->_lastTradePrice);
+    ImGui::LabelText("LowDPR", "%.2f", pointer_->_lowDpr);
 
     ImGui::NextColumn();
     ImGui::LabelText("High", "%.2f", pointer_->_high);
     ImGui::LabelText("Close", "%.2f", pointer_->_close);
     ImGui::LabelText("ATP", "%.2f", pointer_->_averageTradePrice);
+    ImGui::LabelText("HighDPR", "%.2f", pointer_->_highDpr);
     ImGui::EndColumns();
 
     auto     range  = (pointer_->_highDpr - pointer_->_lowDpr);
