@@ -26,16 +26,16 @@ TokenFilter::TokenFilter() : _container(Lancelot::ContractInfo::GetCompeleteCont
 void TokenFilter::Paint(bool& show_, std::string& contract_) {
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5F, 0.5F));
     if (ImGui::Begin("Token Search and Filter", &show_)) {
-        ImGui::Columns(2);
+        // ImGui::Columns(2);
         DrawExchangeFilter();
         DrawInstrumentFilter();
         DrawSymbolFilter();
         DrawExpiryFilter();
         DrawOptionFilter();
         DrawStikeFilter();
-        ImGui::NextColumn();
+        // ImGui::NextColumn();
         DrawTokenList(show_, contract_);
-        ImGui::EndColumns();
+        // ImGui::EndColumns();
         ImGui::End();
     }
 }
