@@ -4,10 +4,16 @@
 
 #include "Arthur.hpp"
 
+#include "TokenFilter.hpp"
 #include "imgui_internal.h"
+
+#include <memory>
 
 #if _WIN32
 #include <Psapi.h>
+#include <Winsock2.h>
+#include <Ws2tcpip.h>
+#pragma comment(lib, WS2_32)
 #endif
 
 #include "API/Common.hpp"
@@ -18,7 +24,6 @@
 #include "ConfigLoader.hpp"
 #include "Enums.hpp"
 #include "IconsMaterialDesign.h"
-#include "Knight/Scanner.hpp"
 #include "Lancelot/Structure.hpp"
 #include "Logger.hpp"
 #include "MarketWatch.hpp"
@@ -87,21 +92,29 @@ Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
         LOG(ERROR, "Config file not found : setting.json", false);
         exit(1);
     }
+#if _WIN32
+    WSADATA wsaData;
+    if (WSAStartup(0x0101, &wsaData)) {
+        LOG(ERROR, "Windows Sock2 unable to set up", false);
+        perror("WSAStartup");
+    }
+#endif
 
     std::ranges::sort(AllContract, std::less<>());
     Utils::CreateSupportFolder();
     ConfigLoader::Instance();
 
+    _tokenFilterPtr       = std::make_unique<TokenFilter>();
     _templateBuilderPtr   = std::make_unique<TemplateBuilder>(_showTemplateBuilder);
     _positionPtr          = std::make_unique<Position>(_executor);
-    _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_executor);
+    _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_tokenFilterPtr, _executor);
     _tradeHistoryPtr      = std::make_unique<TradeHistory>();
     _optionChainPtr       = std::make_unique<OptionChain>();
     _multicastReceiverPtr = std::make_unique<MulticastReceiver>(_executor, _marketEventQueue);
     _orderBookPtr         = std::make_unique<OrderBook>(ORDER_ALL_BOOK);
     _rejectBookPtr        = std::make_unique<OrderBook>(REJECT_BOOK);
 
-    _marketWatchPtr = std::make_unique<MarketWatch>(_orderFormPtr, _showMarketWatch, _showPriceLadder, [&](const std::string& contract_) {
+    _marketWatchPtr = std::make_unique<MarketWatch>(_orderFormPtr, _tokenFilterPtr, _showMarketWatch, _showPriceLadder, [&](const std::string& contract_) {
         _optionChainPtr->SetOptionForFuture(contract_);
     });
 
@@ -119,14 +132,9 @@ Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
 
     Imports(TRADING_APP_CONFIG_PATH);
     SetTheme(static_cast<VisualTheme>(_theme));
-    {
-        auto callback                      = [&](const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_) { StrategyRequestEvent(row_, name_, type_); };
-        PortfolioInterface::StrategyAction = std::move(callback);
-    }
-    {
-        auto callback                           = [&](const std::string& contract_) { _marketWatchPtr->AddContractToMarketWatch(contract_); };
-        PortfolioInterface::AddContractFunction = std::move(callback);
-    }
+
+    PortfolioInterface::StrategyAction      = [&](const StrategyRowPtrT& row_, const std::string& name_, Lancelot::RequestType type_) { StrategyRequestEvent(row_, name_, type_); };
+    PortfolioInterface::AddContractFunction = [&](const std::string& contract_) { _marketWatchPtr->AddContractToMarketWatch(contract_); };
 
     StartAllThreads();
 }
@@ -134,64 +142,39 @@ Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
 Arthur::~Arthur() {
     Exports(TRADING_APP_CONFIG_PATH);
     LOG(INFO, "{}", __FUNCTION__)
+    LOG(INFO, "Stoping _backendWorker {}", __LINE__);
     _backendWorker.reset();
+    LOG(INFO, "Stoping _executor {}", __LINE__);
+    _executor.stop();
     std::ranges::for_each(_threadGroup, [](std::unique_ptr<std::jthread>& thread_) {
         auto id = thread_->native_handle();
         LOG(INFO, "{} Requesting Stop", id)
         thread_->request_stop();
         LOG(INFO, "{} Thread Requested Stop", id)
     });
-    plf::nanotimer timer;
     try {
-        LOG(INFO, "{}", "boost::asio::io_service : stopping")
-        timer.start();
-        _executor.stop();
-        LOG(INFO, "{} {}", "boost::asio::io_service : stopped", timer.get_elapsed_ns())
-
-        LOG(INFO, "{}", "Column Generator : stopping")
-        timer.start();
-        _templateBuilderPtr.reset();
-        LOG(INFO, "{} {}", "Column Generator : stopped", timer.get_elapsed_ns())
-        LOG(INFO, "{}", "Option Chain : stopping")
-        timer.start();
-        _optionChainPtr.reset();
-        LOG(INFO, "{} {}", "Option Chain : stopped", timer.get_elapsed_ns())
-        LOG(INFO, "{}", "Pending Book : stopping")
-        timer.start();
-        _openOrdersPtr.reset();
-        LOG(INFO, "{} {}", "Pending Book : stopped", timer.get_elapsed_ns())
-        LOG(INFO, "{}", "Trade Book : stopping")
-        timer.start();
-        _tradeHistoryPtr.reset();
-        LOG(INFO, "{} {}", "Trade Book : stopped", timer.get_elapsed_ns())
-        LOG(INFO, "{}", "Greeks Book : stopping")
-        timer.start();
-        _positionPtr.reset();
-        LOG(INFO, "{} {}", "Greeks Book : stopped", timer.get_elapsed_ns())
-        LOG(INFO, "{}", "Market Watch : stopping")
-        timer.start();
-        _marketWatchPtr.reset();
-        LOG(INFO, "{} {}", "Market Watch : stopped", timer.get_elapsed_ns())
-        LOG(INFO, "{}", "Strategy Workspace : stopping")
-        timer.start();
-        _strategyWorkspacePtr.reset();
-        LOG(INFO, "{} {}", "Strategy Workspace : stopped", timer.get_elapsed_ns())
-
-        LOG(INFO, "{}", "Excel Automation : stopping")
-        LOG(INFO, "{}", "Excel Automation : stopped")
-
-        LOG(INFO, "{}", "Manual Order : stopping")
-        timer.start();
-        _orderFormPtr.reset();
-        LOG(INFO, "{} {}", "Manual Order : stopped", timer.get_elapsed_ns())
-
-        _orderBookPtr.reset();
-        _rejectBookPtr.reset();
-
-        LOG(INFO, "{}", "Multicast Receiver : stopping")
-        timer.start();
+        LOG(INFO, "Stoping _multicastReceiverPtr {}", __LINE__);
         _multicastReceiverPtr.reset();
-        LOG(INFO, "{} {}", "Multicast Receiver : stopped", timer.get_elapsed_ns())
+        LOG(INFO, "Stoping _templateBuilderPtr {}", __LINE__);
+        _templateBuilderPtr.reset();
+        LOG(INFO, "Stoping _optionChainPtr {}", __LINE__);
+        _optionChainPtr.reset();
+        LOG(INFO, "Stoping _openOrdersPtr {}", __LINE__);
+        _openOrdersPtr.reset();
+        LOG(INFO, "Stoping _tradeHistoryPtr {}", __LINE__);
+        _tradeHistoryPtr.reset();
+        LOG(INFO, "Stoping _positionPtr {}", __LINE__);
+        _positionPtr.reset();
+        LOG(INFO, "Stoping _marketWatchPtr {}", __LINE__);
+        _marketWatchPtr.reset();
+        LOG(INFO, "Stoping _strategyWorkspacePtr {}", __LINE__);
+        _strategyWorkspacePtr.reset();
+        LOG(INFO, "Stoping _orderFormPtr {}", __LINE__);
+        _orderFormPtr.reset();
+        LOG(INFO, "Stoping _orderBookPtr {}", __LINE__);
+        _orderBookPtr.reset();
+        LOG(INFO, "Stoping _rejectBookPtr {}", __LINE__);
+        _rejectBookPtr.reset();
     } catch (std::exception& exception_) {
         LOG(ERROR, "{} {}", "exception thrown", exception_.what())
     } catch (...) {
@@ -333,6 +316,7 @@ auto Arthur::Run(std::stop_token& stopToken_) -> void {
         boost::system::error_code errorCode;
         _executor.run(errorCode);
         LOG(WARNING, "boost::asio::io_service {}", errorCode.message())
+        break;
     }
     LOG(WARNING, "{} {}", __FUNCTION__, "Exiting")
 }

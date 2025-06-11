@@ -30,6 +30,7 @@ class OpenOrders {
     bool& _show;
 
     PendingOrderContainerT _container;
+    PendingOrderContainerT _filterContainer;
     PendingOrderUpdateT    _pendingOrderUpdate;
     BookOrderListT         _cancelOrder;
 
@@ -40,5 +41,6 @@ class OpenOrders {
     int  _selectedRow      = -1;
     bool _closeCancelPopup = false;
 
+    ImGuiTextFilter  _filter;
     ImGuiListClipper _clipper;
 };

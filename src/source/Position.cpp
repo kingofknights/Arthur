@@ -7,6 +7,7 @@
 #include "Logger.hpp"
 #include "Structure.hpp"
 #include "TableColumnInfo.hpp"
+#include "imgui.h"
 #include "plf_nanotimer.h"
 
 #include <Greeks/Greeks.hpp>
@@ -97,7 +98,7 @@ void Position::Insert(const OrderInfoPtrT& tradeInfo_) {
 }
 
 void Position::Paint(bool* show_) {
-    _pendingTradeUpdate.consume_one([this](OrderInfoPtrT tradeInfo_) {
+    _pendingTradeUpdate.consume_all([this](OrderInfoPtrT tradeInfo_) {
         SymbolBoolWiseBookUpdate(tradeInfo_);
         PFWiseBookUpdate(tradeInfo_);
         GreekBookUpdate(tradeInfo_);
@@ -211,31 +212,28 @@ void Position::DrawSymbolWiseNetBook() {
                 NextCell(SymbolWiseNetBookColumnIndex_PNL, column->_pnl, UpDownColor(column->_pnl));
             }
         }
-        if (ImGui::BeginPopupContextItem("Context Menu", ImGuiPopupFlags_MouseButtonRight)) {
-            if (ImGui::Selectable(ICON_MD_DOWNLOAD " Export")) {
-                ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".csv");
-                DrawExportSymbolWisePostion();
-            }
-
-            ImGui::EndPopup();
-        }
 
         ImGui::EndTable();
     }
 
     ImGui::Separator();
     ImGui::TextColored(UpDownColor(_netPNL >= 0), "| Net PNL : %.2f |", _netPNL);
+    ImGui::SameLine();
+    if (ImGui::Button("Export")) {
+        ImGuiFileDialog::Instance()->OpenDialog("Export Trades", "File Manager", ".csv");
+    }
+    DrawExportSymbolWisePostion();
 }
 
 void Position::DrawExportSymbolWisePostion() {
-    if (ImGuiFileDialog::Instance()->Display("FileManager")) {
+    if (ImGuiFileDialog::Instance()->Display("Export Trades")) {
         if (ImGuiFileDialog::Instance()->IsOk()) {
             std::string  filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
             std::fstream file(filePathName, std::ios::out);
             if (file.is_open()) {
                 for (const auto& row : _symbolWiseTradeContainerVec) {
                     const auto& column = row.second;
-                    file << FORMAT("{},{},{},{},{},{},{},{},{},{}", column->_marketWatch->_description, column->_averageBuyPrice, column->_buyQuantity, column->_sellQuantity,
+                    file << FORMAT("{},{},{},{},{},{},{},{},{},{}", column->_marketWatch->_description.data(), column->_averageBuyPrice, column->_buyQuantity, column->_sellQuantity,
                                    column->_averageSellPrice, column->_totalQuantity, column->_netInvestment, column->_mtm, column->_marketWatch->_lastTradePrice, column->_pnl);
                 }
             }

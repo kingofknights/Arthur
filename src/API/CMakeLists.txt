@@ -12,9 +12,3 @@ add_library(API ${HEADER_FILES})
 target_link_libraries(API PUBLIC nlohmann_json::nlohmann_json fmt::fmt Boost::headers)
 
 target_precompile_headers(API PUBLIC ${PRECOMPILE_HEADERS})
-install(
-  FILES BaseScanner.hpp
-        ContractInfo.hpp
-        TokenInfo.hpp
-        Common.hpp
-  DESTINATION ${EXECUTABLE_OUTPUT_PATH}/API/)

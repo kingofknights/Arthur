@@ -17,8 +17,10 @@
 #include "imgui_impl_sdlrenderer3.h"
 
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_log.h>
 #include <SDL3/SDL_video.h>
-#include <stdio.h>
+
+#include <cstdio>
 
 #ifdef __EMSCRIPTEN__
 #include "../libs/emscripten/emscripten_mainloop_stub.h"
@@ -56,7 +58,6 @@ int main(int, char**) {
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Enable Docking
 
     // Setup Dear ImGui style
@@ -85,9 +86,8 @@ int main(int, char**) {
     // IM_ASSERT(font != nullptr);
 
     // Our state
-    bool   show_demo_window    = true;
-    bool   show_another_window = false;
-    ImVec4 clear_color         = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Main loop
     bool  done = false;
@@ -192,16 +192,23 @@ int main(int, char**) {
 #ifdef __EMSCRIPTEN__
         EMSCRIPTEN_MAINLOOP_END;
 #endif
+        LOG(INFO, "SDL_HideWindow", false);
+        SDL_HideWindow(window);
     }
-
     // Cleanup
     // [If using SDL_MAIN_USE_CALLBACKS: all code below would likely be your SDL_AppQuit() function]
+    LOG(INFO, "ImGui_ImplSDLRenderer3_Shutdown ", false);
     ImGui_ImplSDLRenderer3_Shutdown();
+    LOG(INFO, "ImGui_ImplSDL3_Shutdown", false);
     ImGui_ImplSDL3_Shutdown();
+    LOG(INFO, "ImGui::DestroyContext", false);
     ImGui::DestroyContext();
 
+    LOG(INFO, "SDL_DestroyRenderer", false);
     SDL_DestroyRenderer(renderer);
+    LOG(INFO, "SDL_DestroyWindow", false);
     SDL_DestroyWindow(window);
+    LOG(INFO, "SDL_Quit", false);
     SDL_Quit();
 
     return 0;

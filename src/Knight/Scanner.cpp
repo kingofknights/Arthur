@@ -1,16 +1,16 @@
 #include "Scanner.hpp"
 
+#include <boost/preprocessor.hpp>
+
 #include "../API/BaseScanner.hpp"
 #include "../API/TokenInfo.hpp"
 #include "../include/Utils.hpp"
 #include "Lancelot/Lancelot.hpp"
 
-#include <boost/preprocessor.hpp>
-
 extern ScannerContainerT ScannerContainer;
 
-#define STR(X)            #X
-#define TO_STRING(X)      STR(X)
+#define STR(X) #X
+#define TO_STRING(X) STR(X)
 #define FUNCTION(R, _, T) AddFunction(TO_STRING(T), TokenInfo::T);
 
 #define PARAM_FUNCTION_LIST_2 \
@@ -59,7 +59,7 @@ void Scanner::ScannerUnsubscribe(uint64_t key) {
                 iterator->second.BaseScannerPtr->StopThat();
                 iterator->second.BaseScannerPtr.reset();
             }
-            // iterator->second.Library.unload();
+            iterator->second.Library.unload();
             ScannerContainer.erase(iterator);
         }
     }

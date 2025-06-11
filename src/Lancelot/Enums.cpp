@@ -9,15 +9,15 @@ namespace Lancelot {
     auto ToString(Exchange exchangeCode_) -> std::string {
         switch (exchangeCode_) {
             case Exchange_NSE_FUTURE:
-                return "NSE_FUTURE";
+                return "NSE_FO";
             case Exchange_NSE_EQUITY:
-                return "NSE_EQUITY";
+                return "NSE_EQ";
             case Exchange_NSE_CURRENCY:
-                return "NSE_CURRENCY";
+                return "NSE_CD";
             case Exchange_BSE_FUTURE:
-                return "BSE_FUTURE";
+                return "BSE_FO";
             case Exchange_BSE_CURRENCY:
-                return "BSE_CURRENCY";
+                return "BSE_CD";
             case Exchange_END:
                 return "Exchange_END";
         }
@@ -27,13 +27,13 @@ namespace Lancelot {
     auto ToString(Instrument instrument_) -> std::string {
         switch (instrument_) {
             case Instrument_FUTURE:
-                return "Instrument_FUTURE";
+                return "FUTURE";
             case Instrument_OPTION:
-                return "Instrument_OPTION";
+                return "OPTION";
             case Instrument_EQUITY:
-                return "Instrument_EQUITY";
+                return "EQUITY";
             case Instrument_OTHER:
-                return "Instrument_OTHER";
+                return "OTHER";
         }
         return __FUNCTION__;
     }
@@ -41,11 +41,11 @@ namespace Lancelot {
     auto ToString(OptionType optionType_) -> std::string {
         switch (optionType_) {
             case OptionType_NONE:
-                return "OptionType_NONE";
+                return "NONE";
             case OptionType_CALL:
-                return "OptionType_CALL";
+                return "CALL";
             case OptionType_PUT:
-                return "OptionType_PUT";
+                return "PUT";
         }
         return __FUNCTION__;
     }

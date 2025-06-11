@@ -33,8 +33,8 @@ set(HEADER_FILES
     ./include/PortfolioInterface.hpp
     ./include/PortfolioScanner.hpp
     ./include/Position.hpp
-    # ./include/SplashScreen.hpp
     ./include/StrategyWorkspace.hpp
+    ./include/TokenFilter.hpp
     ./include/Structure.hpp
     ./include/TableColumnInfo.hpp
     ./include/TemplateBuilder.hpp
@@ -64,8 +64,8 @@ set(SOURCE_FILES
     ./source/PortfolioInterface.cpp
     ./source/PortfolioScanner.cpp
     ./source/Position.cpp
-    # ./source/SplashScreen.cpp
     ./source/StrategyWorkspace.cpp
+    ./source/TokenFilter.cpp
     ./source/TemplateBuilder.cpp
     ./source/Themes.cpp
     ./source/TradeHistory.cpp
@@ -117,12 +117,18 @@ if(WIN32 AND MSVC)
   set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup")
 endif()
 
+install(TARGETS ${PROJECT_NAME}
+    RUNTIME
+    DESTINATION $<TARGET_FILE_DIR:${PROJECT_NAME}>
+)
+
 add_custom_command(
   TARGET ${PROJECT_NAME}
   POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FONT_FILE} $<TARGET_FILE_DIR:${PROJECT_NAME}>
   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/setting.json
-          $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+          $<TARGET_FILE_DIR:${PROJECT_NAME}>
+  COMMAND_EXPAND_LISTS)
 
 add_executable(buildResultSet ./buildResult.cpp)
 target_sources(buildResultSet PRIVATE ${LANCELOT_FILES})

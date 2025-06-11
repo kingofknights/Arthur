@@ -54,6 +54,7 @@ class Arthur {
     OptionChainPtrT       _optionChainPtr;
     OrderBookPtrT         _orderBookPtr;
     OrderBookPtrT         _rejectBookPtr;
+    TokenFilterPtrT       _tokenFilterPtr;
 
     bool _showTemplateBuilder   = false;
     bool _showDemoWindow        = false;

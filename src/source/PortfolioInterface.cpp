@@ -180,13 +180,13 @@ void PortfolioInterface::Imports(const std::string& path_) {
     }
     nlohmann::ordered_json root = nlohmann::ordered_json::parse(file);
 
-    ParameterInfoListT parameterInfoList;
     for (const auto& item : root.items()) {
-        ParameterInfoT parameterInfo;
-        bool           add = true;
+        ParameterInfoListT parameterInfoList;
+        bool               add = true;
         for (const auto& config : item.value().items()) {
             const auto& value = config.value();
 
+            ParameterInfoT parameterInfo;
             parameterInfo._type        = value.at("Type").get<DataType>();
             std::string parameterValue = value.at("Value").get<std::string>();
             switch (parameterInfo._type) {

@@ -14,7 +14,7 @@ class MarketWatch final {
     using SubscribedT    = std::set<uint32_t>;
 
   public:
-    MarketWatch(const OrderFormPtrT& manualOrder_, bool& showMarketWatch_, bool& showLadder_, AddContractFunctionT function_);
+    MarketWatch(const OrderFormPtrT& manualOrder_, const TokenFilterPtrT& tokenFilter_, bool& showMarketWatch_, bool& showLadder_, AddContractFunctionT function_);
 
     ~MarketWatch();
 
@@ -44,7 +44,8 @@ class MarketWatch final {
     void DrawSearchBox();
 
   private:
-    const OrderFormPtrT& _manualOrder;
+    const OrderFormPtrT&   _manualOrder;
+    const TokenFilterPtrT& _tokenFilter;
 
     bool& _showMarketWatch;
     bool& _showMarketLadder;

@@ -69,6 +69,7 @@ extern SpotInfoT Nifty;
 extern SpotInfoT VIX;
 
 void CentralFeed::Process(int size_) {
+    LOG(INFO, "{} {} {} {}", __FUNCTION__, size_, _header->_length, _header->_type);
     switch (_header->_type) {
         case 4: {
             const auto current  = _marketData->_data;
@@ -108,7 +109,7 @@ void CentralFeed::Process(int size_) {
             memset(previous->_lastTradeTime.data(), 0, 30);
             memcpy(previous->_lastTradeTime.data(), current._lastTradeTime, 30);
 
-            previous->_pchange = (static_cast<PriceT>(current._close - current._lastTradePrice) / static_cast<PriceT>(current._close)) * 100.0F;
+            previous->_pchange = current._percentageChange;
 
             if (topBid != current._bid[0]._price) {
                 previous->_color._topBid = topBid < (current._bid[0]._price);

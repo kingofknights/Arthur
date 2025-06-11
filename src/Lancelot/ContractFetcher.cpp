@@ -1,5 +1,6 @@
 #include "ContractFetcher.hpp"
 
+#include "Enums.hpp"
 #include "Logger.hpp"
 #include "StoreProcedures.hpp"
 
@@ -53,8 +54,9 @@ namespace Lancelot {
         }
         SQLite::Transaction transaction(*_database);
         SQLite::Statement   insertResultSet(*_database, InsertResultSetRow_);
+        const std::string   exchange = ToString(Exchange_NSE_FUTURE);
 
-        std::ranges::for_each(table_, [&insertResultSet](const RowWithColumnIndexT& row_) {
+        std::ranges::for_each(table_, [&insertResultSet, exchange](const RowWithColumnIndexT& row_) {
             insertResultSet.bind(1, row_[TOKEN]);
             insertResultSet.bind(2, row_[STRIKE]);
             insertResultSet.bind(3, row_[INSTRUMENT_TYPE]);
@@ -63,7 +65,7 @@ namespace Lancelot {
             insertResultSet.bind(6, row_[DESCRIPTION]);
             insertResultSet.bind(7, row_[OPTION_TYPE]);
             insertResultSet.bind(8, row_[DESCRIPTION]);
-            insertResultSet.bind(9, "NSE");
+            insertResultSet.bind(9, exchange);
             insertResultSet.bind(10, "F&O");
             insertResultSet.bind(11, row_[FUTURE_TOKEN]);
             insertResultSet.bind(12, row_[LOT_SIZE]);

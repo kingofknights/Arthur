@@ -4,9 +4,8 @@
     "size": 25
   },
   "backend": {
-    "user": 101,
-    "address": "192.168.151.77",
-    "port": 2071
+    "address": "192.168.151.68",
+    "port": 9898
   },
   "marketwatch": {
     "contract": "ResultSet.db3",
@@ -15,9 +14,9 @@
     "port": 2224
   },
   "postgres": {
-    "host": "192.168.151.77",
+    "host": "10.10.114.44",
     "user": "postgres",
     "password": "server",
-    "name": "mts_dev"
+    "name": "mts_test"
   }
 }

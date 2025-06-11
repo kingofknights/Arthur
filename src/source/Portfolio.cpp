@@ -10,6 +10,7 @@
 #include "MarketWatch.hpp"
 #include "Structure.hpp"
 #include "TableColumnInfo.hpp"
+#include "TokenFilter.hpp"
 #include "Utils.hpp"
 #include "misc/cpp/imgui_stdlib.h"
 
@@ -24,8 +25,8 @@ extern ClientCodeListT ClientCodeList;
 #define ADDITIONAL_OPTION     "Additional Options"
 #define NEW_STRATEGY_CREATION "New Strategy"
 
-Portfolio::Portfolio(const std::string& workspaceName_, const std::string& strategyName_, ExecutorT& strand_)
-    : PortfolioInterface(workspaceName_ + "[" + strategyName_ + "]", strategyName_, strand_) {
+Portfolio::Portfolio(const TokenFilterPtrT& tokenFilter_, const std::string& workspaceName_, const std::string& strategyName_, ExecutorT& strand_)
+    : PortfolioInterface(workspaceName_ + "[" + strategyName_ + "]", strategyName_, strand_), _tokenFilter(tokenFilter_) {
     _action = ExportImport_NONE;
 }
 
@@ -72,7 +73,7 @@ void Portfolio::Paint() {
         ImGui::SetItemDefaultFocus();
         ImGui::EndPopup();
     }
-    _scannerAddQueue.consume_one([&](StrategyRowPtrT row_) { _strategyList.push_back(std::move(row_)); });
+    _scannerAddQueue.consume_all([&](StrategyRowPtrT row_) { _strategyList.push_back(std::move(row_)); });
 }
 
 auto Portfolio::Closed() const -> bool {
@@ -203,26 +204,12 @@ void Portfolio::DrawNewPortfolioCreation() {
             }
             case DataType_CONTRACT: {
                 if (value.second._searchEnable) {
-                    value.second._filter.Draw(name.data());
-                    if (value.second._filter.IsActive()) {
-                        ImGui::SameLine();
-                        Utils::ContractFilter(value.second._filter, info._text);
+                    _tokenFilter->Paint(value.second._searchEnable, info._text);
+                    if (not info._text.empty()) {
+                        std::memcpy(value.second._filter.InputBuf, info._text.data(), info._text.length());
                     }
                 } else {
-                    if (ImGui::BeginCombo(name.data(), info._text.data())) {
-                        _contractClipper.Begin(static_cast<int>(AllContract.size()));
-                        while (_contractClipper.Step()) {
-                            auto begin = AllContract.begin() + _contractClipper.DisplayStart;
-                            auto end   = begin + (_contractClipper.DisplayEnd - _contractClipper.DisplayStart);
-                            for (auto iterator = begin; iterator < end; ++iterator) {
-                                if (ImGui::Selectable(iterator->data())) {
-                                    info._text = *iterator;
-                                }
-                            }
-                        }
-
-                        ImGui::EndCombo();
-                    }
+                    Utils::ContractFilter(value.second._filter, info._text, name);
                 }
                 ImGui::SameLine();
                 ImGui::Checkbox("##Seach", &value.second._searchEnable);
@@ -271,7 +258,7 @@ void Portfolio::DrawStrategyRow(StrategyRowPtrT& row_, int index_) {
         row_->_selected ^= 1;
         _multipleSelectionCount += row_->_selected ? 1 : -1;
     }
-    if (row_->_selected) {
+    if (row_->_selected and (row_->_status == StrategyStatus_TERMINATED or row_->_status == StrategyStatus_INACTIVE)) {
         if (ImGui::IsKeyPressed(ImGuiKey_Delete)) {
             _toBeDeleted = index_;
         }

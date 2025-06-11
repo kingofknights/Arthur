@@ -69,7 +69,7 @@ void TBaseSocket::ReadHandlerBody(const ErrorCodeT& errorCode_, size_t size_) {
                                 boost::asio::transfer_exactly(static_cast<size_t>(_header->_length)),
                                 [this](const boost::system::error_code& error_, size_t size_) {
                                     if (not error_) {
-                                        Process(_buffer.data(), size_);
+                                        Process(_buffer.data(), sizeof(Lancelot::Header) + size_);
                                         Read();
                                     } else {
                                         _connected = false;
