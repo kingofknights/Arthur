@@ -17,7 +17,9 @@
 #include "imgui_impl_sdlrenderer3.h"
 
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_log.h>
 #include <SDL3/SDL_video.h>
+
 #include <cstdio>
 
 #ifdef __EMSCRIPTEN__
@@ -34,8 +36,8 @@ int main(int, char**) {
     }
 
     // Create window with SDL_Renderer graphics context
-    Uint32 window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
-    SDL_Window* window = SDL_CreateWindow("Arthur", 1280, 720, window_flags);
+    Uint32      window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
+    SDL_Window* window       = SDL_CreateWindow("Arthur", 1280, 720, window_flags);
     if (window == nullptr) {
         printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
         return -1;
@@ -55,8 +57,8 @@ int main(int, char**) {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Enable Docking
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -88,7 +90,7 @@ int main(int, char**) {
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Main loop
-    bool done = false;
+    bool  done = false;
     Login login;
 #ifdef __EMSCRIPTEN__
     // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
@@ -190,16 +192,23 @@ int main(int, char**) {
 #ifdef __EMSCRIPTEN__
         EMSCRIPTEN_MAINLOOP_END;
 #endif
+        LOG(INFO, "SDL_HideWindow", false);
+        SDL_HideWindow(window);
     }
-
     // Cleanup
     // [If using SDL_MAIN_USE_CALLBACKS: all code below would likely be your SDL_AppQuit() function]
+    LOG(INFO, "ImGui_ImplSDLRenderer3_Shutdown ", false);
     ImGui_ImplSDLRenderer3_Shutdown();
+    LOG(INFO, "ImGui_ImplSDL3_Shutdown", false);
     ImGui_ImplSDL3_Shutdown();
+    LOG(INFO, "ImGui::DestroyContext", false);
     ImGui::DestroyContext();
 
+    LOG(INFO, "SDL_DestroyRenderer", false);
     SDL_DestroyRenderer(renderer);
+    LOG(INFO, "SDL_DestroyWindow", false);
     SDL_DestroyWindow(window);
+    LOG(INFO, "SDL_Quit", false);
     SDL_Quit();
 
     return 0;
