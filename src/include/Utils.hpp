@@ -34,7 +34,7 @@ class Utils {
 
     static void AppendPortfolio(uint32_t pf_, WeakStrategyRowPtrT ptr_);
 
-    static void ContractFilter(ImGuiTextFilter& filter_, std::string& index_);
+    static void ContractFilter(ImGuiTextFilter& filter_, std::string& index_, const std::string& name_);
 
     static auto ScannerAPI(double pf_, double name_, double params_, double token_) -> double;
 

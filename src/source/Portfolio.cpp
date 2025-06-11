@@ -209,11 +209,7 @@ void Portfolio::DrawNewPortfolioCreation() {
                         std::memcpy(value.second._filter.InputBuf, info._text.data(), info._text.length());
                     }
                 } else {
-                    value.second._filter.Draw(name.data());
-                    if (value.second._filter.IsActive()) {
-                        ImGui::SameLine();
-                        Utils::ContractFilter(value.second._filter, info._text);
-                    }
+                    Utils::ContractFilter(value.second._filter, info._text, name);
                 }
                 ImGui::SameLine();
                 ImGui::Checkbox("##Seach", &value.second._searchEnable);

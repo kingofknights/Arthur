@@ -59,7 +59,6 @@ void MarketWatch::DrawMarketWatchTable() noexcept {
                 std::memcpy(_filter.InputBuf, _currentContract.data(), _currentContract.length());
             }
         } else {
-            _filter.Draw("##searchbar");
             DrawSearchBox();
         }
         ImGui::SameLine();
@@ -325,11 +324,5 @@ void MarketWatch::Remove() {
 }
 
 void MarketWatch::DrawSearchBox() {
-    if (_filter.IsActive()) {
-        ImGui::SetNextWindowPos(ImGui::GetCursorScreenPos());
-        if (ImGui::Begin("Contract Filter", nullptr, OverlayFlags)) {
-            Utils::ContractFilter(_filter, _currentContract);
-        }
-        ImGui::End();
-    }
+    Utils::ContractFilter(_filter, _currentContract, "Contracts");
 }

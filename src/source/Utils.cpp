@@ -9,6 +9,7 @@
 #include "API/ContractInfo.hpp"
 #include "Configuration.hpp"
 #include "Enums.hpp"
+#include "Logger.hpp"
 #include "Structure.hpp"
 #include "TableColumnInfo.hpp"
 #include "imgui.h"
@@ -211,20 +212,23 @@ void Utils::DrawTradeRow(const OrderInfoPtrT& tradeInfo_, int& first_, int secon
     ImGui::PopStyleColor();
 }
 
-void Utils::ContractFilter(ImGuiTextFilter& filter_, std::string& index_) {
-#pragma omp parallel
-#pragma omp for
-    if (ImGui::BeginListBox("##Filter Contract")) {
+void Utils::ContractFilter(ImGuiTextFilter& filter_, std::string& index_, const std::string& name_) {
+    if (ImGui::BeginCombo(FORMAT("{}##Filter Contract", name_).data(), index_.data())) {
+        if (ImGui::IsWindowAppearing()) {
+            ImGui::SetKeyboardFocusHere();
+            filter_.Clear();
+        }
+        ImGui::SetNextItemShortcut(ImGuiMod_Ctrl | ImGuiKey_F);
+        filter_.Draw("##Filter");
         for (const auto& contractName : AllContract) {
             if (filter_.PassFilter(contractName.data())) {
                 if (ImGui::Selectable(contractName.data())) {
                     index_ = contractName;
                     // filter_.Clear();
-                    std::memcpy(filter_.InputBuf, contractName.data(), contractName.length());
                 }
             }
         }
-        ImGui::EndListBox();
+        ImGui::EndCombo();
     }
 }
 
