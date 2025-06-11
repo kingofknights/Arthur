@@ -4,6 +4,7 @@
 
 #include "Multicast.hpp"
 
+#include "Arthur_Fwd.hpp"
 #include "DataFeed/CentralFeed.hpp"
 
 #include <boost/asio/detail/socket_option.hpp>
@@ -20,15 +21,21 @@ void MulticastReceiver::ReceiverFrom(const boost::system::error_code& errorCode_
     if (!errorCode_) {
         Process(size_);
         Read();
+    } else {
+        LOG(WARNING, "ReceiverFrom {}", errorCode_.message());
     }
 }
 
 void MulticastReceiver::BindMc(const std::string& address_, int port_, const std::string& multicast_) {
+    ErrorCodeT error;
     _endpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string(address_), port_);
-    _socket.open(_endpoint.protocol());
-    _socket.set_option(boost::asio::socket_base::reuse_address(true));
+    error     = _socket.open(_endpoint.protocol(), error);
+    LOG(INFO, "Multicast : open {}", error.message());
+    error = _socket.set_option(boost::asio::socket_base::reuse_address(true), error);
     _socket.bind(_endpoint);
-    _socket.set_option(boost::asio::ip::multicast::join_group(boost::asio::ip::address::from_string(multicast_)));
+    LOG(INFO, "Multicast : reuse_address {}", error.message());
+    error = _socket.set_option(boost::asio::ip::multicast::join_group(boost::asio::ip::address::from_string(multicast_)), error);
+    LOG(INFO, "Multicast : reuse_address {}", error.message());
 }
 
 void MulticastReceiver::Read() {
