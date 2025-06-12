@@ -32,7 +32,7 @@ void MulticastReceiver::BindMc(const std::string& address_, int port_, const std
     _socket.open(endpoint.protocol());
     _socket.set_option(boost::asio::socket_base::reuse_address(true));
     _socket.bind(endpoint);
-    _socket.set_option(boost::asio::ip::multicast::join_group(boost::asio::ip::make_address(multicast_)));
+    _socket.set_option(boost::asio::ip::multicast::join_group(boost::asio::ip::make_address(multicast_).to_v4(), boost::asio::ip::make_address(address_).to_v4()));
 }
 
 void MulticastReceiver::Read() {
