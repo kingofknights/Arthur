@@ -109,9 +109,15 @@ void TokenFilter::DrawInstrumentFilter() noexcept {
 }
 void TokenFilter::DrawSymbolFilter() noexcept {
     if (ImGui::BeginCombo("Symbol", _symbolData.data())) {
+        if (ImGui::IsWindowAppearing()) {
+            ImGui::SetKeyboardFocusHere();
+            _filter.Clear();
+        }
+        ImGui::SetNextItemShortcut(ImGuiMod_Ctrl | ImGuiKey_F);
+        _filter.Draw("##Filter");
         for (const auto& item : _symbol) {
             ImGui::PushID(item.data());
-            if (ImGui::Selectable((item).data())) {
+            if (_filter.PassFilter(item.data()) and ImGui::Selectable((item).data())) {
                 _symbolData           = item;
                 const auto exchange   = Lancelot::ContractInfo::GetExchange(_exchangeData);
                 const auto instrument = Lancelot::ContractInfo::GetInstrumentType(_instrumentData);
@@ -202,9 +208,16 @@ void TokenFilter::DrawOptionFilter() noexcept {
 
 void TokenFilter::DrawStikeFilter() noexcept {
     if (ImGui::BeginCombo("Strike", FORMAT("{}", _strikeData).data())) {
+        if (ImGui::IsWindowAppearing()) {
+            ImGui::SetKeyboardFocusHere();
+            _filterStrike.Clear();
+        }
+        ImGui::SetNextItemShortcut(ImGuiMod_Ctrl | ImGuiKey_F);
+        _filterStrike.Draw("##Filter");
         for (const auto& item : _strike) {
             ImGui::PushID(static_cast<int>(item));
-            if (ImGui::Selectable(FORMAT("{:.2f}", item).data())) {
+            const std::string data = FORMAT("{:.2f}", item);
+            if (_filterStrike.PassFilter(data.data()) and ImGui::Selectable(data.data())) {
                 _strikeData           = item;
                 const auto exchange   = Lancelot::ContractInfo::GetExchange(_exchangeData);
                 const auto instrument = Lancelot::ContractInfo::GetInstrumentType(_instrumentData);

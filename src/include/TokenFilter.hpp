@@ -2,6 +2,7 @@
 
 #include "ContractInfo.hpp"
 #include "Enums.hpp"
+#include "imgui.h"
 
 class TokenFilter {
   public:
@@ -32,6 +33,9 @@ class TokenFilter {
     std::vector<std::string>          _expiry;
     std::vector<float>                _strike;
     std::vector<Lancelot::OptionType> _option;
+
+    ImGuiTextFilter _filter;
+    ImGuiTextFilter _filterStrike;
 
     Lancelot::ResultSetContainerT&       _container;
     std::vector<Lancelot::ResultSetPtrT> _localContainer;
