@@ -49,6 +49,10 @@ class PortfolioInterface
 
     void Imports(const std::string& path_);
 
+    void ExportsCsv(const std::string& path_);
+
+    void ImportsCsv(const std::string& path_);
+
     void ParseConfig(std::string_view config_);
 
     void DoStrategyAction(const StrategyRowPtrT& strategy_, const std::string& name_, Lancelot::RequestType type_);

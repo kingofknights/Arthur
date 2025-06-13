@@ -29,6 +29,7 @@ class OrderForm final {
 
     double _price     = 0;
     double _precision = 1;
+    bool   _repeater  = false;
 
     Lancelot::ResultSetPtrT _resultSet;
 

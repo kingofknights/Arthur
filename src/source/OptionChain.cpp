@@ -138,7 +138,8 @@ void OptionChain::DrawOptionChain(bool* show_) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
 
-                NextCell(OptionChainColumnIndex_STRIKE_PRICE, valueType.first);
+                NextCell(OptionChainColumnIndex_STRIKE_PRICE, float(valueType.first));
+                // NextCell(OptionChainColumnIndex_STRIKE_PRICE, static_cast<int>(valueType.first * 100.0));
 
                 NextCell(OptionChainColumnIndex_PUT_BID_QTY, put._marketWatch->_bid[0]._quantity);
                 if (not needColor) {

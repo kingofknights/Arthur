@@ -18,7 +18,6 @@ extern ClientCodeListT ClientCodeList;
 
 auto OrderForm::RoundUp(int numToRound_, int multiple_) -> int {
     int value = ((numToRound_ + multiple_ - 1) / multiple_) * multiple_;
-    LOG(INFO, "num = {}, multiple_ = {}, value = {}", numToRound_, multiple_, value);
     return value;
 }
 

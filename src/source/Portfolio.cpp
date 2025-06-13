@@ -135,13 +135,13 @@ void Portfolio::DrawPortfolioWindow() {
         }
         ImGui::BeginDisabled(_exportActivated);
         if (ImGui::Button(ICON_MD_UPLOAD " Export", buttonSize)) {
-            ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".json");
+            ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".json,.csv");
             _action = ExportImport_EXPORT;
         }
         ImGui::EndDisabled();
 
         if (ImGui::Button(ICON_MD_DOWNLOAD " Import", buttonSize)) {
-            ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".json");
+            ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".json,.csv");
             _action = ExportImport_IMPORT;
         }
 
@@ -511,11 +511,20 @@ void Portfolio::DrawGlobalParamPopupWindow() {
 void Portfolio::DrawFileManagerWindow() {
     if (ImGuiFileDialog::Instance()->Display("FileManager")) {
         if (ImGuiFileDialog::Instance()->IsOk()) {
-            std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+            std::string       filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+            const std::string extension    = ImGuiFileDialog::Instance()->GetCurrentFilter();
             if (_action == ExportImport_EXPORT) {
-                _future = std::async(std::launch::async, [this, path = std::forward<std::string>(filePathName)]() { Exports(path); });
+                if (extension == ".json") {
+                    _future = std::async(std::launch::async, [this, path = std::forward<std::string>(filePathName)]() { Exports(path); });
+                } else if (extension == ".csv") {
+                    _future = std::async(std::launch::async, [this, path = std::forward<std::string>(filePathName)]() { ExportsCsv(path); });
+                }
             } else {
-                Imports(filePathName);
+                if (extension == ".json") {
+                    Imports(filePathName);
+                } else if (extension == ".csv") {
+                    ImportsCsv(filePathName);
+                }
             }
             _action = ExportImport_NONE;
         }
