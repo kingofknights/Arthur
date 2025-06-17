@@ -27,9 +27,10 @@ class OrderForm final {
     ExecutorStrandT& _strand;
     FunctionT        _function;
 
-    double _price     = 0;
-    double _precision = 1;
-    bool   _repeater  = false;
+    double _price         = 0;
+    double _precision     = 1;
+    bool   _repeater      = false;
+    int    _repeaterCount = 1;
 
     Lancelot::ResultSetPtrT _resultSet;
 

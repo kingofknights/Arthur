@@ -4,6 +4,7 @@
 #include "Colors.hpp"
 #include "ContractInfo.hpp"
 #include "Enums.hpp"
+#include "Logger.hpp"
 #include "MarketWatch.hpp"
 #include "Structure.hpp"
 #include "TableColumnInfo.hpp"
@@ -122,14 +123,39 @@ void OrderForm::DrawInputItem() {
     if (ImGui::IsKeyPressed(ImGuiKey_Escape)) {
         ImGui::CloseCurrentPopup();
     }
-
     ImGui::Columns(2, nullptr, false);
-    if (ImGui::IsKeyPressed(ImGuiKey_Enter) or ImGui::IsKeyPressed(ImGuiKey_KeypadEnter) or ImGui::Button(ICON_MD_DONE " Submit", {-FLT_MIN, 0})) {
-        SentToBroker();
-        if (enable) ImGui::CloseCurrentPopup();
+    if (not enable) {
+        ImGui::PushStyleColor(ImGuiCol_Text, _textColor);
+        ImGui::PushStyleColor(ImGuiCol_CheckMark, _textColor);
+        ImGui::Checkbox("##Multiple Order", &_repeater);
+        ImGui::PopStyleColor(2);
+        ImGui::SameLine();
+        ImGui::Text("Multiple Order");
+    }
+    if (not _repeater) {
+        if (ImGui::IsKeyPressed(ImGuiKey_Enter) or ImGui::IsKeyPressed(ImGuiKey_KeypadEnter) or ImGui::Button(ICON_MD_DONE " Submit", {-FLT_MIN, 0})) {
+            SentToBroker();
+            if (enable) ImGui::CloseCurrentPopup();
+        }
+    } else {
+        if (ImGui::Button(FORMAT("{} Submit {}", ICON_MD_DONE, _repeaterCount).data(), {-FLT_MIN, 0})) {
+            for (int i = 0; i < _repeaterCount; i++) {
+                SentToBroker();
+            }
+            ImGui::CloseCurrentPopup();
+        }
     }
 
     ImGui::NextColumn();
+    if (not enable) {
+        ImGui::BeginDisabled(not _repeater);
+        ImGui::PushStyleColor(ImGuiCol_Text, _textColor);
+        ImGui::InputInt("##Count", &_repeaterCount);
+        ImGui::PopStyleColor();
+        ImGui::SameLine();
+        ImGui::Text("Count");
+        ImGui::EndDisabled();
+    }
     if (ImGui::Button(ICON_MD_CANCEL " Cancel", {-FLT_MIN, 0})) {
         ImGui::CloseCurrentPopup();
     }
