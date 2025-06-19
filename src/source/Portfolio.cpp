@@ -157,7 +157,7 @@ void Portfolio::DrawPortfolioWindow() {
     const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     if (ImGui::BeginChild(("Separate space " + _name).data(), ImVec2(-FLT_MIN, -frameHeight))) {
         if (ImGui::BeginTable(__FUNCTION__, _paramList.size() + 3, TableFlags)) {
-            ImGui::TableSetupScrollFreeze(3, 0);
+            ImGui::TableSetupScrollFreeze(3, 1);
             ImGui::TableSetupColumn("PF", TableColumnFlags);
             ImGui::TableSetupColumn("Status", TableColumnFlags);
             ImGui::TableSetupColumn("Action", TableColumnFlags);

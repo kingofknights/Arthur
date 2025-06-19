@@ -187,7 +187,7 @@ void Position::DrawSymbolWiseNetBook() {
     const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
 
     if (ImGui::BeginTable("Symbol Wise NetBookTable", SymbolWiseNetBookColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
-        ImGui::TableSetupScrollFreeze(1, 0);
+        ImGui::TableSetupScrollFreeze(1, 1);
         for (const auto& name : SymbolWiseTableColumnName) {
             ImGui::TableSetupColumn(name, TableColumnFlags);
         }
@@ -247,7 +247,7 @@ void Position::DrawPFWiseNetBook() {
     const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
 
     if (ImGui::BeginTable("PF Wise NetBookTable", PFWiseNetBookColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
-        ImGui::TableSetupScrollFreeze(2, 0);
+        ImGui::TableSetupScrollFreeze(2, 1);
         for (const auto& name : PFWiseTableColumnName) {
             ImGui::TableSetupColumn(name, TableColumnFlags);
         }
@@ -327,7 +327,7 @@ void Position::DrawGreekNetBook() {
     const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
 
     if (ImGui::BeginTable("Greek Book Table", GreekBookColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
-        ImGui::TableSetupScrollFreeze(0, 0);
+        ImGui::TableSetupScrollFreeze(1, 1);
 
         for (const auto& name : GreekBookColumnName) {
             ImGui::TableSetupColumn(name, TableColumnFlags);

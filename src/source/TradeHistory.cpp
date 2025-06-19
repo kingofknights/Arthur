@@ -31,6 +31,7 @@ void TradeHistory::DrawTradeBookTable(bool* show_) {
     if (ImGui::Begin("Trade Book", show_)) {
         const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
         if (ImGui::BeginTable("Trade Book Table", BooksColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
+            ImGui::TableSetupScrollFreeze(0, 1);  // Make top row always visible
             for (const auto& name : BookTableColumnName) {
                 ImGui::TableSetupColumn(name, TableColumnFlags);
             }

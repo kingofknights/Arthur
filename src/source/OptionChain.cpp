@@ -52,6 +52,7 @@ void OptionChain::DrawOptionChain(bool* show_) {
         ImGui::EndColumns();
 
         if (ImGui::BeginTable("Option Chain Table", OptionChainColumnIndex_END, TableFlags)) {
+            ImGui::TableSetupScrollFreeze(0, 1);  // Make top row always visible
             for (const auto& name : OptionChainTableColumnName) {
                 ImGui::TableSetupColumn(name, TableColumnFlags | ImGuiTableColumnFlags_NoReorder);
             }

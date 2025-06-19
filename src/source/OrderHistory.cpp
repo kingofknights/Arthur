@@ -11,6 +11,7 @@
 void OrderHistory::DrawOrderHistory() {
     if (ImGui::BeginPopupModal(ORDER_HISTORY_POPUP_WINDOW, &_showOrderHistory, ImGuiWindowFlags_AlwaysAutoResize)) {
         if (ImGui::BeginTable("OrderHistory", BooksColumnIndex_END, TableFlags)) {
+            ImGui::TableSetupScrollFreeze(0, 1);  // Make top row always visible
             for (const auto& name : BookTableColumnName) {
                 ImGui::TableSetupColumn(name, ImGuiTableColumnFlags_WidthStretch);
             }

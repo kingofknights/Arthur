@@ -93,7 +93,7 @@ void MarketWatch::DrawMarketWatchTable() noexcept {
         ImGui::Text("Subscribed: %zu", _subscribed.size());
 
         if (ImGui::BeginTable("Market Watch Table", MarketWatchColumnIndex_END, TableFlags)) {
-            ImGui::TableSetupScrollFreeze(1, 0);
+            ImGui::TableSetupScrollFreeze(1, 1);
             for (const auto& columnName : MarketWatchTableColumnName) {
                 ImGui::TableSetupColumn(columnName, TableColumnFlags);
             }
@@ -181,6 +181,7 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) noexcept {
     ImGui::LabelText("Contract", "%s", pointer_->_description.data());
     ImGui::Separator();
     if (ImGui::BeginTable("Market Watch Table ToolTip", MarketWatchToolTipColumnIndex_END)) {
+        ImGui::TableSetupScrollFreeze(0, 1);  // Make top row always visible
         for (const auto& columnName : MarketWatchTableToolTipColumnName) {
             ImGui::TableSetupColumn(columnName, ImGuiTableColumnFlags_WidthStretch);
         }

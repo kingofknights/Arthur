@@ -38,6 +38,7 @@ void OpenOrders::DrawPendingBook(bool* show_) {
         const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
 
         if (ImGui::BeginTable(BeginOpenOrdersTable, BooksColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
+            ImGui::TableSetupScrollFreeze(0, 1);  // Make top row always visible
             for (const auto& name : BookTableColumnName) {
                 ImGui::TableSetupColumn(name, TableColumnFlags);
             }
@@ -131,6 +132,7 @@ void OpenOrders::DrawManualOrderRequestedForCancel() {
     if (ImGui::BeginPopupModal(CancelAllOrderWindow, &_closeCancelPopup)) {
         const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
         if (ImGui::BeginTable(BeginCancelBookTable, BooksColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
+            ImGui::TableSetupScrollFreeze(0, 1);  // Make top row always visible
             for (const auto& name : BookTableColumnName) {
                 ImGui::TableSetupColumn(name, TableColumnFlags | ImGuiTableColumnFlags_WidthStretch);
             }

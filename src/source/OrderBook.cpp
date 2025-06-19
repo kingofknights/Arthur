@@ -24,6 +24,7 @@ void OrderBook::Insert(const OrderInfoPtrT& orderInfo_) { _pendingTradeUpdate.pu
 void OrderBook::DrawOrderBookTable(bool* show_) {
     if (ImGui::Begin(_name.data(), show_)) {
         if (ImGui::BeginTable(_tableName.data(), BooksColumnIndex_END, TableFlags)) {
+            ImGui::TableSetupScrollFreeze(0, 1);  // Make top row always visible
             for (const auto& name : BookTableColumnName) {
                 ImGui::TableSetupColumn(name, TableColumnFlags);
             }
