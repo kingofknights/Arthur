@@ -375,11 +375,11 @@ void Position::UpdateGreekValue() {
             float  LTP       = column->_isCall ? (column->_future->_bid[0]._price ? column->_future->_bid[0]._price : column->_future->_lastTradePrice)
                                                : (column->_future->_ask[0]._price ? column->_future->_ask[0]._price : column->_future->_lastTradePrice);
 
-            column->_impliedVol = Greeks::GetIV(LTP, column->_strike, 0, ExpiryGap, column->_marketWatch->_lastTradePrice, column->_isCall);
-            column->_delta      = Greeks::GetDelta(LTP, column->_strike, column->_impliedVol, 0, ExpiryGap, column->_isCall);
-            column->_gamma      = Greeks::GetGamma(LTP, column->_strike, column->_impliedVol, 0, ExpiryGap, column->_isCall);
-            column->_vega       = Greeks::GetVega(LTP, column->_strike, column->_impliedVol, 0, ExpiryGap, column->_isCall);
-            column->_theta      = Greeks::GetTheta(LTP, column->_strike, column->_impliedVol, 0, ExpiryGap, column->_isCall);
+            column->_impliedVol = Greeks::GetIV(LTP, column->_strike, 0.10, ExpiryGap, column->_marketWatch->_lastTradePrice, column->_isCall);
+            column->_delta      = Greeks::GetDelta(LTP, column->_strike, column->_impliedVol, 0.10, ExpiryGap, column->_isCall);
+            column->_gamma      = Greeks::GetGamma(LTP, column->_strike, column->_impliedVol, 0.10, ExpiryGap, column->_isCall);
+            column->_vega       = Greeks::GetVega(LTP, column->_strike, column->_impliedVol, 0.10, ExpiryGap, column->_isCall);
+            column->_theta      = Greeks::GetTheta(LTP, column->_strike, column->_impliedVol, 0.10, ExpiryGap, column->_isCall);
         }
     } else if (_calculation == NetBookCalculation_SYMBOL) {
         auto copy = _symbolWiseTradeContainerVec;

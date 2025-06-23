@@ -68,7 +68,7 @@ void OptionChain::DrawOptionChain(bool* show_) {
                 float priceForCall = _future->_bid[0]._price > 0 ? _future->_bid[0]._price : _future->_lastTradePrice;
                 // FIXME : remove abs when working with live contracts
                 double expiryGap  = std::abs(Greeks::GetExpiryGap(put._contract->_expiryDate));
-                double rate       = 0.0;
+                double rate       = 0.10;
                 double call_IV    = Greeks::GetIV(priceForCall, valueType.first, rate, expiryGap, call._marketWatch->_lastTradePrice, true);
                 double call_Theta = Greeks::GetTheta(priceForCall, valueType.first, call_IV, rate, expiryGap, true);
                 double call_Vega  = Greeks::GetVega(priceForCall, valueType.first, call_IV, rate, expiryGap, true);
