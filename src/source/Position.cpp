@@ -205,11 +205,11 @@ void Position::DrawSymbolWiseNetBook() {
                 NextCell(SymbolWiseNetBookColumnIndex_BUYQTY, column->_buyQuantity);
                 NextCell(SymbolWiseNetBookColumnIndex_SELLQTY, column->_sellQuantity);
                 NextCell(SymbolWiseNetBookColumnIndex_AVGSELL, column->_averageSellPrice);
-                NextCell(SymbolWiseNetBookColumnIndex_TOTAL, column->_totalQuantity, UpDownColor(column->_totalQuantity));
-                NextCell(SymbolWiseNetBookColumnIndex_NETINVEST, column->_netInvestment, UpDownColor(column->_netInvestment));
-                NextCell(SymbolWiseNetBookColumnIndex_MTM, column->_mtm, UpDownColor(column->_mtm));
+                NextCell(SymbolWiseNetBookColumnIndex_TOTAL, column->_totalQuantity, UpDownColor(column->_totalQuantity > 0));
+                NextCell(SymbolWiseNetBookColumnIndex_NETINVEST, column->_netInvestment, UpDownColor(column->_netInvestment > 0));
+                NextCell(SymbolWiseNetBookColumnIndex_MTM, column->_mtm, UpDownColor(column->_mtm > 0));
                 NextCell(SymbolWiseNetBookColumnIndex_LTP, column->_marketWatch->_lastTradePrice, UpDownColor(column->_marketWatch->_color._ltp));
-                NextCell(SymbolWiseNetBookColumnIndex_PNL, column->_pnl, UpDownColor(column->_pnl));
+                NextCell(SymbolWiseNetBookColumnIndex_PNL, column->_pnl, UpDownColor(column->_pnl > 0));
             }
         }
 
@@ -267,11 +267,11 @@ void Position::DrawPFWiseNetBook() {
                 NextCell(PFWiseNetBookColumnIndex_BUYQTY, column->_buyQuantity);
                 NextCell(PFWiseNetBookColumnIndex_SELLQTY, column->_sellQuantity);
                 NextCell(PFWiseNetBookColumnIndex_AVGSELL, column->_averageSellPrice);
-                NextCell(PFWiseNetBookColumnIndex_TOTAL, column->_totalQuantity, UpDownColor(column->_totalQuantity));
-                NextCell(PFWiseNetBookColumnIndex_NETINVEST, column->_netInvestment, UpDownColor(column->_netInvestment));
-                NextCell(PFWiseNetBookColumnIndex_MTM, column->_mtm, UpDownColor(column->_mtm));
+                NextCell(PFWiseNetBookColumnIndex_TOTAL, column->_totalQuantity, UpDownColor(column->_totalQuantity > 0));
+                NextCell(PFWiseNetBookColumnIndex_NETINVEST, column->_netInvestment, UpDownColor(column->_netInvestment > 0));
+                NextCell(PFWiseNetBookColumnIndex_MTM, column->_mtm, UpDownColor(column->_mtm > 0));
                 NextCell(PFWiseNetBookColumnIndex_LTP, column->_marketWatch->_lastTradePrice, UpDownColor(column->_marketWatch->_color._ltp));
-                NextCell(PFWiseNetBookColumnIndex_PNL, column->_pnl, UpDownColor(column->_pnl));
+                NextCell(PFWiseNetBookColumnIndex_PNL, column->_pnl, UpDownColor(column->_pnl > 0));
             }
         }
 
@@ -279,7 +279,7 @@ void Position::DrawPFWiseNetBook() {
     }
 
     ImGui::Separator();
-    ImGui::TextColored(UpDownColor(_netPNL), "| Net PNL : %.2f |", _netPNL);
+    ImGui::TextColored(UpDownColor(_netPNL > 0), "| Net PNL : %.2f |", _netPNL);
 }
 
 void Position::DrawGreekNetBook() {
@@ -344,13 +344,13 @@ void Position::DrawGreekNetBook() {
                 ImGui::TableNextRow();
                 const auto& value = iterator->second;
                 NextCell(GreekBookColumnIndex_SYMBOL, iterator->first.data());
-                NextCell(GreekBookColumnIndex_DELTA, value._delta, UpDownColor(value._delta));
-                NextCell(GreekBookColumnIndex_GAMMA, value._gamma, UpDownColor(value._gamma));
-                NextCell(GreekBookColumnIndex_VEGA, value._vega, UpDownColor(value._vega));
-                NextCell(GreekBookColumnIndex_THETA, value._theta, UpDownColor(value._theta));
-                NextCell(GreekBookColumnIndex_MTM, value._mtm, UpDownColor(value._mtm));
+                NextCell(GreekBookColumnIndex_DELTA, value._delta, UpDownColor(value._delta > 0));
+                NextCell(GreekBookColumnIndex_GAMMA, value._gamma, UpDownColor(value._gamma > 0));
+                NextCell(GreekBookColumnIndex_VEGA, value._vega, UpDownColor(value._vega > 0));
+                NextCell(GreekBookColumnIndex_THETA, value._theta, UpDownColor(value._theta > 0));
+                NextCell(GreekBookColumnIndex_MTM, value._mtm, UpDownColor(value._mtm > 0));
                 NextCell(GreekBookColumnIndex_MARKETRATE, value._ltp, UpDownColor(value._ltp));
-                NextCell(GreekBookColumnIndex_VALUE, value._value, UpDownColor(value._value));
+                NextCell(GreekBookColumnIndex_VALUE, value._value, UpDownColor(value._value > 0));
             }
         }
 
@@ -358,11 +358,11 @@ void Position::DrawGreekNetBook() {
     }
 
     ImGui::Separator();
-    ImGui::TextColored(UpDownColor(m2M), "| MTM : %.4f |", m2M);
+    ImGui::TextColored(UpDownColor(m2M > 0), "| MTM : %.4f |", m2M);
     ImGui::SameLine();
-    ImGui::TextColored(UpDownColor(theta), "| Theta : %.4f |", theta);
+    ImGui::TextColored(UpDownColor(theta > 0), "| Theta : %.4f |", theta);
     ImGui::SameLine();
-    ImGui::TextColored(UpDownColor(vega), "| Vega : %.4f |", vega);
+    ImGui::TextColored(UpDownColor(vega > 0), "| Vega : %.4f |", vega);
 }
 
 void Position::UpdateGreekValue() {
