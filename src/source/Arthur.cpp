@@ -355,6 +355,10 @@ void Arthur::SetTheme(VisualTheme theme_) {
             ImGui::StyleColorsDark();
             break;
         }
+        case VisualTheme_ROSE_PINE_LIGHT: {
+            Themes::RosePineLight();
+            break;
+        }
         case VisualTheme_END:
             break;
     }

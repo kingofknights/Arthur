@@ -12,6 +12,7 @@
 #include "TableColumnInfo.hpp"
 #include "Utils.hpp"
 #include "imgui.h"
+#include "imgui_internal.h"
 
 #include <cfloat>
 #include <iterator>
@@ -34,6 +35,17 @@ void OpenOrders::Paint() noexcept {
     }
 }
 
+void OpenOrders::ContextMenu(int index_) noexcept {
+    ImGui::PushID(index_);
+    if (ImGui::BeginPopup(FORMAT("ContextMenu_{}", index_).data())) {
+        if (ImGui::BeginCombo("Options", "")) {
+            ImGui::EndCombo();
+        }
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
+}
+
 void OpenOrders::DrawPendingBook(bool* show_) {
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_FirstUseEver, ImVec2(0.5F, 0.5F));
     ImGui::SetNextWindowSize(ImVec2{ImGui::GetMainViewport()->Size.x / 2, ImGui::GetMainViewport()->Size.y / 2}, ImGuiCond_FirstUseEver);
@@ -46,22 +58,59 @@ void OpenOrders::DrawPendingBook(bool* show_) {
                 ImGui::TableSetupColumn(name, TableColumnFlags);
             }
 
-            ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
-            int column = 0;
-            for (auto& name : BookTableColumnName) {
-                ImGui::TableSetColumnIndex(column);
-                ImGui::PushID(column);
-                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-                if (ImGui::SmallButton(ICON_MD_ARROW_DROP_DOWN)) {
+            if (ImGui::TableBeginContextMenuPopup(ImGui::GetCurrentTable())) {
+                if (ImGui::BeginMenu("Filter")) {
+                    if (ImGui::BeginMenu("PF")) {
+                        if (ImGui::SmallButton(ICON_MD_CLEAR_ALL " Clear")) {
+                            _pfFilter.clear();
+                        }
+                        if (ImGui::BeginPopupModal("PF Filter")) {
+                            for (const auto& item : _container) {
+                                _pfFilter.emplace(item.second->_portfolio, false);
+                            }
+                            if (ImGui::BeginListBox("##PFOptions")) {
+                                for (auto& item : _pfFilter) {
+                                    ImGui::Checkbox(FORMAT("{}", item.first).data(), &item.second);
+                                }
+                                ImGui::EndListBox();
+                            }
+                            ImGui::EndPopup();
+                        }
+                        ImGui::EndMenu();
+                    }
+                    if (ImGui::BeginMenu("Contract")) {
+                        if (ImGui::SmallButton(ICON_MD_CLEAR_ALL " Clear")) {
+                            _symbolFilter.clear();
+                        }
+                        ImGui::EndMenu();
+                    }
+                    ImGui::EndMenu();
                 }
-                ImGui::PopStyleVar();
-                ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-                ImGui::TableHeader(name);
-                ImGui::PopID();
-                column++;
-            }
+                if (ImGui::BeginMenu("More ...")) {
+                    ImGui::TableDrawDefaultContextMenu(ImGui::GetCurrentTable(), TableFlags);
+                    ImGui::EndMenu();
+                }
 
-            // ImGui::TableHeadersRow();
+                ImGui::EndPopup();
+            }
+            // ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
+            // int column = 0;
+            // for (const auto& name : BookTableColumnName) {
+            //     ImGui::TableSetColumnIndex(column);
+            //     ImGui::PushID(column);
+            //     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+            //     if (ImGui::SmallButton(ICON_MD_ARROW_DROP_DOWN)) {
+            //         ImGui::OpenPopup(FORMAT("ContextMenu_{}", column).data());
+            //     }
+            //     ImGui::PopStyleVar();
+            //     ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+            //     ImGui::TableHeader(name);
+            //     ImGui::PopID();
+            //     ContextMenu(column);
+            //     column++;
+            // }
+
+            ImGui::TableHeadersRow();
             const auto& container = _filter.IsActive() ? _filterContainer : _container;
             _clipper.Begin(static_cast<int>(container.size()));
 
