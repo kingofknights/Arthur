@@ -4,6 +4,7 @@
 #include "Configuration.hpp"
 #include "Portfolio.hpp"
 #include "Structure.hpp"
+#include "imgui.h"
 
 #include <imgui_stdlib.h>
 #include <nlohmann/json.hpp>
@@ -16,7 +17,7 @@ extern StrategyNameListT StrategyNameList;
 #define CREATE_NEW_WORKSPACE_WINDOW_NAME "Add New Workspace"
 #define STRATEGY_CANVAS_NAME             "Workspace Canvas"
 
-StrategyWorkspace::StrategyWorkspace(TokenFilterPtrT& tokenFilter_, ExecutorT& strand_) : _tokenFilter(tokenFilter_), _strand(strand_) {
+StrategyWorkspace::StrategyWorkspace(ExecutorT& strand_) : _strand(strand_) {
     Imports(STRATEGY_CONFIG_FILE_NAME);
 }
 
@@ -41,7 +42,7 @@ void StrategyWorkspace::DrawAddNewWorkspace() {
 
         ImGui::BeginDisabled(_strategyWorkspaceName.empty());
         if (ImGui::Button(ICON_MD_DONE " Submit")) {
-            _portfolioContainer.emplace(_strategyWorkspaceName, std::make_shared<Portfolio>(_tokenFilter, _strategyWorkspaceName, _strategyListIndex, _strand));
+            _portfolioContainer.emplace(_strategyWorkspaceName, std::make_shared<Portfolio>(_strategyWorkspaceName, _strategyListIndex, _strand));
             _strategyWorkspaceName.clear();
             Exports(STRATEGY_CONFIG_FILE_NAME);
             ImGui::CloseCurrentPopup();
@@ -83,13 +84,16 @@ void StrategyWorkspace::Imports(const std::string& path_) {
     nlohmann::ordered_json root = nlohmann::ordered_json::parse(file);
     std::ranges::for_each(root.items(), [&](const auto& valueType_) {
         const auto& key = valueType_.key();
-        _portfolioContainer.emplace(key, std::make_shared<Portfolio>(_tokenFilter, key, valueType_.value(), _strand));
+        _portfolioContainer.emplace(key, std::make_shared<Portfolio>(key, valueType_.value(), _strand));
     });
 
     file.close();
 }
 
 void StrategyWorkspace::DrawWindow(bool* show_) {
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_FirstUseEver, ImVec2(0.5F, 0.5F));
+    ImGui::SetNextWindowSize(ImVec2{ImGui::GetMainViewport()->Size.x / 2, ImGui::GetMainViewport()->Size.y / 2}, ImGuiCond_FirstUseEver);
+
     if (ImGui::Begin("Strategy Workspace", show_)) {
         if (ImGui::Button(ICON_MD_CREATE " Create Workspace")) {
             ImGui::OpenPopup(CREATE_NEW_WORKSPACE_WINDOW_NAME);

@@ -12,7 +12,7 @@ using PortfolioContainerT = std::unordered_map<std::string, PortfolioPtrT>;
 
 class StrategyWorkspace final {
   public:
-    explicit StrategyWorkspace(TokenFilterPtrT& tokenFilter_, ExecutorT& strand_);
+    explicit StrategyWorkspace(ExecutorT& strand_);
 
     void Paint(bool* show_);
 
@@ -26,8 +26,7 @@ class StrategyWorkspace final {
     void Imports(const std::string& path_);
 
   private:
-    TokenFilterPtrT& _tokenFilter;
-    ExecutorT&       _strand;
+    ExecutorT& _strand;
 
     PortfolioContainerT _portfolioContainer;
 

@@ -61,6 +61,8 @@ void UpdateNetBook(Container& container_, Sequencial& sequencial_, Key key_, con
 }
 
 void Position::DrawBook(bool* show_) {
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_FirstUseEver, ImVec2(0.5F, 0.5F));
+    ImGui::SetNextWindowSize(ImVec2{ImGui::GetMainViewport()->Size.x / 2, ImGui::GetMainViewport()->Size.y / 2}, ImGuiCond_FirstUseEver);
     if (ImGui::Begin("NetBooks", show_, ImGuiWindowFlags_NoTitleBar)) {
         if (ImGui::BeginTabBar("Net Book Canvas", StrategyWorkspaceTabFlags)) {
             if (ImGui::BeginTabItem("SymbolWise Netbook")) {

@@ -6,12 +6,11 @@
 #include "Configuration.hpp"
 #include "Enums.hpp"
 // #include "Knight/Scanner.hpp"
+#include "Arthur_Fwd.hpp"
 #include "Portfolio.hpp"
 #include "Structure.hpp"
 #include "TableColumnInfo.hpp"
 
-#include <imgui.h>
-#include <imgui_internal.h>
 #include <imgui_stdlib.h>
 #include <nlohmann/json.hpp>
 
@@ -69,7 +68,6 @@ void PortfolioScanner::ScannerWindow(bool* show_) {
         SecondColumn();
         ImGui::NextColumn();
         ThirdColumn();
-        ImGui::EndColumns();
         ImGui::EndPopup();
     }
 }

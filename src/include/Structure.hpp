@@ -2,6 +2,7 @@
 
 #include "IconsMaterialDesign.h"
 #include "Lancelot.hpp"
+#include "TokenFilter.hpp"
 #include "imgui.h"
 
 #include <boost/lockfree/spsc_queue.hpp>
@@ -85,11 +86,13 @@ using ParameterValueT = struct ParameterValueT {
     std::string _text;
 };
 
+class TokenFilter;
+
 using ParameterInfoT = struct ParameterInfoT {
     bool                _searchEnable{false};
     DataType            _type;
     ParameterValueT     _parameter;
-    ImGuiTextFilter     _filter;
+    TokenFilter         _filter;
     MarketWatchDataPtrT _marketWatch;
 };
 

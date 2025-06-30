@@ -9,7 +9,7 @@ enum ExportImport : int;
 
 class Portfolio final : public PortfolioInterface {
   public:
-    Portfolio(const TokenFilterPtrT& tokenFilter_, const std::string& workspaceName_, const std::string& strategyName_, ExecutorT& strand_);
+    Portfolio(const std::string& workspaceName_, const std::string& strategyName_, ExecutorT& strand_);
 
     void Paint();
 
@@ -31,8 +31,6 @@ class Portfolio final : public PortfolioInterface {
     void RemoveSelection();
 
   private:
-    const TokenFilterPtrT& _tokenFilter;
-
     bool _showScanner            = false;
     int  _toBeDeleted            = -1;
     int  _multipleSelectionCount = 0;

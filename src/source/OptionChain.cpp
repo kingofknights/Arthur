@@ -32,6 +32,8 @@ void OptionChain::Paint(bool* show_) {
 }
 
 void OptionChain::DrawOptionChain(bool* show_) {
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_FirstUseEver, ImVec2(0.5F, 0.5F));
+    ImGui::SetNextWindowSize(ImVec2{ImGui::GetMainViewport()->Size.x / 2, ImGui::GetMainViewport()->Size.y / 2}, ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Option Chain", show_)) {
         ImGui::Columns(8, nullptr, false);
         ImGui::Text("Contract : %s", _symbol.data());
