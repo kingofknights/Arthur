@@ -58,57 +58,21 @@ void OpenOrders::DrawPendingBook(bool* show_) {
                 ImGui::TableSetupColumn(name, TableColumnFlags);
             }
 
-            if (ImGui::TableBeginContextMenuPopup(ImGui::GetCurrentTable())) {
+            auto* table                      = ImGui::GetCurrentTable();
+            table->DisableDefaultContextMenu = true;
+            if (ImGui::TableBeginContextMenuPopup(table)) {
                 if (ImGui::BeginMenu("Filter")) {
-                    if (ImGui::BeginMenu("PF")) {
-                        if (ImGui::SmallButton(ICON_MD_CLEAR_ALL " Clear")) {
-                            _pfFilter.clear();
-                        }
-                        if (ImGui::BeginPopupModal("PF Filter")) {
-                            for (const auto& item : _container) {
-                                _pfFilter.emplace(item.second->_portfolio, false);
-                            }
-                            if (ImGui::BeginListBox("##PFOptions")) {
-                                for (auto& item : _pfFilter) {
-                                    ImGui::Checkbox(FORMAT("{}", item.first).data(), &item.second);
-                                }
-                                ImGui::EndListBox();
-                            }
-                            ImGui::EndPopup();
-                        }
-                        ImGui::EndMenu();
-                    }
-                    if (ImGui::BeginMenu("Contract")) {
-                        if (ImGui::SmallButton(ICON_MD_CLEAR_ALL " Clear")) {
-                            _symbolFilter.clear();
-                        }
-                        ImGui::EndMenu();
-                    }
+                    PFFilter();
+                    ContractFilter();
                     ImGui::EndMenu();
                 }
                 if (ImGui::BeginMenu("More ...")) {
-                    ImGui::TableDrawDefaultContextMenu(ImGui::GetCurrentTable(), TableFlags);
+                    ImGui::TableDrawDefaultContextMenu(table, TableFlags);
                     ImGui::EndMenu();
                 }
 
                 ImGui::EndPopup();
             }
-            // ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
-            // int column = 0;
-            // for (const auto& name : BookTableColumnName) {
-            //     ImGui::TableSetColumnIndex(column);
-            //     ImGui::PushID(column);
-            //     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-            //     if (ImGui::SmallButton(ICON_MD_ARROW_DROP_DOWN)) {
-            //         ImGui::OpenPopup(FORMAT("ContextMenu_{}", column).data());
-            //     }
-            //     ImGui::PopStyleVar();
-            //     ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-            //     ImGui::TableHeader(name);
-            //     ImGui::PopID();
-            //     ContextMenu(column);
-            //     column++;
-            // }
 
             ImGui::TableHeadersRow();
             const auto& container = _filter.IsActive() ? _filterContainer : _container;
@@ -264,4 +228,46 @@ void OpenOrders::Update(const OrderInfoPtrT& tradeInfo_, bool insert_) {
 }
 void OpenOrders::Insert(const OrderInfoPtrT& tradeInfo_, bool insert_) {
     _pendingOrderUpdate.push(std::make_pair(tradeInfo_, insert_));
+}
+void OpenOrders::ContractFilter() {
+    if (ImGui::BeginMenu("Contract")) {
+        if (ImGui::SmallButton(ICON_MD_CLEAR_ALL " Clear")) {
+            _symbolFilter.clear();
+        }
+        ImGui::OpenPopup("Contract Filter");
+        if (ImGui::BeginPopupContextWindow("Contract Filter")) {
+            for (const auto& item : _container) {
+                _symbolFilter.emplace(item.second->_contract, false);
+            }
+            if (ImGui::BeginListBox("##ContractOptions")) {
+                for (auto& item : _symbolFilter) {
+                    ImGui::Checkbox(FORMAT("{}", item.first).data(), &item.second);
+                }
+                ImGui::EndListBox();
+            }
+            ImGui::EndPopup();
+        }
+        ImGui::EndMenu();
+    }
+}
+void OpenOrders::PFFilter() {
+    if (ImGui::BeginMenu("PF")) {
+        if (ImGui::SmallButton(ICON_MD_CLEAR_ALL " Clear")) {
+            _pfFilter.clear();
+        }
+        ImGui::OpenPopup("PF Filter");
+        if (ImGui::BeginPopupContextWindow("PF Filter")) {
+            for (const auto& item : _container) {
+                _pfFilter.emplace(item.second->_portfolio, false);
+            }
+            if (ImGui::BeginListBox("##PFOptions")) {
+                for (auto& item : _pfFilter) {
+                    ImGui::Checkbox(FORMAT("{}", item.first).data(), &item.second);
+                }
+                ImGui::EndListBox();
+            }
+            ImGui::EndPopup();
+        }
+        ImGui::EndMenu();
+    }
 }

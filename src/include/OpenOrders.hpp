@@ -27,6 +27,10 @@ class OpenOrders {
 
     void ContextMenu(int index_) noexcept;
 
+    void ContractFilter();
+
+    void PFFilter();
+
   private:
     const OrderFormPtrT& _manualOrder;
     const FunctionT      _function;
