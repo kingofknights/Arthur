@@ -195,6 +195,7 @@ int main(int, char**) {
         LOG(INFO, "SDL_HideWindow", false);
         SDL_HideWindow(window);
     }
+    return 0;
     // Cleanup
     // [If using SDL_MAIN_USE_CALLBACKS: all code below would likely be your SDL_AppQuit() function]
     LOG(INFO, "ImGui_ImplSDLRenderer3_Shutdown ", false);

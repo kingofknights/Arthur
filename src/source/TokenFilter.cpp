@@ -23,21 +23,28 @@ TokenFilter::TokenFilter() : _container(Lancelot::ContractInfo::GetCompeleteCont
     }
 }
 
-void TokenFilter::Paint(bool& show_, std::string& contract_) {
-    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5F, 0.5F));
-    if (ImGui::Begin("Token Search and Filter", &show_)) {
-        // ImGui::Columns(2);
-        DrawExchangeFilter();
-        DrawInstrumentFilter();
-        DrawSymbolFilter();
-        DrawExpiryFilter();
-        DrawOptionFilter();
-        DrawStikeFilter();
-        // ImGui::NextColumn();
-        DrawTokenList(show_, contract_);
-        // ImGui::EndColumns();
-        ImGui::End();
-    }
+void TokenFilter::Paint() {
+    // ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5F, 0.5F));
+    // if (ImGui::Begin("Token Search and Filter", &show_)) {
+    // ImGui::Columns(2);
+    ImGui::BeginColumns("##TokenFilter", 6);
+    DrawExchangeFilter();
+    ImGui::NextColumn();
+    DrawInstrumentFilter();
+    ImGui::NextColumn();
+    DrawSymbolFilter();
+    ImGui::NextColumn();
+    DrawExpiryFilter();
+    ImGui::NextColumn();
+    DrawOptionFilter();
+    ImGui::NextColumn();
+    DrawStikeFilter();
+    ImGui::EndColumns();
+    // ImGui::NextColumn();
+    // DrawTokenList(show_, contract_);
+    // ImGui::EndColumns();
+    // ImGui::End();
+    // }
 }
 void TokenFilter::DrawExchangeFilter() noexcept {
     if (ImGui::BeginCombo("Exchange", _exchangeData.data())) {
@@ -75,6 +82,7 @@ void TokenFilter::DrawExchangeFilter() noexcept {
     }
 }
 void TokenFilter::DrawInstrumentFilter() noexcept {
+    ImGui::BeginDisabled(_instrument.empty());
     if (ImGui::BeginCombo("Instrument", _instrumentData.data())) {
         for (const auto& item : _instrument) {
             ImGui::PushID(item);
@@ -106,12 +114,20 @@ void TokenFilter::DrawInstrumentFilter() noexcept {
         }
         ImGui::EndCombo();
     }
+    ImGui::EndDisabled();
 }
 void TokenFilter::DrawSymbolFilter() noexcept {
+    ImGui::BeginDisabled(_symbol.empty());
     if (ImGui::BeginCombo("Symbol", _symbolData.data())) {
+        if (ImGui::IsWindowAppearing()) {
+            ImGui::SetKeyboardFocusHere();
+            _filter.Clear();
+        }
+        ImGui::SetNextItemShortcut(ImGuiMod_Ctrl | ImGuiKey_F);
+        _filter.Draw("##Filter");
         for (const auto& item : _symbol) {
             ImGui::PushID(item.data());
-            if (ImGui::Selectable((item).data())) {
+            if (_filter.PassFilter(item.data()) and ImGui::Selectable((item).data())) {
                 _symbolData           = item;
                 const auto exchange   = Lancelot::ContractInfo::GetExchange(_exchangeData);
                 const auto instrument = Lancelot::ContractInfo::GetInstrumentType(_instrumentData);
@@ -138,8 +154,10 @@ void TokenFilter::DrawSymbolFilter() noexcept {
         }
         ImGui::EndCombo();
     }
+    ImGui::EndDisabled();
 }
 void TokenFilter::DrawExpiryFilter() noexcept {
+    ImGui::BeginDisabled(_expiry.empty());
     if (ImGui::BeginCombo("Expiry", _expiryData.data())) {
         for (const auto& item : _expiry) {
             ImGui::PushID(item.data());
@@ -162,6 +180,9 @@ void TokenFilter::DrawExpiryFilter() noexcept {
                     }
                 }
                 for (const auto& inst : expiry) {
+                    if (inst == Lancelot::OptionType_NONE) {
+                        continue;
+                    }
                     _option.push_back(inst);
                 }
             }
@@ -169,8 +190,10 @@ void TokenFilter::DrawExpiryFilter() noexcept {
         }
         ImGui::EndCombo();
     }
+    ImGui::EndDisabled();
 }
 void TokenFilter::DrawOptionFilter() noexcept {
+    ImGui::BeginDisabled(_option.empty());
     if (ImGui::BeginCombo("Option", _optionData.data())) {
         for (const auto& item : _option) {
             ImGui::PushID(item);
@@ -187,24 +210,36 @@ void TokenFilter::DrawOptionFilter() noexcept {
                 for (const auto& [token, result] : _container) {
                     if (exchange == result->_exchange and instrument == result->_instType and _symbolData == result->_symbol and _expiryData == FORMAT("{:%d %b %Y}", fmt::localtime(result->_expiryDate)) and _optionData == Lancelot::ToString(result->_option)) {
                         _localContainer.push_back(result);
+
                         expiry.insert(result->_strikePrice);
                     }
                 }
                 for (const auto& inst : expiry) {
-                    _strike.push_back(inst);
+                    if (inst > 0) {
+                        _strike.push_back(inst);
+                    }
                 }
             }
             ImGui::PopID();
         }
         ImGui::EndCombo();
     }
+    ImGui::EndDisabled();
 }
 
 void TokenFilter::DrawStikeFilter() noexcept {
+    ImGui::BeginDisabled(_strike.empty());
     if (ImGui::BeginCombo("Strike", FORMAT("{}", _strikeData).data())) {
+        if (ImGui::IsWindowAppearing()) {
+            ImGui::SetKeyboardFocusHere();
+            _filterStrike.Clear();
+        }
+        ImGui::SetNextItemShortcut(ImGuiMod_Ctrl | ImGuiKey_F);
+        _filterStrike.Draw("##Filter");
         for (const auto& item : _strike) {
             ImGui::PushID(static_cast<int>(item));
-            if (ImGui::Selectable(FORMAT("{:.2f}", item).data())) {
+            const std::string data = FORMAT("{:.2f}", item);
+            if (_filterStrike.PassFilter(data.data()) and ImGui::Selectable(data.data())) {
                 _strikeData           = item;
                 const auto exchange   = Lancelot::ContractInfo::GetExchange(_exchangeData);
                 const auto instrument = Lancelot::ContractInfo::GetInstrumentType(_instrumentData);
@@ -220,17 +255,12 @@ void TokenFilter::DrawStikeFilter() noexcept {
         }
         ImGui::EndCombo();
     }
+    ImGui::EndDisabled();
 }
-void TokenFilter::DrawTokenList(bool& show_, std::string& contract_) noexcept {
-    if (ImGui::BeginListBox("##FilterTokenList", ImVec2(-FLT_MIN, -FLT_MIN))) {
-        for (const auto* const item : _localContainer) {
-            ImGui::PushID(item->_token);
-            if (ImGui::Selectable(item->_description.data())) {
-                show_     = false;
-                contract_ = item->_description;
-            }
-            ImGui::PopID();
-        }
-        ImGui::EndListBox();
+void TokenFilter::SetCurrentContract(std::string& contract_) {
+    if (_localContainer.empty()) {
+        contract_.clear();
+    } else {
+        contract_ = _localContainer[0]->_description;
     }
 }

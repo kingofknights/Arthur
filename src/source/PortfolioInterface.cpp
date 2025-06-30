@@ -12,10 +12,13 @@
 #include <nlohmann/json.hpp>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 #include <cstdint>
 #include <fstream>
 #include <future>
+#include <string>
 #include <utility>
 
 extern std::string StatusDisplay;
@@ -42,6 +45,28 @@ PortfolioInterface::~PortfolioInterface() {
     }
 }
 
+void PortfolioInterface::DoStrategyAction(const StrategyRowPtrT& strategy_, const std::string& name_, Lancelot::RequestType type_) {
+    strategy_->_status = StrategyStatus_PENDING;
+    _strand.post([strategy_, type_, name_]() { StrategyAction(strategy_, name_, type_); });
+}
+
+auto PortfolioInterface::GetStrategyName() const noexcept -> std::string {
+    return _strategyName;
+}
+
+auto PortfolioInterface::GetName() const noexcept -> std::string {
+    return _name;
+}
+
+auto PortfolioInterface::GetMaxPortfolio() noexcept -> uint32_t {
+    return MaxPortfolioAllowed;
+}
+auto PortfolioInterface::GetPortfolio() noexcept -> uint32_t {
+    return PortFolioNumber;
+}
+auto PortfolioInterface::IsOpen() const noexcept -> bool {
+    return _open;
+}
 auto PortfolioInterface::GetStatusColor(StrategyStatus status_, bool changed_) noexcept -> ImVec4 {
     switch (status_) {
         case StrategyStatus_PENDING:
@@ -376,25 +401,110 @@ void PortfolioInterface::ParseConfig(std::string_view config_) {
     }
 }
 
-void PortfolioInterface::DoStrategyAction(const StrategyRowPtrT& strategy_, const std::string& name_, Lancelot::RequestType type_) {
-    strategy_->_status = StrategyStatus_PENDING;
-    _strand.post([strategy_, type_, name_]() { StrategyAction(strategy_, name_, type_); });
+void PortfolioInterface::ExportsCsv(const std::string& path_) {
+    std::fstream file(path_, std::ios::out | std::ios::trunc);
+    if (not file.is_open()) {
+        return;
+    }
+    for (const auto& item : _paramList) {
+        file << item.first << ",";
+    }
+    file << "\n";
+    for (const StrategyRowPtrT& strategyRow : _strategyList) {
+        for (const ParameterInfoListT::value_type& value_type : strategyRow->_parameterInfoList) {
+            const ParameterInfoT& parameterValue = value_type.second;
+            switch (parameterValue._type) {
+                case DataType_INT: {
+                    file << parameterValue._parameter._integer << ",";
+                    break;
+                }
+                case DataType_FLOAT: {
+                    file << parameterValue._parameter._floating << ",";
+                    break;
+                }
+                case DataType_RADIO: {
+                    file << parameterValue._parameter._check << ",";
+                    break;
+                }
+                case DataType_COMBO:
+                case DataType_CLIENT:
+                case DataType_UPDATES:
+                case DataType_TEXT:
+                case DataType_CONTRACT: {
+                    file << parameterValue._parameter._text << ",";
+                    break;
+                }
+                case DataType_END: {
+                    continue;
+                }
+            }
+        }
+        file << "\n";
+    }
+    file.flush();
+    file.close();
 }
 
-auto PortfolioInterface::GetStrategyName() const noexcept -> std::string {
-    return _strategyName;
-}
+void PortfolioInterface::ImportsCsv(const std::string& path_) {
+    std::fstream file(path_, std::ios::in);
+    if (not file.is_open()) {
+        return;
+    }
+    std::string              line;
+    std::vector<std::string> column;
+    std::getline(file, line, '\n');
+    boost::split(column, line, boost::is_any_of(" ,"));
 
-auto PortfolioInterface::GetName() const noexcept -> std::string {
-    return _name;
-}
+    while (std::getline(file, line, '\n')) {
+        ParameterInfoListT list = _paramList;
 
-auto PortfolioInterface::GetMaxPortfolio() noexcept -> uint32_t {
-    return MaxPortfolioAllowed;
-}
-auto PortfolioInterface::GetPortfolio() noexcept -> uint32_t {
-    return PortFolioNumber;
-}
-auto PortfolioInterface::IsOpen() const noexcept -> bool {
-    return _open;
+        std::vector<std::string> result;
+        boost::split(result, line, boost::is_any_of(","));
+
+        for (size_t i = 0; i < column.size(); ++i) {
+            auto iterator = list.find(column[i]);
+            if (iterator != list.end()) {
+                auto& parameterInfo = iterator->second;
+                switch (parameterInfo._type) {
+                    case DataType_INT: {
+                        parameterInfo._parameter._integer = std::stoi(result[i]);
+                        break;
+                    }
+                    case DataType_FLOAT: {
+                        parameterInfo._parameter._floating = std::stof(result[i]);
+                        break;
+                    }
+                    case DataType_COMBO:
+                    case DataType_CLIENT:
+                    case DataType_UPDATES:
+                    case DataType_TEXT: {
+                        parameterInfo._parameter._text = result[i];
+                        break;
+                    }
+                    case DataType_RADIO: {
+                        parameterInfo._parameter._check = result[i] == "1";
+                        break;
+                    }
+                    case DataType_CONTRACT: {
+                        parameterInfo._parameter._text = result[i];
+
+                        auto token                 = Lancelot::ContractInfo::GetToken(parameterInfo._parameter._text);
+                        parameterInfo._marketWatch = ContractInfo::GetLiveDataRef(token);
+                        break;
+                    }
+                    case DataType_END: {
+                        break;
+                    }
+                }
+            }
+        }
+        StrategyRowPtrT strategyRow     = std::make_shared<StrategyRowT>();
+        strategyRow->_changed           = false;
+        strategyRow->_subscribed        = false;
+        strategyRow->_portfolio         = ++PortFolioNumber;
+        strategyRow->_status            = StrategyStatus_INACTIVE;
+        strategyRow->_parameterInfoList = list;
+        _strategyList.emplace_back(strategyRow);
+        Utils::AppendPortfolio(strategyRow->_portfolio, strategyRow);
+    }
 }

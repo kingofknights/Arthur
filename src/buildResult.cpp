@@ -32,7 +32,7 @@ namespace Lancelot {
 
             resultSetPtr->_token       = boost::lexical_cast<uint32_t>(result[TOKEN]);
             resultSetPtr->_futureToken = boost::lexical_cast<uint32_t>(result[FUTURE_TOKEN]);
-            resultSetPtr->_expiryDate  = boost::lexical_cast<uint32_t>(result[EXPIRY]);
+            resultSetPtr->_expiryDate  = boost::lexical_cast<uint32_t>(result[EXPIRY]) + 315513000;
             resultSetPtr->_lotSize     = boost::lexical_cast<uint32_t>(result[LOT_SIZE]);
             resultSetPtr->_tickSize    = boost::lexical_cast<uint32_t>(result[TICK_SIZE]);
             resultSetPtr->_divisor     = 100;

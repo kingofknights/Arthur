@@ -28,9 +28,12 @@ void TradeHistory::Insert(const OrderInfoPtrT& orderInfo_) {
 }
 
 void TradeHistory::DrawTradeBookTable(bool* show_) {
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_FirstUseEver, ImVec2(0.5F, 0.5F));
+    ImGui::SetNextWindowSize(ImVec2{ImGui::GetMainViewport()->Size.x / 2, ImGui::GetMainViewport()->Size.y / 2}, ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Trade Book", show_)) {
         const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
         if (ImGui::BeginTable("Trade Book Table", BooksColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
+            ImGui::TableSetupScrollFreeze(0, 1);  // Make top row always visible
             for (const auto& name : BookTableColumnName) {
                 ImGui::TableSetupColumn(name, TableColumnFlags);
             }

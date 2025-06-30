@@ -107,7 +107,7 @@ Arthur::Arthur(bool* closeMainWindow_, UserDetails details_)
     _tokenFilterPtr       = std::make_unique<TokenFilter>();
     _templateBuilderPtr   = std::make_unique<TemplateBuilder>(_showTemplateBuilder);
     _positionPtr          = std::make_unique<Position>(_executor);
-    _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_tokenFilterPtr, _executor);
+    _strategyWorkspacePtr = std::make_unique<StrategyWorkspace>(_executor);
     _tradeHistoryPtr      = std::make_unique<TradeHistory>();
     _optionChainPtr       = std::make_unique<OptionChain>();
     _multicastReceiverPtr = std::make_unique<MulticastReceiver>(_executor, _marketEventQueue);

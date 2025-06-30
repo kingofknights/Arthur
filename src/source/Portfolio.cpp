@@ -7,12 +7,16 @@
 #include "Configuration.hpp"
 #include "Enums.hpp"
 #include "ImGuiFileDialog.h"
+#include "Logger.hpp"
 #include "MarketWatch.hpp"
 #include "Structure.hpp"
 #include "TableColumnInfo.hpp"
 #include "TokenFilter.hpp"
 #include "Utils.hpp"
-#include "misc/cpp/imgui_stdlib.h"
+
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <misc/cpp/imgui_stdlib.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -22,11 +26,11 @@ extern AllContractT    AllContract;
 extern std::string     StatusDisplay;
 extern ClientCodeListT ClientCodeList;
 
-#define ADDITIONAL_OPTION     "Additional Options"
-#define NEW_STRATEGY_CREATION "New Strategy"
+#define ADDITIONAL_OPTION     "Additional Options "
+#define NEW_STRATEGY_CREATION "New Strategy "
 
-Portfolio::Portfolio(const TokenFilterPtrT& tokenFilter_, const std::string& workspaceName_, const std::string& strategyName_, ExecutorT& strand_)
-    : PortfolioInterface(workspaceName_ + "[" + strategyName_ + "]", strategyName_, strand_), _tokenFilter(tokenFilter_) {
+Portfolio::Portfolio(const std::string& workspaceName_, const std::string& strategyName_, ExecutorT& strand_)
+    : PortfolioInterface(workspaceName_ + "[" + strategyName_ + "]", strategyName_, strand_) {
     _action = ExportImport_NONE;
 }
 
@@ -135,13 +139,13 @@ void Portfolio::DrawPortfolioWindow() {
         }
         ImGui::BeginDisabled(_exportActivated);
         if (ImGui::Button(ICON_MD_UPLOAD " Export", buttonSize)) {
-            ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".json");
+            ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".json,.csv");
             _action = ExportImport_EXPORT;
         }
         ImGui::EndDisabled();
 
         if (ImGui::Button(ICON_MD_DOWNLOAD " Import", buttonSize)) {
-            ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".json");
+            ImGuiFileDialog::Instance()->OpenDialog("FileManager", "File Manager", ".json,.csv");
             _action = ExportImport_IMPORT;
         }
 
@@ -157,7 +161,7 @@ void Portfolio::DrawPortfolioWindow() {
     const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     if (ImGui::BeginChild(("Separate space " + _name).data(), ImVec2(-FLT_MIN, -frameHeight))) {
         if (ImGui::BeginTable(__FUNCTION__, _paramList.size() + 3, TableFlags)) {
-            ImGui::TableSetupScrollFreeze(3, 0);
+            ImGui::TableSetupScrollFreeze(3, 1);
             ImGui::TableSetupColumn("PF", TableColumnFlags);
             ImGui::TableSetupColumn("Status", TableColumnFlags);
             ImGui::TableSetupColumn("Action", TableColumnFlags);
@@ -187,6 +191,39 @@ void Portfolio::DrawPortfolioWindow() {
 
 void Portfolio::DrawNewPortfolioCreation() {
     for (ParameterInfoListT::value_type& value : _paramList) {
+        ParameterValueT&   info   = value.second._parameter;
+        TokenFilter&       filter = value.second._filter;
+        const std::string& name   = value.first;
+        switch (value.second._type) {
+            case DataType_CONTRACT: {
+                ImGui::PushID(FORMAT("Token_____{}", name).data());
+                ImGui::Columns(7);
+                filter.DrawExchangeFilter();
+                ImGui::NextColumn();
+                filter.DrawInstrumentFilter();
+                ImGui::NextColumn();
+                filter.DrawSymbolFilter();
+                ImGui::NextColumn();
+                filter.DrawExpiryFilter();
+                ImGui::NextColumn();
+                filter.DrawOptionFilter();
+                ImGui::NextColumn();
+                filter.DrawStikeFilter();
+                filter.SetCurrentContract(info._text);
+                ImGui::NextColumn();
+                ImGui::Text("%s", info._text.data());
+                ImGui::Columns();
+                ImGui::Separator();
+                ImGui::PopID();
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    ImGui::Columns(7);
+    for (ParameterInfoListT::value_type& value : _paramList) {
         ParameterValueT&   info = value.second._parameter;
         const std::string& name = value.first;
         ImGui::PushID(name.data());
@@ -200,35 +237,40 @@ void Portfolio::DrawNewPortfolioCreation() {
                     }
                     ImGui::EndCombo();
                 }
+                ImGui::NextColumn();
                 break;
             }
             case DataType_CONTRACT: {
-                if (value.second._searchEnable) {
-                    _tokenFilter->Paint(value.second._searchEnable, info._text);
-                    if (not info._text.empty()) {
-                        std::memcpy(value.second._filter.InputBuf, info._text.data(), info._text.length());
-                    }
-                } else {
-                    Utils::ContractFilter(value.second._filter, info._text, name);
-                }
-                ImGui::SameLine();
-                ImGui::Checkbox("##Seach", &value.second._searchEnable);
+                // if (value.second._searchEnable) {
+                //     _tokenFilter->Paint();
+                //     if (not info._text.empty()) {
+                //         std::memcpy(value.second._filter.InputBuf, info._text.data(), info._text.length());
+                //     }
+                // } else {
+                //     Utils::ContractFilter(value.second._filter, info._text, name);
+                // }
+                // ImGui::SameLine();
+                // ImGui::Checkbox("##Seach", &value.second._searchEnable);
                 break;
             }
             case DataType_INT: {
                 ImGui::InputInt(name.data(), &info._integer, 1);
+                ImGui::NextColumn();
                 break;
             }
             case DataType_FLOAT: {
                 ImGui::InputFloat(name.data(), &info._floating, 0.01F);
+                ImGui::NextColumn();
                 break;
             }
             case DataType_TEXT: {
                 ImGui::InputText(name.data(), &info._text);
+                ImGui::NextColumn();
                 break;
             }
             case DataType_RADIO: {
                 ImGui::Checkbox(name.data(), &info._check);
+                ImGui::NextColumn();
                 break;
             }
             case DataType_COMBO: {
@@ -236,6 +278,7 @@ void Portfolio::DrawNewPortfolioCreation() {
                 std::ranges::replace(data, ';', '\0');
                 data.append("\0\0");
                 ImGui::Combo(name.data(), &info._integer, data.data());
+                ImGui::NextColumn();
                 break;
             }
             case DataType_UPDATES:
@@ -244,6 +287,7 @@ void Portfolio::DrawNewPortfolioCreation() {
         }
         ImGui::PopID();
     }
+    ImGui::EndColumns();
 }
 
 void Portfolio::DrawStrategyRow(StrategyRowPtrT& row_, int index_) {
@@ -407,7 +451,7 @@ void Portfolio::DrawGlobalParam() {
                 ImGui::SameLine();
 
                 std::string data(value._parameterInfo._parameter._text);
-                std::replace(data.begin(), data.end(), ';', '\0');
+                std::ranges::replace(data, ';', '\0');
                 data.append("\0\0");
                 ImGui::Combo(name.data(), &value._parameterInfo._parameter._integer, data.data());
                 break;
@@ -470,7 +514,8 @@ void Portfolio::RemoveSelection() {
 
 void Portfolio::DrawNewStrategyPopUpWindow() {
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5F, 0.5F));
-    if (ImGui::BeginPopupModal((NEW_STRATEGY_CREATION + _strategyName).data(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+    ImGui::SetNextWindowSize(ImVec2{ImGui::GetMainViewport()->Size.x * 0.66F, 0}, ImGuiCond_FirstUseEver);
+    if (ImGui::BeginPopupModal((NEW_STRATEGY_CREATION + _strategyName).data(), nullptr, ImGuiWindowFlags_NoScrollbar)) {
         DrawNewPortfolioCreation();
 
         if (ImGui::Button(ICON_MD_DONE " Submit")) {
@@ -509,13 +554,24 @@ void Portfolio::DrawGlobalParamPopupWindow() {
 }
 
 void Portfolio::DrawFileManagerWindow() {
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_FirstUseEver, ImVec2(0.5F, 0.5F));
+    ImGui::SetNextWindowSize(ImVec2{ImGui::GetMainViewport()->Size.x / 2, ImGui::GetMainViewport()->Size.y / 2}, ImGuiCond_FirstUseEver);
     if (ImGuiFileDialog::Instance()->Display("FileManager")) {
         if (ImGuiFileDialog::Instance()->IsOk()) {
-            std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+            std::string       filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+            const std::string extension    = ImGuiFileDialog::Instance()->GetCurrentFilter();
             if (_action == ExportImport_EXPORT) {
-                _future = std::async(std::launch::async, [this, path = std::forward<std::string>(filePathName)]() { Exports(path); });
+                if (extension == ".json") {
+                    _future = std::async(std::launch::async, [this, path = std::forward<std::string>(filePathName)]() { Exports(path); });
+                } else if (extension == ".csv") {
+                    _future = std::async(std::launch::async, [this, path = std::forward<std::string>(filePathName)]() { ExportsCsv(path); });
+                }
             } else {
-                Imports(filePathName);
+                if (extension == ".json") {
+                    Imports(filePathName);
+                } else if (extension == ".csv") {
+                    ImportsCsv(filePathName);
+                }
             }
             _action = ExportImport_NONE;
         }

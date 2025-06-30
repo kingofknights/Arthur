@@ -2,12 +2,13 @@
 
 #include "ContractInfo.hpp"
 #include "Enums.hpp"
+#include "imgui.h"
 
 class TokenFilter {
   public:
     TokenFilter();
 
-    void Paint(bool& show_, std::string& contract_);
+    void Paint();
 
     void DrawExchangeFilter() noexcept;
     void DrawInstrumentFilter() noexcept;
@@ -16,7 +17,7 @@ class TokenFilter {
     void DrawOptionFilter() noexcept;
     void DrawStikeFilter() noexcept;
 
-    void DrawTokenList(bool& show_, std::string& contract_) noexcept;
+    void SetCurrentContract(std::string& contract_);
 
   private:
     std::string _exchangeData;
@@ -32,6 +33,9 @@ class TokenFilter {
     std::vector<std::string>          _expiry;
     std::vector<float>                _strike;
     std::vector<Lancelot::OptionType> _option;
+
+    ImGuiTextFilter _filter;
+    ImGuiTextFilter _filterStrike;
 
     Lancelot::ResultSetContainerT&       _container;
     std::vector<Lancelot::ResultSetPtrT> _localContainer;

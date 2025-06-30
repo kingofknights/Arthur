@@ -106,6 +106,9 @@ void CentralFeed::Process(int size_) {
             previous->_lastTradePrice    = static_cast<PriceT>(current._lastTradePrice) / 100.0F;
             previous->_openInterest      = current._openInterest;
 
+            previous->_lowDpr  = static_cast<PriceT>(current._lowDPR) / 100.0F;
+            previous->_highDpr = static_cast<PriceT>(current._highDPR) / 100.0F;
+
             memset(previous->_lastTradeTime.data(), 0, 30);
             memcpy(previous->_lastTradeTime.data(), current._lastTradeTime, 30);
 

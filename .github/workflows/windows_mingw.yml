@@ -2,7 +2,7 @@ name: MinGW Build
 
 on:
   push:
-    branches: ["refactoring"]
+    branches: ["june"]
 
 env:
   CMAKE_BUILD_TYPE: Release

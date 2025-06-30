@@ -27,15 +27,12 @@ void MulticastReceiver::ReceiverFrom(const boost::system::error_code& errorCode_
 }
 
 void MulticastReceiver::BindMc(const std::string& address_, int port_, const std::string& multicast_) {
-    ErrorCodeT error;
-    _endpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string(address_), port_);
-    error     = _socket.open(_endpoint.protocol(), error);
-    LOG(INFO, "Multicast : open {}", error.message());
-    error = _socket.set_option(boost::asio::socket_base::reuse_address(true), error);
-    _socket.bind(_endpoint);
-    LOG(INFO, "Multicast : reuse_address {}", error.message());
-    error = _socket.set_option(boost::asio::ip::multicast::join_group(boost::asio::ip::address::from_string(multicast_)), error);
-    LOG(INFO, "Multicast : join_group {}", error.message());
+    LOG(INFO, "Multicast address_ = {}, port_ = {}, multicast_ = {}", address_, port_, multicast_);
+    auto endpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::make_address(address_), port_);
+    _socket.open(endpoint.protocol());
+    _socket.set_option(boost::asio::socket_base::reuse_address(true));
+    _socket.bind(endpoint);
+    _socket.set_option(boost::asio::ip::multicast::join_group(boost::asio::ip::make_address(multicast_).to_v4(), boost::asio::ip::make_address(address_).to_v4()));
 }
 
 void MulticastReceiver::Read() {

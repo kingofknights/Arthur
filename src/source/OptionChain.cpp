@@ -32,6 +32,8 @@ void OptionChain::Paint(bool* show_) {
 }
 
 void OptionChain::DrawOptionChain(bool* show_) {
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_FirstUseEver, ImVec2(0.5F, 0.5F));
+    ImGui::SetNextWindowSize(ImVec2{ImGui::GetMainViewport()->Size.x / 2, ImGui::GetMainViewport()->Size.y / 2}, ImGuiCond_FirstUseEver);
     if (ImGui::Begin("Option Chain", show_)) {
         ImGui::Columns(8, nullptr, false);
         ImGui::Text("Contract : %s", _symbol.data());
@@ -52,6 +54,7 @@ void OptionChain::DrawOptionChain(bool* show_) {
         ImGui::EndColumns();
 
         if (ImGui::BeginTable("Option Chain Table", OptionChainColumnIndex_END, TableFlags)) {
+            ImGui::TableSetupScrollFreeze(0, 1);  // Make top row always visible
             for (const auto& name : OptionChainTableColumnName) {
                 ImGui::TableSetupColumn(name, TableColumnFlags | ImGuiTableColumnFlags_NoReorder);
             }
@@ -67,7 +70,7 @@ void OptionChain::DrawOptionChain(bool* show_) {
                 float priceForCall = _future->_bid[0]._price > 0 ? _future->_bid[0]._price : _future->_lastTradePrice;
                 // FIXME : remove abs when working with live contracts
                 double expiryGap  = std::abs(Greeks::GetExpiryGap(put._contract->_expiryDate));
-                double rate       = 0.0;
+                double rate       = 0.10;
                 double call_IV    = Greeks::GetIV(priceForCall, valueType.first, rate, expiryGap, call._marketWatch->_lastTradePrice, true);
                 double call_Theta = Greeks::GetTheta(priceForCall, valueType.first, call_IV, rate, expiryGap, true);
                 double call_Vega  = Greeks::GetVega(priceForCall, valueType.first, call_IV, rate, expiryGap, true);
@@ -138,7 +141,8 @@ void OptionChain::DrawOptionChain(bool* show_) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
                 }
 
-                NextCell(OptionChainColumnIndex_STRIKE_PRICE, valueType.first);
+                NextCell(OptionChainColumnIndex_STRIKE_PRICE, float(valueType.first));
+                // NextCell(OptionChainColumnIndex_STRIKE_PRICE, static_cast<int>(valueType.first * 100.0));
 
                 NextCell(OptionChainColumnIndex_PUT_BID_QTY, put._marketWatch->_bid[0]._quantity);
                 if (not needColor) {

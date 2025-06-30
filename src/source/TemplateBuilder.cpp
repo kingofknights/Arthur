@@ -124,6 +124,7 @@ void TemplateBuilder::ParseConfig(std::string_view config_) {
 
 void TemplateBuilder::DrawTable() {
     if (ImGui::BeginTable("Parameter Table", ColumnGeneratorColumnIndex_END, TableFlags)) {
+        ImGui::TableSetupScrollFreeze(0, 1);  // Make top row always visible
         for (const auto& columnName : ColumnGeneratorTableName) {
             ImGui::TableSetupColumn(columnName, TableColumnFlags | ImGuiTableColumnFlags_WidthStretch);
         }

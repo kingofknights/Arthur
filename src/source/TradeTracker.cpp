@@ -15,6 +15,7 @@ void TradeTracker::DrawTracker(bool* show_) {
     if (ImGui::Begin("Tracker", show_)) {
         const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
         if (ImGui::BeginTable("Tracker", TradeTrackerColumn_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
+            ImGui::TableSetupScrollFreeze(0, 1);  // Make top row always visible
             for (const auto* const name : TradeTrackerColumnName) {
                 ImGui::TableSetupColumn(name, TableColumnFlags);
             }

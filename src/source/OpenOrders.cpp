@@ -5,6 +5,7 @@
 #include "Colors.hpp"
 #include "Configuration.hpp"
 #include "Enums.hpp"
+#include "Logger.hpp"
 #include "OrderForm.hpp"
 #include "OrderHistory.hpp"
 #include "Structure.hpp"
@@ -34,15 +35,33 @@ void OpenOrders::Paint() noexcept {
 }
 
 void OpenOrders::DrawPendingBook(bool* show_) {
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_FirstUseEver, ImVec2(0.5F, 0.5F));
+    ImGui::SetNextWindowSize(ImVec2{ImGui::GetMainViewport()->Size.x / 2, ImGui::GetMainViewport()->Size.y / 2}, ImGuiCond_FirstUseEver);
     if (ImGui::Begin(BeginOpenOrders, show_)) {
         const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
 
         if (ImGui::BeginTable(BeginOpenOrdersTable, BooksColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
+            ImGui::TableSetupScrollFreeze(0, 1);  // Make top row always visible
             for (const auto& name : BookTableColumnName) {
                 ImGui::TableSetupColumn(name, TableColumnFlags);
             }
 
-            ImGui::TableHeadersRow();
+            ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
+            int column = 0;
+            for (auto& name : BookTableColumnName) {
+                ImGui::TableSetColumnIndex(column);
+                ImGui::PushID(column);
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+                if (ImGui::SmallButton(ICON_MD_ARROW_DROP_DOWN)) {
+                }
+                ImGui::PopStyleVar();
+                ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+                ImGui::TableHeader(name);
+                ImGui::PopID();
+                column++;
+            }
+
+            // ImGui::TableHeadersRow();
             const auto& container = _filter.IsActive() ? _filterContainer : _container;
             _clipper.Begin(static_cast<int>(container.size()));
 
@@ -131,6 +150,7 @@ void OpenOrders::DrawManualOrderRequestedForCancel() {
     if (ImGui::BeginPopupModal(CancelAllOrderWindow, &_closeCancelPopup)) {
         const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
         if (ImGui::BeginTable(BeginCancelBookTable, BooksColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
+            ImGui::TableSetupScrollFreeze(0, 1);  // Make top row always visible
             for (const auto& name : BookTableColumnName) {
                 ImGui::TableSetupColumn(name, TableColumnFlags | ImGuiTableColumnFlags_WidthStretch);
             }

@@ -22,8 +22,11 @@ void OrderBook::paint(bool* show_) {
 void OrderBook::Insert(const OrderInfoPtrT& orderInfo_) { _pendingTradeUpdate.push(orderInfo_); }
 
 void OrderBook::DrawOrderBookTable(bool* show_) {
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_FirstUseEver, ImVec2(0.5F, 0.5F));
+    ImGui::SetNextWindowSize(ImVec2{ImGui::GetMainViewport()->Size.x / 2, ImGui::GetMainViewport()->Size.y / 2}, ImGuiCond_FirstUseEver);
     if (ImGui::Begin(_name.data(), show_)) {
         if (ImGui::BeginTable(_tableName.data(), BooksColumnIndex_END, TableFlags)) {
+            ImGui::TableSetupScrollFreeze(0, 1);  // Make top row always visible
             for (const auto& name : BookTableColumnName) {
                 ImGui::TableSetupColumn(name, TableColumnFlags);
             }

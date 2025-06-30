@@ -12,6 +12,7 @@ constexpr auto GetTableFlags() -> ImGuiTableFlags {
     flags |= ImGuiTableFlags_ScrollY;
     flags |= ImGuiTableFlags_Borders;
     flags |= ImGuiTableFlags_Reorderable;
+    flags |= ImGuiTableFlags_Hideable;
     //	Flags |= ImGuiTableFlags_NoHostExtendX;
     //	Flags |= ImGuiTableFlags_NoHostExtendY;
 
