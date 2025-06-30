@@ -5,6 +5,7 @@
 #include "Colors.hpp"
 #include "Configuration.hpp"
 #include "Enums.hpp"
+#include "Logger.hpp"
 #include "OrderForm.hpp"
 #include "OrderHistory.hpp"
 #include "Structure.hpp"
@@ -43,7 +44,22 @@ void OpenOrders::DrawPendingBook(bool* show_) {
                 ImGui::TableSetupColumn(name, TableColumnFlags);
             }
 
-            ImGui::TableHeadersRow();
+            ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
+            int column = 0;
+            for (auto& name : BookTableColumnName) {
+                ImGui::TableSetColumnIndex(column);
+                ImGui::PushID(column);
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+                if (ImGui::SmallButton(ICON_MD_ARROW_DROP_DOWN)) {
+                }
+                ImGui::PopStyleVar();
+                ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+                ImGui::TableHeader(name);
+                ImGui::PopID();
+                column++;
+            }
+
+            // ImGui::TableHeadersRow();
             const auto& container = _filter.IsActive() ? _filterContainer : _container;
             _clipper.Begin(static_cast<int>(container.size()));
 

@@ -8,7 +8,7 @@ class TokenFilter {
   public:
     TokenFilter();
 
-    void Paint(bool& show_, std::string& contract_);
+    void Paint();
 
     void DrawExchangeFilter() noexcept;
     void DrawInstrumentFilter() noexcept;
@@ -17,7 +17,7 @@ class TokenFilter {
     void DrawOptionFilter() noexcept;
     void DrawStikeFilter() noexcept;
 
-    void DrawTokenList(bool& show_, std::string& contract_) noexcept;
+    void SetCurrentContract(std::string& contract_);
 
   private:
     std::string _exchangeData;

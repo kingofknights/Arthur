@@ -51,6 +51,7 @@ namespace {
             case 41:
                 return OrderStatus_FILLED;
         }
+        LOG(INFO, "GetResponseStatus {}", response_);
         return OrderStatus_NEW_REJECT;
     }
 }  // namespace

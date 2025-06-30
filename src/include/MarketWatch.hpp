@@ -57,9 +57,7 @@ class MarketWatch final {
     int  _selectedRow  = -1;
     bool _searchOrDrop = false;
 
-    std::string _currentContract;
-    std::string _month;
-
+    std::string      _currentContract;
     LiveContainerT   _liveUpdates;
     SubscribedT      _subscribed;
     ImGuiListClipper _clipper;

@@ -49,48 +49,36 @@ void MarketWatch::DrawMarketWatchTable() noexcept {
     }
 
     if (ImGui::Begin("MarketWatch", &_showMarketWatch)) {
-        ImGui::AlignTextToFramePadding();
-        ImGui::Text("Stock");
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(ImGui::GetWindowWidth() / 4);
-        if (_searchOrDrop) {
-            _tokenFilter->Paint(_searchOrDrop, _currentContract);
-            if (not _currentContract.empty()) {
-                std::memcpy(_filter.InputBuf, _currentContract.data(), _currentContract.length());
-            }
-        } else {
-            DrawSearchBox();
-        }
-        ImGui::SameLine();
-        ImGui::Checkbox("Filter", &_searchOrDrop);
-        ImGui::SameLine();
+        ImGui::BeginColumns("##MarketWatchTokenSelection", 8);
+        _tokenFilter->DrawExchangeFilter();
+        ImGui::NextColumn();
+        _tokenFilter->DrawInstrumentFilter();
+        ImGui::NextColumn();
+        _tokenFilter->DrawSymbolFilter();
+        ImGui::NextColumn();
+        _tokenFilter->DrawExpiryFilter();
+        ImGui::NextColumn();
+        _tokenFilter->DrawOptionFilter();
+        ImGui::NextColumn();
+        _tokenFilter->DrawStikeFilter();
+        ImGui::NextColumn();
+        _tokenFilter->SetCurrentContract(_currentContract);
         ImGui::BeginDisabled(_currentContract.empty());
-        if (ImGui::Button(ICON_MD_ADD_BOX " Add Stock")) {
+        if (ImGui::Button(ICON_MD_ADD_CHART " Add")) {
             AddContractToMarketWatch(_currentContract);
-            _filter.Clear();
-            _currentContract.clear();
         }
         ImGui::EndDisabled();
         ImGui::SameLine();
-        if (_searchOrDrop) {
-            ImGui::SetNextItemWidth(ImGui::GetWindowWidth() / 8);
-            ImGui::InputText("Filter##_month", &_month, ImGuiInputTextFlags_CharsUppercase);
-        }
-        ImGui::SameLine();
-        if (ImGui::Button(ICON_MD_ALL_INCLUSIVE " Future")) {
-            for (const auto& contract : AllContract) {
-                if (contract.starts_with("FUT") and (_month.empty() ? true : (contract.find(_month) != std::string::npos))) {
-                    AddContractToMarketWatch(contract);
-                }
-            }
-        }
-        ImGui::SameLine();
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("%s", _currentContract.data());
+        ImGui::NextColumn();
         if (ImGui::Button(ICON_MD_CLEAR_ALL " Clear All")) {
             _liveUpdates.clear();
             _subscribed.clear();
         }
         ImGui::SameLine();
         ImGui::Text("Subscribed: %zu", _subscribed.size());
+        ImGui::EndColumns();
 
         if (ImGui::BeginTable("Market Watch Table", MarketWatchColumnIndex_END, TableFlags)) {
             ImGui::TableSetupScrollFreeze(1, 1);
@@ -178,6 +166,7 @@ void MarketWatch::ContractCell(int contract_, int index_, const char* data_, con
 }
 
 void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) noexcept {
+    ImGui::PushItemFlag(ImGuiItemFlags_NoNav, true);
     ImGui::LabelText("Contract", "%s", pointer_->_description.data());
     ImGui::Separator();
     if (ImGui::BeginTable("Market Watch Table ToolTip", MarketWatchToolTipColumnIndex_END)) {
@@ -223,6 +212,7 @@ void MarketWatch::LadderView(const MarketWatchDataPtrT& pointer_) noexcept {
     ImGui::ProgressBar(ratio, ImVec2(-FLT_MIN, 0), "Buy Sell Ratio");
 
     ImGui::PopStyleColor(2);
+    ImGui::PopItemFlag();
 }
 
 void MarketWatch::AddContractToMarketWatch(const std::string& contract_) {

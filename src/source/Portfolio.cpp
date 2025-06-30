@@ -204,7 +204,7 @@ void Portfolio::DrawNewPortfolioCreation() {
             }
             case DataType_CONTRACT: {
                 if (value.second._searchEnable) {
-                    _tokenFilter->Paint(value.second._searchEnable, info._text);
+                    _tokenFilter->Paint();
                     if (not info._text.empty()) {
                         std::memcpy(value.second._filter.InputBuf, info._text.data(), info._text.length());
                     }
