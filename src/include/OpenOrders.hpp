@@ -25,11 +25,15 @@ class OpenOrders {
 
     void DrawManualOrderRequestedForCancel();
 
-    void ContextMenu(int index_) noexcept;
-
     void ContractFilter();
 
     void PFFilter();
+
+    void FilterOptionsWindows();
+
+    void DoFilter(const OrderInfoPtrT& tradeInfo_);
+
+    void StartNewFilter();
 
   private:
     const OrderFormPtrT& _manualOrder;
@@ -50,7 +54,7 @@ class OpenOrders {
     int  _selectedRow      = -1;
     bool _closeCancelPopup = false;
 
-    ImGuiTextFilter  _filter;
+    bool             _isFilterActive = false;
     ImGuiListClipper _clipper;
 
     std::unordered_map<int, bool>         _pfFilter;
