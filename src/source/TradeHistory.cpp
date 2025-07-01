@@ -8,6 +8,7 @@
 #include "TableColumnInfo.hpp"
 #include "Utils.hpp"
 #include "imgui.h"
+#include "imgui_internal.h"
 
 void TradeHistory::paint(bool* show_) {
     _pendingTradeUpdate.consume_all([this](const OrderInfoPtrT& orderInfo_) {
@@ -37,8 +38,24 @@ void TradeHistory::DrawTradeBookTable(bool* show_) {
             for (const auto& name : BookTableColumnName) {
                 ImGui::TableSetupColumn(name, TableColumnFlags);
             }
+
+            auto* table                      = ImGui::GetCurrentTable();
+            table->DisableDefaultContextMenu = true;
+            if (ImGui::TableBeginContextMenuPopup(table)) {
+                if (ImGui::Button(ICON_MD_FILTER " Filter")) {
+                    ImGui::OpenPopup("Open Orders Filter");
+                }
+                FilterOptionsWindows();
+                if (ImGui::BeginMenu(ICON_MD_MORE " More ...")) {
+                    ImGui::TableDrawDefaultContextMenu(table, TableFlags);
+                    ImGui::EndMenu();
+                }
+
+                ImGui::EndPopup();
+            }
+
             ImGui::TableHeadersRow();
-            const auto& container = _filter.IsActive() ? _filterContainer : _container;
+            const auto& container = _isFilterActive ? _filterContainer : _container;
             _clipper.Begin(container.size());
             while (_clipper.Step()) {
                 auto begin = container.rbegin() + _clipper.DisplayStart;
@@ -74,15 +91,103 @@ void TradeHistory::DrawTradeBookTable(bool* show_) {
         ImGui::TextColored(UpDownColor(false), "| Sell Value : [%.2f] |", _sellValue);
         ImGui::SameLine();
         ImGui::TextColored(UpDownColor(_netValue > 0), "| Net Value : [%.2f] |", _netValue);
-        ImGui::SameLine();
-        if (_filter.Draw()) {
-            _filterContainer.clear();
-            for (const auto& item : _container) {
-                if (_filter.PassFilter(item->_contract.data())) {
-                    _filterContainer.push_back(item);
-                }
-            }
+        if (_isFilterActive) {
+            ImGui::SameLine();
+            ImGui::Text("%s", "Filter is active");
         }
     }
     ImGui::End();
+}
+void TradeHistory::PFFilter() {
+    if (ImGui::Button(ICON_MD_CLEAR_ALL " Clear", ImVec2{-FLT_MIN, 0})) {
+        _pfFilter.clear();
+        StartNewFilter();
+    }
+    for (const auto& item : _container) {
+        _pfFilter.emplace(item->_portfolio, false);
+    }
+    if (ImGui::BeginListBox("##PFOptions")) {
+        for (auto& item : _pfFilter) {
+            if (ImGui::Checkbox(FORMAT("{}", item.first).data(), &item.second)) {
+                StartNewFilter();
+            }
+        }
+        ImGui::EndListBox();
+    }
+}
+void TradeHistory::FilterOptionsWindows() {
+    if (ImGui::BeginPopupContextWindow("Open Orders Filter")) {
+        if (ImGui::BeginTabBar("Filter")) {
+            if (ImGui::BeginTabItem("Portfolio")) {
+                PFFilter();
+                ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem("Contract")) {
+                ContractFilter();
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
+        }
+        ImGui::EndPopup();
+    }
+}
+void TradeHistory::ContractFilter() {
+    if (ImGui::Button(ICON_MD_CLEAR_ALL " Clear", ImVec2{-FLT_MIN, 0})) {
+        _symbolFilter.clear();
+        StartNewFilter();
+    }
+    for (const auto& item : _container) {
+        _symbolFilter.emplace(item->_contract, false);
+    }
+    if (ImGui::BeginListBox("##ContractOptions")) {
+        for (auto& item : _symbolFilter) {
+            if (ImGui::Checkbox(FORMAT("{}", item.first).data(), &item.second)) {
+                StartNewFilter();
+            }
+        }
+        ImGui::EndListBox();
+    }
+}
+void TradeHistory::StartNewFilter() {
+    _filterContainer.clear();
+    auto found1     = std::ranges::any_of(_pfFilter, [](const auto& pair_) {
+        return pair_.second;
+    });
+    auto found2     = std::ranges::any_of(_symbolFilter, [](const auto& pair_) {
+        return pair_.second;
+    });
+    _isFilterActive = found1 or found2;
+
+    LOG(INFO, "_pfFilter {}, _symbolFilter {} active {}", found1, found2, _isFilterActive)
+    if (_isFilterActive) {
+        std::ranges::for_each(_container, [this](const auto& trade_) {
+            DoFilter(trade_);
+        });
+    }
+}
+void TradeHistory::DoFilter(const OrderInfoPtrT& tradeInfo_) {
+    if (_pfFilter.empty() and _symbolFilter.empty()) {
+        return;
+    }
+    if (not _pfFilter.empty() and std::ranges::any_of(_pfFilter, [](const auto& item_) { return item_.second; })) {
+        const auto iterator = _pfFilter.find(tradeInfo_->_portfolio);
+        if (iterator != _pfFilter.cend()) {
+            if (not iterator->second) {
+                return;
+            }
+        } else {
+            return;
+        }
+    }
+    if (not _symbolFilter.empty() and std::ranges::any_of(_symbolFilter, [](const auto& item_) { return item_.second; })) {
+        const auto iterator = _symbolFilter.find(tradeInfo_->_contract);
+        if (iterator != _symbolFilter.cend()) {
+            if (not iterator->second) {
+                return;
+            }
+        } else {
+            return;
+        }
+    }
+    _filterContainer.push_back(tradeInfo_);
 }
