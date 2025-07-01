@@ -203,7 +203,6 @@ void Arthur::Paint() {
 
 void Arthur::AddTrade(const OrderInfoPtrT& tradeInfo_) {
     switch (tradeInfo_->_statusValue) {
-        case OrderStatus_PLACED:
         case OrderStatus_NEW:
         case OrderStatus_REPLACED: {
             _openOrdersPtr->Insert(tradeInfo_, true);

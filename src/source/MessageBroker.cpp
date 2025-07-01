@@ -30,30 +30,6 @@ namespace {
         return time;
     }
 
-    constexpr auto GetResponseStatus(int response_) noexcept -> OrderStatus {
-        switch (response_) {
-            case 10:
-                return OrderStatus_PLACED;
-            case 20:
-                return OrderStatus_NEW;
-            case 21:
-                return OrderStatus_REPLACED;
-            case 22:
-                return OrderStatus_CANCELLED;
-            case 30:
-                return OrderStatus_NEW_REJECT;
-            case 31:
-                return OrderStatus_REPLACE_REJECT;
-            case 32:
-                return OrderStatus_CANCEL_REJECT;
-            case 40:
-                return OrderStatus_PARTIAL_FILLED;
-            case 41:
-                return OrderStatus_FILLED;
-        }
-        LOG(INFO, "GetResponseStatus {}", response_);
-        return OrderStatus_NEW_REJECT;
-    }
 }  // namespace
 MessageBroker::MessageBroker(ExecutorT& executor_, int16_t user_, FunctionT function_)
     : TBaseSocket(executor_),
@@ -113,7 +89,7 @@ void MessageBroker::ProcessOrder(const char* buffer_) {
     info->_price           = response->_price / 100.0F,
     info->_fillPrice       = 0,
     info->_side            = static_cast<Lancelot::Side>(response->_side);
-    info->_statusValue     = GetResponseStatus(response->_orderStatus);
+    info->_statusValue     = static_cast<OrderStatus>(response->_orderStatus);
     info->_contract        = Lancelot::ContractInfo::GetDescription(info->_token);
     info->_time            = TimeStampToHReadble(response->_timestamp);
     info->_client          = FORMAT("{}", response->_user._user);
