@@ -3,6 +3,9 @@
 #include "Arthur_Fwd.hpp"
 #include "Structure.hpp"
 
+#include <string>
+#include <unordered_map>
+
 class OpenOrders {
     using FunctionT              = std::function<void(OrderInfoPtrT)>;
     using PendingOrderContainerT = std::map<std::string, OrderInfoPtrT>;
@@ -21,6 +24,16 @@ class OpenOrders {
     void Update(const OrderInfoPtrT& tradeInfo_, bool insert_);
 
     void DrawManualOrderRequestedForCancel();
+
+    void ContractFilter();
+
+    void PFFilter();
+
+    void FilterOptionsWindows();
+
+    void DoFilter(const OrderInfoPtrT& tradeInfo_);
+
+    void StartNewFilter();
 
   private:
     const OrderFormPtrT& _manualOrder;
@@ -41,6 +54,9 @@ class OpenOrders {
     int  _selectedRow      = -1;
     bool _closeCancelPopup = false;
 
-    ImGuiTextFilter  _filter;
+    bool             _isFilterActive = false;
     ImGuiListClipper _clipper;
+
+    std::unordered_map<int, bool>         _pfFilter;
+    std::unordered_map<std::string, bool> _symbolFilter;
 };

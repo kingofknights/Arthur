@@ -9,6 +9,7 @@ inline constexpr const char* VisualThemeName[] = {
     "Arthur Dark",
     "Default Light",
     "Default Dark",
+    "Rose pine Light",
 };
 
 inline constexpr const char* StrategyStatusType[] = {

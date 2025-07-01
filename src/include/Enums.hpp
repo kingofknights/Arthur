@@ -11,6 +11,7 @@ enum VisualTheme : int {
     VisualTheme_ARTHUR_DARK,
     VisualTheme_IMGUI_LIGHT,
     VisualTheme_IMGUI_DARK,
+    VisualTheme_ROSE_PINE_LIGHT,
     VisualTheme_END
 };
 enum ColumnGeneratorColumnIndex {
@@ -237,4 +238,4 @@ enum NetBookCalculation {
     NetBookCalculation_GREEK
 };
 
-#endif// ARTHUR_INCLUDE_ENUMS_HPP
+#endif  // ARTHUR_INCLUDE_ENUMS_HPP
