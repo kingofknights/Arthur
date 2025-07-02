@@ -1,5 +1,7 @@
 #include "ConfigLoader.hpp"
 
+#include "ContractInfo.hpp"
+#include "StoreProcedures.hpp"
 #include "Structure.hpp"
 
 #include <filesystem>
@@ -30,6 +32,7 @@ auto ConfigLoader::GetStrategyColumn(const std::string& strategyName_) -> std::s
         return strStream.str();
     }
 #else
+
     auto table = Lancelot::ContractInfo::GetResultWithIndex(FORMAT(GetStrategyColumns_, strategyName_));
     for (const auto& row : table) {
         for (const auto& item : row) {
@@ -72,9 +75,13 @@ void ConfigLoader::GetStrategyList() {
         StrategyNameList.push_back(file);
     }
 #else
-    auto table = Lancelot::ContractInfo::GetResultWithIndex(GetStrategyList_);
-    for (const auto& row : table) {
-        StrategyNameList.push_back(row[0]);
+    if (Lancelot::ContractInfo::TableExist("Strategy")) {
+        auto table = Lancelot::ContractInfo::GetResultWithIndex(GetStrategyList_);
+        for (const auto& row : table) {
+            StrategyNameList.push_back(row[0]);
+        }
+    } else {
+        Lancelot::ContractInfo::ExecuteQuery(CreateStrategy_);
     }
 #endif
 }

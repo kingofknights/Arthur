@@ -10,6 +10,8 @@
 #include <SQLiteCpp/Transaction.h>
 
 #include <algorithm>
+#include <charconv>
+#include <string>
 
 namespace Lancelot {
     ContractFetcher::ContractFetcher(const std::string& name_)
@@ -45,35 +47,44 @@ namespace Lancelot {
         LOG(INFO, "SQLite Metadata -> SQLite version: {}", header.sqliteVersion)
     }
 
-    void ContractFetcher::Insert(TableWithColumnIndexT& table_) {
-        {
+    void ContractFetcher::Insert(TableWithColumnIndexT& table_, ContractColumnT column_, std::string exchange_) {
+        if (_database->tableExists("ResultSet")) {
             SQLite::Transaction transaction(*_database);
-            _database->exec(DeleteResultSet_);
-            _database->exec(Createdb_);
+            SQLite::Statement   deleteResultSet(*_database, DeleteResultSet_);
+            deleteResultSet.bind(1, exchange_);
+            deleteResultSet.exec();
             transaction.commit();
+        } else {
+            _database->exec(Createdb_);
         }
         SQLite::Transaction transaction(*_database);
         SQLite::Statement   insertResultSet(*_database, InsertResultSetRow_);
         const std::string   exchange = ToString(Exchange_NSE_FUTURE);
 
-        std::ranges::for_each(table_, [&insertResultSet, exchange](const RowWithColumnIndexT& row_) {
-            insertResultSet.bind(1, row_[TOKEN]);
-            insertResultSet.bind(2, row_[STRIKE]);
-            insertResultSet.bind(3, row_[INSTRUMENT_TYPE]);
-            insertResultSet.bind(4, row_[SYMBOL]);
-            insertResultSet.bind(5, row_[EXPIRY]);
-            insertResultSet.bind(6, row_[DESCRIPTION]);
-            insertResultSet.bind(7, row_[OPTION_TYPE]);
-            insertResultSet.bind(8, row_[DESCRIPTION]);
+        std::ranges::for_each(table_, [&insertResultSet, exchange, &column_](const RowWithColumnIndexT& row_) {
+            int  exipry = 0;
+            auto type   = row_[column_._expiry];
+            std::from_chars(type.data(), type.data() + type.length(), exipry);
+            if (column_._expiry_diff) {
+                exipry += 315513000;
+            }
+            insertResultSet.bind(1, row_[column_._token]);
+            insertResultSet.bind(2, row_[column_._strike]);
+            insertResultSet.bind(3, row_[column_._instrument_type]);
+            insertResultSet.bind(4, row_[column_._symbol]);
+            insertResultSet.bind(5, exipry);
+            insertResultSet.bind(6, row_[column_._description]);
+            insertResultSet.bind(7, row_[column_._option_type]);
+            insertResultSet.bind(8, row_[column_._description]);
             insertResultSet.bind(9, exchange);
-            insertResultSet.bind(10, "F&O");
-            insertResultSet.bind(11, row_[FUTURE_TOKEN]);
-            insertResultSet.bind(12, row_[LOT_SIZE]);
-            insertResultSet.bind(13, row_[TICK_SIZE]);
-            insertResultSet.bind(14, 100);
-            insertResultSet.bind(15, row_[LOW_DPR]);
-            insertResultSet.bind(16, row_[HIGH_DPR]);
-            insertResultSet.bind(17, row_[LOW_DPR]);
+            insertResultSet.bind(10, row_[column_._future_token]);
+            insertResultSet.bind(11, row_[column_._lot_size]);
+            insertResultSet.bind(12, row_[column_._tick_size]);
+            insertResultSet.bind(13, 100);
+            insertResultSet.bind(14, row_[column_._low_dpr]);
+            insertResultSet.bind(15, row_[column_._high_dpr]);
+            insertResultSet.bind(16, row_[column_._low_dpr]);
+            insertResultSet.bind(17, row_[column_._freeze_quantity]);
 
             insertResultSet.exec();
             insertResultSet.reset();
@@ -114,5 +125,8 @@ namespace Lancelot {
         } catch (std::exception& ex_) {
             LOG(ERROR, "{} {}", __FUNCTION__, ex_.what())
         }
+    }
+    bool ContractFetcher::IsTableExist(const std::string& name_) {
+        return _database->tableExists(name_);
     }
 }  // namespace Lancelot

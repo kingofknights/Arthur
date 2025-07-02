@@ -39,8 +39,10 @@ namespace Lancelot {
     };
 
     enum Instrument : uint8_t {
-        Instrument_FUTURE = 0,
-        Instrument_OPTION,
+        Instrument_FUTURE_INDEX = 0,
+        Instrument_OPTION_INDEX,
+        Instrument_FUTURE_STOCK,
+        Instrument_OPTION_STOCK,
         Instrument_EQUITY,
         Instrument_OTHER
     };

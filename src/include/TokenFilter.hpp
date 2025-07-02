@@ -27,6 +27,7 @@ class TokenFilter {
     float       _strikeData = 0;
     std::string _optionData;
 
+    Lancelot::Instrument              _instrumentValue;
     std::vector<Lancelot::Exchange>   _exchange;
     std::vector<Lancelot::Instrument> _instrument;
     std::vector<std::string>          _symbol;

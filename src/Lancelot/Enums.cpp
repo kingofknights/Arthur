@@ -26,10 +26,14 @@ namespace Lancelot {
 
     auto ToString(Instrument instrument_) -> std::string {
         switch (instrument_) {
-            case Instrument_FUTURE:
-                return "FUTURE";
-            case Instrument_OPTION:
-                return "OPTION";
+            case Instrument_FUTURE_INDEX:
+                return "FUTURE INDEX";
+            case Instrument_OPTION_INDEX:
+                return "OPTION INDEX";
+            case Instrument_FUTURE_STOCK:
+                return "FUTURE STOCK";
+            case Instrument_OPTION_STOCK:
+                return "OPTION STOCK";
             case Instrument_EQUITY:
                 return "EQUITY";
             case Instrument_OTHER:

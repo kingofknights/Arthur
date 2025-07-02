@@ -88,6 +88,7 @@ void TokenFilter::DrawInstrumentFilter() noexcept {
             ImGui::PushID(item);
             if (ImGui::Selectable(Lancelot::ToString(item).data())) {
                 _instrumentData     = Lancelot::ToString(item);
+                _instrumentValue    = item;
                 const auto exchange = Lancelot::ContractInfo::GetExchange(_exchangeData);
 
                 _symbolData.clear();
@@ -128,9 +129,8 @@ void TokenFilter::DrawSymbolFilter() noexcept {
         for (const auto& item : _symbol) {
             ImGui::PushID(item.data());
             if (_filter.PassFilter(item.data()) and ImGui::Selectable((item).data())) {
-                _symbolData           = item;
-                const auto exchange   = Lancelot::ContractInfo::GetExchange(_exchangeData);
-                const auto instrument = Lancelot::ContractInfo::GetInstrumentType(_instrumentData);
+                _symbolData         = item;
+                const auto exchange = Lancelot::ContractInfo::GetExchange(_exchangeData);
 
                 _expiryData.clear();
                 _expiry.clear();
@@ -141,7 +141,7 @@ void TokenFilter::DrawSymbolFilter() noexcept {
                 _localContainer.clear();
                 std::set<std::string> expiry;
                 for (const auto& [token, result] : _container) {
-                    if (exchange == result->_exchange and instrument == result->_instType and item == result->_symbol) {
+                    if (exchange == result->_exchange and _instrumentValue == result->_instType and item == result->_symbol) {
                         _localContainer.push_back(result);
                         expiry.insert(FORMAT("{:%d %b %Y}", fmt::localtime(result->_expiryDate)));
                     }
@@ -162,9 +162,8 @@ void TokenFilter::DrawExpiryFilter() noexcept {
         for (const auto& item : _expiry) {
             ImGui::PushID(item.data());
             if (ImGui::Selectable((item).data())) {
-                _expiryData           = item;
-                const auto exchange   = Lancelot::ContractInfo::GetExchange(_exchangeData);
-                const auto instrument = Lancelot::ContractInfo::GetInstrumentType(_instrumentData);
+                _expiryData         = item;
+                const auto exchange = Lancelot::ContractInfo::GetExchange(_exchangeData);
 
                 _optionData.clear();
                 _strikeData = 0;
@@ -174,7 +173,7 @@ void TokenFilter::DrawExpiryFilter() noexcept {
                 _localContainer.clear();
                 std::set<Lancelot::OptionType> expiry;
                 for (const auto& [token, result] : _container) {
-                    if (exchange == result->_exchange and instrument == result->_instType and _symbolData == result->_symbol and _expiryData == FORMAT("{:%d %b %Y}", fmt::localtime(result->_expiryDate))) {
+                    if (exchange == result->_exchange and _instrumentValue == result->_instType and _symbolData == result->_symbol and _expiryData == FORMAT("{:%d %b %Y}", fmt::localtime(result->_expiryDate))) {
                         _localContainer.push_back(result);
                         expiry.insert(result->_option);
                     }
@@ -198,9 +197,8 @@ void TokenFilter::DrawOptionFilter() noexcept {
         for (const auto& item : _option) {
             ImGui::PushID(item);
             if (ImGui::Selectable(Lancelot::ToString(item).data())) {
-                _optionData           = Lancelot::ToString(item);
-                const auto exchange   = Lancelot::ContractInfo::GetExchange(_exchangeData);
-                const auto instrument = Lancelot::ContractInfo::GetInstrumentType(_instrumentData);
+                _optionData         = Lancelot::ToString(item);
+                const auto exchange = Lancelot::ContractInfo::GetExchange(_exchangeData);
 
                 _strikeData = 0;
                 _strike.clear();
@@ -208,7 +206,7 @@ void TokenFilter::DrawOptionFilter() noexcept {
                 _localContainer.clear();
                 std::set<float> expiry;
                 for (const auto& [token, result] : _container) {
-                    if (exchange == result->_exchange and instrument == result->_instType and _symbolData == result->_symbol and _expiryData == FORMAT("{:%d %b %Y}", fmt::localtime(result->_expiryDate)) and _optionData == Lancelot::ToString(result->_option)) {
+                    if (exchange == result->_exchange and _instrumentValue == result->_instType and _symbolData == result->_symbol and _expiryData == FORMAT("{:%d %b %Y}", fmt::localtime(result->_expiryDate)) and _optionData == Lancelot::ToString(result->_option)) {
                         _localContainer.push_back(result);
 
                         expiry.insert(result->_strikePrice);
@@ -240,13 +238,12 @@ void TokenFilter::DrawStikeFilter() noexcept {
             ImGui::PushID(static_cast<int>(item));
             const std::string data = FORMAT("{:.2f}", item);
             if (_filterStrike.PassFilter(data.data()) and ImGui::Selectable(data.data())) {
-                _strikeData           = item;
-                const auto exchange   = Lancelot::ContractInfo::GetExchange(_exchangeData);
-                const auto instrument = Lancelot::ContractInfo::GetInstrumentType(_instrumentData);
+                _strikeData         = item;
+                const auto exchange = Lancelot::ContractInfo::GetExchange(_exchangeData);
 
                 _localContainer.clear();
                 for (const auto& [token, result] : _container) {
-                    if (exchange == result->_exchange and instrument == result->_instType and _symbolData == result->_symbol and _expiryData == FORMAT("{:%d %b %Y}", fmt::localtime(result->_expiryDate)) and _optionData == Lancelot::ToString(result->_option) and _strikeData == result->_strikePrice) {
+                    if (exchange == result->_exchange and _instrumentValue == result->_instType and _symbolData == result->_symbol and _expiryData == FORMAT("{:%d %b %Y}", fmt::localtime(result->_expiryDate)) and _optionData == Lancelot::ToString(result->_option) and _strikeData == result->_strikePrice) {
                         _localContainer.push_back(result);
                     }
                 }

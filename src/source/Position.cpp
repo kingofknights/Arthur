@@ -133,7 +133,7 @@ void Position::GreekBookUpdate(const OrderInfoPtrT& tradeInfo_) {
         {
             auto* resultSet     = Lancelot::ContractInfo::GetResultSet(tradeInfo_->_token);
             greek->_isCall      = resultSet->_option == Lancelot::OptionType_CALL;
-            greek->_isFuture    = resultSet->_instType == Lancelot::Instrument_FUTURE;
+            greek->_isFuture    = resultSet->_instType == Lancelot::Instrument_FUTURE_INDEX;
             greek->_expiry      = resultSet->_expiryDate;
             greek->_strike      = resultSet->_strikePrice;
             greek->_impliedVol  = 1;
