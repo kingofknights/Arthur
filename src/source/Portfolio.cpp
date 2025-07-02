@@ -121,7 +121,7 @@ void Portfolio::DrawPortfolioWindow() {
     DrawGlobalParamPopupWindow();
 
     ImGui::SameLine();
-
+#ifndef TURNOFF_SCANNER
     if (ImGui::Button(ICON_MD_MANAGE_SEARCH " Scanner")) {
         _showScanner = true;
         ImGui::OpenPopup(SCANNER_WINDOW);
@@ -129,6 +129,7 @@ void Portfolio::DrawPortfolioWindow() {
     if (_showScanner) {
         PortfolioScanner::Paint(&_showScanner);
     }
+#endif
     ImGui::SameLine();
     if (ImGui::Button(ICON_MD_APP_SETTINGS_ALT " Options")) ImGui::OpenPopup(ADDITIONAL_OPTION);
     if (ImGui::BeginPopup(ADDITIONAL_OPTION)) {

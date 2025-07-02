@@ -35,13 +35,17 @@ PortfolioInterface::PortfolioInterface(std::string name_, const std::string& str
     const std::string jsonData = ConfigLoader::Instance().GetStrategyColumn(_strategyName);
     ParseConfig(jsonData);
     PortfolioInterface::Imports(FORMAT("Save/{}.json", _name));
+#ifndef TURNOFF_SCANNER
     PortfolioScanner::Import(FORMAT("Save/{}_Scanner.json", _name));
+#endif
 }
 
 PortfolioInterface::~PortfolioInterface() {
     if (_open) {
         PortfolioInterface::Exports(FORMAT("Save/{}.json", _name));
+#ifndef TURNOFF_SCANNER
         PortfolioScanner::Export(FORMAT("Save/{}_Scanner.json", _name));
+#endif
     }
 }
 

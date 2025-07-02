@@ -8,7 +8,6 @@
 #include <fstream>
 
 extern StrategyNameListT StrategyNameList;
-
 ConfigLoader::ConfigLoader() {
     LOG(INFO, "{}", __FUNCTION__)
     const std::string path = "Save/";

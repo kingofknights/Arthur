@@ -141,9 +141,9 @@ inline constexpr char StrikeRange[] =
     " AND T1.ExpiryDate = T2.ExpiryDate"
     " AND T1.StrikePrice BETWEEN {} AND {} ;";
 
-inline constexpr char CreateStrategy_[] = "CREATE TABLE IF NOT EXISTS Strategy (name TEXT, data TEXT)";
+inline constexpr char CreateStrategy_[] = "CREATE TABLE IF NOT EXISTS Strategy (ID INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT, data TEXT)";
 
-inline constexpr char InsertStrategy_[]    = "INSERT INTO Strategy(name, data) values('{}', '{}')";
+inline constexpr char InsertStrategy_[]    = "INSERT INTO Strategy(Name, data) values('{}', '{}')";
 inline constexpr char RemoveStrategy_[]    = "DELETE FROM Strategy WHERE name = '{}'";
 inline constexpr char GetStrategyID_[]     = "SELECT `ID` FROM Strategy WHERE Name = '{}'";
 inline constexpr char GetStrategyParams_[] = "SELECT `ID`, Data FROM tblStrategyData WHERE StrategyName = '{}'";
