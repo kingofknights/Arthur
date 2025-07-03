@@ -4,11 +4,15 @@
 
 #pragma once
 
+#include "Enums.hpp"
 #include "Structure.hpp"
 
 #include <optional>
 
 enum StrategyStatus : int;
+using ColumnFilterContainerT      = std::map<std::string, bool>;
+using ColumnFilterContainerArrayT = std::array<ColumnFilterContainerT, BooksColumnIndex_END>;
+using ColumnFilterActiveT         = std::array<bool, BooksColumnIndex_END>;
 
 class Utils {
   public:
@@ -49,6 +53,10 @@ class Utils {
     static auto GetPhoenixModifyOrder(const OrderFormInfoT& info_, int16_t user_) noexcept -> Lancelot::ModifyOrder;
 
     static auto GetPhoenixCancelOrder(const OrderInfoPtrT& info_, int16_t user_) noexcept -> Lancelot::CancelOrder;
+
+    static auto GetString(size_t index_, const OrderInfoPtrT& order_) -> std::string;
+
+    static auto CheckPassFiler(const OrderInfoPtrT& order_, ColumnFilterContainerArrayT& filter_, ColumnFilterActiveT active_) -> bool;
 
   private:
     static GlobalStrategyListT GlobalStrategyList;

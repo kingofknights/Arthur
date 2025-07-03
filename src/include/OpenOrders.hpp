@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Arthur_Fwd.hpp"
+#include "Enums.hpp"
 #include "Structure.hpp"
+#include "Utils.hpp"
 
 #include <algorithm>
 #include <string>
@@ -59,5 +61,6 @@ class OpenOrders {
     bool             _isFilterActive       = false;
     ImGuiListClipper _clipper;
 
-    std::map<std::string, bool> _filter[BooksColumnIndex_END];
+    std::array<bool, BooksColumnIndex_END> _active;
+    ColumnFilterContainerArrayT            _filter;
 };

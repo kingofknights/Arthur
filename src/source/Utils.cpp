@@ -317,3 +317,68 @@ auto Utils::GetPhoenixCancelOrder(const OrderInfoPtrT& info_, int16_t user_) noe
         ._orderSequence = static_cast<int16_t>(info_->_uniqueId),
     };
 }
+auto Utils::GetString(size_t index_, const OrderInfoPtrT& order_) -> std::string {
+    switch (index_) {
+        case BooksColumnIndex_PF: {
+            return FORMAT("{}", order_->_portfolio);
+        }
+        case BooksColumnIndex_CONTRACT: {
+            return FORMAT("{}", order_->_contract);
+        }
+        case BooksColumnIndex_PRICE: {
+            return FORMAT("{:.2f}", order_->_price);
+        }
+        case BooksColumnIndex_QUANTITY: {
+            return FORMAT("{}", order_->_quantity);
+        }
+        case BooksColumnIndex_FILL_PRICE: {
+            return FORMAT("{:.2f}", order_->_fillPrice);
+        }
+        case BooksColumnIndex_FILL_QUANTITY: {
+            return FORMAT("{}", order_->_fillQuantity);
+        }
+        case BooksColumnIndex_REMAINING_QTY: {
+            return FORMAT("{}", order_->_remaining);
+        }
+        case BooksColumnIndex_CLIENT: {
+            return FORMAT("{}", order_->_client);
+        }
+        case BooksColumnIndex_STATUS: {
+            return FORMAT("{}", OrderStatusInfoName[order_->_statusValue]);
+        }
+        case BooksColumnIndex_TIME: {
+            return FORMAT("{}", order_->_time);
+        }
+        case BooksColumnIndex_GATEWAY: {
+            return FORMAT("{}", order_->_uniqueId);
+        }
+        case BooksColumnIndex_ORDER_NUMBER: {
+            return FORMAT("{}", order_->_orderNumber);
+        }
+        case BooksColumnIndex_MESSAGE: {
+            return FORMAT("{}", order_->_message);
+        }
+    }
+    return {};
+};
+
+auto Utils::CheckPassFiler(const OrderInfoPtrT& order_, ColumnFilterContainerArrayT& filter_, ColumnFilterActiveT active_) -> bool {
+    for (size_t index = 0; index < BooksColumnIndex_END; ++index) {
+        if (not active_[index]) {
+            continue;
+        }
+        auto& container = filter_[index];
+        if (container.empty()) {
+            continue;
+        }
+        const std::string option   = Utils::GetString(index, order_);
+        const auto        iterator = container.find(option);
+        if (iterator == container.end()) {
+            return false;
+        }
+        if (not iterator->second) {
+            return false;
+        }
+    }
+    return true;
+};

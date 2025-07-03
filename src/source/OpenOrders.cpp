@@ -236,6 +236,12 @@ void OpenOrders::Update(const OrderInfoPtrT& tradeInfo_, bool insert_) {
         _container.emplace(tradeInfo_->_time, tradeInfo_);
         _buyCount += static_cast<int>(tradeInfo_->_side == Lancelot::Side_BUY);
         _sellCount += static_cast<int>(tradeInfo_->_side == Lancelot::Side_SELL);
+
+        if (_isFilterActive) {
+            if (Utils::CheckPassFiler(tradeInfo_, _filter, _active)) {
+                _filterContainer.emplace(tradeInfo_->_time, tradeInfo_);
+            }
+        }
     }
 }
 void OpenOrders::Insert(const OrderInfoPtrT& tradeInfo_, bool insert_) {
@@ -249,6 +255,23 @@ void OpenOrders::FilterOptionsWindows() {
     }
     ImGui::PushID(index);
     if (ImGui::BeginPopupContextItem(FORMAT("{} Filter", BookTableColumnName[index]).data(), ImGuiPopupFlags_None)) {
+        ImGui::Columns(2, nullptr, false);
+        if (ImGui::Button(FORMAT("{} Clear", ICON_MD_DELETE).data(), ImVec2{-FLT_MIN, 0})) {
+            std::ranges::for_each(_filter[index], [](auto& item_) {
+                item_.second = false;
+            });
+            StartNewFilter();
+        }
+
+        ImGui::NextColumn();
+        if (ImGui::Button(FORMAT("{} Clear All", ICON_MD_DELETE_SWEEP).data(), ImVec2{-FLT_MIN, 0})) {
+            std::ranges::for_each(_filter, [](auto& item_) {
+                item_.clear();
+            });
+            _isFilterActive = IsFilterActive();
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndColumns();
         auto& container = _filter[index];
         if (ImGui::BeginListBox(FORMAT("##{}", BookTableColumnName[index]).data())) {
             for (auto& item : container) {
@@ -265,106 +288,37 @@ void OpenOrders::FilterOptionsWindows() {
 
 void OpenOrders::StartNewFilter() {
     _isFilterActive = IsFilterActive();
-
+    _filterContainer.clear();
     if (not _isFilterActive) {
-        _filterContainer.clear();
         return;
     }
-    const auto GetString = [](int index_, const OrderInfoPtrT& order_) -> std::string {
-        switch (index_) {
-            case BooksColumnIndex_PF: {
-                return FORMAT("{}", order_->_portfolio);
-            }
-            case BooksColumnIndex_CONTRACT: {
-                return FORMAT("{}", order_->_contract);
-            }
-            case BooksColumnIndex_PRICE: {
-                return FORMAT("{:.2f}", order_->_price);
-            }
-            case BooksColumnIndex_QUANTITY: {
-                return FORMAT("{}", order_->_quantity);
-            }
-            case BooksColumnIndex_FILL_PRICE: {
-                return FORMAT("{:.2f}", order_->_fillPrice);
-            }
-            case BooksColumnIndex_FILL_QUANTITY: {
-                return FORMAT("{}", order_->_fillQuantity);
-            }
-            case BooksColumnIndex_REMAINING_QTY: {
-                return FORMAT("{}", order_->_remaining);
-            }
-            case BooksColumnIndex_CLIENT: {
-                return FORMAT("{}", order_->_client);
-            }
-            case BooksColumnIndex_STATUS: {
-                return FORMAT("{}", OrderStatusInfoName[order_->_statusValue]);
-            }
-            case BooksColumnIndex_TIME: {
-                return FORMAT("{}", order_->_time);
-            }
-            case BooksColumnIndex_GATEWAY: {
-                return FORMAT("{}", order_->_uniqueId);
-            }
-            case BooksColumnIndex_ORDER_NUMBER: {
-                return FORMAT("{}", order_->_orderNumber);
-            }
-            case BooksColumnIndex_MESSAGE: {
-                return FORMAT("{}", order_->_message);
-            }
-        }
-        return {};
-    };
-    const auto checkPassFiler = [&](const OrderInfoPtrT& order_) {
-        for (int index = 0; index < BooksColumnIndex_END; ++index) {
-            auto& container = _filter[index];
-            if (container.empty()) {
-                continue;
-            }
-            {
-                bool all = std::ranges::all_of(container, [](auto& pair_) { return not pair_.second; });
-                if (all) {
-                    continue;
-                }
-            }
-            {
-                bool all = std::ranges::all_of(container, [](auto& pair_) { return pair_.second; });
-                if (all) {
-                    continue;
-                }
-            }
-            const std::string option   = GetString(index, order_);
-            const auto        iterator = container.find(option);
-            if (iterator == container.end()) {
-                return false;
-            }
-            if (not iterator->second) {
-                return false;
-            }
-        }
-        return true;
-    };
 
-    // const auto local = _filterContainer.empty() ? _container : _filterContainer;
-    _filterContainer.clear();
-    for (auto& order : _container) {
-        if (checkPassFiler(order.second)) {
+    for (const auto& order : _container) {
+        if (Utils::CheckPassFiler(order.second, _filter, _active)) {
             _filterContainer.emplace(order.first, order.second);
         }
     }
 }
 
 auto OpenOrders::IsFilterActive() -> bool {
-    return std::ranges::any_of(_filter, [](auto& container_) {
+    std::ranges::transform(_filter, _active.begin(), [](const auto& container_) {
         return std::ranges::any_of(container_, [](const auto& pair_) {
             return pair_.second;
         });
+    });
+    return std::ranges::any_of(_active, [](bool value_) {
+        return value_;
     });
 }
 void OpenOrders::FillFilterOption() {
     if (not _isFilterActive) {
         std::ranges::for_each(_filter, [](auto& item_) { item_.clear(); });
+    } else {
+        std::ranges::for_each(_filter, [](auto& item_) {
+            std::erase_if(item_, [](const auto& pair_) { return !pair_.second; });
+        });
     }
-    const auto& local = _container;
+    const auto& local = _isFilterActive ? _filterContainer : _container;
     std::ranges::for_each(local, [&](const auto& pair_) {
         const OrderInfoPtrT& order = pair_.second;
         _filter[BooksColumnIndex_PF].emplace(FORMAT("{}", order->_portfolio), false);
