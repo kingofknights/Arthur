@@ -2,9 +2,11 @@
 
 #include "API/Common.hpp"
 #include "API/ContractInfo.hpp"
+#include "Arthur_Fwd.hpp"
 #include "Colors.hpp"
 #include "Configuration.hpp"
 #include "Enums.hpp"
+#include "IconsMaterialDesign.h"
 #include "Logger.hpp"
 #include "OrderForm.hpp"
 #include "OrderHistory.hpp"
@@ -17,6 +19,7 @@
 #include <algorithm>
 #include <cfloat>
 #include <iterator>
+#include <string>
 
 static constexpr char CancelAllOrderWindow[] = "Cancel All Order Window";
 static constexpr char BeginOpenOrders[]      = "Open Orders";
@@ -36,32 +39,6 @@ void OpenOrders::Paint() noexcept {
     }
 }
 
-void OpenOrders::DoFilter(const OrderInfoPtrT& tradeInfo_) {
-    if (_pfFilter.empty() and _symbolFilter.empty()) {
-        return;
-    }
-    if (not _pfFilter.empty() and std::ranges::any_of(_pfFilter, [](const auto& item_) { return item_.second; })) {
-        const auto iterator = _pfFilter.find(tradeInfo_->_portfolio);
-        if (iterator != _pfFilter.cend()) {
-            if (not iterator->second) {
-                return;
-            }
-        } else {
-            return;
-        }
-    }
-    if (not _symbolFilter.empty() and std::ranges::any_of(_symbolFilter, [](const auto& item_) { return item_.second; })) {
-        const auto iterator = _symbolFilter.find(tradeInfo_->_contract);
-        if (iterator != _symbolFilter.cend()) {
-            if (not iterator->second) {
-                return;
-            }
-        } else {
-            return;
-        }
-    }
-    _filterContainer.emplace(tradeInfo_->_time, tradeInfo_);
-}
 void OpenOrders::DrawPendingBook(bool* show_) {
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_FirstUseEver, ImVec2(0.5F, 0.5F));
     ImGui::SetNextWindowSize(ImVec2{ImGui::GetMainViewport()->Size.x / 2, ImGui::GetMainViewport()->Size.y / 2}, ImGuiCond_FirstUseEver);
@@ -74,22 +51,46 @@ void OpenOrders::DrawPendingBook(bool* show_) {
                 ImGui::TableSetupColumn(name, TableColumnFlags);
             }
 
-            auto* table                      = ImGui::GetCurrentTable();
-            table->DisableDefaultContextMenu = true;
-            if (ImGui::TableBeginContextMenuPopup(table)) {
-                if (ImGui::Button(ICON_MD_FILTER " Filter")) {
-                    ImGui::OpenPopup("Open Orders Filter");
+            ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
+            for (int column = 0; column < BooksColumnIndex_END; ++column) {
+                ImGui::TableSetColumnIndex(column);
+                ImGui::PushID(column);
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+                if (ImGui::SmallButton(ICON_MD_ARROW_DROP_DOWN)) {
+                    _currentFilterOpended = column;
+                    _filterWindowShow     = true;
+                    FillFilterOption();
+                    ImGui::OpenPopup(FORMAT("{} Filter", BookTableColumnName[column]).data());
                 }
-                FilterOptionsWindows();
-                if (ImGui::BeginMenu(ICON_MD_MORE " More ...")) {
-                    ImGui::TableDrawDefaultContextMenu(table, TableFlags);
-                    ImGui::EndMenu();
-                }
-
-                ImGui::EndPopup();
+                ImGui::PopStyleVar();
+                ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+                ImGui::TableHeader(BookTableColumnName[column]);
+                ImGui::PopID();
             }
+            if (not _filterWindowShow) {
+                _currentFilterOpended = -1;
+            } else {
+                FilterOptionsWindows();
+            }
+            /*
+                  auto* table                      = ImGui::GetCurrentTable();
+                  table->DisableDefaultContextMenu = true;
+                  if (ImGui::TableBeginContextMenuPopup(table)) {
+                      if (ImGui::Button(ICON_MD_FILTER " Filter")) {
+                          ImGui::OpenPopup("Open Orders Filter");
+                      }
+                      FilterOptionsWindows();
+                      if (ImGui::BeginMenu(ICON_MD_MORE " More ...")) {
+                          ImGui::TableDrawDefaultContextMenu(table, TableFlags);
+                          ImGui::EndMenu();
+                      }
 
-            ImGui::TableHeadersRow();
+                      ImGui::EndPopup();
+                  }
+
+                  ImGui::TableHeadersRow();
+            */
+
             const auto& container = _isFilterActive ? _filterContainer : _container;
             _clipper.Begin(static_cast<int>(container.size()));
 
@@ -150,7 +151,6 @@ void OpenOrders::DrawPendingBook(bool* show_) {
                         _cancelOrder.push_back(value.second);
                     }
                 }
-                _closeCancelPopup = true;
                 ImGui::OpenPopup(CancelAllOrderWindow);
             }
             DrawManualOrderRequestedForCancel();
@@ -170,7 +170,7 @@ void OpenOrders::DrawPendingBook(bool* show_) {
 }
 
 void OpenOrders::DrawManualOrderRequestedForCancel() {
-    if (ImGui::BeginPopupModal(CancelAllOrderWindow, &_closeCancelPopup)) {
+    if (ImGui::BeginPopupModal(CancelAllOrderWindow)) {
         const float frameHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
         if (ImGui::BeginTable(BeginCancelBookTable, BooksColumnIndex_END, TableFlags, ImVec2(-FLT_MIN, -frameHeight))) {
             ImGui::TableSetupScrollFreeze(0, 1);  // Make top row always visible
@@ -236,79 +236,149 @@ void OpenOrders::Update(const OrderInfoPtrT& tradeInfo_, bool insert_) {
         _container.emplace(tradeInfo_->_time, tradeInfo_);
         _buyCount += static_cast<int>(tradeInfo_->_side == Lancelot::Side_BUY);
         _sellCount += static_cast<int>(tradeInfo_->_side == Lancelot::Side_SELL);
-
-        if (_isFilterActive) {
-            DoFilter(tradeInfo_);
-        }
     }
 }
 void OpenOrders::Insert(const OrderInfoPtrT& tradeInfo_, bool insert_) {
     _pendingOrderUpdate.push(std::make_pair(tradeInfo_, insert_));
 }
-void OpenOrders::ContractFilter() {
-    if (ImGui::Button(ICON_MD_CLEAR_ALL " Clear", ImVec2{-FLT_MIN, 0})) {
-        _symbolFilter.clear();
-        StartNewFilter();
-    }
-    for (const auto& item : _container) {
-        _symbolFilter.emplace(item.second->_contract, false);
-    }
-    if (ImGui::BeginListBox("##ContractOptions")) {
-        for (auto& item : _symbolFilter) {
-            if (ImGui::Checkbox(FORMAT("{}", item.first).data(), &item.second)) {
-                StartNewFilter();
-            }
-        }
-        ImGui::EndListBox();
-    }
-}
-void OpenOrders::PFFilter() {
-    if (ImGui::Button(ICON_MD_CLEAR_ALL " Clear", ImVec2{-FLT_MIN, 0})) {
-        _pfFilter.clear();
-        StartNewFilter();
-    }
-    for (const auto& item : _container) {
-        _pfFilter.emplace(item.second->_portfolio, false);
-    }
-    if (ImGui::BeginListBox("##PFOptions")) {
-        for (auto& item : _pfFilter) {
-            if (ImGui::Checkbox(FORMAT("{}", item.first).data(), &item.second)) {
-                StartNewFilter();
-            }
-        }
-        ImGui::EndListBox();
-    }
-}
+
 void OpenOrders::FilterOptionsWindows() {
-    if (ImGui::BeginPopupContextWindow("Open Orders Filter")) {
-        if (ImGui::BeginTabBar("Filter")) {
-            if (ImGui::BeginTabItem("Portfolio")) {
-                PFFilter();
-                ImGui::EndTabItem();
+    int index = _currentFilterOpended;
+    if (index == -1 or index >= BooksColumnIndex_END) {
+        return;
+    }
+    ImGui::PushID(index);
+    if (ImGui::BeginPopupContextItem(FORMAT("{} Filter", BookTableColumnName[index]).data(), ImGuiPopupFlags_None)) {
+        auto& container = _filter[index];
+        if (ImGui::BeginListBox(FORMAT("##{}", BookTableColumnName[index]).data())) {
+            for (auto& item : container) {
+                if (ImGui::Checkbox(item.first.data(), &item.second)) {
+                    StartNewFilter();
+                }
             }
-            if (ImGui::BeginTabItem("Contract")) {
-                ContractFilter();
-                ImGui::EndTabItem();
-            }
-            ImGui::EndTabBar();
+            ImGui::EndListBox();
         }
         ImGui::EndPopup();
     }
+    ImGui::PopID();
 }
-void OpenOrders::StartNewFilter() {
-    _filterContainer.clear();
-    auto found1     = std::ranges::any_of(_pfFilter, [](const auto& pair_) {
-        return pair_.second;
-    });
-    auto found2     = std::ranges::any_of(_symbolFilter, [](const auto& pair_) {
-        return pair_.second;
-    });
-    _isFilterActive = found1 or found2;
 
-    LOG(INFO, "_pfFilter {}, _symbolFilter {} active {}", found1, found2, _isFilterActive)
-    if (_isFilterActive) {
-        std::ranges::for_each(_container, [this](const auto& trade_) {
-            DoFilter(trade_.second);
-        });
+void OpenOrders::StartNewFilter() {
+    _isFilterActive = IsFilterActive();
+
+    if (not _isFilterActive) {
+        _filterContainer.clear();
+        return;
     }
+    const auto GetString = [](int index_, const OrderInfoPtrT& order_) -> std::string {
+        switch (index_) {
+            case BooksColumnIndex_PF: {
+                return FORMAT("{}", order_->_portfolio);
+            }
+            case BooksColumnIndex_CONTRACT: {
+                return FORMAT("{}", order_->_contract);
+            }
+            case BooksColumnIndex_PRICE: {
+                return FORMAT("{:.2f}", order_->_price);
+            }
+            case BooksColumnIndex_QUANTITY: {
+                return FORMAT("{}", order_->_quantity);
+            }
+            case BooksColumnIndex_FILL_PRICE: {
+                return FORMAT("{:.2f}", order_->_fillPrice);
+            }
+            case BooksColumnIndex_FILL_QUANTITY: {
+                return FORMAT("{}", order_->_fillQuantity);
+            }
+            case BooksColumnIndex_REMAINING_QTY: {
+                return FORMAT("{}", order_->_remaining);
+            }
+            case BooksColumnIndex_CLIENT: {
+                return FORMAT("{}", order_->_client);
+            }
+            case BooksColumnIndex_STATUS: {
+                return FORMAT("{}", OrderStatusInfoName[order_->_statusValue]);
+            }
+            case BooksColumnIndex_TIME: {
+                return FORMAT("{}", order_->_time);
+            }
+            case BooksColumnIndex_GATEWAY: {
+                return FORMAT("{}", order_->_uniqueId);
+            }
+            case BooksColumnIndex_ORDER_NUMBER: {
+                return FORMAT("{}", order_->_orderNumber);
+            }
+            case BooksColumnIndex_MESSAGE: {
+                return FORMAT("{}", order_->_message);
+            }
+        }
+        return {};
+    };
+    const auto checkPassFiler = [&](const OrderInfoPtrT& order_) {
+        for (int index = 0; index < BooksColumnIndex_END; ++index) {
+            auto& container = _filter[index];
+            if (container.empty()) {
+                continue;
+            }
+            {
+                bool all = std::ranges::all_of(container, [](auto& pair_) { return not pair_.second; });
+                if (all) {
+                    continue;
+                }
+            }
+            {
+                bool all = std::ranges::all_of(container, [](auto& pair_) { return pair_.second; });
+                if (all) {
+                    continue;
+                }
+            }
+            const std::string option   = GetString(index, order_);
+            const auto        iterator = container.find(option);
+            if (iterator == container.end()) {
+                return false;
+            }
+            if (not iterator->second) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    // const auto local = _filterContainer.empty() ? _container : _filterContainer;
+    _filterContainer.clear();
+    for (auto& order : _container) {
+        if (checkPassFiler(order.second)) {
+            _filterContainer.emplace(order.first, order.second);
+        }
+    }
+}
+
+auto OpenOrders::IsFilterActive() -> bool {
+    return std::ranges::any_of(_filter, [](auto& container_) {
+        return std::ranges::any_of(container_, [](const auto& pair_) {
+            return pair_.second;
+        });
+    });
+}
+void OpenOrders::FillFilterOption() {
+    if (not _isFilterActive) {
+        std::ranges::for_each(_filter, [](auto& item_) { item_.clear(); });
+    }
+    const auto& local = _container;
+    std::ranges::for_each(local, [&](const auto& pair_) {
+        const OrderInfoPtrT& order = pair_.second;
+        _filter[BooksColumnIndex_PF].emplace(FORMAT("{}", order->_portfolio), false);
+        _filter[BooksColumnIndex_CONTRACT].emplace(FORMAT("{}", order->_contract), false);
+        _filter[BooksColumnIndex_PRICE].emplace(FORMAT("{:.2f}", order->_price), false);
+        _filter[BooksColumnIndex_QUANTITY].emplace(FORMAT("{}", order->_quantity), false);
+        _filter[BooksColumnIndex_FILL_PRICE].emplace(FORMAT("{:.2f}", order->_fillPrice), false);
+        _filter[BooksColumnIndex_FILL_QUANTITY].emplace(FORMAT("{}", order->_fillQuantity), false);
+        _filter[BooksColumnIndex_REMAINING_QTY].emplace(FORMAT("{}", order->_remaining), false);
+        _filter[BooksColumnIndex_CLIENT].emplace(FORMAT("{}", order->_client), false);
+        _filter[BooksColumnIndex_STATUS].emplace(FORMAT("{}", OrderStatusInfoName[order->_statusValue]), false);
+        _filter[BooksColumnIndex_TIME].emplace(FORMAT("{}", order->_time), false);
+        _filter[BooksColumnIndex_GATEWAY].emplace(FORMAT("{}", order->_uniqueId), false);
+        _filter[BooksColumnIndex_ORDER_NUMBER].emplace(FORMAT("{}", order->_orderNumber), false);
+        _filter[BooksColumnIndex_MESSAGE].emplace(FORMAT("{}", order->_message), false);
+    });
 }

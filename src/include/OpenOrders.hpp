@@ -3,6 +3,7 @@
 #include "Arthur_Fwd.hpp"
 #include "Structure.hpp"
 
+#include <algorithm>
 #include <string>
 #include <unordered_map>
 
@@ -25,15 +26,15 @@ class OpenOrders {
 
     void DrawManualOrderRequestedForCancel();
 
-    void ContractFilter();
-
-    void PFFilter();
-
     void FilterOptionsWindows();
 
     void DoFilter(const OrderInfoPtrT& tradeInfo_);
 
     void StartNewFilter();
+
+    auto IsFilterActive() -> bool;
+
+    void FillFilterOption();
 
   private:
     const OrderFormPtrT& _manualOrder;
@@ -49,14 +50,14 @@ class OpenOrders {
 
     std::unordered_map<uint32_t, std::string> _hashing;
 
-    int  _buyCount         = 0;
-    int  _sellCount        = 0;
-    int  _selectedRow      = -1;
-    bool _closeCancelPopup = false;
+    int _buyCount    = 0;
+    int _sellCount   = 0;
+    int _selectedRow = -1;
 
-    bool             _isFilterActive = false;
+    int              _currentFilterOpended = -1;
+    bool             _filterWindowShow     = false;
+    bool             _isFilterActive       = false;
     ImGuiListClipper _clipper;
 
-    std::unordered_map<int, bool>         _pfFilter;
-    std::unordered_map<std::string, bool> _symbolFilter;
+    std::map<std::string, bool> _filter[BooksColumnIndex_END];
 };

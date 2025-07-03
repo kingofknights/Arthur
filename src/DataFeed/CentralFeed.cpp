@@ -134,16 +134,34 @@ void CentralFeed::Process(int size_) {
         case 5: {
             std::string name = std::string(_index->_data._name, 21);
             boost::algorithm::trim(name);
-            LOG(INFO, "{} - value {}  change {} ", name, _index->_data._value, _index->_data._percentageChange);
             if (name == "Nifty Bank") {
-                BankNifty._value  = _index->_data._value / 100.0F;
-                BankNifty._change = _index->_data._percentageChange;
+                BankNifty._value            = _index->_data._value / 100.0F;
+                BankNifty._open             = _index->_data._open / 100.0F;
+                BankNifty._high             = _index->_data._high / 100.0F;
+                BankNifty._low              = _index->_data._low / 100.0F;
+                BankNifty._close            = _index->_data._close / 100.0F;
+                BankNifty._yearlyHigh       = _index->_data._yearlyHigh / 100.0F;
+                BankNifty._yearlyLow        = _index->_data._yearlyLow / 100.0F;
+                BankNifty._percentageChange = _index->_data._percentageChange;
+
             } else if (name == "Nifty 50") {
-                Nifty._value  = _index->_data._value / 100.0F;
-                Nifty._change = _index->_data._percentageChange;
+                Nifty._value            = _index->_data._value / 100.0F;
+                Nifty._open             = _index->_data._open / 100.0F;
+                Nifty._high             = _index->_data._high / 100.0F;
+                Nifty._low              = _index->_data._low / 100.0F;
+                Nifty._close            = _index->_data._close / 100.0F;
+                Nifty._yearlyHigh       = _index->_data._yearlyHigh / 100.0F;
+                Nifty._yearlyLow        = _index->_data._yearlyLow / 100.0F;
+                Nifty._percentageChange = _index->_data._percentageChange;
             } else if (name == "India VIX") {
-                VIX._value  = _index->_data._value / 100.F;
-                VIX._change = _index->_data._percentageChange;
+                VIX._value            = _index->_data._value / 100.0F;
+                VIX._open             = _index->_data._open / 100.0F;
+                VIX._high             = _index->_data._high / 100.0F;
+                VIX._low              = _index->_data._low / 100.0F;
+                VIX._close            = _index->_data._close / 100.0F;
+                VIX._yearlyHigh       = _index->_data._yearlyHigh / 100.0F;
+                VIX._yearlyLow        = _index->_data._yearlyLow / 100.0F;
+                VIX._percentageChange = _index->_data._percentageChange;
             }
             break;
         }

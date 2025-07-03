@@ -292,19 +292,25 @@ auto Arthur::Menu() -> void {
 
         ImGui::Dummy(ImVec2(1, 0));
         {
-            ImGui::Text("Nifty Bank");
+            ImGui::Text("%s %s Nifty Bank", ICON_MD_VERTICAL_SPLIT, ICON_MD_SHOW_CHART);
             ImGui::SameLine();
-            ImGui::TextColored(UpDownColor(BankNifty._change >= 0), "[ %.2f, %.2f]", BankNifty._value, BankNifty._change);
+            ImGui::TextColored(UpDownColor(BankNifty._percentageChange >= 0), "[ %.2f, %.2f]", BankNifty._value, BankNifty._percentageChange);
+            if (ImGui::IsItemHovered()) {
+                if (ImGui::BeginTooltip()) {
+                    ImGui::Text(" Yearly high : %.2f", BankNifty._yearlyHigh);
+                    ImGui::EndTooltip();
+                }
+            }
             ImGui::SameLine();
 
-            ImGui::Text("Nifty 50");
+            ImGui::Text("%s %s Nifty 50", ICON_MD_VERTICAL_SPLIT, ICON_MD_SHOW_CHART);
             ImGui::SameLine();
-            ImGui::TextColored(UpDownColor(Nifty._change >= 0), "[ %.2f, %.2f]", Nifty._value, Nifty._change);
+            ImGui::TextColored(UpDownColor(Nifty._percentageChange >= 0), "[ %.2f, %.2f]", Nifty._value, Nifty._percentageChange);
             ImGui::SameLine();
 
-            ImGui::Text("India Vix");
+            ImGui::Text("%s %s India Vix", ICON_MD_VERTICAL_SPLIT, ICON_MD_SHOW_CHART);
             ImGui::SameLine();
-            ImGui::TextColored(UpDownColor(VIX._change >= 0), "[ %.2f, %.2f]", VIX._value, VIX._change);
+            ImGui::TextColored(UpDownColor(VIX._percentageChange >= 0), "[ %.2f, %.2f]", VIX._value, VIX._percentageChange);
         }
         ImGui::EndMainMenuBar();
     }

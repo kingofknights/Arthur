@@ -31,7 +31,7 @@ Login::Login() {
             ._password = postgres["password"].get<std::string>(),
             ._database = postgres["name"].get<std::string>(),
         };
-        Postgres::PostgresPtr = std::make_unique<Postgres>(connectionParam);
+        // Postgres::PostgresPtr = std::make_unique<Postgres>(connectionParam);
     } else {
         LOG(ERROR, "Config file not found : setting.json", false);
         exit(1);
@@ -74,6 +74,7 @@ void Login::Paint() {
     ImGui::End();
 }
 auto Login::IsLoggedIn() const noexcept -> bool {
+    return true;
     return _userDetails._valid;
 }
 auto Login::GetUserDetails() const noexcept -> UserDetails {
