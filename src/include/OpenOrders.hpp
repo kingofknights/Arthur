@@ -30,8 +30,6 @@ class OpenOrders {
 
     void FilterOptionsWindows();
 
-    void DoFilter(const OrderInfoPtrT& tradeInfo_);
-
     void StartNewFilter();
 
     auto IsFilterActive() -> bool;
@@ -61,6 +59,6 @@ class OpenOrders {
     bool             _isFilterActive       = false;
     ImGuiListClipper _clipper;
 
-    std::array<bool, BooksColumnIndex_END> _active;
-    ColumnFilterContainerArrayT            _filter;
+    ColumnFilterActiveT         _active;
+    ColumnFilterContainerArrayT _filter;
 };
