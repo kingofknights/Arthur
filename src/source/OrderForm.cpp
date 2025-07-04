@@ -127,7 +127,9 @@ void OrderForm::DrawInputItem() {
     ImGui::NextColumn();
     if (not enable) {
         ImGui::BeginDisabled(not _repeater);
-        ImGui::InputInt("Count", &_repeaterCount);
+        if (ImGui::InputInt("Count", &_repeaterCount)) {
+            _repeaterCount = std::max(_repeaterCount, 1);
+        }
         ImGui::EndDisabled();
     }
     if (ImGui::Button(ICON_MD_CANCEL " Cancel", {-FLT_MIN, 0})) {
