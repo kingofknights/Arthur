@@ -69,7 +69,6 @@ extern SpotInfoT Nifty;
 extern SpotInfoT VIX;
 
 void CentralFeed::Process(int size_) {
-    LOG(INFO, "{} {} {} {}", __FUNCTION__, size_, _header->_length, _header->_type);
     switch (_header->_type) {
         case 4: {
             const auto current  = _marketData->_data;

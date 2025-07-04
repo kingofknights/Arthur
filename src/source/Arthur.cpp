@@ -514,12 +514,12 @@ void Arthur::ShowIndex(SpotInfoT& info_, const std::string& name_) {
     ImGui::TextColored(UpDownColor(info_._percentageChange >= 0), "[ %.2f, %.2f]", info_._value, info_._percentageChange);
     if (ImGui::IsItemHovered()) {
         if (ImGui::BeginTooltip()) {
-            ImGui::Text("%s Open : %.2f", ICON_MD_START, info_._open);
-            ImGui::Text("%s High : %.2f", ICON_MD_ARROW_CIRCLE_UP, info_._high);
-            ImGui::Text("%s Low: %.2f", ICON_MD_ARROW_CIRCLE_DOWN, info_._low);
-            ImGui::Text("%s Close: %.2f", ICON_MD_DONE_OUTLINE, info_._close);
-            ImGui::Text("%s Yearly high : %.2f", ICON_MD_ARROW_UPWARD, info_._yearlyHigh);
-            ImGui::Text("%s Yearly low: %.2f", ICON_MD_ARROW_DOWNWARD, info_._yearlyLow);
+            ImGui::LabelText("Open", "%.2f", info_._open);
+            ImGui::LabelText("High", "%.2f", info_._high);
+            ImGui::LabelText("Low", "%.2f", info_._low);
+            ImGui::LabelText("Close", "%.2f", info_._close);
+            ImGui::LabelText("Yearly high", "%.2f", info_._yearlyHigh);
+            ImGui::LabelText("Yearly low", "%.2f", info_._yearlyLow);
             ImGui::EndTooltip();
         }
     }
