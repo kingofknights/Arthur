@@ -533,6 +533,9 @@ void Portfolio::DrawNewStrategyPopUpWindow() {
             ImGui::CloseCurrentPopup();
         }
 
+        if (ImGui::IsKeyPressed(ImGuiKey_Escape)) {
+            ImGui::CloseCurrentPopup();
+        }
         ImGui::EndPopup();
     }
 }
@@ -548,6 +551,9 @@ void Portfolio::DrawGlobalParamPopupWindow() {
         ImGui::SetItemDefaultFocus();
         ImGui::SameLine();
         if (ImGui::Button(ICON_MD_CANCEL " Cancel")) {
+            ImGui::CloseCurrentPopup();
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_Escape)) {
             ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
