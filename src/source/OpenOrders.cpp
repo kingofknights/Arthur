@@ -39,32 +39,6 @@ void OpenOrders::Paint() noexcept {
     }
 }
 
-void OpenOrders::DoFilter(const OrderInfoPtrT& tradeInfo_) {
-    if (_pfFilter.empty() and _symbolFilter.empty()) {
-        return;
-    }
-    if (not _pfFilter.empty() and std::ranges::any_of(_pfFilter, [](const auto& item_) { return item_.second; })) {
-        const auto iterator = _pfFilter.find(tradeInfo_->_portfolio);
-        if (iterator != _pfFilter.cend()) {
-            if (not iterator->second) {
-                return;
-            }
-        } else {
-            return;
-        }
-    }
-    if (not _symbolFilter.empty() and std::ranges::any_of(_symbolFilter, [](const auto& item_) { return item_.second; })) {
-        const auto iterator = _symbolFilter.find(tradeInfo_->_contract);
-        if (iterator != _symbolFilter.cend()) {
-            if (not iterator->second) {
-                return;
-            }
-        } else {
-            return;
-        }
-    }
-    _filterContainer.emplace(tradeInfo_->_time, tradeInfo_);
-}
 void OpenOrders::DrawPendingBook(bool* show_) {
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_FirstUseEver, ImVec2(0.5F, 0.5F));
     ImGui::SetNextWindowSize(ImVec2{ImGui::GetMainViewport()->Size.x / 2, ImGui::GetMainViewport()->Size.y / 2}, ImGuiCond_FirstUseEver);
