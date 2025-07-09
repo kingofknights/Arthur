@@ -203,7 +203,6 @@ void Arthur::Paint() {
 
 void Arthur::AddTrade(const OrderInfoPtrT& tradeInfo_) {
     switch (tradeInfo_->_statusValue) {
-        case OrderStatus_PLACED:
         case OrderStatus_NEW:
         case OrderStatus_REPLACED: {
             _openOrdersPtr->Insert(tradeInfo_, true);
@@ -292,21 +291,11 @@ auto Arthur::Menu() -> void {
         }
 
         ImGui::Dummy(ImVec2(1, 0));
-        {
-            ImGui::Text("Nifty Bank");
-            ImGui::SameLine();
-            ImGui::TextColored(UpDownColor(BankNifty._change >= 0), "[ %.2f, %.2f]", BankNifty._value, BankNifty._change);
-            ImGui::SameLine();
-
-            ImGui::Text("Nifty 50");
-            ImGui::SameLine();
-            ImGui::TextColored(UpDownColor(Nifty._change >= 0), "[ %.2f, %.2f]", Nifty._value, Nifty._change);
-            ImGui::SameLine();
-
-            ImGui::Text("India Vix");
-            ImGui::SameLine();
-            ImGui::TextColored(UpDownColor(VIX._change >= 0), "[ %.2f, %.2f]", VIX._value, VIX._change);
-        }
+        ShowIndex(BankNifty, "Bank Nifty");
+        ImGui::SameLine();
+        ShowIndex(Nifty, "Nifty 50");
+        ImGui::SameLine();
+        ShowIndex(VIX, "India Vix");
         ImGui::EndMainMenuBar();
     }
 }
@@ -518,4 +507,20 @@ void Arthur::StrategyRequestEvent(StrategyRowPtrT row_, const std::string& name_
 void Arthur::CancelOrderEvent(const OrderInfoPtrT& orderInfo_) {
     auto order = Utils::GetPhoenixCancelOrder(orderInfo_, static_cast<int16_t>(_userId._userId));
     _messageBroker->WriteSync(&order, sizeof(Lancelot::CancelOrder));
+}
+void Arthur::ShowIndex(SpotInfoT& info_, const std::string& name_) {
+    ImGui::Text("%s %s %s", ICON_MD_VERTICAL_SPLIT, ICON_MD_SHOW_CHART, name_.data());
+    ImGui::SameLine();
+    ImGui::TextColored(UpDownColor(info_._percentageChange >= 0), "[ %.2f, %.2f]", info_._value, info_._percentageChange);
+    if (ImGui::IsItemHovered()) {
+        if (ImGui::BeginTooltip()) {
+            ImGui::LabelText("Open", "%.2f", info_._open);
+            ImGui::LabelText("High", "%.2f", info_._high);
+            ImGui::LabelText("Low", "%.2f", info_._low);
+            ImGui::LabelText("Close", "%.2f", info_._close);
+            ImGui::LabelText("Yearly high", "%.2f", info_._yearlyHigh);
+            ImGui::LabelText("Yearly low", "%.2f", info_._yearlyLow);
+            ImGui::EndTooltip();
+        }
+    }
 }

@@ -18,13 +18,14 @@ enum StrategyStatus : int {
 };
 
 enum OrderStatus : int {
-    OrderStatus_PLACED,
+    OrderStatus_NONE,
+    OrderStatus_PENDING,
     OrderStatus_NEW,
     OrderStatus_REPLACED,
     OrderStatus_CANCELLED,
+    OrderStatus_PARTIAL_FILLED,
+    OrderStatus_FILLED,
     OrderStatus_NEW_REJECT,
     OrderStatus_REPLACE_REJECT,
     OrderStatus_CANCEL_REJECT,
-    OrderStatus_PARTIAL_FILLED,
-    OrderStatus_FILLED
 };

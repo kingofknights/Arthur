@@ -20,6 +20,7 @@ TemplateBuilder::TemplateBuilder(bool& show_) : _show(show_) {}
 
 void TemplateBuilder::Paint(bool* show_) {
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5F, 0.5F));
+    ImGui::SetNextWindowSize(ImVec2{ImGui::GetMainViewport()->Size.x / 2, ImGui::GetMainViewport()->Size.y / 2}, ImGuiCond_FirstUseEver);
     if (not ImGui::BeginPopupModal(BeginColumnGenerator, show_)) {
         return;
     }

@@ -17,7 +17,6 @@ namespace Lancelot {
         float      _strikePrice = 0;
 
         std::string _symbol;
-        std::string _segment;
         std::string _name;
         std::string _description;
     };

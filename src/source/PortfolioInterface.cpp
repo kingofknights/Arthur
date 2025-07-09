@@ -35,13 +35,17 @@ PortfolioInterface::PortfolioInterface(std::string name_, const std::string& str
     const std::string jsonData = ConfigLoader::Instance().GetStrategyColumn(_strategyName);
     ParseConfig(jsonData);
     PortfolioInterface::Imports(FORMAT("Save/{}.json", _name));
+#ifndef TURNOFF_SCANNER
     PortfolioScanner::Import(FORMAT("Save/{}_Scanner.json", _name));
+#endif
 }
 
 PortfolioInterface::~PortfolioInterface() {
     if (_open) {
         PortfolioInterface::Exports(FORMAT("Save/{}.json", _name));
+#ifndef TURNOFF_SCANNER
         PortfolioScanner::Export(FORMAT("Save/{}_Scanner.json", _name));
+#endif
     }
 }
 
@@ -76,11 +80,11 @@ auto PortfolioInterface::GetStatusColor(StrategyStatus status_, bool changed_) n
         }
         case StrategyStatus_APPLIED:
         case StrategyStatus_ACTIVE: {
-            return changed_ ? COLOR_YELLOW : COLOR_GREEN;
+            return changed_ ? COLOR_DARK_YELLOW : COLOR_DARK_GREEN;
         }
         case StrategyStatus_DISCONNECTED:
         case StrategyStatus_TERMINATED: {
-            return COLOR_RED;
+            return COLOR_DARK_RED;
         }
     }
     return COLOR_BLUE;

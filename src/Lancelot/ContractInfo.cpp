@@ -53,7 +53,6 @@ namespace Lancelot {
             resultSetPtr->_exchange    = Lancelot::ContractInfo::GetExchange(row.at("Exchange"));
             resultSetPtr->_strikePrice = std::stof(row.at("StrikePrice"));
             resultSetPtr->_symbol      = row.at("Symbol");
-            resultSetPtr->_segment     = row.at("Segment");
             resultSetPtr->_name        = row.at("Name");
 
             float close   = std::stof(row.at("Close")) / resultSetPtr->_divisor;
@@ -106,7 +105,6 @@ namespace Lancelot {
     GET_RESULT_SET(OptionType, Option, _option)
     GET_RESULT_SET(Exchange, Exchange, _exchange)
     GET_RESULT_SET(std::string, Symbol, _symbol)
-    GET_RESULT_SET(std::string, Segment, _segment)
     GET_RESULT_SET(std::string, Name, _name)
     GET_RESULT_SET(std::string, Description, _description)
 
@@ -125,7 +123,7 @@ namespace Lancelot {
         return 0;
     }
 
-    auto ContractInfo::IsOption(int32_t token_) -> bool { return GetInstType(token_) == Instrument_OPTION; }
+    auto ContractInfo::IsOption(int32_t token_) -> bool { return GetInstType(token_) == Instrument_OPTION_INDEX; }
 
     auto ContractInfo::IsEquity(int32_t token_) -> bool { return GetInstType(token_) == Instrument_EQUITY; }
 
@@ -133,7 +131,7 @@ namespace Lancelot {
 
     auto ContractInfo::IsPut(int32_t token_) -> bool { return GetOption(token_) == OptionType_PUT; }
 
-    auto ContractInfo::IsFuture(int32_t token_) -> bool { return GetInstType(token_) == Instrument_FUTURE; }
+    auto ContractInfo::IsFuture(int32_t token_) -> bool { return GetInstType(token_) == Instrument_FUTURE_INDEX; }
 
     void ContractInfo::ExecuteQuery(const std::string& query_) { details::contractFetcher->ExecuteQuery(query_); }
 
@@ -142,14 +140,21 @@ namespace Lancelot {
     auto ContractInfo::GetResultWithName(const std::string& query_) -> TableWithColumnNameT { return details::contractFetcher->GetResultWithColumnName(query_); }
 
     auto ContractInfo::GetOptionType(const std::string& option_) -> OptionType {
-        if (option_ == "CE") return OptionType_CALL;
-        if (option_ == "PE") return OptionType_PUT;
+        if (option_[0] == 'C') return OptionType_CALL;
+        if (option_[0] == 'P') return OptionType_PUT;
         return OptionType_NONE;
     }
 
     auto ContractInfo::GetInstrumentType(const std::string& type_) -> Instrument {
-        if (type_.starts_with("FUT")) return Instrument_FUTURE;
-        if (type_.starts_with("OPT")) return Instrument_OPTION;
+        const char a = type_[0];
+        const char b = type_[3];
+
+        if (a == 'F') {
+            return b == 'I' ? Instrument_FUTURE_INDEX : Instrument_FUTURE_STOCK;
+        }
+        if (a == 'O') {
+            return b == 'I' ? Instrument_OPTION_INDEX : Instrument_OPTION_STOCK;
+        }
         return Instrument_EQUITY;
     }
 
@@ -164,5 +169,8 @@ namespace Lancelot {
 
     auto ContractInfo::GetCompeleteContract() noexcept -> ResultSetContainerT& {
         return details::ResultSetContainer;
+    }
+    bool ContractInfo::TableExist(const std::string& name_) {
+        return details::contractFetcher->IsTableExist(name_);
     }
 }  // namespace Lancelot

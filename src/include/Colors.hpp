@@ -102,7 +102,7 @@ inline const ImVec4 COLOR_LIGHT_SEA_GREEN     = ImVec4(0.13f, 0.7f, 0.67f, 1.0f)
 inline const ImVec4 SELECTED_ROW_COLOR = COLOR_GRAY;
 
 constexpr auto UpDownColor(bool condition_) -> ImVec4 {
-    return condition_ ? COLOR_GREEN : COLOR_RED;
+    return condition_ ? COLOR_DARK_GREEN : COLOR_RED;
 }
 
 template <typename Side>

@@ -45,7 +45,6 @@ namespace Lancelot {
         static auto GetExchange(int32_t token_) -> Exchange;
 
         static auto GetSymbol(int32_t token_) -> std::string;
-        static auto GetSegment(int32_t token_) -> std::string;
         static auto GetName(int32_t token_) -> std::string;
         static auto GetDescription(int32_t token_) -> std::string;
 
@@ -59,6 +58,7 @@ namespace Lancelot {
         static auto GetResultWithIndex(const std::string& query_) -> TableWithColumnIndexT;
         static auto GetResultWithName(const std::string& query_) -> TableWithColumnNameT;
 
+        static bool TableExist(const std::string& name_);
         static auto GetOptionType(const std::string& option_) -> OptionType;
         static auto GetInstrumentType(const std::string& type_) -> Instrument;
         static auto GetExchange(const std::string& exchange_) -> Exchange;

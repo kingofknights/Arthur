@@ -1,0 +1,66 @@
+{
+  "nse_fo": {
+    "expiry_diff": 1,
+    "column": {
+      "token": 0,
+      "stream": 1,
+      "instrument_type": 2,
+      "symbol": 3,
+      "expiry": 4,
+      "strike": 5,
+      "option_type": 6,
+      "lot_size": 7,
+      "blq": 8,
+      "tick_size": 9,
+      "freeze_quantity": 10,
+      "low_dpr": 11,
+      "high_dpr": 12,
+      "description": 13,
+      "future_token": 14,
+      "asset_code": 3
+    }
+  },
+  "nse_cm": {
+    "expiry_diff": 0,
+    "column": {
+      "token": 0,
+      "stream": 1,
+      "instrument_type": 2,
+      "symbol": 3,
+      "expiry": 4,
+      "strike": 5,
+      "option_type": 6,
+      "lot_size": 7,
+      "blq": 8,
+      "tick_size": 9,
+      "freeze_quantity": 10,
+      "low_dpr": 11,
+      "high_dpr": 12,
+      "description": 13,
+      "future_token": 0,
+      "asset_code": 3
+    }
+  },
+  "bse": {
+    "expiry_diff": 0,
+    "column": {
+      "token": 0,
+      "stream": 32,
+      "instrument_type": 1,
+      "symbol": 33,
+      "expiry": 14,
+      "strike": 19,
+      "option_type": 20,
+      "lot_size": 10,
+      "blq": 11,
+      "tick_size": 12,
+      "freeze_quantity": 6,
+      "low_dpr": 23,
+      "high_dpr": 24,
+      "description": 34,
+      "future_token": 5,
+      "asset_code": 37,
+      "product_id": 38
+    }
+  }
+}

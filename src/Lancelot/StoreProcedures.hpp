@@ -13,14 +13,14 @@ inline constexpr char Createdb_[] =
     " OptionType TEXT,"
     " Name TEXT,"
     " Exchange TEXT,"
-    " Segment TEXT,"
     " Future INTEGER,"
     " LotSize INTEGER,"
     " TickSize INTEGER,"
     " Divisor INTEGER,"
     " Close INTEGER,"
     " HighDPR INTEGER,"
-    " LowDPR INTEGER)";
+    " LowDPR INTEGER,"
+    " FreezeQty INTEGER)";
 
 inline constexpr char IsFuture_[] =
     "SELECT "
@@ -141,7 +141,9 @@ inline constexpr char StrikeRange[] =
     " AND T1.ExpiryDate = T2.ExpiryDate"
     " AND T1.StrikePrice BETWEEN {} AND {} ;";
 
-inline constexpr char InsertStrategy_[]    = "INSERT INTO Strategy(name, data) values('{}', '{}')";
+inline constexpr char CreateStrategy_[] = "CREATE TABLE IF NOT EXISTS Strategy (ID INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT, data TEXT)";
+
+inline constexpr char InsertStrategy_[]    = "INSERT INTO Strategy(Name, data) values('{}', '{}')";
 inline constexpr char RemoveStrategy_[]    = "DELETE FROM Strategy WHERE name = '{}'";
 inline constexpr char GetStrategyID_[]     = "SELECT `ID` FROM Strategy WHERE Name = '{}'";
 inline constexpr char GetStrategyParams_[] = "SELECT `ID`, Data FROM tblStrategyData WHERE StrategyName = '{}'";
@@ -176,13 +178,13 @@ inline constexpr char GetFuture_[] =
 
 inline constexpr char InsertResultSetRow_[] =
     "INSERT INTO ResultSet (Token, StrikePrice, InstType, Symbol, ExpiryDate, "
-    "Description, OptionType, Name, Exchange, Segment, Future, LotSize, TickSize, Divisor, Close, HighDPR, LowDPR) "
+    "Description, OptionType, Name, Exchange, Future, LotSize, TickSize, Divisor, Close, HighDPR, LowDPR, FreezeQty) "
     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 inline constexpr char GetClientCode_[]      = "SELECT Exchange, ClientCode FROM ManageClientCode WHERE  UserId = {}";
 inline constexpr char GetStrategyList_[]    = "SELECT Name FROM Strategy";
 inline constexpr char GetStrategyColumns_[] = "SELECT data FROM Strategy WHERE Name='{}'";
 inline constexpr char GetResultSet_[]       = "SELECT * FROM ResultSet;";
-inline constexpr char DeleteResultSet_[]    = "DROP TABLE IF EXISTS ResultSet;";
+inline constexpr char DeleteResultSet_[]    = "DELETE FROM ResultSet where Exchange=?";
 
 #endif  // LANCELOT_INCLUDE_STORE_PROCEDURES_HPP

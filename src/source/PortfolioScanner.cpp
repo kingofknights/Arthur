@@ -3,10 +3,10 @@
 //
 #include "PortfolioScanner.hpp"
 
+#include "Arthur_Fwd.hpp"
 #include "Configuration.hpp"
 #include "Enums.hpp"
-// #include "Knight/Scanner.hpp"
-#include "Arthur_Fwd.hpp"
+#include "Knight/Scanner.hpp"
 #include "Portfolio.hpp"
 #include "Structure.hpp"
 #include "TableColumnInfo.hpp"
@@ -25,12 +25,12 @@ PortfolioScanner::PortfolioScanner(std::string strategyName_) : _strategyName(st
         ScannerFunctionInfoT info{._selected = false, ._variable = variable++, ._name = column};
         _scannerFunctionListContainer.push_back(info);
     }
+#ifndef TURNOFF_SCANNER
     LoadParameter();
+#endif  // ! TURNOFF_SCANNER
 }
 
 void PortfolioScanner::Paint(bool* show_) {
-#ifdef TURNOFF_SCANNER
-#else
     if (not*show_) {
         return;
     }
@@ -39,7 +39,6 @@ void PortfolioScanner::Paint(bool* show_) {
     } else {
         StatusDisplay = "Strategy not found";
     }
-#endif
 }
 void PortfolioScanner::LoadParameter() {
     {

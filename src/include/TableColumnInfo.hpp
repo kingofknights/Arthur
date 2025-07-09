@@ -227,15 +227,16 @@ inline constexpr const char* ScannerSavedTableColumnName[] = {
 };
 
 inline constexpr const char* OrderStatusInfoName[] = {
-    "PLACED",
+    "NONE",
+    "PENDING",
     "NEW",
     "REPLACED",
     "CANCELLED",
+    "PARTIAL_FILLED",
+    "FILLED",
     "NEW_REJECT",
     "REPLACE_REJECT",
     "CANCEL_REJECT",
-    "PARTIAL_FILLED",
-    "FILLED",
 };
 
 inline constexpr const char* OrderTypeName[] = {

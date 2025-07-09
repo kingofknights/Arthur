@@ -41,6 +41,8 @@ class Arthur {
 
     void CancelOrderEvent(const OrderInfoPtrT& orderInfo_);
 
+    void ShowIndex(SpotInfoT& info_, const std::string& name_);
+
   private:
     MessageBrokerPtrT     _messageBroker;
     TemplateBuilderPtrT   _templateBuilderPtr;

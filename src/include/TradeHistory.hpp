@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Structure.hpp"
+#include "Utils.hpp"
 
 class TradeHistory {
   public:
@@ -16,9 +17,11 @@ class TradeHistory {
 
     void FilterOptionsWindows();
 
-    void DoFilter(const OrderInfoPtrT& tradeInfo_);
-
     void StartNewFilter();
+
+    auto IsFilterActive() -> bool;
+
+    void FillFilterOption();
 
   private:
     int    _selectedRow    = -1;
@@ -29,11 +32,12 @@ class TradeHistory {
     double _netValue       = 0;
     bool   _isFilterActive = false;
 
-    std::unordered_map<int, bool>         _pfFilter;
-    std::unordered_map<std::string, bool> _symbolFilter;
-
-    PendingTradeUpdateT _pendingTradeUpdate;
-    ImGuiListClipper    _clipper;
-    BookOrderListT      _container;
-    BookOrderListT      _filterContainer;
+    PendingTradeUpdateT         _pendingTradeUpdate;
+    ImGuiListClipper            _clipper;
+    BookOrderListT              _container;
+    BookOrderListT              _filterContainer;
+    ColumnFilterActiveT         _active;
+    ColumnFilterContainerArrayT _filter;
+    int                         _currentFilterOpended = -1;
+    bool                        _filterWindowShow     = false;
 };

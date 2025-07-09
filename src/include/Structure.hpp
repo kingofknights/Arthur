@@ -214,7 +214,13 @@ using OrderFormInfoT = struct OrderFormInfoT {
 
 using SpotInfoT = struct SpotInfoT {
     float _value;
-    float _change;
+    float _open;
+    float _high;
+    float _low;
+    float _close;
+    float _yearlyHigh;
+    float _yearlyLow;
+    float _percentageChange;
 };
 
 using ParameterInfoListT = std::map<std::string, ParameterInfoT>;

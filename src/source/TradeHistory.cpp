@@ -39,22 +39,28 @@ void TradeHistory::DrawTradeBookTable(bool* show_) {
                 ImGui::TableSetupColumn(name, TableColumnFlags);
             }
 
-            auto* table                      = ImGui::GetCurrentTable();
-            table->DisableDefaultContextMenu = true;
-            if (ImGui::TableBeginContextMenuPopup(table)) {
-                if (ImGui::Button(ICON_MD_FILTER " Filter")) {
-                    ImGui::OpenPopup("Open Orders Filter");
+            ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
+            for (int column = 0; column < BooksColumnIndex_END; ++column) {
+                ImGui::TableSetColumnIndex(column);
+                ImGui::PushID(column);
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+                if (ImGui::SmallButton(ICON_MD_ARROW_DROP_DOWN)) {
+                    _currentFilterOpended = column;
+                    _filterWindowShow     = true;
+                    FillFilterOption();
+                    ImGui::OpenPopup(FORMAT("{} Filter", BookTableColumnName[column]).data());
                 }
-                FilterOptionsWindows();
-                if (ImGui::BeginMenu(ICON_MD_MORE " More ...")) {
-                    ImGui::TableDrawDefaultContextMenu(table, TableFlags);
-                    ImGui::EndMenu();
-                }
-
-                ImGui::EndPopup();
+                ImGui::PopStyleVar();
+                ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+                ImGui::TableHeader(BookTableColumnName[column]);
+                ImGui::PopID();
             }
-
-            ImGui::TableHeadersRow();
+            if (not _filterWindowShow) {
+                _currentFilterOpended = -1;
+            } else {
+                FilterOptionsWindows();
+            }
+            // ImGui::TableHeadersRow();
             const auto& container = _isFilterActive ? _filterContainer : _container;
             _clipper.Begin(container.size());
             while (_clipper.Step()) {
@@ -98,96 +104,92 @@ void TradeHistory::DrawTradeBookTable(bool* show_) {
     }
     ImGui::End();
 }
-void TradeHistory::PFFilter() {
-    if (ImGui::Button(ICON_MD_CLEAR_ALL " Clear", ImVec2{-FLT_MIN, 0})) {
-        _pfFilter.clear();
-        StartNewFilter();
-    }
-    for (const auto& item : _container) {
-        _pfFilter.emplace(item->_portfolio, false);
-    }
-    if (ImGui::BeginListBox("##PFOptions")) {
-        for (auto& item : _pfFilter) {
-            if (ImGui::Checkbox(FORMAT("{}", item.first).data(), &item.second)) {
-                StartNewFilter();
-            }
-        }
-        ImGui::EndListBox();
-    }
-}
+
 void TradeHistory::FilterOptionsWindows() {
-    if (ImGui::BeginPopupContextWindow("Open Orders Filter")) {
-        if (ImGui::BeginTabBar("Filter")) {
-            if (ImGui::BeginTabItem("Portfolio")) {
-                PFFilter();
-                ImGui::EndTabItem();
+    int index = _currentFilterOpended;
+    if (index == -1 or index >= BooksColumnIndex_END) {
+        return;
+    }
+    ImGui::PushID(index);
+    if (ImGui::BeginPopupContextItem(FORMAT("{} Filter", BookTableColumnName[index]).data(), ImGuiPopupFlags_None)) {
+        ImGui::Columns(2, nullptr, false);
+        if (ImGui::Button(FORMAT("{} Clear", ICON_MD_DELETE).data(), ImVec2{-FLT_MIN, 0})) {
+            std::ranges::for_each(_filter[index], [](auto& item_) {
+                item_.second = false;
+            });
+            StartNewFilter();
+        }
+
+        ImGui::NextColumn();
+        if (ImGui::Button(FORMAT("{} Clear All", ICON_MD_DELETE_SWEEP).data(), ImVec2{-FLT_MIN, 0})) {
+            std::ranges::for_each(_filter, [](auto& item_) {
+                item_.clear();
+            });
+            _isFilterActive = IsFilterActive();
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndColumns();
+        auto& container = _filter[index];
+        if (ImGui::BeginListBox(FORMAT("##{}", BookTableColumnName[index]).data())) {
+            for (auto& item : container) {
+                if (ImGui::Checkbox(item.first.data(), &item.second)) {
+                    StartNewFilter();
+                }
             }
-            if (ImGui::BeginTabItem("Contract")) {
-                ContractFilter();
-                ImGui::EndTabItem();
-            }
-            ImGui::EndTabBar();
+            ImGui::EndListBox();
         }
         ImGui::EndPopup();
     }
+    ImGui::PopID();
 }
-void TradeHistory::ContractFilter() {
-    if (ImGui::Button(ICON_MD_CLEAR_ALL " Clear", ImVec2{-FLT_MIN, 0})) {
-        _symbolFilter.clear();
-        StartNewFilter();
-    }
-    for (const auto& item : _container) {
-        _symbolFilter.emplace(item->_contract, false);
-    }
-    if (ImGui::BeginListBox("##ContractOptions")) {
-        for (auto& item : _symbolFilter) {
-            if (ImGui::Checkbox(FORMAT("{}", item.first).data(), &item.second)) {
-                StartNewFilter();
-            }
-        }
-        ImGui::EndListBox();
-    }
-}
-void TradeHistory::StartNewFilter() {
-    _filterContainer.clear();
-    auto found1     = std::ranges::any_of(_pfFilter, [](const auto& pair_) {
-        return pair_.second;
-    });
-    auto found2     = std::ranges::any_of(_symbolFilter, [](const auto& pair_) {
-        return pair_.second;
-    });
-    _isFilterActive = found1 or found2;
 
-    LOG(INFO, "_pfFilter {}, _symbolFilter {} active {}", found1, found2, _isFilterActive)
-    if (_isFilterActive) {
-        std::ranges::for_each(_container, [this](const auto& trade_) {
-            DoFilter(trade_);
-        });
-    }
-}
-void TradeHistory::DoFilter(const OrderInfoPtrT& tradeInfo_) {
-    if (_pfFilter.empty() and _symbolFilter.empty()) {
+void TradeHistory::StartNewFilter() {
+    _isFilterActive = IsFilterActive();
+    _filterContainer.clear();
+    if (not _isFilterActive) {
         return;
     }
-    if (not _pfFilter.empty() and std::ranges::any_of(_pfFilter, [](const auto& item_) { return item_.second; })) {
-        const auto iterator = _pfFilter.find(tradeInfo_->_portfolio);
-        if (iterator != _pfFilter.cend()) {
-            if (not iterator->second) {
-                return;
-            }
-        } else {
-            return;
+
+    for (const auto& order : _container) {
+        if (Utils::CheckPassFiler(order, _filter, _active)) {
+            _filterContainer.push_back(order);
         }
     }
-    if (not _symbolFilter.empty() and std::ranges::any_of(_symbolFilter, [](const auto& item_) { return item_.second; })) {
-        const auto iterator = _symbolFilter.find(tradeInfo_->_contract);
-        if (iterator != _symbolFilter.cend()) {
-            if (not iterator->second) {
-                return;
-            }
-        } else {
-            return;
-        }
+}
+
+auto TradeHistory::IsFilterActive() -> bool {
+    std::ranges::transform(_filter, _active.begin(), [](const auto& container_) {
+        return std::ranges::any_of(container_, [](const auto& pair_) {
+            return pair_.second;
+        });
+    });
+    return std::ranges::any_of(_active, [](bool value_) {
+        return value_;
+    });
+}
+void TradeHistory::FillFilterOption() {
+    if (not _isFilterActive) {
+        std::ranges::for_each(_filter, [](auto& item_) { item_.clear(); });
+    } else {
+        std::ranges::for_each(_filter, [](auto& item_) {
+            std::erase_if(item_, [](const auto& pair_) { return !pair_.second; });
+        });
     }
-    _filterContainer.push_back(tradeInfo_);
+    const auto& local = _isFilterActive ? _filterContainer : _container;
+    std::ranges::for_each(local, [&](const auto& pair_) {
+        const OrderInfoPtrT& order = pair_;
+        _filter[BooksColumnIndex_PF].emplace(FORMAT("{}", order->_portfolio), false);
+        _filter[BooksColumnIndex_CONTRACT].emplace(FORMAT("{}", order->_contract), false);
+        _filter[BooksColumnIndex_PRICE].emplace(FORMAT("{:.2f}", order->_price), false);
+        _filter[BooksColumnIndex_QUANTITY].emplace(FORMAT("{}", order->_quantity), false);
+        _filter[BooksColumnIndex_FILL_PRICE].emplace(FORMAT("{:.2f}", order->_fillPrice), false);
+        _filter[BooksColumnIndex_FILL_QUANTITY].emplace(FORMAT("{}", order->_fillQuantity), false);
+        _filter[BooksColumnIndex_REMAINING_QTY].emplace(FORMAT("{}", order->_remaining), false);
+        _filter[BooksColumnIndex_CLIENT].emplace(FORMAT("{}", order->_client), false);
+        _filter[BooksColumnIndex_STATUS].emplace(FORMAT("{}", OrderStatusInfoName[order->_statusValue]), false);
+        _filter[BooksColumnIndex_TIME].emplace(FORMAT("{}", order->_time), false);
+        _filter[BooksColumnIndex_GATEWAY].emplace(FORMAT("{}", order->_uniqueId), false);
+        _filter[BooksColumnIndex_ORDER_NUMBER].emplace(FORMAT("{}", order->_orderNumber), false);
+        _filter[BooksColumnIndex_MESSAGE].emplace(FORMAT("{}", order->_message), false);
+    });
 }
