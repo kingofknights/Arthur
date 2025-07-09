@@ -9,6 +9,9 @@
 #include <string>
 #include <unordered_map>
 
+#include <string>
+#include <unordered_map>
+
 class OpenOrders {
     using FunctionT              = std::function<void(OrderInfoPtrT)>;
     using PendingOrderContainerT = std::map<std::string, OrderInfoPtrT>;
