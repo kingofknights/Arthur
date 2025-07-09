@@ -80,11 +80,11 @@ auto PortfolioInterface::GetStatusColor(StrategyStatus status_, bool changed_) n
         }
         case StrategyStatus_APPLIED:
         case StrategyStatus_ACTIVE: {
-            return changed_ ? COLOR_YELLOW : COLOR_GREEN;
+            return changed_ ? COLOR_DARK_YELLOW : COLOR_DARK_GREEN;
         }
         case StrategyStatus_DISCONNECTED:
         case StrategyStatus_TERMINATED: {
-            return COLOR_RED;
+            return COLOR_DARK_RED;
         }
     }
     return COLOR_BLUE;
