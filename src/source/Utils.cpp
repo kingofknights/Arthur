@@ -314,7 +314,7 @@ auto Utils::GetPhoenixCancelOrder(const OrderInfoPtrT& info_, int16_t user_) noe
             ._portfolio = 0,
         },
         ._token         = info_->_token,
-        ._orderSequence = static_cast<int16_t>(info_->_uniqueId),
+        ._orderSequence = static_cast<int32_t>(info_->_uniqueId),
     };
 }
 auto Utils::GetString(size_t index_, const OrderInfoPtrT& order_) -> std::string {
