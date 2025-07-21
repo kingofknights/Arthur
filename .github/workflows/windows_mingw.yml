@@ -92,6 +92,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: "kingofknights/Rider"
+          token: ${{secrets.Arthur_Token}}
           submodules: "true"
 
       - uses: threeal/cmake-action@v2.1.0
