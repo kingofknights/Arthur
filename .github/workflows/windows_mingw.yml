@@ -1,6 +1,12 @@
 name: MinGW Build
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        type: string
+        description: :Choose the branch
+        required: true
 
 env:
   CMAKE_BUILD_TYPE: Release
@@ -94,6 +100,7 @@ jobs:
           repository: "kingofknights/Rider"
           token: ${{secrets.Arthur_Token}}
           submodules: "true"
+          ref: ${{github.event.inputs.branch}}
 
       - uses: threeal/cmake-action@v2.1.0
         with:
