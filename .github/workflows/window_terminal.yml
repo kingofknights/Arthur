@@ -1,4 +1,4 @@
-name: ReleasesWithoutTerminal
+name: ReleasesWithTerminal
 
 on:
   workflow_dispatch:
@@ -107,7 +107,7 @@ jobs:
           options: |
             Boost_INCLUDE_DIR=${{steps.boost.outputs.BOOST_ROOT}}/include
             Boost_LIBRARY_DIRS=${{steps.boost.outputs.BOOST_ROOT}}/lib
-            TERMINAL=OFF
+            TERMINAL=ON
 
       - name: install
         run: cmake --install build --config ${{env.CMAKE_BUILD_TYPE}}
@@ -123,4 +123,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: ${{github.workspace}}/build/${{env.BUILD_TYPE}}/artifact.tar
-          name: ReleasesWithoutTerminal
+          name: ReleasesWithTerminal
