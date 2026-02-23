@@ -7,6 +7,10 @@ on:
         type: string
         description: :Choose the branch
         required: true
+      message:
+        type: string
+        description: What is the changes
+        required: true
 
 env:
   CMAKE_BUILD_TYPE: Release
@@ -123,4 +127,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: ${{github.workspace}}/build/${{env.BUILD_TYPE}}/artifact.tar
-          name: ReleasesWithTerminal
+          name: ${{github.event.inputs.message}}
