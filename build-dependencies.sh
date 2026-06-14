@@ -99,6 +99,8 @@ echo "using gcc : mingw32 : x86_64-w64-mingw32-g++ ;" > user-config.jam
 ./b2 --user-config=user-config.jam \
      toolset=gcc-mingw32 \
      target-os=windows \
+     abi=ms \
+     binary-format=pe \
      address-model=64 \
      link=static \
      threading=multi \

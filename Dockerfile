@@ -25,6 +25,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     binutils-mingw-w64-x86-64 \
     && rm -rf /var/lib/apt/lists/*
 
+# Configure MinGW to use posix threading model (required for C++11 thread/mutex support)
+RUN update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix \
+ && update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+
 # Copy CMake toolchain file
 COPY toolchain-mingw64.cmake /toolchain-mingw64.cmake
 
@@ -50,6 +54,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc-mingw-w64-x86-64 \
     binutils-mingw-w64-x86-64 \
     && rm -rf /var/lib/apt/lists/*
+
+# Configure MinGW to use posix threading model (required for C++11 thread/mutex support)
+RUN update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix \
+ && update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
 
 # Copy built dependency files from builder stage
 COPY --from=builder /usr/x86_64-w64-mingw32 /usr/x86_64-w64-mingw32
