@@ -88,11 +88,11 @@ cmake --build build --target install
 cd ..
 rm -rf SQLiteCpp
 
-# 7. Boost (1.74.0)
-echo "Building Boost 1.74.0..."
-wget https://boostorg.jfrog.io/artifactory/main/release/1.74.0/source/boost_1_74_0.tar.gz
-tar -xzf boost_1_74_0.tar.gz
-cd boost_1_74_0
+# 7. Boost (1.89.0)
+echo "Building Boost 1.89.0..."
+wget https://archives.boost.io/release/1.89.0/source/boost_1_89_0.tar.gz
+tar -xzf boost_1_89_0.tar.gz
+cd boost_1_89_0
 ./bootstrap.sh --prefix=/usr/x86_64-w64-mingw32
 echo "using gcc : mingw32 : x86_64-w64-mingw32-g++ ;" > user-config.jam
 # Build and install libraries (e.g. system, thread, filesystem, etc.)
@@ -107,7 +107,7 @@ echo "using gcc : mingw32 : x86_64-w64-mingw32-g++ ;" > user-config.jam
      -j$(nproc) \
      install
 cd ..
-rm -rf boost_1_74_0*
+rm -rf boost_1_89_0*
 
 # Clean up
 cd /
