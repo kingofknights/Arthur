@@ -50,6 +50,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cmake \
     ninja-build \
     git \
+    ca-certificates \
     g++-mingw-w64-x86-64 \
     gcc-mingw-w64-x86-64 \
     binutils-mingw-w64-x86-64 \
