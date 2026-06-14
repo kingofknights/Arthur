@@ -3,8 +3,14 @@
 
 set -e
 
-# Determine workspace directory (support default mount /workspace, GitHub Actions /github/workspace, or current directory)
-if [ -d "/workspace" ] && [ ! -z "$(ls -A "/workspace" 2>/dev/null)" ]; then
+# Determine workspace directory (search for CMakeLists.txt to verify valid project directory)
+if [ -f "/workspace/CMakeLists.txt" ]; then
+  WORKSPACE_DIR="/workspace"
+elif [ -f "/github/workspace/CMakeLists.txt" ]; then
+  WORKSPACE_DIR="/github/workspace"
+elif [ -f "$(pwd)/CMakeLists.txt" ]; then
+  WORKSPACE_DIR="$(pwd)"
+elif [ -d "/workspace" ] && [ ! -z "$(ls -A "/workspace" 2>/dev/null)" ]; then
   WORKSPACE_DIR="/workspace"
 elif [ -d "/github/workspace" ] && [ ! -z "$(ls -A "/github/workspace" 2>/dev/null)" ]; then
   WORKSPACE_DIR="/github/workspace"
@@ -12,8 +18,8 @@ else
   WORKSPACE_DIR="$(pwd)"
 fi
 
-if [ -z "$(ls -A "$WORKSPACE_DIR" 2>/dev/null)" ]; then
-  echo "Error: Workspace directory $WORKSPACE_DIR is empty."
+if [ ! -f "$WORKSPACE_DIR/CMakeLists.txt" ]; then
+  echo "Error: Could not find CMakeLists.txt in $WORKSPACE_DIR."
   exit 1
 fi
 

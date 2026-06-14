@@ -39,6 +39,7 @@ jobs:
       # Setup compatibility link for older versions of the container image
       - name: Setup Workspace Compatibility Link
         run: |
+          rm -rf /workspace
           ln -sf /github/workspace /workspace
 
       - name: Compile and Install Rider
