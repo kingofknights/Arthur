@@ -1,0 +1,60 @@
+name: Compile Rider (Boost 1.74 Docker Builder)
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        type: string
+        description: 'Choose the Rider branch to compile'
+        required: true
+        default: 'master'
+      message:
+        type: string
+        description: 'Release message / Name of artifact'
+        required: true
+        default: 'Rider-MinGW-Boost1.74-Build'
+
+jobs:
+  compile:
+    name: "Compile Rider using MinGW Boost 1.74 Docker Image"
+    runs-on: ubuntu-latest
+    
+    # Run the job steps inside our pre-built Docker container
+    container:
+      image: kingofknights/arthur:v1.0-boost1.74
+      # Pass login credentials if the Docker Hub repository is private
+      credentials:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    steps:
+      - name: Checkout Rider Codebase
+        uses: actions/checkout@v4
+        with:
+          repository: "kingofknights/Rider"
+          token: ${{ secrets.Arthur_Token }}
+          submodules: "true"
+          ref: ${{ github.event.inputs.branch }}
+
+      # Setup compatibility link for older versions of the container image
+      - name: Setup Workspace Compatibility Link
+        run: |
+          rm -rf /workspace
+          ln -sf /github/workspace /workspace
+
+      - name: Compile and Install Rider
+        run: /usr/local/bin/build-project
+
+      # Compress compiled files (from dist/) into a tarball
+      - name: Compress compiled artifacts
+        working-directory: /github/workspace/dist
+        run: |
+          tar -czvf ../artifact.tar *
+        continue-on-error: true
+
+      # Upload the compiled tarball as a GitHub release artifact
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.inputs.message }}
+          path: /github/workspace/artifact.tar
