@@ -3,11 +3,17 @@
 
 set -e
 
-WORKSPACE_DIR="/workspace"
+# Determine workspace directory (support default mount /workspace, GitHub Actions /github/workspace, or current directory)
+if [ -d "/workspace" ] && [ ! -z "$(ls -A "/workspace" 2>/dev/null)" ]; then
+  WORKSPACE_DIR="/workspace"
+elif [ -d "/github/workspace" ] && [ ! -z "$(ls -A "/github/workspace" 2>/dev/null)" ]; then
+  WORKSPACE_DIR="/github/workspace"
+else
+  WORKSPACE_DIR="$(pwd)"
+fi
 
-if [ ! -d "$WORKSPACE_DIR" ] || [ -z "$(ls -A "$WORKSPACE_DIR" 2>/dev/null)" ]; then
-  echo "Error: Please mount your project source directory to $WORKSPACE_DIR."
-  echo "Example: docker run --rm -v \$(pwd):/workspace arthur-mingw-builder"
+if [ -z "$(ls -A "$WORKSPACE_DIR" 2>/dev/null)" ]; then
+  echo "Error: Workspace directory $WORKSPACE_DIR is empty."
   exit 1
 fi
 
