@@ -102,6 +102,7 @@ echo "using gcc : mingw32 : x86_64-w64-mingw32-g++ ;" > user-config.jam
      abi=ms \
      binary-format=pe \
      address-model=64 \
+     variant=release \
      link=static \
      threading=multi \
      runtime-link=shared \
