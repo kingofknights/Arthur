@@ -12,7 +12,7 @@ echo "Building PostgreSQL libpq client library..."
 wget https://ftp.postgresql.org/pub/source/v16.1/postgresql-16.1.tar.gz
 tar -xzf postgresql-16.1.tar.gz
 cd postgresql-16.1
-./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32 --without-readline --without-zlib
+./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32 --without-readline --without-zlib --without-icu
 make -C src/include install
 make -C src/interfaces/libpq install
 cd ..
