@@ -47,8 +47,8 @@ jobs:
 
       # Compress compiled files (from dist/) into a tarball
       - name: Compress compiled artifacts
-        working-directory: ${{ github.workspace }}/dist
         run: |
+          cd dist
           tar -czvf ../artifact.tar *
         continue-on-error: true
 
@@ -57,4 +57,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.event.inputs.message }}
-          path: ${{ github.workspace }}/artifact.tar
+          path: artifact.tar
