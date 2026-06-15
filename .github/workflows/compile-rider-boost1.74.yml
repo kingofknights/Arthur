@@ -72,9 +72,15 @@ jobs:
           echo "=== Contents of dist directory ==="
           ls -la "$WORKSPACE_ROOT/dist"
           
+          # Install zip utility if not present
+          if ! command -v zip &> /dev/null; then
+            echo "Installing zip utility..."
+            apt-get update -y && apt-get install -y zip
+          fi
+
           cd "$WORKSPACE_ROOT/dist"
           echo "Compressing files from $(pwd) into $WORKSPACE_ROOT/artifact.zip..."
-          python3 -c "import shutil; shutil.make_archive('$WORKSPACE_ROOT/artifact', 'zip', '.')"
+          zip -r "$WORKSPACE_ROOT/artifact.zip" *
         continue-on-error: true
 
       # Upload the compiled zip as a GitHub release artifact
