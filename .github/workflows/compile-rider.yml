@@ -52,25 +52,21 @@ jobs:
           WORKSPACE_ROOT=$(pwd)
           echo "Current working directory (workspace root): $WORKSPACE_ROOT"
           ls -la
-          echo "=== Checking potential workspaces ==="
-          ls -la /workspace || true
-          ls -la /github/workspace || true
-          ls -la /__w/Arthur/Arthur || true
-          echo "=== Finding dist directory ==="
-          find / -name dist -type d -prune 2>/dev/null || true
-          echo "================================="
-          if [ -d "$WORKSPACE_ROOT/dist" ]; then
-            cd "$WORKSPACE_ROOT/dist"
-          elif [ -d "/workspace/dist" ]; then
-            cd /workspace/dist
-          elif [ -d "/github/workspace/dist" ]; then
-            cd /github/workspace/dist
-          elif [ -d "/__w/Arthur/Arthur/dist" ]; then
-            cd /__w/Arthur/Arthur/dist
-          else
-            echo "Error: dist directory not found anywhere!"
-            exit 1
+          
+          # Create dist directory if not exists, and populate it from build directory if empty
+          mkdir -p "$WORKSPACE_ROOT/dist"
+          if [ -z "$(ls -A "$WORKSPACE_ROOT/dist" 2>/dev/null)" ]; then
+            echo "dist directory is empty. Manually copying build outputs..."
+            find build -name "*.exe" -exec cp {} "$WORKSPACE_ROOT/dist/" \; 2>/dev/null || true
+            find build -name "*.dll" -exec cp {} "$WORKSPACE_ROOT/dist/" \; 2>/dev/null || true
+            find build -name "*.ttf" -exec cp {} "$WORKSPACE_ROOT/dist/" \; 2>/dev/null || true
+            find . -maxdepth 2 -name "setting.json" -exec cp {} "$WORKSPACE_ROOT/dist/" \; 2>/dev/null || true
           fi
+          
+          echo "=== Contents of dist directory ==="
+          ls -la "$WORKSPACE_ROOT/dist"
+          
+          cd "$WORKSPACE_ROOT/dist"
           echo "Compressing files from $(pwd) into $WORKSPACE_ROOT/artifact.tar..."
           tar -czvf "$WORKSPACE_ROOT/artifact.tar" *
         continue-on-error: true
