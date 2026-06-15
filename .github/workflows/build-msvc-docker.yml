@@ -20,6 +20,22 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Ensure Docker is running
+        shell: powershell
+        run: |
+          $service = Get-Service docker -ErrorAction SilentlyContinue
+          if ($null -ne $service) {
+            Write-Host "Docker service status: $($service.Status)"
+            if ($service.Status -ne 'Running') {
+              Write-Host "Starting Docker service..."
+              Start-Service docker
+              Start-Sleep -Seconds 10
+            }
+          } else {
+            Write-Warning "Docker service not found!"
+          }
+          docker version
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
