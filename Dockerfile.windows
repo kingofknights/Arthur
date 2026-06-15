@@ -14,7 +14,7 @@ RUN choco install -y git cmake ninja zip
 
 # Download and install Visual Studio 2022 Build Tools with C++ workloads
 RUN Invoke-WebRequest -UseBasicParsing https://aka.ms/vs/17/release/vs_buildtools.exe -OutFile C:\vs_buildtools.exe; \
-    Write-Host "Installing Visual Studio Build Tools C++ workload (this may take a few minutes)..."; \
+    Write-Host 'Installing Visual Studio Build Tools C++ workload...'; \
     Start-Process C:\vs_buildtools.exe -ArgumentList '--quiet', '--wait', '--norestart', '--nocache', \
         '--installPath', 'C:\BuildTools', \
         '--add', 'Microsoft.VisualStudio.Workload.VCTools', \
