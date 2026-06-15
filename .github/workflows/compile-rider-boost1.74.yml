@@ -45,7 +45,7 @@ jobs:
       - name: Compile and Install Rider
         run: /usr/local/bin/build-project
 
-      # Compress compiled files (from dist/) into a tarball
+      # Compress compiled files (from dist/) into a zip archive
       - name: Compress compiled artifacts
         run: |
           echo "=== Debug Directory Structure ==="
@@ -63,17 +63,23 @@ jobs:
             find . -maxdepth 2 -name "setting.json" -exec cp {} "$WORKSPACE_ROOT/dist/" \; 2>/dev/null || true
           fi
           
+          # Copy standard MinGW system DLLs (supporting libraries)
+          echo "Copying supporting MinGW runtime DLLs..."
+          find /usr/lib/gcc/x86_64-w64-mingw32/ -name "*.dll" -exec cp {} "$WORKSPACE_ROOT/dist/" \; 2>/dev/null || true
+          find /usr/x86_64-w64-mingw32/lib/ -name "*.dll" -exec cp {} "$WORKSPACE_ROOT/dist/" \; 2>/dev/null || true
+          find /usr/x86_64-w64-mingw32/bin/ -name "*.dll" -exec cp {} "$WORKSPACE_ROOT/dist/" \; 2>/dev/null || true
+          
           echo "=== Contents of dist directory ==="
           ls -la "$WORKSPACE_ROOT/dist"
           
           cd "$WORKSPACE_ROOT/dist"
-          echo "Compressing files from $(pwd) into $WORKSPACE_ROOT/artifact.tar..."
-          tar -czvf "$WORKSPACE_ROOT/artifact.tar" *
+          echo "Compressing files from $(pwd) into $WORKSPACE_ROOT/artifact.zip..."
+          python3 -c "import shutil; shutil.make_archive('$WORKSPACE_ROOT/artifact', 'zip', '.')"
         continue-on-error: true
 
-      # Upload the compiled tarball as a GitHub release artifact
+      # Upload the compiled zip as a GitHub release artifact
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.event.inputs.message }}
-          path: artifact.tar
+          path: artifact.zip
