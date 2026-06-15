@@ -1,0 +1,76 @@
+name: Compile Rider (Windows MSVC Docker Builder)
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        type: string
+        description: 'Choose the Rider branch to compile'
+        required: true
+        default: 'master'
+      message:
+        type: string
+        description: 'Release message / Name of artifact'
+        required: true
+        default: 'Rider-MSVC-Build'
+
+jobs:
+  compile:
+    name: "Compile Rider using Windows MSVC Docker Image"
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout Rider Codebase
+        uses: actions/checkout@v4
+        with:
+          repository: "kingofknights/Rider"
+          token: ${{ secrets.Arthur_Token }}
+          submodules: "true"
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Pull Windows Docker Image
+        run: |
+          docker pull kingofknights/arthur:v1.0-msvc
+
+      - name: Compile Rider in Docker Container
+        run: |
+          docker run --rm -v "${{ github.workspace }}:C:\workspace" kingofknights/arthur:v1.0-msvc
+
+      - name: Prepare and Compress Artifacts
+        shell: powershell
+        run: |
+          $workspace = "${{ github.workspace }}"
+          $distPath = Join-Path $workspace "dist"
+          
+          if (-not (Test-Path $distPath)) {
+              Write-Host "Creating dist directory..."
+              New-Item -ItemType Directory -Path $distPath | Out-Null
+          }
+          
+          $files = Get-ChildItem -Path $distPath -ErrorAction SilentlyContinue
+          if ($null -eq $files -or $files.Count -eq 0) {
+              Write-Host "dist directory is empty or not found. Copying files manually from build folder..."
+              Get-ChildItem -Path (Join-Path $workspace "build") -Filter *.exe -Recurse | Copy-Item -Destination $distPath -Force -ErrorAction SilentlyContinue
+              Get-ChildItem -Path (Join-Path $workspace "build") -Filter *.dll -Recurse | Copy-Item -Destination $distPath -Force -ErrorAction SilentlyContinue
+              Get-ChildItem -Path (Join-Path $workspace "build") -Filter *.ttf -Recurse | Copy-Item -Destination $distPath -Force -ErrorAction SilentlyContinue
+              Get-ChildItem -Path $workspace -Filter setting.json -Recurse | Copy-Item -Destination $distPath -Force -ErrorAction SilentlyContinue
+          }
+          
+          Write-Host "=== Contents of dist directory ==="
+          Get-ChildItem -Path $distPath | Format-Table Name, Length
+          
+          Write-Host "Compressing files into artifact.zip..."
+          $zipPath = Join-Path $workspace "artifact.zip"
+          Compress-Archive -Path (Join-Path $distPath "*") -DestinationPath $zipPath -Force
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.inputs.message }}
+          path: artifact.zip

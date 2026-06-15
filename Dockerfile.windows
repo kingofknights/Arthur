@@ -1,0 +1,41 @@
+# Use Windows Server Core LTSC 2022
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
+
+# Reset shell to PowerShell
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+# Install Chocolatey
+RUN Set-ExecutionPolicy Bypass -Scope Process -Force; \
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; \
+    iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+# Install Git, CMake, Ninja, and Zip utilities via Chocolatey
+RUN choco install -y git cmake ninja zip
+
+# Download and install Visual Studio 2022 Build Tools with C++ workloads
+RUN Invoke-WebRequest -UseBasicParsing https://aka.ms/vs/17/release/vs_buildtools.exe -OutFile C:\vs_buildtools.exe; \
+    Write-Host "Installing Visual Studio Build Tools C++ workload (this may take a few minutes)..."; \
+    Start-Process C:\vs_buildtools.exe -ArgumentList '--quiet', '--wait', '--norestart', '--nocache', \
+        '--installPath', 'C:\BuildTools', \
+        '--add', 'Microsoft.VisualStudio.Workload.VCTools', \
+        '--add', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64' \
+        -NoNewWindow -Wait; \
+    Remove-Item C:\vs_buildtools.exe -Force
+
+# Add C:\local\bin to PATH and set CMAKE_PREFIX_PATH
+RUN $path = [Environment]::GetEnvironmentVariable('Path', 'Machine'); \
+    [Environment]::SetEnvironmentVariable('Path', $path + ';C:\local\bin', 'Machine')
+ENV CMAKE_PREFIX_PATH="C:\\local"
+
+# Copy build-dependencies.ps1 script into the container image
+COPY build-dependencies.ps1 C:/build-dependencies.ps1
+
+# Run build-dependencies.ps1 inside the container to build and install dependencies to C:\local
+RUN powershell -File C:/build-dependencies.ps1; \
+    Remove-Item C:/build-dependencies.ps1 -Force
+
+# Copy build-project.ps1 into the container image
+COPY build-project.ps1 C:/build-project.ps1
+
+# Default entrypoint to build the project
+ENTRYPOINT ["powershell", "-File", "C:\\build-project.ps1"]
