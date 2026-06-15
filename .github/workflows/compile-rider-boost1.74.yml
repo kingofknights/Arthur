@@ -48,8 +48,31 @@ jobs:
       # Compress compiled files (from dist/) into a tarball
       - name: Compress compiled artifacts
         run: |
-          cd dist
-          tar -czvf ../artifact.tar *
+          echo "=== Debug Directory Structure ==="
+          WORKSPACE_ROOT=$(pwd)
+          echo "Current working directory (workspace root): $WORKSPACE_ROOT"
+          ls -la
+          echo "=== Checking potential workspaces ==="
+          ls -la /workspace || true
+          ls -la /github/workspace || true
+          ls -la /__w/Arthur/Arthur || true
+          echo "=== Finding dist directory ==="
+          find / -name dist -type d -prune 2>/dev/null || true
+          echo "================================="
+          if [ -d "$WORKSPACE_ROOT/dist" ]; then
+            cd "$WORKSPACE_ROOT/dist"
+          elif [ -d "/workspace/dist" ]; then
+            cd /workspace/dist
+          elif [ -d "/github/workspace/dist" ]; then
+            cd /github/workspace/dist
+          elif [ -d "/__w/Arthur/Arthur/dist" ]; then
+            cd /__w/Arthur/Arthur/dist
+          else
+            echo "Error: dist directory not found anywhere!"
+            exit 1
+          fi
+          echo "Compressing files from $(pwd) into $WORKSPACE_ROOT/artifact.tar..."
+          tar -czvf "$WORKSPACE_ROOT/artifact.tar" *
         continue-on-error: true
 
       # Upload the compiled tarball as a GitHub release artifact
