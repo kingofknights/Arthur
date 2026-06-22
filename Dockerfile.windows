@@ -29,8 +29,14 @@ RUN $path = [Environment]::GetEnvironmentVariable('Path', 'Machine'); \
     [Environment]::SetEnvironmentVariable('Path', $path + ';C:\vcpkg', 'Machine')
 
 # Install dependencies via vcpkg (using x64-mingw-static triplet)
+# Note: We install specific boost components instead of the global 'boost' metapackage to avoid python/python3 which is unsupported on MinGW.
 RUN vcpkg install --triplet=x64-mingw-static --host-triplet=x64-mingw-static \
-    fmt nlohmann-json libpqxx sdl3 sqlitecpp boost openssl
+    fmt nlohmann-json libpqxx sdl3 sqlitecpp openssl \
+    boost-system boost-filesystem boost-asio boost-thread boost-date-time \
+    boost-regex boost-serialization boost-program-options boost-uuid boost-beast \
+    boost-json boost-locale boost-random boost-chrono boost-iostreams \
+    boost-spirit boost-geometry boost-property-tree boost-algorithm \
+    boost-container boost-interprocess
 
 # Copy build-project.ps1 into the container image
 COPY build-project.ps1 C:/build-project.ps1
