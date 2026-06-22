@@ -23,9 +23,6 @@ jobs:
     name: "Build Arthur mingw"
     runs-on: windows-2022
     steps:
-      - name: install openssl
-        run: choco install openssl
-        
       - uses: actions/checkout@v4
         with:
           repository: "fmtlib/fmt"
