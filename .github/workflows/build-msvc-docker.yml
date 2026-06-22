@@ -1,4 +1,4 @@
-name: Build Windows MSVC Docker Image
+name: Build Windows MinGW Docker Image
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
         type: string
         description: 'Docker image tag'
         required: true
-        default: 'v1.0-msvc'
+        default: 'v1.0-mingw'
 
 jobs:
   build-and-push:

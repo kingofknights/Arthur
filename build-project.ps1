@@ -41,7 +41,7 @@ function Check-LastExitCode {
 }
 
 # Load MSVC environment variables
-Import-VCVars
+# Import-VCVars
 
 # Find workspace directory (containing CMakeLists.txt)
 $workspaceDir = $null
@@ -66,14 +66,31 @@ if ($null -eq $workspaceDir) {
 Write-Host "Initializing build environment in $workspaceDir..."
 Set-Location $workspaceDir
 
-# Run CMake configuration targeting C:\local dependencies
-# We use Ninja as it is fast and works well with MSVC command prompt environment
+# Configure dependency arguments using vcpkg if available, otherwise fallback to C:\local
+$vcpkgToolchain = "C:\vcpkg\scripts\buildsystems\vcpkg.cmake"
+$vcpkgArgs = @()
+
+if (Test-Path $vcpkgToolchain) {
+    Write-Host "Using vcpkg toolchain for package resolution..."
+    $vcpkgArgs = @(
+        "-DCMAKE_TOOLCHAIN_FILE=$vcpkgToolchain",
+        "-DVCPKG_TARGET_TRIPLET=x64-mingw-static",
+        "-DVCPKG_HOST_TRIPLET=x64-mingw-static"
+    )
+} else {
+    Write-Host "vcpkg toolchain not found, falling back to C:\local paths..."
+    $vcpkgArgs = @(
+        "-DCMAKE_PREFIX_PATH=C:\local",
+        "-DPostgreSQL_ROOT=C:\local",
+        "-DBOOST_ROOT=C:\local"
+    )
+}
+
+# Run CMake configuration
 cmake -B build -GNinja `
   -DCMAKE_INSTALL_PREFIX="$workspaceDir\dist" `
   -DCMAKE_BUILD_TYPE=Release `
-  -DCMAKE_PREFIX_PATH="C:\local" `
-  -DPostgreSQL_ROOT="C:\local" `
-  -DBOOST_ROOT="C:\local" `
+  @vcpkgArgs `
   $args
 Check-LastExitCode "CMake configuration failed"
 
@@ -87,10 +104,15 @@ Write-Host "Installing artifacts to $workspaceDir\dist..."
 cmake --install build
 Check-LastExitCode "CMake install failed"
 
-# Copy supporting DLLs from C:\local\bin to dist
+# Copy supporting DLLs from C:\local\bin and vcpkg to dist
 if (Test-Path "C:\local\bin") {
     Write-Host "Copying supporting DLLs from C:\local\bin to dist..."
     Copy-Item -Path "C:\local\bin\*.dll" -Destination "$workspaceDir\dist" -Force -ErrorAction SilentlyContinue
+}
+$vcpkgBin = "C:\vcpkg\installed\x64-mingw-static\bin"
+if (Test-Path $vcpkgBin) {
+    Write-Host "Copying supporting DLLs from vcpkg to dist..."
+    Copy-Item -Path "$vcpkgBin\*.dll" -Destination "$workspaceDir\dist" -Force -ErrorAction SilentlyContinue
 }
 
 Write-Host "Build completed successfully! Output files are in the 'dist' folder."

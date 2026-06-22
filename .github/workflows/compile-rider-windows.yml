@@ -1,4 +1,4 @@
-name: Compile Rider (Windows MSVC Docker Builder)
+name: Compile Rider (Windows MinGW Docker Builder)
 
 on:
   workflow_dispatch:
@@ -12,11 +12,11 @@ on:
         type: string
         description: 'Release message / Name of artifact'
         required: true
-        default: 'Rider-MSVC-Build'
+        default: 'Rider-MinGW-Build'
 
 jobs:
   compile:
-    name: "Compile Rider using Windows MSVC Docker Image"
+    name: "Compile Rider using Windows MinGW Docker Image"
     runs-on: windows-2022
     permissions:
       contents: read
@@ -56,11 +56,11 @@ jobs:
 
       - name: Pull Windows Docker Image
         run: |
-          docker pull ghcr.io/kingofknights/arthur:v1.0-msvc
+          docker pull ghcr.io/kingofknights/arthur:v1.0-mingw
 
       - name: Compile Rider in Docker Container
         run: |
-          docker run --rm -v "${{ github.workspace }}:C:\workspace" ghcr.io/kingofknights/arthur:v1.0-msvc
+          docker run --rm -v "${{ github.workspace }}:C:\workspace" ghcr.io/kingofknights/arthur:v1.0-mingw
 
       - name: Prepare and Compress Artifacts
         shell: powershell

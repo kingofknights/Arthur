@@ -2,7 +2,7 @@
 
 $ErrorActionPreference = 'Stop'
 
-$tag = if ($args[0]) { $args[0] } else { "v1.0-msvc" }
+$tag = if ($args[0]) { $args[0] } else { "v1.0-mingw" }
 $imageName = "kingofknights/arthur"
 
 Write-Host "========================================="

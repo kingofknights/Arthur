@@ -9,30 +9,28 @@ RUN Set-ExecutionPolicy Bypass -Scope Process -Force; \
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; \
     iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
-# Install Git, CMake, Ninja, and Zip utilities via Chocolatey
-RUN choco install -y git cmake ninja zip
+# Install Git, CMake, Ninja, Zip utilities, OpenSSL, and MinGW via Chocolatey
+RUN choco install -y git cmake ninja zip openssl mingw
 
-# Download and install Visual Studio 2022 Build Tools with C++ workloads
-RUN Invoke-WebRequest -UseBasicParsing https://aka.ms/vs/17/release/vs_buildtools.exe -OutFile C:\vs_buildtools.exe; \
-    Write-Host 'Installing Visual Studio Build Tools C++ workload...'; \
-    Start-Process C:\vs_buildtools.exe -ArgumentList '--quiet', '--wait', '--norestart', '--nocache', \
-        '--installPath', 'C:\BuildTools', \
-        '--add', 'Microsoft.VisualStudio.Workload.VCTools', \
-        '--add', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64' \
-        -NoNewWindow -Wait; \
-    Remove-Item C:\vs_buildtools.exe -Force
-
-# Add C:\local\bin to PATH and set CMAKE_PREFIX_PATH
+# Add C:\local\bin, MinGW, and OpenSSL to PATH, set CMAKE_PREFIX_PATH and OPENSSL_ROOT_DIR
 RUN $path = [Environment]::GetEnvironmentVariable('Path', 'Machine'); \
-    [Environment]::SetEnvironmentVariable('Path', $path + ';C:\local\bin', 'Machine')
+    [Environment]::SetEnvironmentVariable('Path', $path + ';C:\local\bin;C:\tools\mingw64\bin;C:\Program Files\OpenSSL-Win64\bin', 'Machine')
 ENV CMAKE_PREFIX_PATH="C:\\local"
+ENV OPENSSL_ROOT_DIR="C:\\Program Files\\OpenSSL-Win64"
+ENV CC="gcc"
+ENV CXX="g++"
 
-# Copy build-dependencies.ps1 script into the container image
-COPY build-dependencies.ps1 C:/build-dependencies.ps1
+# Clone and bootstrap vcpkg
+RUN git clone --depth 1 https://github.com/microsoft/vcpkg.git C:\vcpkg; \
+    C:\vcpkg\bootstrap-vcpkg.bat -disableMetrics
 
-# Run build-dependencies.ps1 inside the container to build and install dependencies to C:\local
-RUN powershell -File C:/build-dependencies.ps1; \
-    Remove-Item C:/build-dependencies.ps1 -Force
+# Add vcpkg to PATH
+RUN $path = [Environment]::GetEnvironmentVariable('Path', 'Machine'); \
+    [Environment]::SetEnvironmentVariable('Path', $path + ';C:\vcpkg', 'Machine')
+
+# Install dependencies via vcpkg (using x64-mingw-static triplet)
+RUN vcpkg install --triplet=x64-mingw-static --host-triplet=x64-mingw-static \
+    fmt nlohmann-json libpqxx sdl3 sqlitecpp boost openssl
 
 # Copy build-project.ps1 into the container image
 COPY build-project.ps1 C:/build-project.ps1
