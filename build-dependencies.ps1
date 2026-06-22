@@ -32,6 +32,14 @@ function Import-VCVars {
     }
 }
 
+function Check-LastExitCode {
+    param([string]$errorMessage)
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "$errorMessage (Exit code: $LASTEXITCODE)"
+        exit $LASTEXITCODE
+    }
+}
+
 Import-VCVars
 
 # Create directories
@@ -56,32 +64,47 @@ Copy-Item -Path C:\tmp-build\pgsql\bin\libssl*.dll -Destination C:\local\bin -Fo
 # 2. fmt (11.1.1)
 Write-Host "Building fmt..."
 git clone --depth 1 --branch 11.1.1 https://github.com/fmtlib/fmt.git
+Check-LastExitCode "Failed to clone fmt"
 cmake -B fmt/build -S fmt -GNinja -DCMAKE_INSTALL_PREFIX=C:\local -DFMT_TEST=OFF -DCMAKE_BUILD_TYPE=Release
+Check-LastExitCode "Failed to configure fmt"
 cmake --build fmt/build --target install
+Check-LastExitCode "Failed to build/install fmt"
 
 # 3. nlohmann/json (v3.12.0)
 Write-Host "Building nlohmann/json..."
 git clone --depth 1 --branch v3.12.0 https://github.com/nlohmann/json.git
+Check-LastExitCode "Failed to clone json"
 cmake -B json/build -S json -GNinja -DCMAKE_INSTALL_PREFIX=C:\local -DJSON_BuildTests=OFF -DCMAKE_BUILD_TYPE=Release
+Check-LastExitCode "Failed to configure json"
 cmake --build json/build --target install
+Check-LastExitCode "Failed to build/install json"
 
 # 4. libpqxx (7.10.0)
 Write-Host "Building libpqxx..."
 git clone --depth 1 --branch 7.10.0 https://github.com/jtv/libpqxx.git
+Check-LastExitCode "Failed to clone libpqxx"
 cmake -B libpqxx/build -S libpqxx -GNinja -DCMAKE_INSTALL_PREFIX=C:\local -DBUILD_TEST=OFF -DCMAKE_BUILD_TYPE=Release -DPostgreSQL_ROOT=C:\local
+Check-LastExitCode "Failed to configure libpqxx"
 cmake --build libpqxx/build --target install
+Check-LastExitCode "Failed to build/install libpqxx"
 
 # 5. SDL (release-3.2.0)
 Write-Host "Building SDL3..."
 git clone --depth 1 --branch release-3.2.0 https://github.com/libsdl-org/SDL.git
+Check-LastExitCode "Failed to clone SDL3"
 cmake -B SDL/build -S SDL -GNinja -DCMAKE_INSTALL_PREFIX=C:\local -DSDL_TESTS=OFF -DSDL_EXAMPLES=OFF -DSDL_STATIC=ON -DSDL_SHARED=OFF -DCMAKE_BUILD_TYPE=Release
+Check-LastExitCode "Failed to configure SDL3"
 cmake --build SDL/build --target install
+Check-LastExitCode "Failed to build/install SDL3"
 
 # 6. SQLiteCpp (3.3.2)
 Write-Host "Building SQLiteCpp..."
 git clone --depth 1 --branch 3.3.2 https://github.com/SRombauts/SQLiteCpp.git
+Check-LastExitCode "Failed to clone SQLiteCpp"
 cmake -B SQLiteCpp/build -S SQLiteCpp -GNinja -DCMAKE_INSTALL_PREFIX=C:\local -DSQLITECPP_RUN_CPPLINT=OFF -DSQLITECPP_BUILD_TESTS=OFF -DSQLITECPP_INTERNAL_SQLITE=ON -DCMAKE_BUILD_TYPE=Release
+Check-LastExitCode "Failed to configure SQLiteCpp"
 cmake --build SQLiteCpp/build --target install
+Check-LastExitCode "Failed to build/install SQLiteCpp"
 
 # 7. Boost (1.89.0)
 Write-Host "Downloading Boost 1.89.0..."
@@ -91,8 +114,10 @@ Expand-Archive boost.zip -DestinationPath C:\tmp-build
 Set-Location C:\tmp-build\boost_1_89_0
 Write-Host "Building Boost b2 engine..."
 .\bootstrap.bat
+Check-LastExitCode "Failed to bootstrap Boost"
 Write-Host "Compiling Boost libraries..."
 .\b2 toolset=msvc address-model=64 variant=release link=static threading=multi runtime-link=shared --prefix=C:\local install
+Check-LastExitCode "Failed to compile/install Boost"
 
 # Clean up
 Set-Location C:\

@@ -32,6 +32,14 @@ function Import-VCVars {
     }
 }
 
+function Check-LastExitCode {
+    param([string]$errorMessage)
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "$errorMessage (Exit code: $LASTEXITCODE)"
+        exit $LASTEXITCODE
+    }
+}
+
 # Load MSVC environment variables
 Import-VCVars
 
@@ -67,14 +75,17 @@ cmake -B build -GNinja `
   -DPostgreSQL_ROOT="C:\local" `
   -DBOOST_ROOT="C:\local" `
   $args
+Check-LastExitCode "CMake configuration failed"
 
 # Run build
 Write-Host "Compiling project..."
 cmake --build build --config Release
+Check-LastExitCode "CMake build failed"
 
 # Install build outputs
 Write-Host "Installing artifacts to $workspaceDir\dist..."
 cmake --install build
+Check-LastExitCode "CMake install failed"
 
 # Copy supporting DLLs from C:\local\bin to dist
 if (Test-Path "C:\local\bin") {
