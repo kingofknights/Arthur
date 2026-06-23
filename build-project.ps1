@@ -74,13 +74,14 @@ if (Test-Path $vcpkgToolchain) {
     Write-Host "Using vcpkg toolchain for package resolution..."
     $vcpkgArgs = @(
         "-DCMAKE_TOOLCHAIN_FILE=$vcpkgToolchain",
-        "-DVCPKG_TARGET_TRIPLET=x64-mingw-dynamic",
-        "-DVCPKG_HOST_TRIPLET=x64-mingw-dynamic",
+        "-DVCPKG_TARGET_TRIPLET=x64-mingw-static",
+        "-DVCPKG_HOST_TRIPLET=x64-mingw-static",
         "-DBOOST_ROOT=C:\local",
         "-DBOOST_INCLUDEDIR=C:\local\include",
         "-DBOOST_LIBRARYDIR=C:\local\lib",
         "-DBoost_NO_BOOST_CMAKE=ON",
-        "-DBoost_NO_SYSTEM_PATHS=ON"
+        "-DBoost_NO_SYSTEM_PATHS=ON",
+        "-DPostgreSQL_ROOT=C:\local"
     )
 } else {
     Write-Host "vcpkg toolchain not found, falling back to C:\local paths..."
@@ -114,7 +115,7 @@ if (Test-Path "C:\local\bin") {
     Write-Host "Copying supporting DLLs from C:\local\bin to dist..."
     Copy-Item -Path "C:\local\bin\*.dll" -Destination "$workspaceDir\dist" -Force -ErrorAction SilentlyContinue
 }
-$vcpkgBin = "C:\vcpkg\installed\x64-mingw-dynamic\bin"
+$vcpkgBin = "C:\vcpkg\installed\x64-mingw-static\bin"
 if (Test-Path $vcpkgBin) {
     Write-Host "Copying supporting DLLs from vcpkg to dist..."
     Copy-Item -Path "$vcpkgBin\*.dll" -Destination "$workspaceDir\dist" -Force -ErrorAction SilentlyContinue

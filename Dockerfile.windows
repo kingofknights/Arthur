@@ -28,9 +28,9 @@ RUN git clone --depth 1 https://github.com/microsoft/vcpkg.git C:\vcpkg; \
 RUN $path = [Environment]::GetEnvironmentVariable('Path', 'Machine'); \
     [Environment]::SetEnvironmentVariable('Path', $path + ';C:\vcpkg', 'Machine')
 
-# Install dependencies via vcpkg (using x64-mingw-dynamic triplet)
-RUN vcpkg install --triplet=x64-mingw-dynamic --host-triplet=x64-mingw-dynamic \
-    fmt nlohmann-json libpqxx sdl3 sqlitecpp openssl
+# Install dependencies via vcpkg (using x64-mingw-static triplet)
+RUN vcpkg install --triplet=x64-mingw-static --host-triplet=x64-mingw-static \
+    fmt nlohmann-json sdl3 sqlitecpp
 
 # Copy build-dependencies.ps1 script into the container image
 COPY build-dependencies.ps1 C:/build-dependencies.ps1
