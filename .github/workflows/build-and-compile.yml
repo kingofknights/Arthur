@@ -1,8 +1,13 @@
-name: Compile Rider (Windows MinGW Docker Builder)
+name: Build Image and Compile Rider
 
 on:
   workflow_dispatch:
     inputs:
+      tag:
+        type: string
+        description: 'Docker image tag to build and use'
+        required: true
+        default: 'v1.0-mingw'
       branch:
         type: string
         description: 'Choose the Rider branch to compile'
@@ -15,13 +20,56 @@ on:
         default: 'Rider-MinGW-Build'
 
 jobs:
+  build-and-push:
+    name: Build and Push Windows Docker Image
+    runs-on: windows-2022
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Ensure Docker is running
+        shell: powershell
+        run: |
+          $service = Get-Service docker -ErrorAction SilentlyContinue
+          if ($null -ne $service) {
+            Write-Host "Docker service status: $($service.Status)"
+            if ($service.Status -ne 'Running') {
+              Write-Host "Starting Docker service..."
+              Start-Service docker
+              Start-Sleep -Seconds 10
+            }
+          } else {
+            Write-Warning "Docker service not found!"
+          }
+          docker version
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Windows Docker Image
+        run: |
+          echo "Building Docker image: ghcr.io/kingofknights/arthur:${{ github.event.inputs.tag }}"
+          docker build -f Dockerfile.windows -t ghcr.io/kingofknights/arthur:${{ github.event.inputs.tag }} .
+
+      - name: Push Docker Image to GHCR
+        run: |
+          echo "Pushing Docker image: ghcr.io/kingofknights/arthur:${{ github.event.inputs.tag }}"
+          docker push ghcr.io/kingofknights/arthur:${{ github.event.inputs.tag }}
+
   compile:
-    name: "Compile Rider using Windows MinGW Docker Image"
+    name: Compile Rider in Docker Container
+    needs: build-and-push
     runs-on: windows-2022
     permissions:
       contents: read
       packages: read
-
     steps:
       - name: Checkout Rider Codebase
         uses: actions/checkout@v4
@@ -56,11 +104,11 @@ jobs:
 
       - name: Pull Windows Docker Image
         run: |
-          docker pull ghcr.io/kingofknights/arthur:v1.0-mingw
+          docker pull ghcr.io/kingofknights/arthur:${{ github.event.inputs.tag }}
 
       - name: Compile Rider in Docker Container
         run: |
-          docker run --rm -v "${{ github.workspace }}:C:\workspace" ghcr.io/kingofknights/arthur:v1.0-mingw
+          docker run --rm -v "${{ github.workspace }}:C:\workspace" ghcr.io/kingofknights/arthur:${{ github.event.inputs.tag }}
 
       - name: Prepare and Compress Artifacts
         shell: powershell
