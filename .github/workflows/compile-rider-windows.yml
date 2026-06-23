@@ -13,11 +13,16 @@ on:
         description: 'Release message / Name of artifact'
         required: true
         default: 'Rider-MinGW-Build'
+  workflow_run:
+    workflows: ["Build Windows MinGW Docker Image"]
+    types:
+      - completed
 
 jobs:
   compile:
     name: "Compile Rider using Windows MinGW Docker Image"
     runs-on: windows-2022
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     permissions:
       contents: read
       packages: read
@@ -29,7 +34,7 @@ jobs:
           repository: "kingofknights/Rider"
           token: ${{ secrets.Arthur_Token }}
           submodules: "true"
-          ref: ${{ github.event.inputs.branch }}
+          ref: ${{ github.event.inputs.branch || 'master' }}
 
       - name: Ensure Docker is running
         shell: powershell
@@ -92,5 +97,5 @@ jobs:
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.inputs.message }}
+          name: ${{ github.event.inputs.message || 'Rider-MinGW-Build' }}
           path: artifact.zip
