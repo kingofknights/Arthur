@@ -75,7 +75,8 @@ if (Test-Path $vcpkgToolchain) {
     $vcpkgArgs = @(
         "-DCMAKE_TOOLCHAIN_FILE=$vcpkgToolchain",
         "-DVCPKG_TARGET_TRIPLET=x64-mingw-static",
-        "-DVCPKG_HOST_TRIPLET=x64-mingw-static"
+        "-DVCPKG_HOST_TRIPLET=x64-mingw-static",
+        "-DBOOST_ROOT=C:\local"
     )
 } else {
     Write-Host "vcpkg toolchain not found, falling back to C:\local paths..."
