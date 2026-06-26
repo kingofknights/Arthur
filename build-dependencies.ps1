@@ -51,7 +51,7 @@ Write-Host "Building Boost b2 engine..."
 .\bootstrap.bat gcc
 Check-LastExitCode "Failed to bootstrap Boost"
 Write-Host "Compiling Boost libraries..."
-.\b2 toolset=gcc address-model=64 variant=release link=static threading=multi runtime-link=shared --prefix=C:\local install
+.\b2 toolset=gcc address-model=64 variant=release link=static threading=multi runtime-link=shared --prefix=C:\local --layout=system install
 Check-LastExitCode "Failed to compile/install Boost"
 
 # Clean up
